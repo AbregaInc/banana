@@ -156,6 +156,13 @@ export function verifyNext(port, { limit, prio = null }) {
 export function verifyDone(port, id) { port.exec("DELETE FROM verify WHERE id = ?", id); }
 export function fetchNext(port, limit) { return port.exec("SELECT id FROM fetch ORDER BY prio, at, id LIMIT ?", limit).map((r) => r.id); }
 export function fetchDone(port, id) { port.exec("DELETE FROM fetch WHERE id = ?", id); }
+/** Each failure moves a fetch behind every other (prio + 10); after the third it is dropped (its
+ * content is read when a device asks for it). One message that keeps failing never holds the rest. */
+export const FETCH_TRIES = 3;
+export function fetchFailed(port, id, at) {
+  port.exec("UPDATE fetch SET prio = prio + 10, at = ? WHERE id = ?", at, id);
+  port.exec("DELETE FROM fetch WHERE id = ? AND prio >= ?", id, 1 + 10 * FETCH_TRIES);
+}
 /** New mail (history added it) whose content is still owed. */
 export function isNewMail(port, id) { return port.exec("SELECT 1 AS x FROM fetch WHERE id = ? AND prio = 1", id).length > 0; }
 

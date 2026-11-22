@@ -53,7 +53,12 @@ enum MailMessageImporter {
         // are independently unknown even when the headers are complete.
         if wire.payload?.headers != nil && fetched.headers.isComplete {
             let headers = fetched.headers, sender = fetched.headers.sender
-            if let sender, myAddresses.contains(sender.key) { flags.insert(.fromMe) }
+            // From the account only when Gmail filed it as sent (or a draft): anyone can write the
+            // account's own address in From, and a message "from me" makes its recipients people
+            // the account has written to (MailCorrespondents). A read without labels keeps what an
+            // earlier one said.
+            let filedAsMine = wire.labelIds.map { $0.contains("SENT") || $0.contains("DRAFT") } ?? flags.contains(.fromMe)
+            if let sender, myAddresses.contains(sender.key), filedAsMine { flags.insert(.fromMe) }
             else { flags.remove(.fromMe) }
             if let structure = fetched.structure {
                 if structure.attachments.isEmpty { flags.remove(.hasAttachment) } else { flags.insert(.hasAttachment) }

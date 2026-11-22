@@ -18,12 +18,27 @@ export class Space extends DurableObject {
     };
   }
 
+  /** Wiped for good (its account deleted): the mark outlives the storage the wipe emptied. */
+  async closed() { return (await this.ctx.storage.get("closed")) != null; }
+
   async sync(request) {
+    if (await this.closed()) throw new space.SpaceClosed();
     const result = space.sync(this.port, request);
     if (result.trashed) await this.arm();
+    else if ((await this.ctx.storage.getAlarm()) === null) {
+      const due = space.unnamedDue(this.port, Date.now());
+      if (due !== null) await this.ctx.storage.setAlarm(due);
+    }
     return result;
   }
-  recordBlob(sha, size, at, type) { return space.recordBlob(this.port, sha, size, at, type); }
+  async recordBlob(sha, size, at, type, spaceId) {
+    if (await this.closed()) return { ok: false, reason: "closed" };
+    const result = space.recordBlob(this.port, sha, size, at, type, spaceId);
+    // Bytes wait UNNAMED_GRACE for a record to name them; the alarm looks then.
+    if (result.ok && (await this.ctx.storage.getAlarm()) === null) await this.ctx.storage.setAlarm(Number(at) + space.UNNAMED_GRACE);
+    return result;
+  }
+  usage() { return space.usage(this.port); }
   consents() { return space.consents(this.port); }
   setConsent(kind, consent) { space.setConsent(this.port, kind, consent); }
   webStatus(types) { return space.webStatus(this.port, types); }
@@ -52,13 +67,18 @@ export class Space extends DurableObject {
 
   // A batch per alarm. Failures are caught in trashStep and come back later with backoff.
   async alarm() {
-    const step = await trashStep(this.port, r2Blobs(this.env.BLOBS), { now: Date.now() });
+    const now = Date.now();
+    const unnamed = space.collectUnnamed(this.port, now);
+    const step = await trashStep(this.port, r2Blobs(this.env.BLOBS), { now });
     if (step.wiped) {
       await this.ctx.storage.deleteAll();
       space.reset(this.port);
-    } else if (step.next !== null) {
-      await this.ctx.storage.setAlarm(step.next);
+      await this.ctx.storage.put("closed", Date.now());
+      return;
     }
+    // Trash just listed moves at once; else back when the batch or the oldest unnamed bytes are due.
+    const times = [unnamed.trashed && step.next === null ? now : null, step.next, unnamed.next].filter((t) => t !== null);
+    if (times.length) await this.ctx.storage.setAlarm(Math.max(Math.min(...times), now));
   }
 
   async fetch(request) {
@@ -74,12 +94,13 @@ export function doSpaces(namespace) {
       const stub = namespace.get(namespace.idFromName(id));
       return {
         sync: (request) => stub.sync({ ...request, space: id }),
-        recordBlob: (sha, size, at, type) => stub.recordBlob(sha, size, at, type),
+        recordBlob: (sha, size, at, type) => stub.recordBlob(sha, size, at, type, id),
         consents: () => stub.consents(),
         setConsent: (kind, consent) => stub.setConsent(kind, consent),
         withdrawConsent: (kind) => stub.withdrawConsent(kind, id),
         webStatus: (types) => stub.webStatus(types),
         counts: () => stub.counts(),
+        usage: () => stub.usage(),
         setCalendarPreference: (request) => stub.setCalendarPreference(request),
         read: (type, recordId) => stub.read(type, recordId),
         list: (type) => stub.list(type),

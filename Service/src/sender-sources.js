@@ -98,14 +98,74 @@ export function dimensions(bytes, type) {
 export function svgProblem(text) {
   if (typeof text !== "string" || !text.trim()) return "empty";
   if (/<!ENTITY/i.test(text)) return "entity";
-  if (!/<svg[\s>/]/i.test(text)) return "not svg";
-  if (/<script[\s>]/i.test(text)) return "script";
-  if (/<foreignObject[\s>]/i.test(text)) return "foreign object";
-  if (/\son[a-z]+\s*=/i.test(text)) return "event handler";
-  if (/<(image|use|feImage)\b[^>]*\bhref\s*=\s*["'](?!#)/i.test(text)) return "external reference";
   if (/url\(\s*["']?(?!#)/i.test(text)) return "external url";
   if (/@import/i.test(text)) return "import";
+  // Every tag, read in one pass with quotes respected (a '>' inside a quoted value doesn't end a
+  // tag), against the elements of the SVG Tiny drawings BIMI logos are: no images, no <use> (a
+  // chain of them multiplies the drawing), no filters, no scripts, no foreign content.
+  let elements = 0, first = null;
+  for (const tag of markupTags(text, MOST_TAG)) {
+    if (tag === null) return "unclosed tag";
+    if (tag.startsWith("!--")) continue;
+    if (tag.startsWith("?")) { if (/^\?xml[\s?]/i.test(tag)) continue; return "processing instruction"; }
+    if (tag.startsWith("!")) return "declaration";
+    if (tag.startsWith("/")) continue;
+    const name = /^([A-Za-z][A-Za-z0-9_.:-]*)/.exec(tag)?.[1]?.toLowerCase();
+    if (!name) return "bad tag";
+    first ??= name;
+    if (!SVG_ELEMENTS.has(name)) return ["script", "foreignobject"].includes(name) ? name.replace("foreignobject", "foreign object")
+      : ["image", "use", "feimage"].includes(name) ? "external reference" : "element";
+    if (++elements > MOST_SVG_ELEMENTS) return "too many elements";
+    for (const [attr, value] of attributes(tag.slice(name.length))) {
+      if (/^on/i.test(attr)) return "event handler";
+      if (/(^|:)href$/i.test(attr) && !value.startsWith("#")) return "external reference";
+    }
+  }
+  if (first !== "svg") return "not svg";
   return null;
+}
+
+/** The elements of a BIMI logo (SVG Tiny Portable/Secure), lower-cased. */
+const SVG_ELEMENTS = new Set(["svg", "g", "defs", "title", "desc", "metadata", "path", "rect", "circle", "ellipse", "line",
+  "polyline", "polygon", "lineargradient", "radialgradient", "stop", "solidcolor", "style", "text", "tspan"]);
+const MOST_SVG_ELEMENTS = 4000;
+/** A tag longer than this is malformed: the scan gives up rather than read on. */
+const MOST_TAG = 4096;
+
+/**
+ * The tags of a markup text, each as the text between its '<' and '>', in one pass: a quoted value
+ * may hold '>'; a comment runs to '-->'. Yields null and stops at a tag that doesn't end within
+ * `most` characters, so a page of unclosed tags costs one pass, not one pass per tag.
+ */
+export function* markupTags(text, most = MOST_TAG) {
+  let i = 0;
+  while ((i = text.indexOf("<", i)) !== -1) {
+    if (text.startsWith("<!--", i)) {
+      const end = text.indexOf("-->", i + 4);
+      if (end === -1) return;
+      yield text.slice(i + 1, end + 2);
+      i = end + 3;
+      continue;
+    }
+    const limit = Math.min(text.length, i + most);
+    let j = i + 1, quote = null;
+    for (; j < limit; j++) {
+      const ch = text[j];
+      if (quote) { if (ch === quote) quote = null; }
+      else if (ch === '"' || ch === "'") quote = ch;
+      else if (ch === ">") break;
+    }
+    if (j >= limit) { yield null; return; }
+    yield text.slice(i + 1, j);
+    i = j + 1;
+  }
+}
+
+/** A tag's attributes (the text after its name, at most MOST_TAG long): [[name, value]]. */
+function attributes(rest) {
+  const out = [];
+  for (const m of rest.matchAll(/([^\s=/"']+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+)))?/g)) out.push([m[1], m[2] ?? m[3] ?? m[4] ?? ""]);
+  return out;
 }
 
 // ---- fetching ----
@@ -288,12 +348,13 @@ export async function siteIcon({ fetch }, parts) {
 
 /** The largest home-screen icon a page's head links: apple-touch-icon first, then icons with a size. */
 export function bestIconLink(html, pageUrl) {
-  const end = html.search(/<\/head>/i);
-  const head = end > 0 ? html.slice(0, end) : html;
   const links = [];
-  for (const match of head.matchAll(/<link\b[^>]*>/gi)) {
-    const tag = match[0];
-    const attr = (name) => new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, "i").exec(tag)?.slice(1).find((v) => v !== undefined);
+  // One pass over the tags (markupTags): a page of unclosed tags is read once, not once per tag.
+  for (const tag of markupTags(html, MOST_TAG)) {
+    if (tag === null || /^\/head[\s>]?/i.test(tag) || /^body[\s>/]?/i.test(tag)) break;
+    if (!/^link[\s/]/i.test(tag)) continue;
+    const found = new Map(attributes(tag.slice(4)).map(([k, v]) => [k.toLowerCase(), v]));
+    const attr = (name) => found.get(name);
     const rel = (attr("rel") ?? "").toLowerCase().split(/\s+/);
     const href = attr("href");
     if (!href || /\.(ico|svg)(\?|$)/i.test(href)) continue;

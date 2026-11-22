@@ -8,6 +8,7 @@
 #   APNS_KEY              the .p8 push key's PEM text
 #   APNS_KEY_ID           its key id
 #   APNS_TEAM_ID          the Apple team id
+#   APNS_TOPICS           the app bundle ids the key pushes to, comma-separated (unset: any; set: a device naming another is refused)
 #   TURNSTILE_SECRET      the booking pages' Turnstile secret (unset: unknown browsers cannot book; TURNSTILE_SKIP=1 only for local runs)
 name = "banana-service"
 main = "src/worker.js"

@@ -78,8 +78,8 @@ def cmd_list(a):
                             ORDER BY received_at DESC LIMIT {int(a.limit)}""")
     for r in rows:
         what = r["detector"] or r["rating"] or "report"
-        print(f"{r['id']}  {when(r['received_at'])}  {r['kind']:<7} {what:<15} {r['platform']}/{r['variant']} {r['version']:<10} "
-              f"{r['page']:<9} {(r['signature'] or r['note'] or '')[:60]}")
+        print(printable(f"{r['id']}  {when(r['received_at'])}  {r['kind']:<7} {what:<15} {r['platform']}/{r['variant']} {r['version']:<10} "
+                        f"{r['page']:<9} {(r['signature'] or r['note'] or '')[:60]}"))
     if not rows:
         print("Nothing new." if not a.all else "No reports.")
 
@@ -124,10 +124,10 @@ def cmd_spikes(a):
     for r in rows:
         by[r["detector"]].append(r)
     for detector, group in sorted(by.items(), key=lambda kv: -sum(r["n"] for r in kv[1])):
-        print(f"\n{detector}  ({sum(r['n'] for r in group)})")
+        print(printable(f"\n{detector}  ({sum(r['n'] for r in group)})").replace("\ufffd", "\n", 1))
         for r in group:
-            print(f"  {r['n']:>4}  {r['signature'][:70]:<70}  {when(r['first'])} … {when(r['last'])}  "
-                  f"{r['versions']}  {r['platforms']}  e.g. {r['example']}")
+            print(printable(f"  {r['n']:>4}  {r['signature'][:70]:<70}  {when(r['first'])} … {when(r['last'])}  "
+                            f"{r['versions']}  {r['platforms']}  e.g. {r['example']}"))
 
 
 # ---- mail ----
@@ -223,7 +223,33 @@ def class_stand_in(name):
 def anonymise_css(css):
     css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
     css = re.sub(r"url\([^)]*\)", "url(https://plan.example/picture.png)", css)
+    # Quoted strings (content: "...", a named font) and font families say who sent it.
+    css = re.sub(r"font-family\s*:[^;}]*", "font-family: sans-serif", css, flags=re.I)
+    css = re.sub(r'"[^"]*"|\'[^\']*\'', '"x"', css)
     return re.sub(r"\.(-?[A-Za-z_][\w-]*)", lambda m: "." + class_stand_in(m.group(1)), css)
+
+
+def printable(value):
+    """Text from an anonymous report as the terminal should show it: control and format characters
+    (escape sequences, bidirectional overrides) become a visible mark instead of acting."""
+    return re.sub(r"[\x00-\x1f\x7f-\x9f\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]", "\ufffd", str(value))
+
+
+# An attribute value from KEEP stays only when it is layout, never words: numbers, sizes and hex
+# colours, a language code, or one of a few layout keywords.
+LAYOUT_VALUE = re.compile(r"^(?:[#0-9A-Fa-f%.,\s-]{0,64}|[a-z]{2,3}(?:-[A-Za-z]{2,4})?|"
+                          r"(?i:left|right|center|centre|top|middle|bottom|baseline|justify|ltr|rtl|auto|none|presentation|"
+                          r"transparent|white|black|red|blue|green|gray|grey|silver|text/css|text/html|text/plain))$")
+# Tag names: HTML's and Office's own (o:p, v:shape); any other name becomes span.
+HTML_TAGS = set("""a abbr address b bdi bdo big blockquote body br caption center cite code col colgroup dd del div dl dt em
+    font footer h1 h2 h3 h4 h5 h6 head header hr html i img ins kbd li link main meta nav ol p pre q s samp section small
+    span strike strong style sub sup table tbody td tfoot th thead title tr tt u ul wbr script noscript button label
+    input form select option textarea picture source figure figcaption map area""".split())
+OFFICE_TAG = re.compile(r"^(o|v|w|m):[a-z]{1,24}$", re.I)
+
+
+def tag_name(tag):
+    return tag if tag.lower() in HTML_TAGS or OFFICE_TAG.match(tag) else "span"
 
 
 class Anonymiser(html.parser.HTMLParser):
@@ -244,7 +270,9 @@ class Anonymiser(html.parser.HTMLParser):
         parts = []
         for key, value in attrs:
             if value is None:
-                parts.append(key)
+                # A bare attribute name can carry the sender's words too: only the kept ones stay.
+                if key in self.KEEP:
+                    parts.append(key)
                 continue
             if key in ("href",):
                 if value.startswith("mailto:"):
@@ -269,21 +297,28 @@ class Anonymiser(html.parser.HTMLParser):
             elif key == "class":
                 value = " ".join(class_stand_in(name) for name in value.split())
             elif key == "style":
-                value = re.sub(r"url\([^)]*\)", "url(https://plan.example/picture.png)", value)
+                value = anonymise_css(value)
+            elif key == "face":
+                value = "sans-serif"
             elif key not in self.KEEP:
+                continue
+            elif not LAYOUT_VALUE.match(value):
                 continue
             parts.append(f'{key}="{html.escape(value, quote=True)}"')
         return (" " + " ".join(parts)) if parts else ""
 
     def handle_starttag(self, tag, attrs):
+        tag = tag_name(tag)
         self.out.append(f"<{tag}{self.attrs(attrs)}>")
         if tag in ("style", "script"):
             self.raw = tag
 
     def handle_startendtag(self, tag, attrs):
+        tag = tag_name(tag)
         self.out.append(f"<{tag}{self.attrs(attrs)} />")
 
     def handle_endtag(self, tag):
+        tag = tag_name(tag)
         self.raw = None if tag == self.raw else self.raw
         self.out.append(f"</{tag}>")
 
@@ -296,17 +331,28 @@ class Anonymiser(html.parser.HTMLParser):
         else:
             self.out.append(anonymise_text(data))
 
+    # A reference that stands for a letter or digit is the sender's text spelled another way: it
+    # becomes a stand-in letter. Spaces and punctuation (&nbsp;, &amp;) stay as they are.
+    def reference(self, written):
+        if self.raw == "script":
+            return
+        char = html.unescape(written)
+        if char == written:
+            return   # not a reference HTML knows
+        self.out.append("x" if any(c.isalnum() for c in char) else written)
+
     def handle_entityref(self, name):
-        self.out.append(f"&{name};")
+        self.reference(f"&{name};")
 
     def handle_charref(self, name):
-        self.out.append(f"&#{name};")
+        self.reference(f"&#{name};")
 
     def handle_comment(self, data):
         pass
 
     def handle_decl(self, decl):
-        self.out.append(f"<!{decl}>")
+        if decl.lower().startswith("doctype"):
+            self.out.append("<!DOCTYPE html>")
 
 
 def cmd_anonymise(a):

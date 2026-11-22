@@ -19,10 +19,10 @@ import Foundation
 }
 
 /// How often the Health snapshot goes up (§3 "The Health snapshot"): at most once an hour, and at
-/// once when a workout is removed or hidden. Today every `persist()` publishes, and
-/// each publish is a new blob of a megabyte or more, kept for good. Pure.
+/// once when a workout is removed or hidden. Each publish is a new blob of a megabyte or more;
+/// the space keeps the latest (`keep: latest`) and moves the one before to its trash. Pure.
 struct SnapshotPace: Codable, Equatable, Sendable {
-    /// At most hourly: each publish is a new blob of 1 MB or more, kept for good (§3).
+    /// At most hourly: each publish is a new blob of 1 MB or more (§3).
     static let interval: TimeInterval = 60 * 60
 
     var lastPublished: Date?

@@ -61,9 +61,7 @@ enum ShowNotes {
     static func href(in attributes: String) -> URL? {
         guard let match = attributes.firstMatch(of: /(?i)href\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/) else { return nil }
         let raw = String(match.output.1 ?? match.output.2 ?? match.output.3 ?? "")
-        guard let url = URL(string: decodeEntities(raw).trimmingCharacters(in: .whitespaces)),
-              let scheme = url.scheme?.lowercased(), ["http", "https", "mailto"].contains(scheme) else { return nil }
-        return url
+        return LinkPolicy.allowed(URL(string: decodeEntities(raw).trimmingCharacters(in: .whitespaces)))
     }
 
     private static let named: [String: String] = [
@@ -151,7 +149,7 @@ enum ShowNotes {
             let plain = String(out.characters)
             if let detector = ShowNotes.linkDetector {
                 for match in detector.matches(in: plain, range: NSRange(plain.startIndex..., in: plain)) {
-                    guard let url = match.url, let range = Range(match.range, in: plain),
+                    guard let url = LinkPolicy.allowed(match.url), let range = Range(match.range, in: plain),
                           let lower = AttributedString.Index(range.lowerBound, within: out),
                           let upper = AttributedString.Index(range.upperBound, within: out),
                           out[lower..<upper].link == nil else { continue }

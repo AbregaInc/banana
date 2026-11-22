@@ -236,7 +236,8 @@ struct MacEventInspectorView: View {
         guard let detector = Self.linkDetector else { return attributed }
         let ns = text as NSString
         for match in detector.matches(in: text, range: NSRange(location: 0, length: ns.length)) {
-            guard let url = match.url,
+            // Web and mail links only: an organiser's notes may hold any URL scheme.
+            guard let url = LinkPolicy.allowed(match.url),
                   let range = Range(match.range, in: text),
                   let attrRange = attributed.range(of: String(text[range])) else { continue }
             attributed[attrRange].link = url

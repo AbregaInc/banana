@@ -1,3 +1,4 @@
+import { readText, TOO_LARGE } from "../body.js";
 import { readCalendarWindow, validCalendarWindow } from '../calendar-window.js';
 import { WEB_TYPES as TYPES, WEB_STATUS_TYPES } from "../web-types.js";
 // The cloud app is a read-only view of the same personal space the native apps sync.
@@ -187,7 +188,14 @@ export function webRoutes(app, deps, { signer, onCalendarSettingsChanged = () =>
       stub.read("core.smartSettings", "smart-settings"), stub.read("core.appSettings", "appSettings"),
       deps.db.first("SELECT bundle FROM devices WHERE account_id = ? AND platform = 'iphone' ORDER BY last_sync_at DESC, updated_at DESC, id LIMIT 1", who.account)]);
     const consents=statusState.consents,status=await updateStatus(c,statusState);
-    return c.json({ email: who.email, name: who.name, consents, contentVersion:status.contentVersion,
+    // ?usage=1: what the owner's space holds (sizes only), for sizing a storage limit. It reads
+    // the whole space, so it is paced.
+    let usage;
+    if (c.req.query("usage") === "1") {
+      if (!(await deps.limit("reconcile", `usage:${who.account}`))) return c.json({ error: "rate" }, 429);
+      usage = await stub.usage();
+    }
+    return c.json({ email: who.email, name: who.name, consents, contentVersion:status.contentVersion, ...(usage ? { usage } : {}),
       counts: Object.fromEntries(Object.entries(counts).filter(([type]) => TYPES.has(type) && (CATALOG.get(type)?.tier !== "T2" || consents.health))),
       calendarSettingsUpdatedAt: smart?.v?.updatedAt ?? null,
       weekStartWeekday: calendarSettings(smart).weekStartWeekday,
@@ -221,7 +229,7 @@ export function webRoutes(app, deps, { signer, onCalendarSettingsChanged = () =>
     if (c.req.header("Origin") !== webOrigin) return c.json({ error: "origin" }, 403);
     if (Number(c.req.header("Content-Length") || 0) > 4096) return c.json({ error: "bad_request" }, 400);
     let body;
-    try { const raw = await c.req.text(); if (raw.length > 4096) return c.json({ error: "bad_request" }, 400); body = JSON.parse(raw); }
+    try { const raw = await readText(c, 4096); if (raw === TOO_LARGE) return c.json({ error: "bad_request" }, 400); body = JSON.parse(raw); }
     catch { return c.json({ error: "bad_request" }, 400); }
     if (!body || typeof body.calendarID !== "string" || !["included", "notifications"].includes(body.preference)
       || typeof body.enabled !== "boolean") return c.json({ error: "bad_request" }, 400);

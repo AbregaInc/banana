@@ -259,7 +259,7 @@ export function bookPart() {
   }
   // A recognised browser skips Turnstile only with the email it booked with; any other email, or the
   // service asking (400 turnstile), solves it.
-  function reserve(s, det, oneTap, check) {
+  function reserve(s, det, oneTap, check, also) {
     const skip = !check && g && det.email.toLowerCase() === g.email.toLowerCase();
     if (D.ts && !skip && !dead && needs && !tok) return form(s, det, { all: "Pass the check first" });
     const k = s + "|" + det.email, key = (ikeys[k] = ikeys[k] || uid()), p = placeOf(det.place);
@@ -269,7 +269,7 @@ export function bookPart() {
     shown(o);
     $("#card-t").focus();
     (skip ? Promise.resolve("") : token()).then((tk) => api(U.book, { key, start: iso(s), place: p && p.id, name: det.name, email: det.email, phone: det.phone || undefined,
-      note: det.note || undefined, zone, turnstile: tk }, true)).then((r) => {
+      note: det.note || undefined, zone, turnstile: tk, also: also || undefined }, true)).then((r) => {
       const b = r.j && r.j.booking;
       if (o.state === "undone") return r.s === 200 && b && (Object.assign(o.b, b), undoLate(o));
       if (r.s === 200 && b) {
@@ -280,8 +280,8 @@ export function bookPart() {
       cur = null;
       mark(null);
       const j = r.j || {};
-      if (r.s === 400 && j.field === "turnstile" && skip) return reserve(s, det, oneTap, true);
-      if (r.s === 409 && j.already) return notice(j.emailed === false ? "You already have a time booked" : "We've emailed your existing time");
+      if (r.s === 400 && j.field === "turnstile" && skip) return reserve(s, det, oneTap, true, also);
+      if (r.s === 409 && j.existing) return ask(s, det, oneTap, j.existing);
       if (r.s === 409 && j.error) return notice(K.firstName(host.name) + " isn't taking bookings right now");
       if (r.s === 409) return gone(s), taken(o, j.nearest || []);
       const e = {};
@@ -322,6 +322,42 @@ export function bookPart() {
     cur = null;
     sheet.close();
   }
+  // This guest already has a time with the host (the service tells only a browser that booked it or
+  // proved the address): move that one here, or book this one as well.
+  function ask(s, det, oneTap, ex) {
+    const at = Date.parse(ex.start), when = (x) => K.day(x, zone, loc) + ", " + K.time(x, zone, loc);
+    pop('<div class="sh"><header><h2 id="card-t" tabindex="-1">You already have ' + K.esc(ex.title || "a meeting") + " on " + K.esc(when(at)) +
+      '</h2><button type="button" class="x" data-x aria-label="Close">×</button></header><p class="two">' +
+      '<button type="button" class="btn" data-mv>Move it to ' + K.esc(when(s)) + '</button><button type="button" class="btn" data-also>Book both</button></p></div>');
+    sheet.ask = { s, det, oneTap, ex };
+    $("#card-t").focus();
+  }
+  function moveExisting(a) {
+    const o = (cur = { s: a.s, det: a.det, state: "sending", moved: true,
+      b: { start: iso(a.s), end: iso(a.s + dur), place: placeOf(a.det.place), guestEmail: a.det.email } });
+    shown(o);
+    $("#card-t").focus();
+    api("/m/" + a.ex.manage + "/move", { start: iso(a.s), zone }).then((r) => {
+      const b = r.j && r.j.booking, j = r.j || {};
+      cur = null;
+      if (r.s === 200 && b) {
+        Object.assign(o.b, b);
+        o.state = "done";
+        shown(o);
+        return say("Moved, " + K.day(a.s, zone, loc) + " " + K.time(a.s, zone, loc));
+      }
+      mark(null);
+      if (r.s === 409 && j.taken) return gone(a.s), taken(o, j.nearest || []);
+      notice(oops(r));
+    });
+  }
+  H.push((t, d) => {
+    const a = sheet.ask;
+    if (!a || !("mv" in d || "also" in d)) return;
+    sheet.ask = null;
+    if ("mv" in d) return moveExisting(a), 1;
+    return reserve(a.s, a.det, a.oneTap, false, true), 1;
+  });
   H.push((t, d) => {
     if (!("note" in d)) return;
     showNote();

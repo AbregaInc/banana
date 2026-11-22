@@ -85,7 +85,32 @@ test("bad bodies are refused; the per-address limit applies", async () => {
   let last;
   for (let i = 0; i < 61; i++) last = (await s.call("POST", "/v1/reports", { body: spike(`spike-${String(i).padStart(4, "0")}`) })).status;
   assert.equal(last, 429);
-  assert.equal(await s.count("problem_reports"), 58, "the two refused bodies counted against the address too");
+  // The address's share of the day: 20 reports, whatever the minute's limit would let through.
+  assert.equal(await s.count("problem_reports"), 20);
+});
+
+test("one address's reports use its own share of the day; other addresses still get theirs", async () => {
+  const s = setup();
+  let ip = "198.51.100.1";
+  s.deps.clientIp = () => ip;
+  const at = (i) => ({ body: spike(`share-${String(i).padStart(4, "0")}`), headers: { "cf-connecting-ip": ip } });
+  for (let i = 0; i < 20; i++) assert.equal((await s.call("POST", "/v1/reports", at(i))).status, 204);
+  assert.equal((await s.call("POST", "/v1/reports", at(20))).status, 429);
+  ip = "198.51.100.2";
+  assert.equal((await s.call("POST", "/v1/reports", at(21))).status, 204);
+  // Nothing about the address is kept, and the shares go the next day.
+  assert.equal(JSON.stringify(await s.db.all("SELECT * FROM anonymous_shares")).includes("198.51.100"), false);
+  s.advance(DAY);
+  await runJob(s.deps);
+  assert.equal(await s.count("anonymous_shares"), 0);
+});
+
+test("a report's signature and note are printable text: control and format characters are refused", async () => {
+  const s = setup();
+  assert.equal((await s.call("POST", "/v1/reports", { body: { ...spike("ctl-0001"), signature: "boom\u001b[2J" } })).status, 400);
+  assert.equal((await s.call("POST", "/v1/reports", { body: { ...spike("ctl-0002"), signature: "a\u202eb" } })).status, 400);
+  assert.equal((await s.call("POST", "/v1/reports", { body: { ...spike("ctl-0003"), note: "line one\nline two\u0007" } })).status, 400);
+  assert.equal((await s.call("POST", "/v1/reports", { body: { ...spike("ctl-0004"), note: "line one\n\tline two" } })).status, 204);
 });
 
 test("a day's reports stop at a number, and reports go with their objects after 90 days", async () => {

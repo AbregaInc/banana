@@ -326,9 +326,9 @@ test("epoch: the same for the life of a space, new after a wipe", () => {
   assert.match(first.epoch, /^[0-9a-f]{24}$/);
   assert.equal(syncAs(p, [], { since: 1 }).answer.epoch, first.epoch);
   space.wipe(p, { space: "sp_acc", now: NOW });
-  const after = syncAs(p, [], { since: 1 }).answer;
-  assert.notEqual(after.epoch, first.epoch);
-  assert.deepEqual([after.head, after.changes], [0, []]);
+  // A wipe (its account deleted) gives the space a new epoch, and it takes no more syncs.
+  assert.notEqual(rows(p, "SELECT value FROM meta WHERE key = 'epoch'")[0].value, first.epoch);
+  assert.throws(() => syncAs(p, [], { since: 1 }), (e) => e.name === "SpaceClosed");
   assert.notEqual(syncAs(port(), []).answer.epoch, first.epoch, "every space its own");
 });
 
@@ -569,7 +569,7 @@ test("export rows: every record, its history, the blob list and the consents; wi
   space.wipe(p, { space: "sp_acc", now: NOW });
   assert.deepEqual([...space.exportRows(p)], []);
   assert.deepEqual(space.trashList(p, 10), { space: "sp_acc", wiping: NOW, shas: [] });
-  assert.equal(syncAs(p, []).answer.head, 0);
+  assert.throws(() => syncAs(p, []), (e) => e.name === "SpaceClosed");
 });
 
 test("read and list: the service's own reads of T1 records, deleted ones left out, never T2", () => {
@@ -632,4 +632,84 @@ test("web revisions cover consent purge/regrant and calendar edits without repea
   space.setCalendarPreference(p,request);const changed=space.webStatus(p,['core.smartSettings']).revisions;
   assert.notDeepEqual(changed,initial);
   space.setCalendarPreference(p,request);assert.deepEqual(space.webStatus(p,['core.smartSettings']).revisions,changed);
+});
+
+// ---- bytes no record names, and what a space holds ----
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+const listenChange = (id, blob, ms) => ({ type: "podcast.listen", id, set: { route: { $blob: blob, size: 9, ext: "route" } }, clocks: { route: clock(ms) } });
+
+test("uploaded bytes no record names go to the trash after the wait; named bytes and fresh uploads stay", async () => {
+  const p = port();
+  const dir = tempDir();
+  const blobs = fsBlobs(dir);
+  const h = [null];
+  for (const n of [1, 2, 3]) {
+    h[n] = await sha256Hex(`route ${n}`);
+    assert.ok(await blobs.put(`s/sp_acc/${h[n]}`, [new TextEncoder().encode(`route ${n}`)], { sha256: h[n] }));
+    space.recordBlob(p, h[n], n, NOW, "podcast.listen", "sp_acc");
+  }
+  // 1 is named by a record; 2 never is; 3 is uploaded again a day before the wait is over.
+  assert.equal(syncAs(p, [listenChange("l1", h[1], NOW)]).answer.rejected.length, 0);
+  space.recordBlob(p, h[3], 3, NOW + space.UNNAMED_GRACE - DAY_MS, "podcast.listen", "sp_acc");
+  assert.deepEqual(space.collectUnnamed(p, NOW + space.UNNAMED_GRACE - 1), { trashed: 0, next: NOW + space.UNNAMED_GRACE });
+  const due = space.collectUnnamed(p, NOW + space.UNNAMED_GRACE);
+  assert.deepEqual(due, { trashed: 1, next: NOW + 2 * space.UNNAMED_GRACE - DAY_MS });
+  assert.deepEqual(rows(p, "SELECT sha FROM blobs ORDER BY sha").map((r) => r.sha), [h[1], h[3]].sort());
+  await trashStep(p, blobs, { now: NOW + space.UNNAMED_GRACE });
+  assert.deepEqual((await blobs.list("s/sp_acc/")).sort(), [`s/sp_acc/${h[1]}`, `s/sp_acc/${h[3]}`].sort());
+  assert.deepEqual(await blobs.list("trash/sp_acc/"), [`trash/sp_acc/${h[2]}`]);
+  // A record that names the collected bytes is refused, and the upload that follows brings them back.
+  assert.deepEqual(syncAs(p, [listenChange("l2", h[2], NOW + 1)], { now: NOW + space.UNNAMED_GRACE }).answer.rejected.map((r) => r.reason), ["blob_missing"]);
+  assert.deepEqual(space.recordBlob(p, h[2], 2, NOW + space.UNNAMED_GRACE, "podcast.listen", "sp_acc"), { ok: true, restore: true });
+});
+
+test("a blob a current record names is never collected, even when the index holds no reference for it", () => {
+  const p = port();
+  space.recordBlob(p, sha(4), 4, NOW, "podcast.listen", "sp_acc");
+  syncAs(p, [listenChange("l1", sha(4), NOW)]);
+  p.exec("DELETE FROM blob_refs");   // a space from before references were kept
+  assert.deepEqual(space.collectUnnamed(p, NOW + 10 * space.UNNAMED_GRACE), { trashed: 0, next: null });
+  assert.equal(rows(p, "SELECT COUNT(*) AS n FROM blobs")[0].n, 1);
+  assert.equal(rows(p, "SELECT COUNT(*) AS n FROM blob_refs WHERE sha = ?", sha(4))[0].n, 1, "the reference is written, so it is not looked at again");
+});
+
+test("a space that does not know its own id collects nothing (the trash could not move it)", () => {
+  const p = port();
+  space.recordBlob(p, sha(5), 5, NOW, "podcast.listen");
+  assert.deepEqual(space.collectUnnamed(p, NOW + 10 * space.UNNAMED_GRACE), { trashed: 0, next: null });
+  assert.equal(rows(p, "SELECT COUNT(*) AS n FROM blobs")[0].n, 1);
+});
+
+test("usage: blobs by type and month, unnamed bytes, record and history sizes", () => {
+  const p = port();
+  for (const [n, size] of [[1, 100], [2, 300], [3, 200]]) space.recordBlob(p, sha(n), size, NOW, "podcast.listen", "sp_acc");
+  space.recordBlob(p, sha(6), 5000, NOW + 40 * DAY_MS, "notes.voiceNote", "sp_acc");
+  syncAs(p, [listenChange("l1", sha(1), NOW), listenChange("l2", sha(2), NOW)]);
+  const u = space.usage(p);
+  assert.deepEqual(u.blobs["podcast.listen"], { count: 3, bytes: 600, median: 200, largest: 300, months: { "2026-10": { count: 3, bytes: 600 } } });
+  assert.deepEqual(u.blobs["notes.voiceNote"].months, { "2026-11": { count: 1, bytes: 5000 } });
+  assert.deepEqual(u.unnamed, { count: 2, bytes: 5200 });
+  assert.equal(u.records["podcast.listen"].count, 2);
+  assert.equal(u.history["podcast.listen"].count, 2);
+  assert.ok(u.records["podcast.listen"].chars > 0 && u.history["podcast.listen"].chars > 0);
+  assert.deepEqual(u.trash, { waiting: 0, moved: 0 });
+});
+
+test("a space that only syncs still finds its unnamed bytes: looked at once a day, and it learns its own id", () => {
+  const p = port();
+  space.recordBlob(p, sha(7), 7, NOW, "podcast.listen");   // from before uploads named the space
+  assert.equal(space.unnamedDue(p, NOW + 1), NOW + space.UNNAMED_GRACE);
+  assert.equal(space.unnamedDue(p, NOW + 2), null, "once a day");
+  assert.deepEqual(space.collectUnnamed(p, NOW + space.UNNAMED_GRACE), { trashed: 0, next: null }, "no id yet: nothing moves");
+  syncAs(p, [], { space: "sp_acc", now: NOW + space.UNNAMED_GRACE });
+  assert.equal(space.collectUnnamed(p, NOW + space.UNNAMED_GRACE).trashed, 1);
+});
+
+test("a space being wiped takes no sync and no blob; once wiped for good it stays closed", async () => {
+  const p = port();
+  syncAs(p, [listenChange("l1", sha(1), NOW)]);
+  space.wipe(p, { space: "sp_acc", now: NOW });
+  assert.throws(() => syncAs(p, [listenChange("l2", sha(2), NOW)]), (e) => e.name === "SpaceClosed");
+  assert.deepEqual(space.recordBlob(p, sha(3), 3, NOW, "podcast.listen", "sp_acc"), { ok: false, reason: "closed" });
 });

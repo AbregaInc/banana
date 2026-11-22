@@ -152,13 +152,19 @@ export function senderImages(deps, vault) {
       for (let n = 0; n < MOST_CONTACT_PAGES; n++) {
         const { people, next } = await deps.google.contacts(accessToken, kind, page);
         for (const person of people) {
-          for (const [source, url] of contactPhotos(person)) {
-            for (const e of person.emailAddresses ?? []) {
-              const parts = addressParts(e?.value);
-              if (!parts || found.size >= MOST_CONTACT_ROWS) continue;
-              const id = `${await sha256Hex(parts.address)} ${source}`;
-              if (!found.has(id)) found.set(id, url);
-            }
+          const photos = new Map(contactPhotos(person).map(([source, url, profileId]) => [source, { url, profileId }]));
+          const profile = photos.get("profile");
+          for (const e of person.emailAddresses ?? []) {
+            const parts = addressParts(e?.value);
+            if (!parts || found.size >= MOST_CONTACT_ROWS) continue;
+            const hash = await sha256Hex(parts.address);
+            // A profile photo is public for an address only when Google says the address is that
+            // profile's own. On any other address of the contact (one this user typed in) it is
+            // this user's pairing, so it stays his alone, like a photo he set himself.
+            const own = Boolean(profile?.profileId) && e?.metadata?.source?.type === "PROFILE" && e.metadata.source.id === profile.profileId;
+            const mine = photos.get("contact") ?? (own ? null : profile);
+            if (mine && !found.has(`${hash} contact`)) found.set(`${hash} contact`, mine.url);
+            if (own && !found.has(`${hash} profile`)) found.set(`${hash} profile`, profile.url);
           }
         }
         if (!next) break;
@@ -357,7 +363,10 @@ export function senderImageRoutes(app, deps, { signedIn, readJson, vault }) {
   });
 }
 
-/** A person's photos by where Google says they come from: [["contact"|"profile", url]], the primary first. */
+/**
+ * A person's photos by where Google says they come from: [["contact"|"profile", url, profileId]],
+ * the primary first. `profileId` is the Google profile a profile photo belongs to (else null).
+ */
 export function contactPhotos(person) {
   const out = new Map();
   const photos = [...(person?.photos ?? [])].sort((a, b) => Number(Boolean(b?.metadata?.primary)) - Number(Boolean(a?.metadata?.primary)));
@@ -365,7 +374,7 @@ export function contactPhotos(person) {
     if (!photo || photo.default || typeof photo.url !== "string") continue;
     const type = photo.metadata?.source?.type;
     const source = type === "CONTACT" ? "contact" : type === "PROFILE" ? "profile" : null;
-    if (source && !out.has(source)) out.set(source, photo.url);
+    if (source && !out.has(source)) out.set(source, [photo.url, source === "profile" ? photo.metadata.source.id ?? null : null]);
   }
-  return [...out];
+  return [...out].map(([source, [url, profileId]]) => [source, url, profileId]);
 }

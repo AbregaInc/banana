@@ -818,3 +818,39 @@ test("Not spam overrides a delivered message while its sender stays blocked for 
   assert.ok(feed.get("next").labels.includes("SPAM"));
   assert.equal(t.gmail.writes.filter(w => w.id === "first" && w.add?.includes("SPAM")).length, 1);
 });
+
+test("a content pull's budget counts what is stored before reading it: one large message, the rest later", async () => {
+  const t = await mailbox({ count: 3, labels: () => ["INBOX"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const blobs = t.s.deps.blobs, get = blobs.get.bind(blobs);
+  let opened = 0;
+  // Each stored object as if it held 5 MiB: two would pass the 8 MiB budget. Its bytes are counted
+  // only when something reads them.
+  blobs.get = async (key) => {
+    const o = await get(key);
+    if (!o || !key.startsWith("mail/")) return o;
+    const body = o.body.pipeThrough(new TransformStream({ start() { opened++; } }));
+    return { body, size: 5 * 1024 * 1024 };
+  };
+  const pull = await t.s.call("POST", "/v1/mail/content", { session: t.mac.session, body: { email: EMAIL, ids: ["m1", "m2", "m3"] } });
+  blobs.get = get;
+  assert.equal(pull.status, 200);
+  assert.deepEqual(pull.json.messages.map((m) => (m.message ? "message" : m.later ? "later" : "other")), ["message", "later", "later"]);
+  assert.ok(opened <= 3);
+  assert.equal(pull.json.messages.filter((m) => m.message).length, 1, "only one message's bytes were opened into the answer");
+});
+
+test("a content fetch that keeps failing goes behind the rest, and after three tries it is dropped", async () => {
+  const { DatabaseSync } = await import("node:sqlite");
+  const { sqlitePort } = await import("../src/adapters/spaces-sqlite.js");
+  const port = sqlitePort(new DatabaseSync(":memory:"));
+  box.migrate(port);
+  for (const [id, at] of [["bad", 1], ["m2", 2], ["m3", 3]]) port.exec("INSERT INTO fetch (id, prio, at) VALUES (?, 1, ?)", id, at);
+  assert.deepEqual(box.fetchNext(port, 1), ["bad"]);
+  box.fetchFailed(port, "bad", 10);
+  assert.deepEqual(box.fetchNext(port, 3), ["m2", "m3", "bad"], "the others come first now");
+  box.fetchFailed(port, "bad", 11);
+  box.fetchFailed(port, "bad", 12);
+  assert.deepEqual(box.fetchNext(port, 3), ["m2", "m3"]);
+});

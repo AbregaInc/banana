@@ -25,6 +25,10 @@ export function configFrom(env) {
     apnsKey: env.APNS_KEY ?? "",
     apnsKeyId: env.APNS_KEY_ID ?? "",
     apnsTeamId: env.APNS_TEAM_ID ?? "",
+    /** The bundle ids the APNs key may push to (comma-separated, not secret). Set: a device whose
+     * self-reported bundle isn't one is refused, so it can't pick a topic the key doesn't sign for.
+     * Unset (a build without push): any. */
+    apnsTopics: String(env.APNS_TOPICS ?? "").split(",").map((v) => v.trim()).filter(Boolean),
     /** Gmail push (MAIL-CLOUD-SYNC §2a; Service/tools/gmail-push-setup.md): the Pub/Sub topic each
      * mailbox's users.watch names (projects/PROJECT/topics/TOPIC). Unset: no watch, polling only. */
     mailPushTopic: env.MAIL_PUSH_TOPIC ?? "",

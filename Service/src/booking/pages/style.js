@@ -113,6 +113,7 @@ textarea{min-height:96px;resize:vertical}
 .acts .btn{font-size:15px;padding:0 14px}
 .acts>a:not(.btn),.acts>span:not(.btn){display:inline-flex;align-items:center;min-height:44px}
 .acts>span:not(.btn){color:var(--dim)}
+.two{display:grid;gap:10px;margin-top:4px}.two .btn{width:100%;justify-content:center}
 .undo{position:relative;display:flex;align-items:center;gap:12px;width:100%;margin-top:6px;padding-top:14px;border-top:2px solid var(--line)}
 .undo i{position:absolute;left:0;top:-2px;width:100%;height:2px;background:var(--ink);transform-origin:0 0;animation:bar 5s linear forwards}
 @keyframes bar{to{transform:scaleX(0)}}

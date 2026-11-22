@@ -50,7 +50,8 @@ async function hostReady({ scopes, name = "Noor Haddad", deps = {}, handle = "no
   s.slots = async (path = "/noor/meeting") => (await s.page("GET", `${path}/slots`)).json.slots;
   s.book = (start, over = {}) => s.page("POST", "/noor/meeting/book", {
     body: { key: over.key ?? `key-${Math.random().toString(36).slice(2, 12)}`, start, place: over.place, name: over.name ?? "Sam Lee",
-      email: over.email ?? "sam@example.com", phone: over.phone, note: over.note, zone: over.zone ?? "Europe/London", turnstile: over.turnstile },
+      email: over.email ?? "sam@example.com", phone: over.phone, note: over.note, zone: over.zone ?? "Europe/London", turnstile: over.turnstile,
+      ...(over.also ? { also: true } : {}) },
     cookies: over.cookies ?? s.jar });
   s.work = bookingContext(s.deps, { push: (a, o) => pushTo(s.deps, a, o), signer });
   s.minute = () => bookingMinute(s.work);
@@ -414,10 +415,8 @@ test("guests: remembered by a cookie the API never takes; one tap books; Turnsti
   // A second time, one tap: no Turnstile.
   await s.settle();
   const again = await s.page("POST", "/noor/meeting/book", { body: { key: "second-key", start: slots[6].start, name: "Sam Lee", email: "sam@example.com", zone: "Europe/London" } });
-  assert.equal(again.status, 409, "one future time per email per type");
-  assert.equal(again.json.already, true);
-  await s.settle();
-  assert.equal(s.mails("existing").length, 1, "the link goes only to the email");
+  assert.equal(again.status, 409, "the browser that booked is asked: move it, or book another");
+  assert.ok(again.json.existing);
   assert.equal(checks, 2, "Turnstile wasn't asked for the remembered email");
   // Another email from the same browser is a first time: Turnstile again.
   const other = await s.page("POST", "/noor/meeting/book", { body: { key: "third-key", start: slots[6].start, name: "Sam Lee", email: "sam.work@example.com", zone: "Europe/London" } });
@@ -546,11 +545,56 @@ test("a guest who is a Banana person: their own calendars count", async () => {
   await s.call("PUT", "/v1/booking", { session: ann.json.session, body: { handle: "ann-lee" } });
   s.advance(11 * MIN);
   await bookingQuarter(s.work);
+  // An emailed code proves the address, not the Google account: her calendar stays closed.
   await s.page("POST", "/b/code", { body: { email: "ann@example.com" } });
   const code = /^(\d{6})/.exec(s.mails("code").at(-1).subject)[1];
   await s.page("POST", "/b/code/verify", { body: { email: "ann@example.com", code } });
+  assert.equal((await s.page("GET", "/noor/meeting/slots")).json.busy, null);
+  // Proving the Google account opens it.
+  await connectAs(s, "sub-ann", "ann@example.com");
   const slots = await s.page("GET", "/noor/meeting/slots");
   assert.deepEqual(slots.json.busy, [{ start: "2026-10-16T14:00:00.000Z", end: "2026-10-16T15:00:00.000Z" }]);
+});
+
+/** The browser proves a Google account on the booking pages (identity only: no free/busy grant). */
+async function connectAs(s, sub, email, options = {}) {
+  const code = `connect-${sub}-${Math.random()}`;
+  s.google.person(code, sub, email, options.refreshToken ?? null, { scopes: options.scopes ?? "openid email", ...(options.extra ?? {}) });
+  const go = new URL((await s.page("GET", "/b/connect?return=/noor/meeting", options.cookies ? { cookies: options.cookies } : undefined)).headers.get("location"));
+  return s.page("GET", `/b/connect/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(go.searchParams.get("state"))}`, options.cookies ? { cookies: options.cookies } : undefined);
+}
+
+test("an address that changed hands: the new holder's emailed code or Google account opens nothing of the former holder's", async () => {
+  const s = await hostReady();
+  // Ann, a Banana person, and her busy time.
+  s.google.person("code-ann", "sub-ann", "ann@example.com", "refresh-ann");
+  const ann = await s.signIn("code-ann", device("mac-00000001", { platform: "mac" }));
+  await s.call("PUT", "/v1/booking", { session: ann.json.session, body: { handle: "ann-lee", timeZone: "America/New_York" } });
+  await s.settle();
+  s.google.events.set("primary-refresh-ann", [{ id: "ann1", status: "confirmed", start: { dateTime: "2026-10-16T14:00:00Z" }, end: { dateTime: "2026-10-16T15:00:00Z" } }]);
+  await s.call("PUT", "/v1/booking", { session: ann.json.session, body: { handle: "ann-lee" } });
+  s.advance(11 * MIN);
+  await bookingQuarter(s.work);
+  // Ann connected once as a guest, with a free/busy grant of her own.
+  const annJar = new Map();
+  await connectAs(s, "sub-ann", "ann@example.com", { cookies: annJar, refreshToken: "refresh-guest-ann",
+    scopes: "openid email https://www.googleapis.com/auth/calendar.events.freebusy" });
+  assert.equal(await s.count("guest_grants", "sub = 'sub-ann' AND status = 'ok'"), 1);
+  s.google.freeBusyAnswer = [{ start: "2026-10-17T14:00:00Z", end: "2026-10-17T15:00:00Z" }];
+  // Someone else now receives mail at the address.
+  const jar = new Map();
+  await s.page("POST", "/b/code", { body: { email: "ann@example.com" }, cookies: jar });
+  const code = /^(\d{6})/.exec(s.mails("code").at(-1).subject)[1];
+  assert.equal((await s.page("POST", "/b/code/verify", { body: { email: "ann@example.com", code }, cookies: jar })).status, 204);
+  const refreshes = s.google.calls.refresh.length;
+  assert.equal((await s.page("GET", "/noor/meeting/slots", { cookies: jar })).json.busy, null);
+  assert.equal(s.google.calls.refresh.length, refreshes, "Ann's grant was not spent");
+  // And proves a different Google account at the same address: still nothing of Ann's.
+  await connectAs(s, "sub-other", "ann@example.com", { cookies: jar });
+  assert.equal((await s.page("GET", "/noor/meeting/slots", { cookies: jar })).json.busy, null);
+  assert.equal(s.google.calls.refresh.length, refreshes);
+  assert.equal((await s.db.first("SELECT person_account_id FROM guests WHERE email = 'ann@example.com'")).person_account_id, null,
+    "a Google account that is no Banana person clears the link");
 });
 
 test("the host's link refused or too narrow: not taking bookings, the host told once a day", async () => {
@@ -907,10 +951,10 @@ test("without an email provider: no codes, and no 'we emailed you'", async () =>
   assert.equal((await s.page("POST", "/b/code", { body: { email: "a@b.co" } })).status, 404);
   const [first, second] = await s.slots();
   await s.book(first.start);
+  // A second time from the same browser is asked about on the page, not by email.
   const again = await s.book(second.start, { key: "another-key-1" });
-  assert.deepEqual(again.json, { already: true, emailed: false });
-  await s.settle();
-  assert.equal(s.mails("existing").length, 0);
+  assert.equal(again.status, 409);
+  assert.ok(again.json.existing);
 });
 
 test("Cloudflare Email Service: the binding gets the documented builder shape", async () => {
@@ -1044,28 +1088,59 @@ test("the host's daily cap counts live bookings only: undone or cancelled rows c
   assert.equal(next.status, 429);
 });
 
-test("an address that already holds a time is told once a day, however often someone types it", async () => {
+test("someone who types an address that holds a time books as anyone does, learns nothing, and the address sees both times", async () => {
   const s = await hostReady();
   const slots = await s.slots();
-  // A time more than a day ahead, so it still stands after the clock moves a day.
-  const far = slots.findIndex((x) => Date.parse(x.start) > s.now() + 2 * DAY);
-  assert.equal((await s.book(slots[far].start, { email: "victim@example.com" })).status, 200);
+  assert.equal((await s.book(slots[0].start, { email: "bob@example.com", name: "Bob" })).status, 200);
   await s.settle();
-  for (let i = 0; i < 4; i++) {
-    const r = await s.book(slots[far + 1 + i].start, { email: "victim@example.com" });
-    assert.equal(r.status, 409);
-    assert.equal(r.json.already, true);
-    s.advance(MIN);   // past the per-minute limiter window
-  }
+  // Another browser, the same address: booked, with no word of the first time.
+  const stranger = await s.book(slots[6].start, { email: "bob@example.com", name: "Bob", cookies: new Map() });
+  assert.equal(stranger.status, 200);
+  assert.equal(JSON.stringify(stranger.json).includes(slots[0].start), false);
+  assert.equal("existing" in stranger.json, false);
   await s.settle();
-  assert.equal(s.mails("existing").length, 1);
-  s.advance(DAY);
-  const later = await s.slots();
-  const again = await s.book(later.find((x) => Date.parse(x.start) > s.now() + 2 * DAY).start, { email: "victim@example.com" });
-  assert.equal(again.status, 409);
-  assert.equal(again.json.already, true);
+  // The address's own inbox has both, each with its link.
+  const second = s.mails("confirmed").at(-1);
+  assert.match(second.html, /You also have:/);
+  assert.match(second.text, /You also have:\n.+: https:\/\/[^\s]+\/m\//);
+  assert.equal(await s.count("bookings", "guest_email = 'bob@example.com' AND status IN ('pending', 'confirmed')"), 2);
+});
+
+test("the browser that booked a time, or one that proved the address, is asked first: move it here, or book this one too", async () => {
+  const s = await hostReady();
+  const slots = await s.slots();
+  assert.equal((await s.book(slots[0].start, { email: "bob@example.com", name: "Bob" })).status, 200);
   await s.settle();
-  assert.equal(s.mails("existing").length, 2);
+  await s.minute();
+  // The same browser books Wednesday: the question, with Tuesday and its link.
+  const asked = await s.book(slots[6].start, { email: "bob@example.com", name: "Bob" });
+  assert.equal(asked.status, 409);
+  assert.equal(asked.json.existing.start, new Date(Date.parse(slots[0].start)).toISOString());
+  assert.equal(asked.json.existing.title, "Meeting");
+  assert.match(asked.json.existing.manage, /^[A-Za-z0-9._-]+$/);
+  // "Book Wednesday too": a second time.
+  const too = await s.book(slots[6].start, { email: "bob@example.com", name: "Bob", also: true });
+  assert.equal(too.status, 200);
+  assert.equal(await s.count("bookings", "guest_email = 'bob@example.com' AND status IN ('pending', 'confirmed')"), 2);
+  // A browser that proved the address by code is asked too.
+  const jar = new Map();
+  await s.page("POST", "/b/code", { body: { email: "bob@example.com" }, cookies: jar });
+  const code = /^(\d{6})/.exec(s.mails("code").at(-1).subject)[1];
+  assert.equal((await s.page("POST", "/b/code/verify", { body: { email: "bob@example.com", code }, cookies: jar })).status, 204);
+  assert.equal((await s.book(slots[12].start, { email: "bob@example.com", name: "Bob", cookies: jar })).status, 409);
+});
+
+test("'Move Tuesday here' moves the existing time to the one picked", async () => {
+  const s = await hostReady();
+  const slots = await s.slots();
+  assert.equal((await s.book(slots[0].start, { email: "bob@example.com", name: "Bob" })).status, 200);
+  await s.settle();
+  await s.minute();
+  const asked = await s.book(slots[6].start, { email: "bob@example.com", name: "Bob" });
+  const moved = await s.page("POST", `/m/${asked.json.existing.manage}/move`, { body: { start: slots[6].start, zone: "Europe/London" } });
+  assert.equal(moved.status, 200, moved.text);
+  assert.equal(await s.count("bookings", "guest_email = 'bob@example.com' AND status IN ('pending', 'confirmed')"), 1);
+  assert.equal(Number((await s.row("guest_email = 'bob@example.com' AND status = 'confirmed'")).start_at), Date.parse(slots[6].start));
 });
 
 test("Turnstile without its secret refuses unknown browsers where the pages are deployed; TURNSTILE_SKIP=1 is for local runs only", async () => {
@@ -1123,9 +1198,7 @@ test("a guest's link to a Banana person ends with that person's Google account: 
   await s.call("PUT", "/v1/booking", { session: ann.json.session, body: { handle: "ann-lee" } });
   s.advance(11 * MIN);
   await bookingQuarter(s.work);
-  await s.page("POST", "/b/code", { body: { email: "ann@example.com" } });
-  const code = /^(\d{6})/.exec(s.mails("code").at(-1).subject)[1];
-  await s.page("POST", "/b/code/verify", { body: { email: "ann@example.com", code } });
+  await connectAs(s, "sub-ann", "ann@example.com");
   assert.equal((await s.page("GET", "/noor/meeting/slots")).json.busy.length, 1);
   assert.equal((await s.call("DELETE", "/v1/google", { session: ann.json.session, body: { email: "ann@example.com" } })).status, 204);
   assert.equal((await s.page("GET", "/noor/meeting/slots")).json.busy, null, "the former person's calendar is nobody else's business");

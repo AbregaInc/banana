@@ -140,3 +140,42 @@ enum SyncedKeychain {
         ]
     }
 }
+
+/// One keychain item for this device only: never synced, not restored onto another device. Used
+/// for this install's device secret (`BananaAccount`).
+enum DeviceKeychain {
+    static func read(service: String, account: String) -> String? {
+        var query = baseQuery(service: service, account: account)
+        query[kSecReturnData as String] = true
+        query[kSecMatchLimit as String] = kSecMatchLimitOne
+        var item: CFTypeRef?
+        guard SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess, let data = item as? Data else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+
+    @discardableResult
+    static func write(_ value: String, service: String, account: String) -> Bool {
+        let query = baseQuery(service: service, account: account)
+        let data = Data(value.utf8)
+        let status = SecItemUpdate(query as CFDictionary, [kSecValueData as String: data] as CFDictionary)
+        if status == errSecSuccess { return true }
+        guard status == errSecItemNotFound else { return false }
+        var insert = query
+        insert[kSecValueData as String] = data
+        insert[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        return SecItemAdd(insert as CFDictionary, nil) == errSecSuccess
+    }
+
+    static func delete(service: String, account: String) {
+        SecItemDelete(baseQuery(service: service, account: account) as CFDictionary)
+    }
+
+    private static func baseQuery(service: String, account: String) -> [String: Any] {
+        [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecAttrSynchronizable as String: kCFBooleanFalse as Any,
+        ]
+    }
+}

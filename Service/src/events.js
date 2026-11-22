@@ -14,6 +14,9 @@ export const READ_BACK = DAY;            // the first read starts a day ago
 export const READ_AHEAD = 30 * DAY;      // and reaches a month out
 export const KEEP_DONE = DAY;            // sent or cleared alerts stay a day, for the record
 export const DISPATCH_WINDOW = 60 * 1000;
+/** A minute's dispatch: at most this many alerts, and this many of one account's. */
+export const ALERTS_PER_RUN = 200, ALERTS_PER_ACCOUNT = 20;
+const ALERTS_LOOKED_AT = 2000;
 
 /** The account's lead times and time zone, as its devices last reported them. */
 export async function alertSettings(db, account) {
@@ -151,6 +154,8 @@ function upsertAlert(link, calendarId, eventId, a, t) {
 
 const PLAN_EVERY = DAY;
 const PLANS_PER_RUN = 5;
+/** A plan read that failed is tried again this much later, behind the calendars waiting now. */
+const PLAN_RETRY = 60 * 60 * 1000;
 
 /**
  * Once a day per watched calendar: reads the next month and plans the starting-soon alerts of the
@@ -172,6 +177,9 @@ export async function planAhead(deps) {
   const vault = createVault(deps.config.tokenKey, deps.random);
   let planned = 0;
   for (const row of due) {
+    // Taken before the read, as dirtyReads does: a read that fails, or never returns, must not keep
+    // the head of the queue (the oldest planned_at) ahead of every other account's calendars.
+    await db.run("UPDATE calendar_sync SET planned_at = ? WHERE google_sub = ? AND calendar_id = ?", t, row.sub, row.calendar_id);
     try {
       const access = await accessToken(deps, vault, row);
       const page = await deps.google.listEvents(access, row.calendar_id, { timeMin: new Date(t).toISOString(), timeMax: new Date(t + READ_AHEAD).toISOString() });
@@ -197,7 +205,11 @@ export async function planAhead(deps) {
       statements.push({ sql: "UPDATE calendar_sync SET planned_at = ? WHERE google_sub = ? AND calendar_id = ?", params: [t, row.sub, row.calendar_id] });
       await db.batch(statements);
       planned++;
-    } catch (error) { console.log(`alerts: plan ahead failed (${error.name} ${error.status ?? ""})`); }
+    } catch (error) {
+      console.log(`alerts: plan ahead failed (${error.name} ${error.status ?? ""})`);
+      // Tried again in an hour, at the back of the queue.
+      await db.run("UPDATE calendar_sync SET planned_at = ? WHERE google_sub = ? AND calendar_id = ?", t - PLAN_EVERY + PLAN_RETRY, row.sub, row.calendar_id);
+    }
   }
   return planned;
 }
@@ -291,7 +303,18 @@ export async function clearAlert(deps, account, id, fromDevice) {
 export async function dispatchAlerts(deps, sleep = (ms) => new Promise((r) => setTimeout(r, ms))) {
   const { db, now } = deps;
   const t = now();
-  const due = await db.all("SELECT id, due_at FROM alerts WHERE status = 'pending' AND due_at <= ? ORDER BY due_at", t + DISPATCH_WINDOW);
+  // A bounded run with a share per account: one account's burst of alerts can't hold everyone
+  // else's back. What doesn't fit goes at the next minute's run, first in line.
+  const waiting = await db.all("SELECT id, due_at, account_id FROM alerts WHERE status = 'pending' AND due_at <= ? ORDER BY due_at LIMIT ?",
+    t + DISPATCH_WINDOW, ALERTS_LOOKED_AT);
+  const perAccount = new Map();
+  const due = [];
+  for (const row of waiting) {
+    const n = perAccount.get(row.account_id) ?? 0;
+    if (n >= ALERTS_PER_ACCOUNT || due.length >= ALERTS_PER_RUN) continue;
+    perAccount.set(row.account_id, n + 1);
+    due.push(row);
+  }
   let sent = 0;
   for (const row of due) {
     const wait = Number(row.due_at) - now();

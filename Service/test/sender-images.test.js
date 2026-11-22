@@ -128,7 +128,15 @@ test("no BIMI logo without DMARC enforcement, or from an SVG that scripts or rea
   assert.equal(svgProblem(`<svg onload="x()"></svg>`), "event handler");
   assert.equal(svgProblem(`<!DOCTYPE svg [<!ENTITY x SYSTEM "file:///etc/passwd">]><svg/>`), "entity");
   assert.equal(svgProblem(`<svg><rect style="fill:url(https://x.example/a)"/></svg>`), "external url");
-  assert.equal(svgProblem(`<svg><use href="#a"/><rect fill="url(#g)"/></svg>`), null);
+  assert.equal(svgProblem(`<svg><defs><linearGradient id="g"/></defs><rect fill="url(#g)"/></svg>`), null);
+  // A '>' inside a quoted value doesn't end the tag: the outside reference behind it is still seen.
+  assert.equal(svgProblem(`<svg><image title="a>b" href="https://tracker.example/p.png"/></svg>`), "external reference");
+  assert.equal(svgProblem(`<svg><rect xlink:title="x>y" xlink:href="https://x.example/"/></svg>`), "external reference");
+  // No <use> (a chain of them multiplies the drawing), no filters, nothing outside the logo set.
+  assert.equal(svgProblem(`<svg><use href="#a"/></svg>`), "external reference");
+  assert.equal(svgProblem(`<svg><filter id="f"><feGaussianBlur stdDeviation="99"/></filter></svg>`), "element");
+  assert.equal(svgProblem(`<svg>${"<g>".repeat(5000)}</svg>`), "too many elements");
+  assert.equal(svgProblem(`<svg><rect a="${"x".repeat(5000)}"/></svg>`), "unclosed tag");
   assert.equal(tags("v=DMARC1; p=Reject; pct=50").pct, "50");
 });
 
@@ -219,15 +227,42 @@ test("a person's own profile photo is public, shared with every user, ahead of G
   const sam = await owner(s, "b", "sub-sam", "sam@plan.example");
   w.routes.set("https://lh3.googleusercontent.com/a/profile?sz=128", w.image(png(128, 128, "profile")));
   s.google.contactBook.other = [{
-    emailAddresses: [{ value: "omar@gmail.com" }],
-    photos: [{ url: "https://lh3.googleusercontent.com/a/default", default: true, metadata: { source: { type: "PROFILE" } } },
-             { url: "https://lh3.googleusercontent.com/a/profile", metadata: { source: { type: "PROFILE" } } }],
+    emailAddresses: [{ value: "omar@gmail.com", metadata: { source: { type: "PROFILE", id: "p-omar" } } }],
+    photos: [{ url: "https://lh3.googleusercontent.com/a/default", default: true, metadata: { source: { type: "PROFILE", id: "p-omar" } } },
+             { url: "https://lh3.googleusercontent.com/a/profile", metadata: { source: { type: "PROFILE", id: "p-omar" } } }],
   }];
   const a = (await ask(s, noor, ["omar@gmail.com"])).json.senders[0].image;
   assert.equal(a, await sha256Hex(png(128, 128, "profile")));
   const b = (await ask(s, sam, ["omar@gmail.com"])).json.senders[0].image;
   assert.equal(b, a);
   assert.deepEqual(s.google.contactCalls.map((c) => c.kind).sort(), ["connections", "other"]);
+});
+
+test("a profile photo on an address the user added to that contact is his alone: it sets nobody else's picture", async () => {
+  const { s, w } = world();
+  const noor = await owner(s, "a", "sub-noor", "noor@plan.example", CONTACTS);
+  const sam = await owner(s, "b", "sub-sam", "sam@plan.example");
+  const gHash = await sha256Hex("ceo@gmail.com");
+  w.routes.set(`https://gravatar.com/avatar/${gHash}?d=404&s=128`, w.image(png(128, 128, "gravatar")));
+  w.routes.set("https://lh3.googleusercontent.com/a/mine?sz=128", w.image(png(128, 128, "mine")));
+  // Noor's contact is a Google profile (her own second account, say) with its own address, to
+  // which she added someone else's address by hand. A profile of another id proves nothing either.
+  s.google.contactBook.connections = [{
+    emailAddresses: [{ value: "noor.other@gmail.com", metadata: { source: { type: "PROFILE", id: "p-noor" } } },
+                     { value: "ceo@gmail.com", metadata: { source: { type: "CONTACT", id: "c1" } } },
+                     { value: "cfo@gmail.com", metadata: { source: { type: "PROFILE", id: "p-someone-else" } } }],
+    photos: [{ url: "https://lh3.googleusercontent.com/a/mine", metadata: { primary: true, source: { type: "PROFILE", id: "p-noor" } } }],
+  }];
+  const mineId = await sha256Hex(png(128, 128, "mine"));
+  assert.equal((await ask(s, noor, ["ceo@gmail.com"])).json.senders[0].image, mineId, "she still sees the photo she paired");
+  assert.equal((await ask(s, sam, ["ceo@gmail.com"])).json.senders[0].image, await sha256Hex(png(128, 128, "gravatar")));
+  assert.notEqual((await ask(s, sam, ["cfo@gmail.com"])).json.senders[0].image, mineId);
+  assert.equal(await s.count("sender_images", "key = ?", `p:${gHash}`), 0, "nothing shared under an address Google did not tie to the profile");
+  assert.equal(await s.count("sender_images", "key = ?", `p:${await sha256Hex("cfo@gmail.com")}`), 0);
+  assert.equal((await imageOf(s, sam, mineId)).status, 404);
+  // The profile's own address is public, as before.
+  assert.equal((await ask(s, noor, ["noor.other@gmail.com"])).json.senders[0].image, mineId);
+  assert.equal((await ask(s, sam, ["noor.other@gmail.com"])).json.senders[0].image, mineId);
 });
 
 test("contact photos are read only with the contacts grant, and go with Mail access and the account", async () => {
@@ -290,7 +325,7 @@ test("the service fetches public https names only, and Google photos only from G
     { url: "https://lh3.googleusercontent.com/p", metadata: { source: { type: "PROFILE" } } },
     { url: "https://lh3.googleusercontent.com/c", metadata: { primary: true, source: { type: "CONTACT" } } },
     { url: "https://lh3.googleusercontent.com/d", default: true, metadata: { source: { type: "CONTACT" } } },
-  ] }), [["contact", "https://lh3.googleusercontent.com/c"], ["profile", "https://lh3.googleusercontent.com/p"]]);
+  ] }), [["contact", "https://lh3.googleusercontent.com/c", null], ["profile", "https://lh3.googleusercontent.com/p", null]]);
   assert.equal(addressParts("not-an-address"), null);
   assert.equal(addressParts("a@b.c..d"), null);
 });
@@ -318,4 +353,20 @@ test("contacts Google refuses are tried again in a day, not on every lookup", as
   await ask(s, noor, ["c@gmail.com"]);
   await s.settle();
   assert.equal(s.google.contactCalls.length, 2);
+});
+
+test("a page of unclosed link tags is read once, not once per tag", () => {
+  const page = "<link rel=icon href=a.png ".repeat(10_000);   // 260 KiB, no '>'
+  const started = performance.now();
+  assert.equal(bestIconLink(page, "https://x.example.net/"), null);
+  assert.ok(performance.now() - started < 200, `took ${Math.round(performance.now() - started)} ms`);
+  assert.equal(bestIconLink(`<head><link rel="apple-touch-icon" title="a>b" href="/t.png"></head>`, "https://x.example.net/"), "https://x.example.net/t.png");
+});
+
+test("a tall SVG is not drawn: a logo is square, at most twice as tall as wide", async () => {
+  const { nodeSvgRasterizer } = await import("../src/svg-raster.js");
+  const raster = await nodeSvgRasterizer();
+  await assert.rejects(raster(`<svg xmlns="http://www.w3.org/2000/svg" width="1" height="100000"><rect width="1" height="100000"/></svg>`, 128));
+  const png = await raster(`<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10"/></svg>`, 128);
+  assert.ok(png.length > 0);
 });

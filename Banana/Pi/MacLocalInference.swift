@@ -1,5 +1,6 @@
 #if BANANA_AI
 #if os(macOS)
+import CryptoKit
 import Foundation
 
 /// Owns a loopback-only inference worker; Pi and all application effects stay in Banana.
@@ -63,6 +64,29 @@ final class MacLocalInference {
     private(set) var configuration: Configuration?
     private var process: Process?
     private var ready = false
+    /// This launch's secret, given to the worker Banana starts: every request carries it, and every
+    /// answer must carry the proof made from it (pi-inference-worker.py). Another program that took
+    /// the port first can do neither.
+    private let workerToken: String = {
+        var bytes = [UInt8](repeating: 0, count: 32)
+        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        return bytes.map { String(format: "%02x", $0) }.joined()
+    }()
+    private var workerProof: String {
+        let mac = HMAC<SHA256>.authenticationCode(for: Data("banana-worker".utf8), using: SymmetricKey(data: Data(workerToken.utf8)))
+        return mac.map { String(format: "%02x", $0) }.joined()
+    }
+    /// A request to the worker: its address, with this launch's secret.
+    private func workerRequest(_ config: Configuration, _ path: String) -> URLRequest {
+        var request = URLRequest(url: endpoint(config, path))
+        request.setValue(workerToken, forHTTPHeaderField: "X-Banana-Token")
+        return request
+    }
+    /// The answer came from the worker Banana started.
+    private func fromOwnWorker(_ response: URLResponse) -> Bool {
+        guard let value = (response as? HTTPURLResponse)?.value(forHTTPHeaderField: "X-Banana-Worker") else { return false }
+        return value.utf8.count == workerProof.utf8.count && zip(value.utf8, workerProof.utf8).reduce(0) { $0 | ($1.0 ^ $1.1) } == 0
+    }
     private let session: URLSession = {
         let config = URLSessionConfiguration.ephemeral
         config.httpCookieStorage = nil
@@ -97,10 +121,15 @@ final class MacLocalInference {
         }
         guard let config = configuration else { return }
         if ready && (process == nil || process?.isRunning == true) { return }
-        if let ids = try? await models(config) {
+        // Only the worker this launch started is used: something already answering on the port that
+        // can't prove it is ours is another program, and nothing is sent to it.
+        if process?.isRunning == true, let ids = try? await models(config) {
             guard ids.contains(config.serverModel) else { throw AssistantFailure(message: "Another model is using Banana's inference port.") }
             ready = true
             return
+        }
+        if process?.isRunning != true, await portAnswers(config) {
+            throw AssistantFailure(message: "Another program is using Banana's inference port. Quit it, or restart the Mac, and try again.")
         }
         if process?.isRunning != true {
             try FileManager.default.createDirectory(at: Self.directory, withIntermediateDirectories: true)
@@ -117,7 +146,8 @@ final class MacLocalInference {
                 "--engines", config.engine, "--preload", config.engine, "--host", "127.0.0.1", "--port", String(config.port),
                 "--slots", "1", "--cache-gb", "2", "--max-context", String(config.contextWindow), "--max-tokens", String(config.maxTokens),
                 "--temp", String(config.temperature ?? 0.6), "--top-p", String(config.topP ?? 0.95), "--top-k", String(config.topK ?? 20)]
-            child.environment = ["HOME": FileManager.default.homeDirectoryForCurrentUser.path, "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+            child.environment = ["BANANA_WORKER_TOKEN": workerToken,
+                "HOME": FileManager.default.homeDirectoryForCurrentUser.path, "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
                 "TMPDIR": NSTemporaryDirectory(), "PYTHONUNBUFFERED": "1", "PYTHONDONTWRITEBYTECODE": "1", "HF_HUB_OFFLINE": "1", "HF_HUB_DISABLE_TELEMETRY": "1", "DO_NOT_TRACK": "1"]
             child.standardOutput = output; child.standardError = output
             try child.run()
@@ -154,7 +184,7 @@ final class MacLocalInference {
         guard ready, let config = configuration, input["modelId"] as? String == config.modelId else {
             throw AssistantFailure(message: "The requested local model is not configured on this Mac.")
         }
-        var request = URLRequest(url: endpoint(config, "/v1/chat/completions"))
+        var request = workerRequest(config, "/v1/chat/completions")
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: LocalInferenceTransport.payload(input, serverModel: config.serverModel, maxTokens: config.maxTokens,
@@ -163,6 +193,10 @@ final class MacLocalInference {
         do {
             let (data, response) = try await session.data(for: request)
             try Task.checkCancellation()
+            guard fromOwnWorker(response) else {
+                ready = false
+                throw AssistantFailure(message: "Something other than Banana's own worker answered on its inference port.")
+            }
             guard let http = response as? HTTPURLResponse,
                   let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
                 throw AssistantFailure(message: "Invalid response from the local inference worker.")
@@ -201,7 +235,8 @@ final class MacLocalInference {
     #if DEBUG
     func activeRequestCount() async throws -> Int {
         guard let config = configuration else { return 0 }
-        let (data, _) = try await session.data(from: endpoint(config, "/stats"))
+        let (data, response) = try await session.data(for: workerRequest(config, "/stats"))
+        guard fromOwnWorker(response) else { throw AssistantFailure(message: "Cannot inspect the local inference worker.") }
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any], let active = json["active"] as? [Any] else {
             throw AssistantFailure(message: "Cannot inspect the local inference worker.")
         }
@@ -209,10 +244,15 @@ final class MacLocalInference {
     }
     #endif
     private func endpoint(_ config: Configuration, _ path: String) -> URL { URL(string: "http://127.0.0.1:\(config.port)\(path)")! }
-    private func models(_ config: Configuration) async throws -> [String] {
+    /// Something answers on the port at all (without sending it anything of the person's).
+    private func portAnswers(_ config: Configuration) async -> Bool {
         var request = URLRequest(url: endpoint(config, "/v1/models")); request.timeoutInterval = 2
+        return (try? await session.data(for: request)) != nil
+    }
+    private func models(_ config: Configuration) async throws -> [String] {
+        var request = workerRequest(config, "/v1/models"); request.timeoutInterval = 2
         let (data, response) = try await session.data(for: request)
-        guard (response as? HTTPURLResponse)?.statusCode == 200,
+        guard fromOwnWorker(response), (response as? HTTPURLResponse)?.statusCode == 200,
               let json = try JSONSerialization.jsonObject(with: data) as? [String: Any], let models = json["data"] as? [[String: Any]] else {
             throw AssistantFailure(message: "The local inference worker is not ready.")
         }

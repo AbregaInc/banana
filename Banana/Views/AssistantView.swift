@@ -474,8 +474,10 @@ struct AssistantView: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text(message.role == "user" ? "You" : message.role == "error" ? "Couldn’t finish" : "Assistant")
                     .font(.caption.weight(.semibold)).foregroundStyle(.secondary)
+                // A model's reply can carry links written by whoever wrote what it read (an
+                // invitation's title): web and mail links only stay tappable.
                 Text(message.role == "assistant" ? (try? AttributedString(markdown: message.text,
-                    options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? AttributedString(message.text) : AttributedString(message.text))
+                    options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))).map(LinkPolicy.filtered) ?? AttributedString(message.text) : AttributedString(message.text))
                     .textSelection(.enabled)
                     .foregroundStyle(message.role == "error" ? Color.red : Color.primary)
                 if message.role == "assistant" { AnswerRating(messageID: message.id) }

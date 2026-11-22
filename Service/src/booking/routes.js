@@ -5,6 +5,7 @@
 //
 // Never logged: names, emails, phone numbers, notes, links, handles.
 
+import { readText, TOO_LARGE } from "../body.js";
 import { Hono } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
 import { canonicalZone, MINUTE, nearest } from "./slots.js";
@@ -12,7 +13,7 @@ import { typeView } from "./types.js";
 import { zoneOf } from "./whereabouts.js";
 import { cacheAge, cacheable, withFreshNonce } from "./guard.js";
 import {
-  bookingView, cancel, complete, findRetry, icsFor, liveRow, mail, manageRef, move, pushHost, readHost, refusal, reserve, slotsOf, undo,
+  bookingView, cancel, complete, findRetry, icsFor, liveRow, mail, manageRef, move, pushHost, readHost, refusal, reserve, slotsOf, undo, upcomingWith,
 } from "./book.js";
 import { CONNECT_COOKIE, checkCode, endSession, forgetGuest, guestAccount, guestOf, guestView, newCode, rememberProfile, startSession } from "./guests.js";
 import { codeEmail } from "./email.js";
@@ -81,8 +82,8 @@ export function bookingApp(deps, { vault, signer, push }) {
   async function readBody(c, limit = 8192) {
     const length = Number(c.req.header("content-length") || 0);
     if (length > limit) return null;
-    const text = await c.req.text();
-    if (text.length > limit) return null;
+    const text = await readText(c, limit);
+    if (text === TOO_LARGE) return null;
     try { const v = JSON.parse(text || "{}"); return v && typeof v === "object" && !Array.isArray(v) ? v : null; } catch { return null; }
   }
 
@@ -107,9 +108,16 @@ export function bookingApp(deps, { vault, signer, push }) {
     return c.get("guest");
   };
 
-  /** The guest's link to a Banana person holds only while that person still has a Google account with this email. */
-  const personStillLinked = async (g) => Boolean(await deps.db.first(
-    "SELECT 1 AS yes FROM google_links WHERE account_id = ? AND email = ? AND status <> 'unlinked'", g.personAccountId, g.email));
+  /**
+   * What came from Google (a Banana person's busy times, a free/busy grant) is read only by a
+   * browser that proved that Google account, by its `sub`. The email is not the key: an address
+   * can change hands, and an emailed code proves the address only.
+   */
+  const personStillLinked = async (guest) => Boolean(guest.sub && guest.guest?.personAccountId && await deps.db.first(
+    "SELECT 1 AS yes FROM google_links WHERE account_id = ? AND sub = ? AND status <> 'unlinked'", guest.guest.personAccountId, guest.sub));
+  const grantOf = (guest) => (guest.sub
+    ? deps.db.first("SELECT sub, refresh_token, status FROM guest_grants WHERE account_id = ? AND sub = ? AND status = 'ok'", guest.accountId, guest.sub)
+    : null);
 
   /** A verified guest's upcoming times, across hosts. */
   async function upcomingOf(guest) {
@@ -139,11 +147,11 @@ export function bookingApp(deps, { vault, signer, push }) {
     }
     if (!guest?.verifiedAt) return null;
     const work = (async () => {
-      if (guest.guest?.personAccountId && await personStillLinked(guest.guest)) {
+      if (await personStillLinked(guest)) {
         const row = await (deps.replica ?? deps.db).first("SELECT horizon_json FROM busy_snapshot WHERE account_id = ? AND computed_at > 0", guest.guest.personAccountId);
         if (row) { const h = JSON.parse(row.horizon_json); return h.busy.map(([s, e]) => ({ start: new Date(s).toISOString(), end: new Date(e).toISOString() })); }
       }
-      const grant = await deps.db.first("SELECT sub, refresh_token, status FROM guest_grants WHERE account_id = ? AND status = 'ok' ORDER BY updated_at DESC LIMIT 1", guest.accountId);
+      const grant = await grantOf(guest);
       if (!grant?.refresh_token) return null;
       try {
         const access = (await deps.google.refresh(await vault.open(`guest:${grant.sub}`, grant.refresh_token))).accessToken;
@@ -163,8 +171,7 @@ export function bookingApp(deps, { vault, signer, push }) {
   /** The connect link for a guest who hasn't one working yet. */
   async function connectFor(guest, returnTo) {
     if (!config.googleClientId) return null;
-    if (guest?.verifiedAt && (guest.guest?.personAccountId
-      || await deps.db.first("SELECT 1 AS x FROM guest_grants WHERE account_id = ? AND status = 'ok'", guest.accountId))) return null;
+    if (guest?.verifiedAt && (await personStillLinked(guest) || await grantOf(guest))) return null;
     return { url: `/b/connect?return=${encodeURIComponent(returnTo)}` };
   }
 
@@ -348,16 +355,17 @@ export function bookingApp(deps, { vault, signer, push }) {
     ]);
     if (Number(byIp?.n) >= 10 || Number(byHost?.n) >= 50) return json(c, { error: "rate" }, 429);
 
+    // A guest who already has a time with this host is asked first (move it here, or book this one
+    // too), but only one who has shown it is them: a browser that proved the email, or the browser
+    // that booked that time. Anyone else who types an address books as anyone does, and the page
+    // says nothing about the address's other times: those go only to the address, in the
+    // confirmation email.
+    if (body.also !== true) {
+      const mine = await ownUpcoming(guest, host, email);
+      if (mine) return json(c, { existing: mine }, 409);
+    }
     const result = await reserve(ctx, host, type, { ...input, guestAccount: null, ipHash });
     if (result.kind === "taken" || result.kind === "full") return json(c, { taken: true, nearest: result.nearest ?? [] }, 409);
-    if (result.kind === "existing") {
-      // The link goes only to the email: whoever typed it may not own it, so it gets one a day.
-      const emailed = emailOn() && (await deps.limit("code", `existing:${email}`))
-        && (await deps.db.run("UPDATE bookings SET existing_mailed_at = ? WHERE id = ? AND (existing_mailed_at IS NULL OR existing_mailed_at < ?)",
-          t, result.row.id, t - DAY)).changes > 0;
-      if (emailed) deps.defer(mail(ctx, "existing", result.row, host));
-      return json(c, { already: true, emailed: emailOn() }, 409);
-    }
     const row = result.row;
     if (result.fresh) {
       // The guest's account only once the time is theirs. Its name and phone change only from a
@@ -374,6 +382,21 @@ export function bookingApp(deps, { vault, signer, push }) {
     else await startSession(deps, c, row.guest_account_id, { profile, verified: false });
     return json(c, { booking: await bookingView(ctx, row) });
   });
+
+  /**
+   * The soonest upcoming time this browser may be told about for `email` with `host`, as
+   * {start, end, title, manage}; null when there is none, or the browser hasn't shown it is the
+   * email's owner (proved it, or booked that time itself).
+   */
+  async function ownUpcoming(guest, host, email) {
+    if (!guest) return null;
+    const proved = Boolean(guest.verifiedAt && guest.guest?.email === email);
+    const times = await upcomingWith(ctx, host.account, email);
+    const shown = times.find(({ row }) => proved || (row.guest_account_id === guest.accountId && guest.profile?.email === email));
+    if (!shown) return null;
+    return { start: new Date(Number(shown.row.start_at)).toISOString(), end: new Date(Number(shown.row.end_at)).toISOString(),
+      title: shown.row.type_title, manage: shown.ref };
+  }
 
   app.post("/b/undo", async (c) => {
     if (!(await deps.limit("book", ipOf(c)))) return json(c, { error: "rate" }, 429);
@@ -501,17 +524,19 @@ export function bookingApp(deps, { vault, signer, push }) {
     const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
     if (!validEmail(email) || !(await checkCode(deps, signer, email, body?.code))) return json(c, { field: "code", error: "code" }, 400);
     const account = await guestAccount(deps, email, { verified: true });
-    await linkPerson(account, email);
     const guest = await guestFor(c);
     await startSession(deps, c, account, { profile: { ...(guest?.profile ?? {}), email }, verified: true });
     return c.body(null, 204);
   });
 
-  /** A guest who is also a Banana person: their own calendars count. Only for a proven email. */
-  async function linkPerson(account, email, sub = null) {
-    const person = sub ? await deps.db.first("SELECT account_id FROM google_links WHERE sub = ? AND status <> 'unlinked'", sub)
-      : await deps.db.first("SELECT account_id FROM google_links WHERE email = ? AND status <> 'unlinked' ORDER BY created_at LIMIT 1", email);
-    if (person) await deps.db.run("UPDATE guests SET person_account_id = ? WHERE account_id = ?", person.account_id, account);
+  /**
+   * A guest who is also a Banana person: their own calendars count. Only for a proven Google
+   * account: the person is the one that `sub` belongs to, and when it belongs to none, a link the
+   * guest account carried before goes.
+   */
+  async function linkPerson(account, sub) {
+    const person = await deps.db.first("SELECT account_id FROM google_links WHERE sub = ? AND status <> 'unlinked'", sub);
+    await deps.db.run("UPDATE guests SET person_account_id = ? WHERE account_id = ?", person?.account_id ?? null, account);
   }
 
   app.get("/b/forget", async (c) => {
@@ -552,7 +577,10 @@ export function bookingApp(deps, { vault, signer, push }) {
     const guest = await guestFor(c);
     const returnTo = safeReturn(c.req.query("return"));
     const nonce = Array.from(deps.random(16), (b) => b.toString(16).padStart(2, "0")).join("");
-    const held = guest?.verifiedAt ? await deps.db.first("SELECT 1 AS x FROM guest_grants WHERE account_id = ? AND status = 'ok'", guest.accountId) : null;
+    // A grant is held when this browser's Google account has one, or (not proven yet) the guest
+    // account has any: then Google is asked only who this is, and the callback checks it is them.
+    const held = guest?.verifiedAt ? await deps.db.first(
+      "SELECT 1 AS x FROM guest_grants WHERE account_id = ? AND status = 'ok' AND (? IS NULL OR sub = ?)", guest.accountId, guest.sub, guest.sub) : null;
     const state = await signer.seal("connect", { r: returnTo, n: nonce }, deps.now() + 10 * MINUTE);
     setCookie(c, CONNECT_COOKIE, nonce, { path: "/", secure: true, httpOnly: true, sameSite: "Lax", maxAge: 600 });
     const params = new URLSearchParams({
@@ -576,7 +604,7 @@ export function bookingApp(deps, { vault, signer, push }) {
     try { who = await deps.google.exchangeCode(code, { redirectUri: `${config.bookUrl}/b/connect/callback` }); }
     catch (error) { console.log(`booking: connect exchange failed (${error.name})`); return c.redirect(back, 303); }
     const account = await guestAccount(deps, who.email, { name: who.name, verified: true });
-    await linkPerson(account, who.email, who.sub);
+    await linkPerson(account, who.sub);
     const scoped = String(who.scopes).split(/\s+/).includes(FREEBUSY_SCOPE);
     const t = deps.now();
     if (who.refreshToken && scoped) {
@@ -587,9 +615,9 @@ export function bookingApp(deps, { vault, signer, push }) {
         who.sub, account, who.email, await vault.seal(`guest:${who.sub}`, who.refreshToken), who.scopes, t, t, t);
     }
     const guest = await guestFor(c);
-    const hash = await startSession(deps, c, account, { profile: { ...(guest?.profile ?? {}), email: who.email, name: guest?.profile?.name ?? who.name }, verified: true });
+    const hash = await startSession(deps, c, account, { profile: { ...(guest?.profile ?? {}), email: who.email, name: guest?.profile?.name ?? who.name }, verified: true, sub: who.sub });
     // No grant to keep (Google left the refresh token out): this once, the busy goes back in the link.
-    const granted = await deps.db.first("SELECT 1 AS x FROM guest_grants WHERE account_id = ? AND status = 'ok'", account);
+    const granted = await deps.db.first("SELECT 1 AS x FROM guest_grants WHERE account_id = ? AND sub = ? AND status = 'ok'", account, who.sub);
     if (!granted && scoped && who.accessToken) {
       try {
         const busy = await deps.google.freeBusy(who.accessToken, { timeMin: new Date(t).toISOString(), timeMax: new Date(t + 92 * DAY).toISOString() });

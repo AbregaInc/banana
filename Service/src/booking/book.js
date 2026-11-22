@@ -176,6 +176,15 @@ async function mailFields(ctx, row, host) {
   };
 }
 
+/** A guest's upcoming times with a host (soonest first), each with its manage link and title. */
+export async function upcomingWith(ctx, account, email, { except = null, limit = 5 } = {}) {
+  const rows = await ctx.deps.db.all(
+    `SELECT * FROM bookings WHERE account_id = ? AND guest_email = ? AND status IN ('pending', 'confirmed') AND end_at > ? AND id IS NOT ?
+     ORDER BY start_at LIMIT ?`, account, email, ctx.deps.now(), except, limit);
+  return Promise.all(rows.map(async (r) => ({ row: r, manageUrl: `${ctx.config.bookUrl}/m/${await manageRef(ctx, r.manage_id)}`,
+    ref: await manageRef(ctx, r.manage_id) })));
+}
+
 /** Sends one booking email; failures are logged, never thrown. */
 export async function mail(ctx, kind, row, host, extra = {}) {
   if (!row.guest_email) return false;
@@ -274,9 +283,9 @@ const BOOKING_COLUMNS = `id, manage_id, account_id, type_id, type_title, start_a
 
 /**
  * Reserves a slot: the exact start must be one the engine offers now, then one conditional insert
- * takes it, unless another booking (padded by buffers) overlaps, the email already has a future
- * time of this type, or the day is full. The event is made after the answer (`complete`).
- * @returns {Promise<{kind: "booked"|"taken"|"existing"|"full", row?: object, nearest?: object[]}>}
+ * takes it, unless another booking (padded by buffers) overlaps or the day is full. A guest may
+ * hold several times with a host. The event is made after the answer (`complete`).
+ * @returns {Promise<{kind: "booked"|"taken"|"full", row?: object, nearest?: object[]}>}
  */
 export async function reserve(ctx, host, type, input) {
   const { deps } = ctx;
@@ -306,20 +315,14 @@ export async function reserve(ctx, host, type, input) {
   const inserted = await deps.db.run(
     `INSERT INTO bookings (${columns.join(", ")}) SELECT ${columns.map(() => "?").join(", ")}
      WHERE NOT EXISTS (SELECT 1 FROM bookings WHERE account_id = ? AND status IN ('pending', 'confirmed') AND block_start < ? AND block_end > ?)
-       AND NOT EXISTS (SELECT 1 FROM bookings WHERE account_id = ? AND type_id = ? AND guest_email = ? AND status IN ('pending', 'confirmed') AND end_at > ?)
        AND (? = 0 OR (SELECT COUNT(*) FROM bookings WHERE account_id = ? AND type_id = ? AND status IN ('pending', 'confirmed') AND start_at >= ? AND start_at < ?) < ?)`,
     ...columns.map((k) => row[k]),
     host.account, blockEnd, blockStart,
-    host.account, type.id, input.email, t,
     type.perDay ? 1 : 0, host.account, type.id, day?.from ?? 0, day?.to ?? 0, type.perDay ?? 0);
   if (inserted.changes) return { kind: "booked", row, fresh: true };
-  // Why not: the same request again (a retry racing its first try), the email's own time, or the slot.
+  // Why not: the same request again (a retry racing its first try), or the slot.
   const again = await findRetry(ctx, input);
   if (again) return { kind: "booked", row: again };
-  const own = await deps.db.first(
-    "SELECT * FROM bookings WHERE account_id = ? AND type_id = ? AND guest_email = ? AND status IN ('pending', 'confirmed') AND end_at > ? ORDER BY start_at LIMIT 1",
-    host.account, type.id, input.email, t);
-  if (own) return { kind: "existing", row: own };
   const live = await deps.db.all("SELECT id, type_id, start_at, end_at, block_start, block_end FROM bookings WHERE account_id = ? AND status IN ('pending', 'confirmed') AND end_at > ?", host.account, t);
   const fresh = { ...host, bookings: live.map((b) => ({ ...b, start_at: Number(b.start_at), end_at: Number(b.end_at), block_start: Number(b.block_start), block_end: Number(b.block_end) })) };
   return { kind: "taken", nearest: nearest(slotsOf(fresh, type, { now: t }), start) };
@@ -465,7 +468,10 @@ async function confirmedNews(ctx, id, host) {
   const fresh = await ctx.deps.db.first("SELECT * FROM bookings WHERE id = ?", id);
   const type = host?.types.find((x) => x.id === fresh.type_id);
   const ref = await manageRef(ctx, fresh.manage_id);
-  await mail(ctx, "confirmed", fresh, host, { ics: icsFor(ctx, fresh, host, type, ref) });
+  // The guest's other upcoming times with this host, each with its own link: whoever typed the
+  // email, its owner sees everything booked under it and can change any of it.
+  const others = await upcomingWith(ctx, fresh.account_id, fresh.guest_email, { except: fresh.id });
+  await mail(ctx, "confirmed", fresh, host, { ics: icsFor(ctx, fresh, host, type, ref), others });
   if (fresh.invite === "sent") {
     const zone = host?.accountZone ?? type?.timeZone ?? "UTC";
     await pushHost(ctx, fresh.account_id, `${fresh.guest_name ?? "Someone"} booked ${fresh.type_title}, ${shortWhen(Number(fresh.start_at), zone)}`, `bk-${fresh.manage_id}`, { row: fresh });

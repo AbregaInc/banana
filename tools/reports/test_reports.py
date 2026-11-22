@@ -96,6 +96,26 @@ class AnonymiseTests(unittest.TestCase):
         self.assertEqual(len(reports.anonymise_text("48213")), 5)
 
 
+class AnonymiseLeakTests(unittest.TestCase):
+    def anonymise(self, source):
+        parser = reports.Anonymiser()
+        parser.feed(source)
+        parser.close()
+        return "".join(parser.out)
+
+    def test_text_spelled_as_references_attribute_values_and_names_go(self):
+        out = self.anonymise('<!DOCTYPE html PUBLIC "Rosalind Pike Ltd"><p>&#82;&#x6f;salind&nbsp;&amp;</p>'
+                             '<td rosalindpike lang="Rosalind Pike" width="600"><font face="PikeSans">x</font>'
+                             '<p style="font-family: PikeSans; content: \'Rosalind\'; color: red">y</p><rosalind-pike-tag>z</rosalind-pike-tag>')
+        for private in ("Rosalind", "Pike", "&#82;", "&#x6f;", "rosalindpike", "PikeSans"):
+            self.assertNotIn(private, out, private)
+        for kept in ("&nbsp;", "&amp;", 'width="600"', "color: red", "<!DOCTYPE html>"):
+            self.assertIn(kept, out, kept)
+
+    def test_the_terminal_gets_printable_text(self):
+        self.assertEqual(reports.printable("boom\x1b[2J\u202eend"), "boom\ufffd[2J\ufffdend")
+
+
 class MailSourceRecoveryTests(unittest.TestCase):
     def test_viewer_image_urls_become_cid_sources_without_changing_other_markup(self):
         source = '<p>keep</p><img src="banana-mail-image://message/picture%40part" width="320">'

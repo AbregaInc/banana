@@ -32,7 +32,30 @@ service later, so everything here is built to carry it.
   alone never deletes. Deleting stops every calendar watch, revokes every Google token at
   Google, and deletes every row about the account, usage included.
 - **Disconnecting** a Google account in Banana keeps its `sub` and email (status `unlinked`, no
-  token, no watches), so it can sign in to the same account again and delete it.
+  token, no watches, no Mail grant). When it was the account's only Google account, it can sign
+  in to the same account again and delete it, so the account is never stranded. When another
+  Google account is still linked, the disconnected one has no authority left: it cannot sign in
+  or delete, and the sessions it proved end. A signed-in device can add it back.
+- **A session records the Google account that proved it** (`sessions.google_sub`). Disconnecting
+  that Google account, or Google refusing it, ends those sessions while the account's other
+  sessions carry on. An ended session answers `401 {"error":"signed_out","reprove":true}` (a
+  deleted account answers without `reprove`): the app signs in again at once, by itself, with a
+  Google account still linked. Nothing to do for the person. Mail comes back only through the
+  Mail consent action.
+- **Google is asked about every session.** About a link the service holds a token for, by the
+  daily check. About a link it holds none for (a sign-in by identity token only), the session
+  needs a fresh proof every 30 days: past that it answers `reprove`, and the app proves itself
+  again with a new identity token. Signed in, proving the session's own Google account again
+  renews it. A session Google keeps saying yes to never ends.
+- **After deleting the account nothing signs back in by itself.** The deleted account's session
+  hashes are kept a month (`deleted_sessions`), so another device still holding one is told
+  `{"error":"signed_out","deleted":true}`. A device that deleted the account, or was told, stops
+  joining by identity on its own until the person signs in with Google on purpose: otherwise the
+  connected Google accounts would start a new account at once and upload the device's data to it.
+- **A device row belongs to its install.** The app makes a secret once per install and keeps it
+  in this device's keychain (never synced); the service keeps its hash. A sign-in moves a row to
+  another account only with that secret (`409 device_taken` otherwise: the app takes a new device
+  id). Rows from before carry none and move as before until their device next registers.
 
 ## What the service holds
 
