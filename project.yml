@@ -371,7 +371,7 @@ targets:
         NSMicrophoneUsageDescription: "Banana records quick voice notes — pause a podcast, capture a thought, and it's saved with the moment it came from for later."
         NSCameraUsageDescription: "Banana uses the camera only when you choose to photograph a meal or a supplement label, scan a food or supplement barcode, or pair with your Mac by QR code."
         NSContactsUsageDescription: "Banana looks up the people you type when adding guests to an event, so \u201CLunch with Sam\u201D can invite the Sam you mean."
-        NSLocalNetworkUsageDescription: "Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again."
+        NSLocalNetworkUsageDescription: "Banana uses your local network to connect to a Mac for AI and share downloaded podcasts with your devices."
         NSBonjourServices:
           - _banana-audio._tcp
           - _banana-link._tcp
@@ -559,7 +559,7 @@ targets:
         NSMicrophoneUsageDescription: "Banana Beta records quick voice notes."
         NSCameraUsageDescription: "Banana Beta uses the camera when you choose to photograph meals or supplement labels, scan product barcodes, or pair with your Mac by QR code."
         NSContactsUsageDescription: "Banana Beta looks up the people you type when adding guests to an event, so \u201CLunch with Sam\u201D can invite the Sam you mean."
-        NSLocalNetworkUsageDescription: "Banana Beta finds your other Banana devices on this Wi-Fi."
+        NSLocalNetworkUsageDescription: "Banana Beta uses your local network to connect to a Mac for AI and share downloaded podcasts with your devices."
         NSBonjourServices:
           - _$(BANANA_PEER_SERVICE)._tcp
           - _banana-link._tcp
@@ -1702,7 +1702,7 @@ targetTemplates:
         NSRemindersFullAccessUsageDescription: "Banana reads your reminders on-device so it can schedule tasks onto your day."
         NSLocationWhenInUseUsageDescription: "Banana uses your location for your local forecast."
         NSSpeechRecognitionUsageDescription: "Banana transcribes downloaded episodes on your device."
-        NSLocalNetworkUsageDescription: "Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again."
+        NSLocalNetworkUsageDescription: "Banana uses your local network to share this Mac’s AI model and downloaded podcasts with your devices."
         NSBonjourServices:
           - _banana-audio._tcp
           - _banana-link._tcp

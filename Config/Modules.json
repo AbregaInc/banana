@@ -12,10 +12,10 @@
     "food": {
       "condition": "BANANA_MODULE_FOOD",
       "privacy": ["NSPrivacyCollectedDataTypeHealth", "NSPrivacyCollectedDataTypePhotosorVideos", "NSPrivacyCollectedDataTypeSearchHistory"],
-      "frameworks": ["Photos", "VisionKit"],
+      "frameworks": ["Photos"],
       "resources": ["Foods.sqlite", "BarcodeProducts.sqlite", "GenericFoods.json", "TakenVocabulary.json"],
       "entitlements": ["com.apple.security.personal-information.photos-library"],
-      "info": ["NSPhotoLibraryUsageDescription", "NSCameraUsageDescription"],
+      "info": ["NSPhotoLibraryUsageDescription"],
       "backgroundModes": ["processing"],
       "taskIdentifiers": ["com.boris.banana.meals.scan", "com.boris.banana.meals.estimate.*", "com.boris.banana.meals.catchup"],
       "markers": ["WellnessStore", "MealInboxStore", "MealBacklogProcessor"]
@@ -35,9 +35,7 @@
       "frameworks": ["Speech", "MusicKit", "MediaPlayer", "AVKit"],
       "resources": ["NarratorVoiceModel.mlpackage", "NarratorVoiceModel.mlmodelc", "NarratorVoiceModel-LICENSE.txt",
                     "acq2.jpg", "acquired.jpg", "complex-systems.jpg", "gamecraft.jpg", "get-sleepy.jpg", "step-change.jpg"],
-      "entitlements": ["com.apple.security.network.server"],
-      "info": ["NSAppleMusicUsageDescription", "NSSpeechRecognitionUsageDescription", "NSLocalNetworkUsageDescription",
-               "NSBonjourServices", "NSAppTransportSecurity"],
+      "info": ["NSAppleMusicUsageDescription", "NSSpeechRecognitionUsageDescription", "NSAppTransportSecurity"],
       "backgroundModes": ["audio", "processing", "location"],
       "taskIdentifiers": ["com.boris.banana.transcribe.overnight", "com.boris.banana.feeds.overnight", "com.boris.banana.transcribe.*"],
       "rewords": [
@@ -67,12 +65,13 @@
   "core": {
     "info": ["NSAlarmKitUsageDescription", "NSRemindersFullAccessUsageDescription", "NSLocationWhenInUseUsageDescription",
              "NSContactsUsageDescription",
-             "NSSupportsLiveActivities"],
+             "NSSupportsLiveActivities", "NSCameraUsageDescription", "NSLocalNetworkUsageDescription", "NSBonjourServices"],
     "entitlements": ["aps-environment", "com.apple.developer.aps-environment", "com.apple.developer.usernotifications.time-sensitive",
                      "com.apple.developer.weatherkit", "com.apple.developer.icloud-services",
                      "com.apple.developer.icloud-container-identifiers", "com.apple.developer.icloud-container-environment",
                      "com.apple.developer.ubiquity-container-identifiers", "com.apple.developer.ubiquity-kvstore-identifier",
                      "keychain-access-groups", "com.apple.security.app-sandbox", "com.apple.security.network.client",
+                     "com.apple.security.network.server",
                      "com.apple.security.personal-information.calendars", "com.apple.security.personal-information.addressbook",
                      "com.apple.security.personal-information.location"],
     "backgroundModes": ["fetch", "remote-notification"],
