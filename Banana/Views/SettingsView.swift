@@ -351,8 +351,15 @@ struct SettingsView: View {
             .sheet(isPresented: $showingHomePicker) {
                 HomeLocationPicker()
             }
+            #if DEBUG
+            // `--settings --settings-accounts`: opens on the account page, for screenshots.
+            .navigationDestination(isPresented: $previewAccounts) { page(.accounts) }
+            #endif
         }
     }
+    #if DEBUG
+    @State private var previewAccounts = ProcessInfo.processInfo.arguments.contains("--settings-accounts")
+    #endif
     #endif
 
     // MARK: - Structure
@@ -601,6 +608,9 @@ struct SettingsView: View {
     }
 
     private var accountStatus: (status: ConnectionStatus, word: String) {
+        // A sign-in the Banana account refused (say, that Google account was disconnected from it):
+        // said on the first screen, where a signed-out person looks; the page says what to do.
+        if !bananaAccount.isSignedIn, bananaAccount.lastError != nil { return (.attention, "Couldn\u{2019}t sign in") }
         if !googleCalendar.isConnected { return (.off, "Not connected") }
         if !googleCalendar.accountsToSignInAgain.isEmpty { return (.attention, "Sign in again") }
         if googleCalendar.isWorking { return (.working, "Syncing") }
@@ -1124,6 +1134,13 @@ struct SettingsView: View {
                     Text(error)
                         .font(.footnote)
                         .foregroundStyle(DS.Palette.danger)
+                } else if !bananaAccount.isSignedIn, let error = bananaAccount.lastError {
+                    // The Banana account refused this Google account (disconnected from it): said
+                    // here, beside the sign-in, since the account section shows only once signed in.
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundStyle(DS.Palette.danger)
+                        .accessibilityIdentifier("settings.google.accountError")
                 }
             } header: {
                 // Not over a lone "Connect Google Calendar", which already names it.

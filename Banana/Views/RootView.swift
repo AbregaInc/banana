@@ -185,6 +185,9 @@ struct RootView: View {
                 }
             } else if ProcessInfo.processInfo.arguments.contains("--settings") {
                 SettingsView()
+                    .onAppear {
+                        if ProcessInfo.processInfo.arguments.contains("--account-disconnected-preview") { BananaAccount.shared.showRefusalForPreview() }
+                    }
             } else if ProcessInfo.processInfo.arguments.contains("--place-picker") {
                 PlacePickerView(locationText: "Chelsea", context: "Lap Swim at 7:45 PM", eventTitle: "Lap Swim")
             } else if ["--wellness", "--scan-correct-preview", "--my-foods", "--energy-balance", "--food-search"].contains(where: { ProcessInfo.processInfo.arguments.contains($0) }) {

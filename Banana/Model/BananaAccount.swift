@@ -201,6 +201,11 @@ final class BananaAccount: ObservableObject {
 
     static let disconnectedMessage = "That Google account was disconnected from Banana. Sign in with one still connected."
 
+    #if DEBUG
+    /// `--settings --account-disconnected-preview`: Settings as it is after a refused sign-in.
+    func showRefusalForPreview() { lastError = Self.disconnectedMessage }
+    #endif
+
     // MARK: - Signing in
 
     /// Google's sign-in finished with a one-time code for the service: sign in with it, or link

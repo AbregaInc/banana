@@ -387,6 +387,19 @@ struct EventDetailView: View {
     }
 
     private func reload() async {
+        #if DEBUG
+        // `--event-detail --event-detail-links`: notes holding web, mail and other-scheme links.
+        if ProcessInfo.processInfo.arguments.contains("--event-detail-links") {
+            notesText = Self.linkified("""
+            Agenda: https://docs.example.com/review
+            Questions: mailto:sam@example.com
+            Run this first: shortcuts://run-shortcut?name=Export
+            Or: javascript:alert(document.cookie)
+            Settings: prefs:root=General
+            """)
+            return
+        }
+        #endif
         guard let loaded = try? await GoogleCalendarService.shared.event(for: meeting) else { return }
         details = loaded
         let text = loaded.notes.trimmingCharacters(in: .whitespacesAndNewlines)
