@@ -474,3 +474,12 @@ test("deleting the account ends its sessions before its data goes, and a write a
   assert.deepEqual(await stub.recordBlob("a".repeat(64), 1, s.now(), "podcast.listen"), { ok: false, reason: "closed" });
   assert.equal((await s.call("POST", "/v2/sync", { session: ann.session, body: change("x") })).status, 401);
 });
+
+test("with push topics configured, a device must name one of them as its bundle", async () => {
+  const s = setup({ config: { apnsTopics: ["app.banana.Banana"] } });
+  s.google.person("c1", "sub-1", "ann@example.com");
+  assert.equal((await s.signIn("c1", device("phone-0001", { bundle: "com.someone.else" }))).status, 400);
+  const ann = (await s.signIn("c1", device("phone-0001"))).json;
+  assert.equal((await s.call("PUT", "/v1/devices/phone-0002", { body: device("phone-0002", { bundle: "com.someone.else" }), session: ann.session })).status, 400);
+  assert.equal((await s.call("PUT", "/v1/devices/phone-0002", { body: device("phone-0002"), session: ann.session })).status, 204);
+});

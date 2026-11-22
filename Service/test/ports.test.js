@@ -316,3 +316,16 @@ test("development OAuth audience extends existing clients without changing produ
     ['phone.example','mac.example','dev.example']);
   assert.deepEqual(configFrom({}).googleAppClientIds,[]);
 });
+
+test("apns: a 403 that isn't about the provider token (a topic the key doesn't sign for) keeps the shared token", async () => {
+  const { pem } = await p8();
+  const db = sqlite(":memory:");
+  const tokens = sharedProviderTokens(db);
+  const config = { apnsKey: pem, apnsKeyId: "KEYTOPIC01", apnsTeamId: "T" };
+  const clock = NOW;
+  const forbidden = fakeFetch({ status: 403, body: { reason: "Forbidden" } });
+  const apns = createApns(config, forbidden, () => clock, tokens);
+  await apns.send({ token: "ab".repeat(32), env: "production", topic: "com.someone.else", payload: {} });
+  await apns.send({ token: "ab".repeat(32), env: "production", topic: "com.someone.else", payload: {} });
+  assert.equal(forbidden.calls[1].headers.authorization, forbidden.calls[0].headers.authorization);
+});

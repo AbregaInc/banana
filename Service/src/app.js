@@ -204,6 +204,9 @@ export function createApp(deps) {
   /** An account holds at most MOST_DEVICES rows (a person's own devices are a handful). */
   const roomForDevice = async (account) => Number((await db.first("SELECT COUNT(*) AS n FROM devices WHERE account_id = ?", account)).n) < MOST_DEVICES;
 
+  /** A device's bundle is its APNs topic: one the service's key signs for, when they are configured. */
+  const pushTopicAllowed = (device) => !deps.config.apnsTopics?.length || deps.config.apnsTopics.includes(device.bundle);
+
   /** The SHA-256 of the install's secret, or null when the device sent none (older builds). */
   const deviceSecretHash = async (device) => (device.secret ? await sha256Hex(`device-secret:${device.secret}`) : null);
 
@@ -269,7 +272,7 @@ export function createApp(deps) {
     const body = await readJson(c, 16_384);
     const code = body?.code;
     const device = parseDevice(body?.device);
-    if (typeof code !== "string" || !code || code.length > 2048 || !device) return c.json({ error: "bad_request" }, 400);
+    if (typeof code !== "string" || !code || code.length > 2048 || !device || !pushTopicAllowed(device)) return c.json({ error: "bad_request" }, 400);
     // A session that no longer exists (the account was deleted elsewhere) counts as signed out.
     const current = await sessionAccount(c);
 
@@ -285,7 +288,7 @@ export function createApp(deps) {
     const body = await readJson(c, 16_384);
     const idToken = body?.idToken;
     const device = parseDevice(body?.device);
-    if (typeof idToken !== "string" || !idToken || idToken.length > 8192 || !device) return c.json({ error: "bad_request" }, 400);
+    if (typeof idToken !== "string" || !idToken || idToken.length > 8192 || !device || !pushTopicAllowed(device)) return c.json({ error: "bad_request" }, 400);
     const current = await sessionAccount(c);
     let who;
     try { who = await deps.google.verifyIdToken(idToken); }
@@ -573,7 +576,7 @@ export function createApp(deps) {
   app.put("/v1/devices/:id", signedIn, async (c) => {
     const body = await readJson(c, 4096);
     const device = parseDevice(typeof body === "object" ? body : null, c.req.param("id"));
-    if (!device) return c.json({ error: "bad_request" }, 400);
+    if (!device || !pushTopicAllowed(device)) return c.json({ error: "bad_request" }, 400);
     // A session names its own devices only: another account's row is not taken over here (a device
     // changes hands only through a sign-in, which proves a Google identity and is audited).
     const owner = await deviceOwner(device.id);
