@@ -162,11 +162,18 @@ export async function mailContent(deps, vault, account, request) {
     if (!state.key) { messages.push(state.gone ? { id: state.id, gone: true } : { id: state.id, missing: true }); continue; }
     if (bytes >= CONTENT_BYTES_MOST) { messages.push({ id: state.id, later: true }); continue; }
     const object = await deps.blobs.get(state.key);
+    // The budget counts what is stored before it is read: an answer holds at most
+    // CONTENT_BYTES_MOST, or one message alone (at most CACHE_MOST) when that is larger.
+    if (object && bytes > 0 && bytes + Number(object.size) > CONTENT_BYTES_MOST) {
+      await object.body?.cancel?.().catch(() => {});
+      messages.push({ id: state.id, later: true });
+      continue;
+    }
     let body;
     try {
       if (!object) throw new Error("content missing");
       const plain = await vault.openBytes(state.aad, new Uint8Array(await new Response(object.body).arrayBuffer()));
-      bytes += plain.length;
+      bytes += Math.max(plain.length, Number(object.size));
       body = JSON.parse(new TextDecoder().decode(plain));
     } catch {
       await mailbox.lost(state.id);

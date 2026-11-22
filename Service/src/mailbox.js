@@ -15,7 +15,10 @@ import { snoozeAssertions } from "./mail-snooze.js";
 import { hasBlockedSenders, matchingSenderPolicy, senderRuleWasApplied, recordSenderRuleApplied, senderPolicy, setSenderPolicy } from "./sender-policy.js";
 
 const SECOND = 1000, MINUTE = 60 * SECOND, DAY = 24 * 60 * MINUTE;
-export const CACHE_MOST = 16 * 1024 * 1024;   // larger content is passed through, not stored
+// Larger content is passed through, not stored. A stored read holds the sealed bytes, the opened
+// bytes, the text and the parsed answer at once in a Worker isolate (128 MB, shared by requests):
+// 8 MiB each keeps one read well inside it.
+export const CACHE_MOST = 8 * 1024 * 1024;
 const ACTIVE = 2 * MINUTE;                       // a device read the feed this recently
 const POLL_ACTIVE = 10 * SECOND, POLL_RECENT = 2 * MINUTE, POLL_IDLE = 30 * MINUTE;
 const LABEL_CHECK_EVERY = 10 * MINUTE;

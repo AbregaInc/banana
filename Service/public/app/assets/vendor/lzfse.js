@@ -304,8 +304,8 @@ function lzvnDecode(src, start, end, nRaw, out) {
  * Decompresses a complete LZFSE stream. `sizeHint` (the expected output size, when known) avoids
  * reallocation. Matches may reach back into earlier blocks, so the whole stream shares one output.
  */
-export function lzfseDecompress(input, sizeHint = 0) {
-    const out = new OutBuffer(sizeHint || input.length * 4);
+export function lzfseDecompress(input, sizeHint = 0, most = undefined) {
+    const out = new OutBuffer(sizeHint || input.length * 4, most);
     let p = 0;
     for (;;) {
         const magic = u32(input, p);

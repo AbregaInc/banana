@@ -9,6 +9,9 @@ import { calendarSettings } from './calendar.js';
 import { GoogleRefused } from '../google.js';
 import { lzfseDecompress } from '../../public/app/assets/vendor/lzfse.js';
 const MOST_SNAPSHOT_BYTES = 8 * 1024 * 1024;   // a packed Health snapshot the Worker decodes
+// What it may decode to. Its buffer starts at four times the packed size and grows only as far as
+// the bytes really need, so a small snapshot never takes this much.
+const MOST_SNAPSHOT_DECODED = 24 * 1024 * 1024;
 import { allowedTypes, allowedViews, feedAccess, calendarKey, normalizePolicy, policyExpired, projectHealthSnapshot, sharedCalendar } from './sharing-policy.js';
 
 const DAY = 86_400_000, HOUR = 3_600_000;
@@ -284,7 +287,7 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
       if (Number(found.size) > MOST_SNAPSHOT_BYTES) return error(c, 'not_found', 404);
       try {
         let bytes = new Uint8Array(await new Response(found.body).arrayBuffer());
-        if (new TextDecoder().decode(bytes.subarray(0, 6)) === 'LZFSE1') bytes = lzfseDecompress(bytes.subarray(6), MOST_SNAPSHOT_BYTES * 8);
+        if (new TextDecoder().decode(bytes.subarray(0, 6)) === 'LZFSE1') bytes = lzfseDecompress(bytes.subarray(6), bytes.length * 4, MOST_SNAPSHOT_DECODED);
         return c.json(projectHealthSnapshot(JSON.parse(new TextDecoder().decode(bytes)), policy));
       } catch { return error(c, 'not_found', 404); }
     }

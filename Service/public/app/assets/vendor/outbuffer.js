@@ -2,13 +2,16 @@
 export class OutBuffer {
     buf;
     length = 0;
-    constructor(capacity = 1 << 16) {
-        this.buf = new Uint8Array(Math.min(64 * 1024 * 1024, Math.max(16, capacity)));
+    most;
+    /** `most`: the largest output allowed (64 MB unless the caller says less). */
+    constructor(capacity = 1 << 16, most = 64 * 1024 * 1024) {
+        this.most = most;
+        this.buf = new Uint8Array(Math.min(most, Math.max(16, capacity)));
     }
     /** Makes room for `n` more bytes. Callers re-read `buf` afterwards, since it may be replaced. */
     reserve(n) {
         const need = this.length + n;
-        if (need > 64 * 1024 * 1024) throw new Error("Decoded file exceeds 64 MB");
+        if (need > this.most) throw new Error(`Decoded file exceeds ${this.most} bytes`);
         if (need <= this.buf.length)
             return;
         let cap = this.buf.length * 2;
