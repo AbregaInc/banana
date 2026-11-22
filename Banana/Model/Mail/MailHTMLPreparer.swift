@@ -36,6 +36,19 @@ enum MailHTMLPreparer {
     static let version = 7
     static let maximumBytes = 2 * 1024 * 1024
     static let maximumNodes = 50_000
+    /// Tags counted before parsing (one pass over the bytes): the parser's work grows with them,
+    /// so a message of many small tags is read only up to this many.
+    static let maximumTags = 100_000
+
+    /// The HTML up to its `maximumTags`th tag, or nil when it has fewer.
+    static func cutAtTagLimit(_ html: String) -> String? {
+        var tags = 0
+        for (offset, byte) in html.utf8.enumerated() where byte == UInt8(ascii: "<") {
+            tags += 1
+            if tags > maximumTags { return String(decoding: html.utf8.prefix(offset), as: UTF8.self) }
+        }
+        return nil
+    }
     /// How deep the walk recurses; deeper content is read flat, in document order.
     static let maximumDepth = 48
     enum Failure: Error { case tooLarge, tooComplex }
@@ -55,6 +68,11 @@ enum MailHTMLPreparer {
             guard html.utf8.count <= maximumBytes else {
                 if let shown = usablePlain(plain) { return shown }
                 return try wordsOnly(SwiftSoup.parse(String(decoding: html.utf8.prefix(maximumBytes), as: UTF8.self)))
+            }
+            // More tags than are parsed in time: the plain part, else the words of the first ones.
+            if let cut = cutAtTagLimit(html) {
+                if let shown = usablePlain(plain) { return shown }
+                return try wordsOnly(SwiftSoup.parse(cut))
             }
             // Parsed as a document, not a body fragment: SwiftSoup builds a document's tree in one
             // bulk pass, but registers every node of a fragment with its document as it is inserted,

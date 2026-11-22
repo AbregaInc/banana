@@ -48,6 +48,16 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertEqual(text(try MailHTMLPreparer.prepare(plain: "Plain version", html: nested)), "Deep words")
     }
 
+    func testManySmallTagsAreCountedBeforeParsing() throws {
+        // Under the byte limit but past the tag limit: the plain part, never a parse of it all.
+        let many = String(repeating: "<b>", count: MailHTMLPreparer.maximumTags + 10)
+        XCTAssertLessThan(many.utf8.count, MailHTMLPreparer.maximumBytes)
+        XCTAssertNotNil(MailHTMLPreparer.cutAtTagLimit(many))
+        XCTAssertNil(MailHTMLPreparer.cutAtTagLimit("<p>fine</p>"))
+        XCTAssertEqual(text(try MailHTMLPreparer.prepare(plain: "Plain version", html: many)), "Plain version")
+        XCTAssertThrowsError(try MailOriginalDocument.prepare(many))
+    }
+
     // MARK: Data tables, lists written as text, soft breaks (problem reports, Nov 2026)
 
     private func table(_ prepared: MailPreparedBody) -> MailTable? {
