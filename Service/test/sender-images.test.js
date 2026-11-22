@@ -128,7 +128,15 @@ test("no BIMI logo without DMARC enforcement, or from an SVG that scripts or rea
   assert.equal(svgProblem(`<svg onload="x()"></svg>`), "event handler");
   assert.equal(svgProblem(`<!DOCTYPE svg [<!ENTITY x SYSTEM "file:///etc/passwd">]><svg/>`), "entity");
   assert.equal(svgProblem(`<svg><rect style="fill:url(https://x.example/a)"/></svg>`), "external url");
-  assert.equal(svgProblem(`<svg><use href="#a"/><rect fill="url(#g)"/></svg>`), null);
+  assert.equal(svgProblem(`<svg><defs><linearGradient id="g"/></defs><rect fill="url(#g)"/></svg>`), null);
+  // A '>' inside a quoted value doesn't end the tag: the outside reference behind it is still seen.
+  assert.equal(svgProblem(`<svg><image title="a>b" href="https://tracker.example/p.png"/></svg>`), "external reference");
+  assert.equal(svgProblem(`<svg><rect xlink:title="x>y" xlink:href="https://x.example/"/></svg>`), "external reference");
+  // No <use> (a chain of them multiplies the drawing), no filters, nothing outside the logo set.
+  assert.equal(svgProblem(`<svg><use href="#a"/></svg>`), "external reference");
+  assert.equal(svgProblem(`<svg><filter id="f"><feGaussianBlur stdDeviation="99"/></filter></svg>`), "element");
+  assert.equal(svgProblem(`<svg>${"<g>".repeat(5000)}</svg>`), "too many elements");
+  assert.equal(svgProblem(`<svg><rect a="${"x".repeat(5000)}"/></svg>`), "unclosed tag");
   assert.equal(tags("v=DMARC1; p=Reject; pct=50").pct, "50");
 });
 
@@ -345,4 +353,20 @@ test("contacts Google refuses are tried again in a day, not on every lookup", as
   await ask(s, noor, ["c@gmail.com"]);
   await s.settle();
   assert.equal(s.google.contactCalls.length, 2);
+});
+
+test("a page of unclosed link tags is read once, not once per tag", () => {
+  const page = "<link rel=icon href=a.png ".repeat(10_000);   // 260 KiB, no '>'
+  const started = performance.now();
+  assert.equal(bestIconLink(page, "https://x.example.net/"), null);
+  assert.ok(performance.now() - started < 200, `took ${Math.round(performance.now() - started)} ms`);
+  assert.equal(bestIconLink(`<head><link rel="apple-touch-icon" title="a>b" href="/t.png"></head>`, "https://x.example.net/"), "https://x.example.net/t.png");
+});
+
+test("a tall SVG is not drawn: a logo is square, at most twice as tall as wide", async () => {
+  const { nodeSvgRasterizer } = await import("../src/svg-raster.js");
+  const raster = await nodeSvgRasterizer();
+  await assert.rejects(raster(`<svg xmlns="http://www.w3.org/2000/svg" width="1" height="100000"><rect width="1" height="100000"/></svg>`, 128));
+  const png = await raster(`<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><rect width="10" height="10"/></svg>`, 128);
+  assert.ok(png.length > 0);
 });
