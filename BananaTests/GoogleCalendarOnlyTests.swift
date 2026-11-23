@@ -1119,6 +1119,41 @@ final class SharedCalendarBusyCopyTests: XCTestCase {
         return try JSONDecoder().decode(GoogleEvent.self, from: JSONSerialization.data(withJSONObject: body))
     }
 
+    func testTracedBusyCopiesGroupWhenGoogleOmitsACalendarOwner() throws {
+        let calendars = try calendars("""
+        [{"id":"shared-personal","accessRole":"reader"},
+         {"id":"partner@plan.example","accessRole":"reader"}]
+        """, account: "noor@plan.example")
+        let source = GoogleBusyBlocks.sourceKey(calendarID: "hidden-source", eventID: "one")
+        let viewer = try window(calendars, [
+            ("shared-personal", writtenCopy(id: "first", sources: [source])),
+            ("partner@plan.example", writtenCopy(id: "second", sources: [source])),
+        ], overrides: ["shared-personal": true, "partner@plan.example": true])
+
+        XCTAssertEqual(viewer.meetings.map(\.title), ["Busy"])
+        XCTAssertEqual(viewer.meetings.first?.alsoOnCalendarIDs.count, 1)
+        XCTAssertEqual(viewer.busyIntervals.count, 2)
+        XCTAssertFalse(viewer.meetings.first?.shouldMirrorBusyTime == true)
+    }
+
+    func testMatchingBusyFingerprintsWithoutSharedSourceProofStaySeparate() throws {
+        let calendars = try calendars("""
+        [{"id":"shared-personal","accessRole":"reader"},
+         {"id":"partner@plan.example","accessRole":"reader"},
+         {"id":"unmarked-calendar","accessRole":"reader"}]
+        """, account: "noor@plan.example")
+        let first = GoogleBusyBlocks.sourceKey(calendarID: "hidden-source", eventID: "one")
+        let second = GoogleBusyBlocks.sourceKey(calendarID: "hidden-source", eventID: "two")
+        let viewer = try window(calendars, [
+            ("shared-personal", writtenCopy(id: "first", sources: [first])),
+            ("partner@plan.example", writtenCopy(id: "second", sources: [second])),
+            ("unmarked-calendar", googleEvent(id: "third", summary: "Busy")),
+        ], overrides: ["shared-personal": true, "partner@plan.example": true, "unmarked-calendar": true])
+
+        XCTAssertEqual(viewer.meetings.map(\.title), ["Busy", "Busy", "Busy"])
+        XCTAssertEqual(viewer.busyIntervals.count, 3)
+    }
+
     /// Each person chooses per calendar: blocking or visibility. The household calendar blocks
     /// the partner's time and is only visibility for Noor. The partner's Banana copies Noor's walk
     /// into the partner's calendars naming its source; Noor, who can see the walk, sees only the

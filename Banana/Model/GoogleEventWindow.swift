@@ -433,7 +433,7 @@ enum GoogleEventWindowBuilder {
                     sources[Self.anyOwner + mirror, default: []].insert(identity)
                 }
             }
-            let managedCopies = managedAvailabilityIdentities(candidates)
+            let markedCopies = markedAvailabilityIdentities(candidates)
             for (index, event) in candidates.enumerated() where event.isSharedAvailability {
                 var identity = "availability:\(event.calendarID):\(event.eventID)"
                 if let copy = event.copyKey, merged[copy] != nil {
@@ -441,11 +441,10 @@ enum GoogleEventWindowBuilder {
                 } else if let item = event.ownership?.appItemID, item.hasPrefix("mirror-") {
                     if let match = Self.mirrorSource(item: item, owner: event.calendarOwner, in: sources) {
                         identity = match
-                    } else if let owner = event.calendarOwner {
-                        // Without a visible original, proven mirrors still form ONE private Busy.
-                        identity = "mirror:\(owner)\u{1F}\(item)"
+                    } else if let match = markedCopies[index] {
+                        identity = "mirror:\(match)"
                     }
-                } else if let match = managedCopies[index] {
+                } else if let match = markedCopies[index] {
                     identity = "managed:\(match)"
                 }
                 add(event, as: identity)
@@ -455,14 +454,14 @@ enum GoogleEventWindowBuilder {
         return result
     }
 
-    /// A scheduled item can be copied through several Google accounts by one install,
-    /// or through Beta and Production installs by one Google account. Join those proofs
-    /// within this exact interval. A bare Busy entry has neither proof.
-    private static func managedAvailabilityIdentities(_ events: [Normalized]) -> [Int: Int] {
-        struct Proof: Hashable {
-            let item: String
-            let person: String?
-            let writer: String?
+    /// Group marked Busy copies within this interval. An explicit source trace matches mirrors
+    /// even when Google omits the calendar owner. A bare Busy entry has no matching proof.
+    private static func markedAvailabilityIdentities(_ events: [Normalized]) -> [Int: Int] {
+        enum Proof: Hashable {
+            case mirrorOwner(item: String, owner: String)
+            case mirrorTrace(item: String, source: String)
+            case managedPerson(item: String, person: String)
+            case managedWriter(item: String, writer: String)
         }
         var first: [Proof: Int] = [:]
         var parents: [Int: Int] = [:]
@@ -476,23 +475,34 @@ enum GoogleEventWindowBuilder {
             }
             return result
         }
+        func join(_ index: Int, by proof: Proof) {
+            guard let existing = first[proof] else {
+                first[proof] = index
+                return
+            }
+            let older = root(existing)
+            let newer = root(index)
+            if older != newer { parents[max(older, newer)] = min(older, newer) }
+        }
         for (index, event) in events.enumerated() {
-            guard event.isSharedAvailability, event.attendeeCount == 0, !event.isFree,
-                  let item = event.ownership?.appItemID, !item.hasPrefix("mirror-") else { continue }
+            guard event.isSharedAvailability, let item = event.ownership?.appItemID else { continue }
+            if item.hasPrefix("mirror-") {
+                if let owner = event.calendarOwner {
+                    join(index, by: .mirrorOwner(item: item, owner: owner))
+                }
+                if event.attendeeCount == 0, !event.isFree {
+                    for source in event.copySources {
+                        join(index, by: .mirrorTrace(item: item, source: source))
+                    }
+                }
+                continue
+            }
+            guard event.attendeeCount == 0, !event.isFree else { continue }
             if let person = event.creator ?? event.calendarOwner {
-                let proof = Proof(item: item, person: person, writer: nil)
-                if let existing = first[proof] { parents[index] = root(existing) }
-                else { first[proof] = index }
+                join(index, by: .managedPerson(item: item, person: person))
             }
             if let writer = event.bananaWriter {
-                let proof = Proof(item: item, person: nil, writer: writer)
-                if let existing = first[proof] {
-                    let older = root(existing)
-                    let newer = root(index)
-                    if older != newer { parents[max(older, newer)] = min(older, newer) }
-                } else {
-                    first[proof] = index
-                }
+                join(index, by: .managedWriter(item: item, writer: writer))
             }
         }
         guard !parents.isEmpty else { return [:] }
