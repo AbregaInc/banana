@@ -10,10 +10,9 @@ The production candidate consists of:
 - `CalendarArtworkRasterCache.Rendering.nativeCoreText`: connects the candidate
   to the existing bounded image cache. It does not construct ImageRenderer.
 
-**The custom backend is now Beta's source default.** `CalendarArtworkPreparation`
-selects `nativeCoreText` under `BANANA_BETA`, without a runtime opt-in. Signed Release
-builds are installed on Mac, spare iPhone and iPad; cached Google events were checked
-visually on Mac. Populated mobile coverage remains open. Placeholder/privacy redaction, unredaction cache recovery, and
+Both release channels use reference event artwork. Debug builds can select prepared artwork with
+`--calendar-prepared-artwork`. The Beta experiment uses the native Core Text backend.
+Placeholder/privacy redaction, unredaction cache recovery, and
 return-caption symbols passed 156 adapter checks; populated device checks remain
 required. Specialized non-event cues and VoiceOver remain separate integration
 requirements. Raster work currently still executes through
