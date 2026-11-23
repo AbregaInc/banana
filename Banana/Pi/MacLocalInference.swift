@@ -57,7 +57,7 @@ final class MacLocalInference {
         let profile = manifest.profile
         return Configuration(python: python.path, modelDirectory: PinnedModelFiles.folder(for: manifest).path,
                              modelId: profile.modelId, serverModel: profile.serverModel, name: profile.name,
-                             revision: manifest.revision, port: profile.port, contextWindow: profile.contextWindow,
+                             revision: manifest.revision, port: profile.macWorkerPort, contextWindow: profile.contextWindow,
                              maxTokens: profile.maxTokens, thinkingLevel: profile.thinkingLevel,
                              temperature: nil, topP: nil, topK: nil)
     }

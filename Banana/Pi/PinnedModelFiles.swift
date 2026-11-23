@@ -13,6 +13,19 @@ enum PinnedModelFiles {
             let serverModel: String
             let name: String
             let port: Int
+            /// Independently installed apps own separate loopback workers. Pi verification
+            /// keeps the port in the model profile, including its existing benchmark tooling.
+            var macWorkerPort: Int {
+                #if PI_DEVELOPMENT
+                port
+                #elseif BANANA_DEVELOPMENT
+                41794
+                #elseif BANANA_BETA
+                41793
+                #else
+                41792
+                #endif
+            }
             let contextWindow: Int
             let maxTokens: Int
             let thinkingLevel: String
