@@ -1022,7 +1022,9 @@ final class PodcastLibrary: ObservableObject {
         podcasts = seeded
         save()
     }
-    func debugCatalogueURL() -> URL { fileURL }
+    func debugCatalogueURL() -> URL {
+        fileURL.deletingLastPathComponent().appendingPathComponent("podcast-catalog.sqlite")
+    }
     func debugProgressURL() -> URL { progressURL }
     func debugWaitForProgressCompaction() async {
         while let compactingProgress { await compactingProgress.value }
