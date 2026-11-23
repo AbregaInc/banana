@@ -13,6 +13,7 @@ targets:
     sources:
       - path: ReviewLaunchUITests.swift
       - path: LiveReminderAcceptanceUITests.swift
+      - path: ../../BananaUITests/ShellPages.swift
       - path: ../../BananaUITests/Ready.swift
       - path: PhysicalSystemIdlePolicy.swift
       - path: ../../BananaUITests/ScaleStressUITests.swift
@@ -21,6 +22,7 @@ targets:
           - "MailIdentifiers*.swift"
     settings:
       base:
+        BANANA_LOCAL_EMAIL: "YES"
         PRODUCT_BUNDLE_IDENTIFIER: com.boris.banana.stressreview.uitests
         GENERATE_INFOPLIST_FILE: YES
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) PHYSICAL_STRESS_UI_TESTS"
