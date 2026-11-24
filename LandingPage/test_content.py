@@ -97,6 +97,11 @@ class StoreSwitchTests(unittest.TestCase):
         import json, store_links
         home = store_links.render((self.SITE/'index.html').read_text(), self.URL)
         self.assertIn(f'<a class="btn" href="{self.URL}">App Store</a>', home)
+        hero = store_links.regions(self.URL)['hero']
+        self.assertIn(f'<a class="app-store-badge" href="{self.URL}">', hero)
+        self.assertIn('alt="Download on the App Store"', hero)
+        self.assertLess(hero.index(store_links.APP_STORE_BADGE), hero.index('href="/download/mac"'))
+        self.assertEqual(home.count(store_links.APP_STORE_BADGE), 1)
         self.assertIn('href="/download/mac"', home)
         self.assertIn(store_links.TESTFLIGHT, home)
         schema = json.loads(home.split('<script type="application/ld+json">')[1].split('</script>')[0])
