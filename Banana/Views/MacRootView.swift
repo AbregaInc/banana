@@ -22,11 +22,26 @@ typealias MacSection = AppSection
 @MainActor
 final class MacNavigator: ObservableObject {
     static let shared = MacNavigator()
-    @Published var section: AppSection = .plan
+    @Published var section: AppSection = .plan {
+        didSet {
+            if section == .workouts, bodyPage != .workouts { bodyPage = .workouts }
+            if section == .nutrition, bodyPage != .food { bodyPage = .food }
+        }
+    }
+    @Published private(set) var bodyPage: BodyPage = .workouts
+
+    func openBody(_ page: BodyPage) {
+        if section != page.section { section = page.section }
+        if bodyPage != page { bodyPage = page }
+    }
     @Published var showFullPlayer = false
     @Published var showsAssistant = false {
         didSet {
-            if showsAssistant { inspectedMeeting = nil; showsAvailability = false }
+            if showsAssistant {
+                inspectedMeeting = nil
+                showsAvailability = false
+                rightPanelCollapsed = false
+            }
         }
     }
     /// Set by the Morning Briefing menu command (⌘⇧M) and by `MacPayoffPresenter`'s own schedule
@@ -35,16 +50,51 @@ final class MacNavigator: ObservableObject {
     /// The meeting whose detail drawer (right-hand inspector) is open, if any. Set from any
     /// event row click; the desktop's spare width shows the full event instead of a sheet.
     @Published var inspectedMeeting: MeetingInfo? {
-        didSet { if inspectedMeeting != nil { showsAvailability = false; showsAssistant = false } }
+        didSet {
+            if inspectedMeeting != nil {
+                showsAvailability = false
+                showsAssistant = false
+                rightPanelCollapsed = false
+            }
+        }
     }
     /// The share-availability panel, in the same right-hand slot as the event drawer — the grid
     /// stays in view so the offered times can be seen in place (`offeredSlots`).
     @Published var showsAvailability = false {
         didSet {
-            if showsAvailability { inspectedMeeting = nil; showsAssistant = false } else { offeredSlots = [] }
+            if showsAvailability {
+                inspectedMeeting = nil
+                showsAssistant = false
+                rightPanelCollapsed = false
+            } else {
+                offeredSlots = []
+            }
         }
     }
     @Published var offeredSlots: [DateInterval] = []
+    @Published private(set) var rightPanelCollapsed = false
+
+    private var hasRightPanel: Bool {
+        showsAssistant || showsAvailability || inspectedMeeting != nil
+    }
+
+    var rightPanelVisible: Bool { hasRightPanel && !rightPanelCollapsed }
+
+    func toggleAvailability() {
+        showsAvailability = !(showsAvailability && rightPanelVisible)
+    }
+
+    func toggleRightPanel() {
+        if hasRightPanel {
+            rightPanelCollapsed.toggle()
+        } else {
+            #if BANANA_AI
+            showsAssistant = true
+            #else
+            showsAvailability = true
+            #endif
+        }
+    }
 
     private init() {
         // `--mac-section workouts|routines|library|settings` opens straight to a surface, so it can
@@ -57,8 +107,11 @@ final class MacNavigator: ObservableObject {
         #endif
         if let i = args.firstIndex(of: "--mac-section"), i + 1 < args.count {
             let raw = args[i + 1]
-            if let sec = AppSection(rawValue: raw) ?? AppSection(legacyRawValue: raw) {
+            if raw == "taken" || (raw == "nutrition" && args.contains("--timing-suggestions")) {
+                openBody(.taken)
+            } else if let sec = AppSection(rawValue: raw) ?? AppSection(legacyRawValue: raw) {
                 section = sec
+                if sec == .nutrition { bodyPage = .food }
             }
         }
     }
@@ -155,9 +208,6 @@ struct MacRootView: View {
     #endif
     @Environment(\.openSettings) private var openSettings
 
-    /// Which Body page the rail's Body opens: the one looked at last.
-    @State private var lastBody: AppSection = .workouts
-
     /// The rail's pages: only the modules that are on (docs/design/BOTTOM-BAR-SHELL.md, Wide).
     private var railPages: [ShellPage] {
         var on = ShellPage.Modules()
@@ -178,7 +228,11 @@ struct MacRootView: View {
         switch page {
         case .plan: nav.section = .plan
         case .mail: nav.section = .mail
-        case .body: nav.section = modules.includes(.workouts) && (lastBody == .workouts || !modules.includes(.food)) ? .workouts : .nutrition
+        case .body:
+            let choices = BodyPage.choices(wide: false, with: modules.effectiveChoice)
+            if let page = choices.contains(nav.bodyPage) ? nav.bodyPage : choices.first {
+                nav.openBody(page)
+            }
         case .notes: nav.section = .notes
         case .library: nav.section = .library
         case .review: nav.section = .review
@@ -189,26 +243,51 @@ struct MacRootView: View {
     /// Whether the rail is shown: hidden and shown like a system sidebar (the toolbar's sidebar
     /// button, View › Hide Sidebar ⌃⌘S), and kept across launches (`ShellRailVisibility`).
     @AppStorage(ShellRailVisibility.key) private var railShown = true
-    @State private var narrowToolbar = false
 
     private var railVisibility: Binding<NavigationSplitViewVisibility> {
         Binding(get: { railShown ? .all : .detailOnly },
                 set: { railShown = $0 != .detailOnly })
     }
 
+    @ViewBuilder private var rightPanel: some View {
+        #if BANANA_AI
+        if nav.showsAssistant {
+            Divider()
+            AssistantView(panelClose: { nav.showsAssistant = false }, panelAddSection: nav.section)
+                .frame(width: 420)
+                .accessibilityIdentifier("assistant.panel")
+                .transition(.move(edge: .trailing))
+        }
+        #endif
+        if let meeting = nav.inspectedMeeting {
+            Divider()
+            MacEventInspectorView(meeting: meeting)
+                .frame(width: 350)
+                .transition(.move(edge: .trailing))
+        } else if nav.showsAvailability {
+            Divider()
+            MacAvailabilityPanel()
+                .frame(width: 340)
+                .transition(.move(edge: .trailing))
+        }
+    }
+
     var body: some View {
         NavigationSplitView(columnVisibility: railVisibility) {
-            // The rail: round page buttons under the traffic lights, in place of the source list.
-            // Routines, which had a row, is in each page's "…" (`MoreMenu`).
-            ShellRail(pages: railPages, current: railCurrent, open: openRailPage)
-                .navigationSplitViewColumnWidth(min: ShellRail.width, ideal: ShellRail.width, max: ShellRail.width)
+            ShellSidebar(pages: railPages, current: railCurrent, open: openRailPage,
+                         bodyPages: BodyPage.choices(wide: false, with: modules.effectiveChoice),
+                         bodyCurrent: railCurrent == .body ? nav.bodyPage : nil,
+                         openBody: nav.openBody)
+                .frame(maxWidth: .infinity)
+                .accessibilityElement(children: .contain)
+                .accessibilityIdentifier("app.sidebar")
+                .navigationSplitViewColumnWidth(min: ShellSidebar.width, ideal: ShellSidebar.width, max: ShellSidebar.width)
                 // The column widths above are only a request: AppKit's sidebar kept its own
                 // minimum (and a width saved from before), ~200 pt in Beta 105. Pin the split
                 // view's sidebar item's width itself; it still collapses.
-                .background(MacRailColumnPin(width: ShellRail.width))
+                .background(MacRailColumnPin(width: ShellSidebar.width))
                 // The default item belongs to this column, not the split-view wrapper.
                 .toolbar(removing: .sidebarToggle)
-                .accessibilityIdentifier("app.sidebar")
         } detail: {
             VStack(spacing: 0) {
                 if AppSupport.isPiSampleWorkspace {
@@ -241,7 +320,7 @@ struct MacRootView: View {
                         // Sleep and Trends had rows of their own; both are inside Review.
                         case .sleep, .trends, .review: macReview.syncWaitingNote(.fitness)
                         #if BANANA_MODULE_FOOD
-                        case .nutrition: WideNutritionView().syncWaitingNote(.wellness).onAppear { SpaceSyncQuestions.shared.healthUsed() }
+                        case .nutrition: WideNutritionView(bodyPage: nav.bodyPage).syncWaitingNote(.wellness).onAppear { SpaceSyncQuestions.shared.healthUsed() }
                         #endif
                         #if BANANA_MODULE_NOTES
                         case .notes:     NotesView()
@@ -275,31 +354,11 @@ struct MacRootView: View {
                         guard let raw = notice.object as? String, let section = AppSection(rawValue: raw) else { return }
                         if section == .settings { openSettings() } else { nav.section = section }
                     }
-                    // The window's one toolbar: "Search or ask" in the middle and the assistant beside
-                    // it, on every page; each page adds its title menu and "…".
-                    .toolbar {
-                        // Beside "…" at the trailing edge, the toolbar's last group, on every page.
-                        ToolbarItem(placement: narrowToolbar ? .navigation : .principal) { ShellToolbarField(compact: narrowToolbar) }
-                        #if BANANA_AI
-                        ToolbarItem(placement: .primaryAction) {
-                            Button {
-                                nav.showsAssistant.toggle()
-                            } label: { Label("Ask Banana", systemImage: "sparkle") }
-                                .keyboardShortcut("j", modifiers: .command)
-                                .help(nav.showsAssistant ? "Hide chat (⌘J)" : "Ask a question or add something (⌘J)")
-                                .accessibilityValue(nav.showsAssistant ? "Open" : "Closed")
-                                .accessibilityIdentifier("app.askBanana")
-                        }
-                        #endif
-                    }
                     .environment(\.wideShell, true)
                     // What the field found, hanging under the toolbar's middle.
                     .overlay(alignment: .top) { ShellWideResults(section: nav.section) }
                     .onReceive(NotificationCenter.default.publisher(for: .shellOpenAssistant)) { _ in
                         nav.showsAssistant = true
-                    }
-                    .onChange(of: nav.section) { _, section in
-                        if section == .workouts || section == .nutrition { lastBody = section }
                     }
                     // A module switched off (here or on another device) takes its section with it.
                     .onChange(of: modules.effectiveChoice, initial: true) { _, choice in
@@ -361,30 +420,11 @@ struct MacRootView: View {
                         }
                     }
                     #endif
-                    #if BANANA_AI
-                    if nav.showsAssistant {
-                        Divider()
-                        AssistantView(panelClose: { nav.showsAssistant = false }, panelAddSection: nav.section)
-                            .frame(width: 420)
-                            .accessibilityIdentifier("assistant.panel")
-                            .transition(.move(edge: .trailing))
-                    }
-                    #endif
-                    if !nav.showsAssistant, let meeting = nav.inspectedMeeting {
-                        Divider()
-                        MacEventInspectorView(meeting: meeting)
-                            .frame(width: 350)
-                            .transition(.move(edge: .trailing))
-                    } else if nav.showsAvailability {
-                        Divider()
-                        MacAvailabilityPanel()
-                            .frame(width: 340)
-                            .transition(.move(edge: .trailing))
+                    if nav.rightPanelVisible {
+                        rightPanel
                     }
                 }
-                .animation(.snappy(duration: 0.2), value: nav.inspectedMeeting != nil)
-                .animation(.snappy(duration: 0.2), value: nav.showsAvailability)
-                .animation(.snappy(duration: 0.2), value: nav.showsAssistant)
+                .animation(.snappy(duration: 0.2), value: nav.rightPanelVisible)
 
                 // Playback transport, always present while something is loaded — the iOS shell put
                 // this in the tab bar's bottom accessory; the Mac had NO transport at all, so you
@@ -400,14 +440,11 @@ struct MacRootView: View {
                 }
                 #endif
             }
+            .modifier(MacSharedToolbar(section: nav.section, railShown: railShown,
+                                       rightPanelVisible: nav.rightPanelVisible, toggleRightPanel: nav.toggleRightPanel))
             #if BANANA_MODULE_PODCASTS
             .sheet(isPresented: $nav.showFullPlayer) { NowPlayingView() }
             #endif
-        }
-        // A left-column action belongs at the leading edge, with a sidebar glyph. Remove the
-        // split view's automatic item so it cannot migrate into the trailing overflow control.
-        .toolbar {
-            ToolbarItem(placement: .navigation) { ShellRailToggle() }
         }
         #if BANANA_AI
         .onChange(of: chrome.showAdd) { _, requested in
@@ -450,7 +487,6 @@ struct MacRootView: View {
             }
         }
         .sheet(isPresented: $commands.showsShortcuts) { MacShortcutsSheet() }
-        .onGeometryChange(for: Bool.self) { $0.size.width < 1000 } action: { narrowToolbar = $0 }
         .onAppear { MacKeyMonitor.shared.install() }
     }
 
@@ -698,8 +734,14 @@ struct MacCommands: Commands {
             }
         }
         CommandGroup(before: .textEditing) {
-            Button("Search or Ask") { ShellSearch.shared.focusRequests.send(true) }
+            Button(ShellAssistant.isAvailable ? "Search or Ask" : "Search") { ShellSearch.shared.focusRequests.send(true) }
                 .keyboardShortcut("f", modifiers: .command)
+            #if BANANA_AI
+            Button(nav.showsAssistant && nav.rightPanelVisible ? "Hide Chat" : "Show Chat") {
+                nav.showsAssistant = !(nav.showsAssistant && nav.rightPanelVisible)
+            }
+            .keyboardShortcut("j", modifiers: .command)
+            #endif
             Divider()
         }
         // The calendar's sharing: the booking link (copied, with the shortcut BOOKING.md §12 names)
@@ -750,32 +792,66 @@ extension Notification.Name {
     static let macNewEventRequested = Notification.Name("macNewEventRequested")
     static let macNewTaskRequested = Notification.Name("macNewTaskRequested")
 }
-/// Holds the window's sidebar column at the rail's width: no wider, no narrower, no collapsing,
-/// whatever AppKit's sidebar defaults or a saved divider position say (`ShellRail.width`).
+/// Keeps the native sidebar at the rail's fixed width whenever it is visible.
 private struct MacRailColumnPin: NSViewRepresentable {
     let width: CGFloat
 
-    func makeNSView(context: Context) -> NSView { Probe(width: width) }
-    func updateNSView(_ view: NSView, context: Context) {
-        (view as? Probe)?.width = width
-        (view as? Probe)?.pin()
+    func makeNSView(context: Context) -> Probe { Probe(width: width) }
+    func updateNSView(_ view: Probe, context: Context) {
+        view.width = width
+        view.schedulePin()
     }
 
     final class Probe: NSView {
         var width: CGFloat
+        private weak var observedSplit: NSSplitView?
+        private weak var railColumn: NSView?
+        private var pinScheduled = false
+
         init(width: CGFloat) { self.width = width; super.init(frame: .zero) }
         required init?(coder: NSCoder) { nil }
 
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
-            DispatchQueue.main.async { [weak self] in self?.pin() }
+            observe(nil, column: nil)
+            schedulePin()
+        }
+
+        func schedulePin() {
+            guard !pinScheduled, window != nil else { return }
+            pinScheduled = true
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.pin()
+                self.pinScheduled = false
+            }
+        }
+
+        private func observe(_ split: NSSplitView?, column: NSView?) {
+            railColumn = column
+            guard observedSplit !== split else { return }
+            if let observedSplit {
+                NotificationCenter.default.removeObserver(self, name: NSSplitView.didResizeSubviewsNotification, object: observedSplit)
+            }
+            observedSplit = split
+            if let split {
+                NotificationCenter.default.addObserver(self, selector: #selector(splitDidResize(_:)),
+                                                       name: NSSplitView.didResizeSubviewsNotification, object: split)
+            }
+        }
+
+        @objc private func splitDidResize(_ notification: Notification) {
+            guard let split = observedSplit, let column = railColumn,
+                  abs(column.frame.width - width) > 0.5, !split.isSubviewCollapsed(column) else { return }
+            schedulePin()
         }
 
         #if DEBUG
         private var appliedFixtureSize = false
         #endif
 
-        func pin() {
+        private func pin() {
+            guard window != nil else { return }
             #if DEBUG
             // Size screenshot/UI fixtures only after the native view has its actual window.
             // A SwiftUI .task can run before a newly-created window is visible.
@@ -791,17 +867,27 @@ private struct MacRailColumnPin: NSViewRepresentable {
                 }
             }
             #endif
-            var ancestor = superview
-            while let view = ancestor, !(view is NSSplitView) { ancestor = view.superview }
-            guard let split = ancestor as? NSSplitView,
-                  let controller = split.delegate as? NSSplitViewController,
-                  let sidebar = controller.splitViewItems.first else { return }
-            if sidebar.minimumThickness != width { sidebar.minimumThickness = width }
-            if sidebar.maximumThickness != width { sidebar.maximumThickness = width }
-            if !sidebar.canCollapse { sidebar.canCollapse = true }
-            if !sidebar.isCollapsed, let column = split.arrangedSubviews.first, abs(column.frame.width - width) > 0.5 {
-                split.setPosition(width, ofDividerAt: 0)
+            // Find the native column containing this rail, even if SwiftUI wraps it in
+            // additional views. Never change an unrelated split in the detail section.
+            var column: NSView = self
+            while let parent = column.superview, !(parent is NSSplitView) { column = parent }
+            guard let split = column.superview as? NSSplitView, split.isVertical,
+                  split.arrangedSubviews.count > 1, split.arrangedSubviews.first === column else { return }
+            observe(split, column: column)
+
+            // Visibility is persisted separately. The old source list's saved divider
+            // position has no meaning for a fixed-width rail.
+            if split.autosaveName != nil { split.autosaveName = nil }
+            let controller = split.delegate as? NSSplitViewController ?? split.nextResponder as? NSSplitViewController
+            let sidebar = controller?.splitViewItems.first
+            if let sidebar {
+                if sidebar.minimumThickness != width { sidebar.minimumThickness = width }
+                if sidebar.maximumThickness != width { sidebar.maximumThickness = width }
+                if !sidebar.canCollapse { sidebar.canCollapse = true }
             }
+            guard sidebar?.isCollapsed != true, !split.isSubviewCollapsed(column),
+                  split.bounds.width > width, abs(column.frame.width - width) > 0.5 else { return }
+            split.setPosition(width, ofDividerAt: 0)
         }
     }
 }

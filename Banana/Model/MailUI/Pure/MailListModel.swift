@@ -273,6 +273,7 @@ enum MailListInput {
     case place(MailConversationID)
     /// `Enter`, `→`, a click on a row: open the cursor's conversation, or this one (T10).
     case open(MailConversationID?)
+    case openDraft(row: MailConversationID, reading: MailConversationID)
     /// `R` or `F` in the list (T38).
     case openAndReply(MailComposerStart)
     /// Esc, `←` or Back with a conversation open (T11).
@@ -609,6 +610,7 @@ final class MailListModel {
         case .page(let direction): fx.append(.scrollPage(direction))
         case .place(let id): place(id)
         case .open(let id): openConversation(id, composer: nil, &fx)
+        case .openDraft(let row, let reading): openConversation(row, reading: reading, composer: nil, &fx)
         case .openAndReply(let start): openAndReply(start, &fx)
         case .close: closeConversation(&fx)
         case .step(let direction): step(direction, &fx)
@@ -1161,14 +1163,15 @@ final class MailListModel {
 
     // MARK: - Opening and closing (T10 to T13, T38)
 
-    private func openConversation(_ id: MailConversationID?, composer: MailComposerStart?,
+    private func openConversation(_ id: MailConversationID?, reading: MailConversationID? = nil, composer: MailComposerStart?,
                                   _ fx: inout [MailListEffect]) {
         guard let target = id ?? cursorID, let index = indexOf(target) else { return }
         if cursorID != target { moveCursor(to: target, at: index) }
-        open = MailOpenConversation(id: target, facts: .fresh)
+        let conversation = reading ?? target
+        open = MailOpenConversation(id: conversation, facts: .fresh)
         openSubject = rows[index].subject
-        fx.append(.open(target, composer: composer, at: nil))
-        if rows[index].isUnread { fx.append(.markReadAfter(target, delay: Self.readDelay)) }
+        fx.append(.open(conversation, composer: composer, at: nil))
+        if rows[index].isUnread { fx.append(.markReadAfter(conversation, delay: Self.readDelay)) }
         takeInWhatWaited()
     }
 

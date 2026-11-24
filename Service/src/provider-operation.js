@@ -1,5 +1,16 @@
 import {sha256Hex} from './crypto.js';
 export const operationFailure=(status,message)=>({status,body:{error:{code:status,message}}});
+/** Operations an account may hold that never reached their provider (each up to ~700 KiB sealed). */
+export const MOST_UNSENT=100;
+/** How long an operation that never reached its provider is kept, and a finished one's receipt. */
+export const KEEP_UNSENT=7*24*60*60*1000, KEEP_DONE=30*24*60*60*1000;
+
+/** The job: unsent intents past KEEP_UNSENT (nothing happened at the provider) and old receipts go. */
+export async function forgetOldOperations(deps) {
+ const t=deps.now();
+ await deps.db.run("DELETE FROM provider_operations WHERE (state='pending' AND dispatch_cipher IS NULL AND updated_at<?) OR (state='done' AND updated_at<?)",
+  t-KEEP_UNSENT,t-KEEP_DONE);
+}
 function sort(x) { return Array.isArray(x)?x.map(sort):x&&typeof x==='object'?Object.fromEntries(Object.keys(x).sort().map(k=>[k,sort(x[k])])):x; }
 export const canonical=x=>JSON.stringify(sort(x));
 
@@ -10,6 +21,11 @@ export async function providerOperation(deps,vault,options) {
  const key=[account,operationID],aad='provider-operation:'+account;
  const hash=await sha256Hex(canonical({provider,request})),resourceKey=await sha256Hex(canonical({provider,resource}));
  const t=deps.now();
+ // A new operation only while the account holds fewer than MOST_UNSENT that never went out.
+ if(!await deps.db.first('SELECT 1 AS x FROM provider_operations WHERE account_id=? AND operation_id=?',...key)) {
+  const unsent=await deps.db.first("SELECT COUNT(*) AS n FROM provider_operations WHERE account_id=? AND state='pending' AND dispatch_cipher IS NULL",account);
+  if(Number(unsent?.n)>=MOST_UNSENT)return operationFailure(429,'Too many operations are waiting. Try again later.');
+ }
  await deps.db.run("INSERT OR IGNORE INTO provider_operations(account_id,operation_id,google_sub,resource_key,request_hash,request_cipher,state,created_at,updated_at) VALUES (?,?,?,?,?,?,'pending',?,?)",
   ...key,googleSub,resourceKey,hash,await vault.seal(aad,JSON.stringify(request)),t,t);
  const row=await deps.db.first('SELECT * FROM provider_operations WHERE account_id=? AND operation_id=?',...key);

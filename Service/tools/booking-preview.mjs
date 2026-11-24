@@ -18,6 +18,7 @@ import { createRequire } from "node:module";
 import { execFileSync } from "node:child_process";
 import * as pages from "../src/booking/pages/index.js";
 import { kit } from "../src/booking/pages/kit.js";
+import { bookingEmail } from "../src/booking/email.js";
 
 const K = kit();
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -63,6 +64,8 @@ const none = { state: "none" };
 const sam = { state: "remembered", name: "Sam Lee", email: "sam@example.com", phone: "+1 917 555 0142", zone: "Asia/Tokyo" };
 const verified = (manage) => ({ ...sam, state: "verified", zone: "Europe/London",
   upcoming: [{ manageUrl: manage, hostName: "Ana Ruiz", title: "Design review", start: slotsNY[6].start, end: slotsNY[6].end }] });
+// Bob already holds a time with Noor: the fake service asks before booking him again.
+const bob = { state: "remembered", name: "Bob Ito", email: "bob@example.com", zone: NY };
 const bookingOf = (slot, place, extra = {}) => ({
   start: slot.start, end: slot.end, place, placeDetail: null, manageUrl: "/m/9f2c4e.sig", icsUrl: "/b/9f2c4e.ics?sig=x",
   guestEmail: "sam@example.com", undoUntil: null, status: "confirmed", ...extra,
@@ -80,6 +83,7 @@ export const VIEWS = {
     slots: hostSlots(NY, { step: 45, minutes: 45 }), guest: none, zone: "Asia/Kathmandu" }],
   "times-dst-london": ["times", { ...common, host, type: intro(), slots: dstSlots, guest: none, zone: "Europe/London" }],
   "times-phone-remembered": ["times", { ...common, host, type: intro({ title: "Quick call", minutes: 15, places: [PHONE] }), slots: hostSlots(NY, { step: 15, minutes: 15 }), guest: sam, zone: NY }],
+  "times-has-time": ["times", { ...common, host, type: intro(), slots: slotsNY, guest: bob, zone: NY }],
   "times-empty": ["times", { ...common, host, type: intro(), slots: [], guest: none, zone: NY }],
   "times-xss": ["times", { ...common, host: { handle: "x", name: "<script>alert(1)</script>Eve" }, type: intro({ title: "<img src=x onerror=alert(1)>" }), slots: slotsNY.slice(0, 4),
     guest: { state: "remembered", name: "</script><script>alert(2)</script>", email: "a@b.co" }, zone: NY }],
@@ -148,6 +152,9 @@ function serve(out) {
         res.writeHead(r.status, r.headers);
         return res.end(r.html);
       }
+      if (/^\/[^/]+\/[^/]+\/book$/.test(p) && req.method === "POST" && json.email === bob.email && json.also !== true) {
+        return later(200, () => sent(res, 409, { existing: { start: slotsNY[0].start, end: slotsNY[0].end, title: "Intro call", manage: "b0b1.sig" } }));
+      }
       if (/^\/[^/]+\/[^/]+\/book$/.test(p) && req.method === "POST") {
         // The second time of any day is "taken" once, to show the nearest times.
         const ms = Date.parse(json.start), day = K.key(ms, json.zone || "UTC");
@@ -174,11 +181,18 @@ function serve(out) {
       if (/\/move$/.test(p)) {
         const ms = Date.parse(json.start);
         // As the route answers: the moved booking, with the service's own Undo window for the move.
-        return later(200, () => sent(res, 200, { booking: { start: json.start, end: new Date(ms + 30 * MIN).toISOString(), status: "confirmed", invite: "sent",
+        return later(200, () => sent(res, 200, { booking: { start: json.start, end: new Date(ms + 30 * MIN).toISOString(), status: "confirmed", invite: "sent", icsUrl: "/b/9f2c4e.ics?sig=x",
           undoMs: 5000, undoes: "move", undoUntil: new Date(Date.now() + 5000).toISOString() } }));
       }
       if (p === "/b/code/verify") return later(150, () => sent(res, json.code === "123456" ? 204 : 400, null));
       if (/\/slots$/.test(p)) return sent(res, 200, { slots: slotsNY, busy: [] });
+      if (p === "/e/confirmed-others") {
+        const at = (s) => ({ start_at: Date.parse(s.start), end_at: Date.parse(s.end) });
+        const m = bookingEmail("confirmed", { ...at(slotsNY[8]), guest_zone: NY, type_title: "Intro call", hostName: "Noor Haddad", place_kind: "meet",
+          place_detail: "https://meet.google.com/abc-defg-hij", guest_email: bob.email, manageUrl: "https://book.example/m/c4.sig",
+          others: [{ row: { type_title: "Intro call", ...at(slotsNY[0]) }, manageUrl: "https://book.example/m/b0b1.sig" }] }, { from: "Banana <book@example.com>" });
+        return sent(res, 200, m.html, "text/html");
+      }
       if (p === "/" || p === "/index.html") {
         const list = JSON.parse(readFileSync(join(out, "index.json"), "utf8"));
         return sent(res, 200, `<!doctype html><meta charset=utf-8><title>Booking preview</title><ul>${list.map((n) => `<li><a href="/p/${n}">${n}</a>`).join("")}</ul>`, "text/html");
@@ -272,7 +286,19 @@ async function shots(out, deps) {
     ["cancel", async (p) => { await p.click("#cx"); }],
     ["cancelled", async (p) => { await p.click("#cxgo"); await p.waitForTimeout(300); }],
   ]);
+  await flow("times-has-time:move", NY, [
+    ["asked", async (p) => { await p.locator("#grid .t").nth(4).click(); await p.waitForTimeout(400); }],
+    ["moved", async (p) => { await p.click("[data-mv]"); await p.waitForTimeout(500); }],
+  ]);
+  await flow("times-has-time:both", NY, [
+    ["asked", async (p) => { await p.locator("#grid .t").nth(4).click(); await p.waitForTimeout(400); }],
+    ["booked", async (p) => { await p.click("[data-also]"); await p.waitForTimeout(500); }],
+  ]);
   await flow("code", NY, [["typed", (p) => p.fill("#cd", "12345")], ["wrong", async (p) => { await p.fill("#cd", "123450"); await p.waitForTimeout(300); }]]);
+  { const page = await newPage(phone, { name: "email", tz: NY });
+    await page.goto(`${base}/e/confirmed-others`, { waitUntil: "load" });
+    await page.screenshot({ path: join(dir, "email-confirmed-others.png"), fullPage: true });
+    await page.context().close(); }
   await flow("forget", NY, [["done", async (p) => { await p.click("#fg"); await p.waitForTimeout(300); }]]);
   await flow("confirmed-meet-undo", "Asia/Tokyo", [["undone", async (p) => { await p.click("[data-undo]"); await p.waitForTimeout(100); }]]);
 

@@ -30,7 +30,15 @@ struct SettingsView: View {
         #endif
     }()
 
-    fileprivate static let searchIndex: [SettingsSearchEntry] = tripLearningEntries + [
+    private static let desktopLinkEntries: [SettingsSearchEntry] = {
+        #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        [.init(title: "Desktop Link", page: .desktopLink, keywords: ["assistant", "mac", "model", "pair", "QR", "Tailscale"])]
+        #else
+        []
+        #endif
+    }()
+
+    fileprivate static let searchIndex: [SettingsSearchEntry] = tripLearningEntries + desktopLinkEntries + [
         .init(title: "Modules", page: .modules, keywords: ["modules", "features", "tabs", "hide", "show", "turn off", "food", "workouts", "podcasts", "notes"]),
         .init(title: "Record where I listen", page: .podcasts, keywords: ["location", "gps", "route", "privacy"]),
         .init(title: "Skip ads automatically", page: .podcasts, keywords: ["ads", "advert", "sponsor", "promo", "intro", "skip"]),
@@ -189,12 +197,23 @@ struct SettingsView: View {
         #endif
     }
 
-    /// The page shown on the right of the two-pane arrangement; the narrow one pushes pages.
-    @State private var macPage: SettingsPage? = .accounts
+    #if os(macOS)
+    @AppStorage("macSettingsPage") private var storedMacPage: SettingsPage = .accounts
+
+    private var selectedPage: SettingsPage? {
+        get { isShown(storedMacPage) ? storedMacPage : .accounts }
+        nonmutating set { if let newValue { storedMacPage = newValue } }
+    }
+    #else
+    @State private var selectedPage: SettingsPage? = .accounts
+    #endif
 
     /// The pages, account first: the list both two-pane arrangements choose from.
     @ViewBuilder private var pageRows: some View {
         Section {
+            #if os(macOS)
+            sidebarRow(.accounts)
+            #else
             HStack(spacing: DS.Space.s) {
                 Image(systemName: "person.crop.circle.fill")
                     .font(.system(size: 26))
@@ -209,11 +228,15 @@ struct SettingsView: View {
             }
             .padding(.vertical, DS.Space.xs)
             .tag(SettingsPage.accounts)
+            #endif
         }
         Section("Features") {
             ForEach([SettingsPage.modules, .calendar, .booking, .travel, .wake, .podcasts, .workouts, .food].filter(isShown), id: \.self) { sidebarRow($0) }
         }
         Section("General") {
+            #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            sidebarRow(.desktopLink)
+            #endif
             // Apple Watch too, as on the phone: here it holds the audio quality the
             // phone syncs at. It was reachable only through the search field.
             ForEach([SettingsPage.watch, .icloud, .permissions].filter(isShown), id: \.self) { sidebarRow($0) }
@@ -221,19 +244,24 @@ struct SettingsView: View {
         Section { sidebarRow(.about) }
     }
 
-    /// The chosen page, or what the search found, with its own navigation so links inside a
-    /// page still push.
+    /// A stack in the detail pane keeps links within the chosen page.
     private var pagePane: some View {
         NavigationStack {
             if !settingsSearch.isEmpty {
                 Form { searchResults }.settingsFormStyle()
-            } else if let macPage {
-                // No title over the page: in the detail column it narrowed the tab bar above
-                // until Library fell behind its overflow arrow. The selected row names it.
-                page(macPage).toolbar(removing: .title)
+                    #if os(macOS)
+                    .navigationTitle("Search")
+                    #endif
+            } else if let selectedPage {
+                #if os(macOS)
+                page(selectedPage)
+                #else
+                // The selected row names the page; preserve room for the iPad's tab bar.
+                page(selectedPage).toolbar(removing: .title)
+                #endif
             }
         }
-        .id(settingsSearch.isEmpty ? macPage?.rawValue ?? "" : "search")
+        .id(settingsSearch.isEmpty ? selectedPage?.rawValue ?? "" : "search")
     }
 
     #if os(iOS)
@@ -243,7 +271,7 @@ struct SettingsView: View {
     /// the list its width, its title and its search field, and keeps clear of the tab bar.
     private var padBody: some View {
         NavigationSplitView(columnVisibility: .constant(.all)) {
-            List(selection: $macPage) { pageRows }
+            List(selection: $selectedPage) { pageRows }
                 .listStyle(.insetGrouped)
                 .pageNavigationTitle("Settings", presented: showsDoneButton)
                 .searchable(text: $settingsSearch, placement: .navigationBarDrawer(displayMode: .always),
@@ -267,23 +295,28 @@ struct SettingsView: View {
     #endif
 
     #if os(macOS)
-    /// The Mac's Settings window (the `Settings` scene): each page a tab, its symbol and name in
-    /// the window's toolbar, the way Apple's own apps do it. It was a page of the main window,
-    /// with a list of pages beside the app's own sidebar: three columns.
     private var macBody: some View {
-        TabView(selection: Binding(get: { macPage ?? .accounts }, set: { macPage = $0 })) {
-            ForEach(SettingsPage.allCases.filter(isShown), id: \.self) { page in
-                // Booking's page makes the default type when it opens: built only while its tab
-                // is the one chosen, so the window's other tabs never open it.
-                NavigationStack {
-                    if page != .booking || macPage == .booking { self.page(page) }
+        NavigationSplitView(columnVisibility: .constant(.all)) {
+            List(selection: Binding(
+                get: { selectedPage },
+                set: { selection in
+                    guard let selection else { return }
+                    selectedPage = selection
+                    settingsSearch = ""
                 }
-                    .tabItem { Label(page.title, systemImage: page.symbol) }
-                    .tag(page)
+            )) {
+                pageRows
             }
+            .listStyle(.sidebar)
+            .accessibilityIdentifier("settings.sidebar")
+            .navigationSplitViewColumnWidth(min: 200, ideal: 224, max: 264)
+            .toolbar(removing: .sidebarToggle)
+        } detail: {
+            pagePane
         }
-        .frame(minWidth: 640, idealWidth: 680, minHeight: 520, idealHeight: 620)
-        .onChange(of: modules.effectiveChoice) { leaveHiddenPage() }
+        .navigationSplitViewStyle(.balanced)
+        .searchable(text: $settingsSearch, placement: .toolbar, prompt: "Search settings")
+        .frame(minWidth: 760, idealWidth: 860, minHeight: 520, idealHeight: 660)
         .task { refreshWriteBack() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { refreshWriteBack() }
@@ -306,16 +339,21 @@ struct SettingsView: View {
 
     /// The page beside the list went with its module: show Accounts instead.
     private func leaveHiddenPage() {
-        if let macPage, !isShown(macPage) { self.macPage = .accounts }
+        if let selectedPage, !isShown(selectedPage) { self.selectedPage = .accounts }
     }
 
     private func sidebarRow(_ page: SettingsPage) -> some View {
-        HStack(spacing: DS.Space.s) {
+        #if os(macOS)
+        let label = Label(page.title, systemImage: page.symbol)
+        #else
+        let label = HStack(spacing: DS.Space.s) {
             IconTile(systemImage: page.symbol, tint: page.tint, size: 22)
             Text(page.title)
         }
-        .tag(page)
-        .accessibilityIdentifier("settings.page.\(page.rawValue)")
+        #endif
+        return label
+            .tag(page)
+            .accessibilityIdentifier("settings.page.\(page.rawValue)")
     }
 
     #if os(iOS)
@@ -351,8 +389,15 @@ struct SettingsView: View {
             .sheet(isPresented: $showingHomePicker) {
                 HomeLocationPicker()
             }
+            #if DEBUG
+            // `--settings --settings-accounts`: opens on the account page, for screenshots.
+            .navigationDestination(isPresented: $previewAccounts) { page(.accounts) }
+            #endif
         }
     }
+    #if DEBUG
+    @State private var previewAccounts = ProcessInfo.processInfo.arguments.contains("--settings-accounts")
+    #endif
     #endif
 
     // MARK: - Structure
@@ -361,8 +406,12 @@ struct SettingsView: View {
     // things, then About — the order people look in. Each row opens a page built from the
     // sections below, so a setting has one home and search can take you straight to it.
 
-    enum SettingsPage: String, Hashable, CaseIterable {
-        case accounts, modules, calendar, booking, travel, wake, podcasts, workouts, food, watch, icloud, permissions, about
+    enum SettingsPage: String, Hashable {
+        case accounts, modules, calendar, booking, travel, wake, podcasts, workouts, food, watch, icloud, permissions
+        #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        case desktopLink
+        #endif
+        case about
 
         /// The module a page belongs to, if any.
         var module: AppModule? {
@@ -397,6 +446,9 @@ struct SettingsView: View {
             case .watch: "Apple Watch"
             case .icloud: "iCloud"
             case .permissions: "Permissions"
+            #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            case .desktopLink: "Desktop Link"
+            #endif
             case .about: "About"
             }
         }
@@ -415,6 +467,9 @@ struct SettingsView: View {
             case .watch: "applewatch"
             case .icloud: "icloud.fill"
             case .permissions: "hand.raised.fill"
+            #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            case .desktopLink: "desktopcomputer"
+            #endif
             case .about: "info.circle.fill"
             }
         }
@@ -430,6 +485,9 @@ struct SettingsView: View {
             case .food: DS.Palette.Feature.food
             case .icloud: DS.Palette.Feature.icloud
             case .accounts, .modules, .watch, .permissions, .about: DS.Palette.Feature.system
+            #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            case .desktopLink: DS.Palette.Feature.system
+            #endif
             }
         }
     }
@@ -439,6 +497,9 @@ struct SettingsView: View {
     /// an optimized build evaluated it in a stack frame bigger than an iPhone or iPad main thread
     /// has: Settings crashed on open (stack overflow). Each page now carries only its own sections.
     private func page(_ page: SettingsPage) -> AnyView {
+        #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        if page == .desktopLink { return AnyView(DesktopLinkSettings()) }
+        #endif
         if page == .wake {
             // Its own screen, with its own list and sheets.
             return AnyView(SmartScheduleView().navigationTitle(page.title))
@@ -517,7 +578,9 @@ struct SettingsView: View {
             AnyView(permissionsSection)
         case .about:
             AnyView(Group {
-                Section { DemoEntryButton() }
+                #if DEBUG
+                if DemoEntryButton.isEnabled { Section { DemoEntryButton() } }
+                #endif
                 versionsSection
                 #if os(macOS) && BANANA_DIRECT
                 DirectMacUpdateSettings()
@@ -528,6 +591,10 @@ struct SettingsView: View {
             })
         case .wake, .booking:
             AnyView(EmptyView())   // shown by `page(_:)` as its own screen
+        #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+        case .desktopLink:
+            AnyView(EmptyView())   // shown by `page(_:)` as its own screen
+        #endif
         #if !(BANANA_MODULE_PODCASTS && BANANA_MODULE_WORKOUTS && BANANA_MODULE_FOOD)
         default:
             AnyView(EmptyView())   // a module's page, in a build without the module (`isShown`)
@@ -546,7 +613,7 @@ struct SettingsView: View {
                 // Beside the list, a hit shows its page on the right; pushed, it opens it.
                 if usesTwoPanes {
                     Button {
-                        macPage = hit.page
+                        selectedPage = hit.page
                         settingsSearch = ""
                     } label: { searchHitLabel(hit) }
                     .buttonStyle(.plain)
@@ -601,6 +668,9 @@ struct SettingsView: View {
     }
 
     private var accountStatus: (status: ConnectionStatus, word: String) {
+        // A sign-in the Banana account refused (say, that Google account was disconnected from it):
+        // said on the first screen, where a signed-out person looks; the page says what to do.
+        if !bananaAccount.isSignedIn, bananaAccount.lastError != nil { return (.attention, "Couldn\u{2019}t sign in") }
         if !googleCalendar.isConnected { return (.off, "Not connected") }
         if !googleCalendar.accountsToSignInAgain.isEmpty { return (.attention, "Sign in again") }
         if googleCalendar.isWorking { return (.working, "Syncing") }
@@ -685,6 +755,9 @@ struct SettingsView: View {
 
     private var generalSection: some View {
         Section("General") {
+            #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            featureRow(.desktopLink, value: nil)
+            #endif
             // Only with Podcasts, which is what it sends to the Watch (`isShown`).
             if isShown(.watch) { featureRow(.watch, value: settings.watchAudioQuality.label) }
             // The backup's job is the Banana service's once this device has moved (§6).
@@ -1124,6 +1197,13 @@ struct SettingsView: View {
                     Text(error)
                         .font(.footnote)
                         .foregroundStyle(DS.Palette.danger)
+                } else if !bananaAccount.isSignedIn, let error = bananaAccount.lastError {
+                    // The Banana account refused this Google account (disconnected from it): said
+                    // here, beside the sign-in, since the account section shows only once signed in.
+                    Text(error)
+                        .font(.footnote)
+                        .foregroundStyle(DS.Palette.danger)
+                        .accessibilityIdentifier("settings.google.accountError")
                 }
             } header: {
                 // Not over a lone "Connect Google Calendar", which already names it.

@@ -120,6 +120,24 @@ final class MailComposerModel: ObservableObject {
     var allowsScheduling: Bool { source.supportsScheduledSend }
     private let preferredAccount: String?
     var isForeign: Bool { draft?.format == .foreign }
+    @Published private(set) var syncState: MailDraft.SyncState?
+    private var lastSave: Date?
+    var syncStatusTitle: String? {
+        guard lastSave != nil else { return nil }
+        switch syncState {
+        case .local: return "Saved on this device"
+        case .gmail: return "Saved to Gmail"
+        case nil: return nil
+        }
+    }
+    var gmailDraftsURL: URL? {
+        guard let account = draft?.account, !account.isEmpty else { return nil }
+        var url = URLComponents()
+        url.scheme = "https"; url.host = "mail.google.com"; url.path = "/mail/"
+        url.queryItems = [URLQueryItem(name: "authuser", value: account)]
+        url.fragment = "drafts"
+        return url.url
+    }
     @Published var isResolving = false
     /// A reply's kind, which the box's switch at the start of To changes (Reply all by default);
     /// nil for a new message.
@@ -152,6 +170,7 @@ final class MailComposerModel: ObservableObject {
     private(set) var draftID: MailDraftID?
     /// The conversation it is written in; nil for a new message.
     private(set) var host: MailConversationID?
+    private(set) var replyToMessage: MailMessageID?
     /// The conversation it answers, known from the start before its draft has come.
     var answers: MailConversationID? {
         if let host { return host }
@@ -175,6 +194,7 @@ final class MailComposerModel: ObservableObject {
     /// How the screens name the device ("Mac"), for what a scheduled message says of who sends it.
     let device: String
     var draft: MailDraft?
+    private var adoptedBody = AttributedString()
     private var baseline = Baseline.blank
     private var isClosed = false
     private var wantsDiscard = false
@@ -200,8 +220,10 @@ final class MailComposerModel: ObservableObject {
     }
 
     init(start: MailComposeStart, source: MailSource, timers: MailTimers, clock: @escaping () -> Date,
-         device: String, requestFocus: Bool = true, preferredAccount: String? = nil) {
+         device: String, requestFocus: Bool = true, preferredAccount: String? = nil,
+         replyToMessage: MailMessageID? = nil) {
         self.preferredAccount = preferredAccount
+        self.replyToMessage = replyToMessage
         self.start = start
         self.source = source
         self.timers = timers
@@ -226,6 +248,7 @@ final class MailComposerModel: ObservableObject {
         if case .forward(let id) = start { host = id }
         identities = source.accounts.flatMap(\.identities)
         files.draftID = { [weak self] in self?.draftID }
+        files.editToken = { [weak self] in self?.draft?.editToken }
         files.whenReady = { [weak self] in await self?.waitForDraft() }
         files.changed = { [weak self] in self?.edited() }
         if requestFocus { askForFocus(initialField) }
@@ -248,9 +271,10 @@ final class MailComposerModel: ObservableObject {
                 self.failed = true
                 return
             }
+            let typedWhileLoading = !self.rich.characters.isEmpty
             self.adopt(fetched.draft, fresh: fetched.fresh)
             // Text typed while it was coming is his, and is kept like any other.
-            self.edited()
+            if typedWhileLoading { self.edited() }
             await self.refreshReplyChoices()
             if self.isClosed { _ = self.finishClosing() }
         }
@@ -280,19 +304,24 @@ final class MailComposerModel: ObservableObject {
         case .continuing(let id):
             return await source.draft(id).map { ($0, false) }
         case .reply(let id), .replyAll(let id), .forward(let id):
-            guard let conversation = await source.conversation(id) else { return nil }
-            // A reply he has begun is the one he comes back to.
-            let forward: Bool; if case .forward = start { forward = true } else { forward = false }
-            if !forward, let kept = conversation.draft, let draft = await source.draft(kept) { return (draft, false) }
-            guard let original = MailReplyRules.original(in: conversation) else { return nil }
+            guard let conversation = await source.conversation(id), let original = original(in: conversation) else { return nil }
+            replyToMessage = original.id
             let kind: MailDraftKind
             switch start {
             case .replyAll: kind = .replyAll(to: original.id)
             case .forward: kind = .forward(original.id)
             default: kind = .reply(to: original.id)
             }
-            return (await source.newDraft(kind), true)
+            let draft = await source.newDraft(kind)
+            return (draft, draft.syncState == nil && draft.id != conversation.draft)
         }
+    }
+
+    private func original(in conversation: MailConversation) -> MailMessage? {
+        if let replyToMessage {
+            return conversation.messages.first { $0.id == replyToMessage && $0.canReply }
+        }
+        return MailReplyRules.original(in: conversation)
     }
 
     /// What the source made, in place of what was drawn while it was being made: whatever was
@@ -301,10 +330,12 @@ final class MailComposerModel: ObservableObject {
         isSettingText = true
         defer { isSettingText = false }
         self.draft = draft
+        syncState = draft.syncState
+        lastSave = draft.editedAt
+        replyToMessage = draft.replyToMessage ?? replyToMessage
         if !source.supportsAccountSwitching { identities = source.accounts.first(where: { $0.id == draft.account })?.identities ?? [] }
         draftID = draft.id
-        let isOwn = draft.conversation.thread.hasPrefix("local:")
-        host = isOwn ? nil : draft.conversation
+        host = draft.isReply || draft.isForward ? draft.conversation : nil
         let typed = rich
         to = draft.to
         cc = draft.cc
@@ -314,7 +345,8 @@ final class MailComposerModel: ObservableObject {
         // A time that has gone by while the draft waited is not one to send at.
         schedule = draft.schedule.flatMap { $0.at > clock() ? $0.at : nil }
         subject = draft.subject
-        rich = MailRichText.attributed(draft.body) + typed
+        adoptedBody = MailRichText.attributed(draft.body)
+        rich = adoptedBody + typed
         // The draft's text arrived under a caret already in the body: the caret goes after it.
         if lastField == .body, !rich.characters.isEmpty { caretToEnd += 1 }
         files.adopt(draft.attachments)
@@ -497,6 +529,23 @@ final class MailComposerModel: ObservableObject {
 
     // MARK: The assistant's draft
 
+    struct AssistantDraftContext: Equatable {
+        let draftID: MailDraftID?
+        let conversation: MailConversationID?
+        let sender: MailIdentity?
+        let subject: String
+        let quote: MailDraftPart?
+        let recipients: [[MailPerson]]
+        let typedRecipients: [String]
+        let replyStyle: MailReplyStyle?
+    }
+
+    var assistantDraftContext: AssistantDraftContext {
+        AssistantDraftContext(draftID: draftID, conversation: host, sender: from, subject: subject,
+                              quote: quote, recipients: [to, cc, bcc], typedRecipients: [toText, ccText, bccText],
+                              replyStyle: replyStyle)
+    }
+
     /// What the assistant wrote goes into the body, ready to edit; what was there is kept for one Undo.
     func writeAssistantDraft(_ text: String) {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -603,6 +652,7 @@ final class MailComposerModel: ObservableObject {
 
     func edited() {
         guard !isSettingText else { return }
+        lastSave = nil
         cancelSave?()
         cancelSave = timers.schedule(Self.saveAfter) { [weak self] in
             self?.cancelSave = nil
@@ -621,7 +671,7 @@ final class MailComposerModel: ObservableObject {
         draft.signature = signature
         draft.schedule = schedule.map { MailSchedule(at: $0, onThisDevice: true, isLate: false) }
         draft.subject = subject
-        draft.body = MailRichText.text(rich)
+        if rich != adoptedBody { draft.body = MailRichText.text(rich) }
         draft.attachments = files.items
         draft.encodedBytes = files.encodedBytes + body.utf8.count
         draft.editedAt = clock()
@@ -630,8 +680,24 @@ final class MailComposerModel: ObservableObject {
 
     /// Hands what is written to the source, if there is any.
     private func save() {
-        guard isReady, hasContent, let current = currentDraft() else { return }
+        guard isReady, !isForeign, hasContent || draft?.syncState != nil,
+              lastSave == nil || syncState != .gmail, let current = currentDraft() else { return }
+        syncState = nil
+        lastSave = current.editedAt
         source.save(current)
+    }
+
+    func updateSyncState(_ state: MailDraft.SyncState, for id: MailDraftID, editedAt: Date) {
+        guard id == draftID, editedAt == lastSave, syncState != state else { return }
+        syncState = state
+    }
+
+    func refreshCleanDraft(_ latest: MailDraft) {
+        guard latest.id == draftID, lastSave != nil, syncState == .gmail, !isClosed,
+              MailRecipientField.all.allSatisfy({ text(of: $0).isEmpty }), buffer.isEmpty, files.pending.isEmpty else { return }
+        isSettingText = true
+        rich = AttributedString()
+        adopt(latest, fresh: false)
     }
 
     /// Writes it down now: when the app goes to the background, and before a send.
@@ -684,8 +750,9 @@ final class MailComposerModel: ObservableObject {
             source.discard(id)
             return .dropped
         }
-        if hasContent, let current = currentDraft() {
-            source.save(current)
+        if isForeign { return .kept(id) }
+        if hasContent || draft?.syncState != nil {
+            save()
             return .kept(id)
         }
         source.discard(id)
@@ -704,7 +771,7 @@ final class MailComposerModel: ObservableObject {
     /// draft is made by: the switch then offers Reply and Forward only.
     func refreshReplyChoices() async {
         guard let host, replyStyle != nil, let conversation = await source.conversation(host),
-              let original = MailReplyRules.original(in: conversation) else { return }
+              let original = original(in: conversation) else { return }
         let all = MailReplyRules.recipients(for: .replyAll(to: original.id), original: original, myAddresses: myAddresses)
         let one = MailReplyRules.recipients(for: .reply(to: original.id), original: original, myAddresses: myAddresses)
         let same = Set((all.to + all.cc).map(Self.key)) == Set((one.to + one.cc).map(Self.key))
@@ -722,7 +789,7 @@ final class MailComposerModel: ObservableObject {
         switching = Task { @MainActor [weak self] in
             guard let self else { return }
             guard let conversation = await self.source.conversation(host),
-                  let original = MailReplyRules.original(in: conversation), !Task.isCancelled, !self.isClosed else { return }
+                  let original = self.original(in: conversation), !Task.isCancelled, !self.isClosed else { return }
             let kind: MailDraftKind
             switch style {
             case .reply: kind = .reply(to: original.id)

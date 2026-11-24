@@ -36,3 +36,32 @@ def score_common(case,raw):
         for word in expected['foods']:
             if not any(word in f.get('name','').lower() for f in foods): return False,'food_identity'
     return True,'tool_contract_pass'
+
+
+def score_reviewed(case, raw):
+    choices = raw.get("choices", [])
+    if len(choices) != 1 or choices[0].get("finish_reason") not in {"stop", "tool_calls"}:
+        return False, "incomplete"
+    message = choices[0]["message"]
+    expected = case["expected"]
+    calls = message.get("tool_calls") or []
+    if expected["tool"] is None:
+        text = (message.get("content") or "").casefold()
+        if calls or not text.strip() or expected["textIncludes"].casefold() not in text:
+            return False, "reply_contract"
+        if any(value.casefold() in text for value in expected.get("textExcludes", [])):
+            return False, "forbidden_reply"
+        return True, "reviewed_reply_pass"
+    if len(calls) != 1 or calls[0].get("function", {}).get("name") != expected["tool"]:
+        return False, "wrong_tool"
+    try:
+        arguments = json.loads(calls[0]["function"]["arguments"])
+    except (KeyError, TypeError, ValueError):
+        return False, "invalid_json"
+    schema = next(tool["parameters"] for tool in case["request"]["tools"] if tool["name"] == expected["tool"])
+    if not isinstance(arguments, dict) or not Draft7Validator(schema).is_valid(arguments):
+        return False, "schema"
+    for key, value in expected["arguments"].items():
+        if key not in arguments or arguments[key] != value:
+            return False, "argument_" + key
+    return True, "reviewed_tool_pass"

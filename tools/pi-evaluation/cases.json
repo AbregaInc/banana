@@ -206,7 +206,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -215,6 +215,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -524,7 +528,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -533,6 +537,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -845,7 +853,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -854,6 +862,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -1166,7 +1178,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -1175,6 +1187,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -1486,7 +1502,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -1495,6 +1511,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -1808,7 +1828,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -1817,6 +1837,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -2130,7 +2154,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -2139,6 +2163,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -2451,7 +2479,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -2460,6 +2488,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -2774,7 +2806,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -2783,6 +2815,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -3097,7 +3133,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -3106,6 +3142,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -3420,7 +3460,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -3429,6 +3469,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -3738,7 +3782,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -3747,6 +3791,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -4056,7 +4104,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -4065,6 +4113,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -4376,7 +4428,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -4385,6 +4437,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -4696,7 +4752,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -4705,6 +4761,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -5014,7 +5074,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -5023,6 +5083,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -5334,7 +5398,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -5343,6 +5407,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -5652,7 +5720,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -5661,6 +5729,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -5970,7 +6042,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -5979,6 +6051,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -6288,7 +6364,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -6297,6 +6373,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -6606,7 +6686,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -6615,6 +6695,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",
@@ -6924,7 +7008,7 @@
           },
           {
             "name": "search_app",
-            "description": "Search ACROSS Banana categories or for quoted text. For searches explicitly about logged meals/foods use nutrition_view with foodName instead. Returns a native list with app links.",
+            "description": "Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.",
             "parameters": {
               "type": "object",
               "required": [
@@ -6933,6 +7017,10 @@
               "properties": {
                 "query": {
                   "type": "string"
+                },
+                "section": {
+                  "type": "string",
+                  "const": "plan"
                 },
                 "revision": {
                   "type": "integer",

@@ -28,9 +28,12 @@ private func googleEvent(
     transparency: String? = nil,
     status: String? = "confirmed",
     declined: Bool = false,
+    myResponse: String? = nil,
     attendees: Int = 0,
     ownedBy variant: String? = nil,
     itemID: String? = nil,
+    creator: String? = nil,
+    writer: String? = nil,
     iCalUID: String? = nil,
     originalStart: String? = nil
 ) -> GoogleEvent {
@@ -48,6 +51,7 @@ private func googleEvent(
     if let hangoutLink { json["hangoutLink"] = hangoutLink }
     if let transparency { json["transparency"] = transparency }
     if let status { json["status"] = status }
+    if let creator { json["creator"] = ["email": creator] }
     if let iCalUID { json["iCalUID"] = iCalUID }
     if let originalStart {
         json["originalStartTime"] = ["dateTime": originalStart]
@@ -55,12 +59,15 @@ private func googleEvent(
     }
     var people: [[String: Any]] = (0..<attendees).map { ["email": "guest\($0)@example.com"] }
     if declined { people.append(["email": "me@example.com", "self": true, "responseStatus": "declined"]) }
+    if let myResponse { people.append(["email": "me@example.com", "self": true, "responseStatus": myResponse]) }
     if !people.isEmpty { json["attendees"] = people }
     if let variant {
-        json["extendedProperties"] = ["private": [
+        var properties = [
             GoogleBusyBlocks.variantKey: variant,
             GoogleBusyBlocks.itemIDKey: itemID ?? "item-\(id)",
-        ]]
+        ]
+        if let writer { properties[GoogleBusyBlocks.writerKey] = writer }
+        json["extendedProperties"] = ["private": properties]
     }
     let data = try! JSONSerialization.data(withJSONObject: json)
     return try! JSONDecoder().decode(GoogleEvent.self, from: data)
@@ -143,6 +150,40 @@ final class GoogleEventWindowTests: XCTestCase {
     private var dinnerMirror: String {
         let dinner = GoogleEventWindowBuilder.normalize(.init(calendarID: "personal", event: googleEvent(id: "d", summary: "Dinner")))!
         return GoogleBusyBlocks.mirrorID(title: dinner.title, start: dinner.start, end: dinner.end)
+    }
+
+    func testSharedScheduledCopiesFoldAcrossVariantsAndCalendars() {
+        let events = [
+            ("fitness", googleEvent(id: "stable", summary: "Busy", ownedBy: "banana", itemID: "travel-item",
+                                    creator: "noor@plan.example", writer: "stable-install")),
+            ("fitness", googleEvent(id: "beta", summary: "Busy", ownedBy: "banana-beta", itemID: "travel-item",
+                                    creator: "noor@plan.example", writer: "beta-install")),
+            ("personal", googleEvent(id: "personal", summary: "Busy", ownedBy: "banana", itemID: "travel-item",
+                                     creator: "noor-personal@plan.example", writer: "stable-install")),
+        ]
+        let result = sharedWindow(events, owners: [:])
+        XCTAssertEqual(result.meetings.map(\.title), ["Busy"])
+        XCTAssertEqual(result.meetings.first?.alsoOnCalendarIDs, [GoogleCalendarIDs.calendarInfoID("personal")])
+        XCTAssertEqual(result.busyIntervals.count, 3)
+        // If the calendar is hidden, its copies cannot stand in for a visible one.
+        let hidden = GoogleEventWindowBuilder.window(
+            from: events.map { .init(calendarID: $0.0, event: $0.1) }, calendar: utc, ownedCalendarIDs: [],
+            hiddenSharedAvailabilityCalendarIDs: ["fitness"])
+        XCTAssertEqual(hidden.meetings.first?.calendarID, GoogleCalendarIDs.calendarInfoID("personal"))
+        XCTAssertEqual(hidden.busyIntervals.count, 3)
+    }
+
+    func testSameTimeWithDifferentOrMissingProvenanceStaysVisible() {
+        let events = [
+            ("fitness", googleEvent(id: "one", summary: "Busy", ownedBy: "banana", itemID: "travel-item",
+                                    creator: "noor@plan.example", writer: "first-install")),
+            ("personal", googleEvent(id: "two", summary: "Busy", ownedBy: "banana", itemID: "travel-item",
+                                     creator: "another@plan.example", writer: "other-install")),
+            ("work", googleEvent(id: "three", summary: "Busy")),
+            ("work", googleEvent(id: "four", summary: "Busy", end: "2026-10-05T16:05:00Z",
+                                 ownedBy: "banana", itemID: "travel-item", writer: "first-install")),
+        ]
+        XCTAssertEqual(sharedWindow(events, owners: [:]).meetings.count, 4)
     }
 
     func testSharedMirrorFoldsIntoVisibleDinnerKeepingEveryCalendarAndRawCoverage() {
@@ -432,6 +473,16 @@ final class GoogleEventWindowTests: XCTestCase {
         XCTAssertEqual(result.travelEvents.count, 1)
         XCTAssertTrue(result.travelEvents[0].isAllDay)
         XCTAssertEqual(result.travelEvents[0].location, "London")
+    }
+
+    /// An invitation the owner hasn't answered is someone else's words: it is not where the owner
+    /// is, so it never moves the booking hours. Answered, it counts.
+    func testAnUnansweredInvitationIsNotTravel() {
+        let flight = { (reply: String) in googleEvent(id: "f-\(reply)", summary: "Flight to Tokyo (NH 7)", location: "SFO",
+                                                    myResponse: reply, attendees: 1) }
+        XCTAssertTrue(window([("me@example.com", flight("needsAction"))]).travelEvents.isEmpty)
+        XCTAssertEqual(window([("me@example.com", flight("accepted"))]).travelEvents.count, 1)
+        XCTAssertEqual(window([("me@example.com", flight("tentative"))]).travelEvents.count, 1)
     }
 
     /// The same invite reaching two of your accounts is one meeting, and the richer copy wins.
@@ -1066,6 +1117,41 @@ final class SharedCalendarBusyCopyTests: XCTestCase {
         body["id"] = id
         body["status"] = "confirmed"
         return try JSONDecoder().decode(GoogleEvent.self, from: JSONSerialization.data(withJSONObject: body))
+    }
+
+    func testTracedBusyCopiesGroupWhenGoogleOmitsACalendarOwner() throws {
+        let calendars = try calendars("""
+        [{"id":"shared-personal","accessRole":"reader"},
+         {"id":"partner@plan.example","accessRole":"reader"}]
+        """, account: "noor@plan.example")
+        let source = GoogleBusyBlocks.sourceKey(calendarID: "hidden-source", eventID: "one")
+        let viewer = try window(calendars, [
+            ("shared-personal", writtenCopy(id: "first", sources: [source])),
+            ("partner@plan.example", writtenCopy(id: "second", sources: [source])),
+        ], overrides: ["shared-personal": true, "partner@plan.example": true])
+
+        XCTAssertEqual(viewer.meetings.map(\.title), ["Busy"])
+        XCTAssertEqual(viewer.meetings.first?.alsoOnCalendarIDs.count, 1)
+        XCTAssertEqual(viewer.busyIntervals.count, 2)
+        XCTAssertFalse(viewer.meetings.first?.shouldMirrorBusyTime == true)
+    }
+
+    func testMatchingBusyFingerprintsWithoutSharedSourceProofStaySeparate() throws {
+        let calendars = try calendars("""
+        [{"id":"shared-personal","accessRole":"reader"},
+         {"id":"partner@plan.example","accessRole":"reader"},
+         {"id":"unmarked-calendar","accessRole":"reader"}]
+        """, account: "noor@plan.example")
+        let first = GoogleBusyBlocks.sourceKey(calendarID: "hidden-source", eventID: "one")
+        let second = GoogleBusyBlocks.sourceKey(calendarID: "hidden-source", eventID: "two")
+        let viewer = try window(calendars, [
+            ("shared-personal", writtenCopy(id: "first", sources: [first])),
+            ("partner@plan.example", writtenCopy(id: "second", sources: [second])),
+            ("unmarked-calendar", googleEvent(id: "third", summary: "Busy")),
+        ], overrides: ["shared-personal": true, "partner@plan.example": true, "unmarked-calendar": true])
+
+        XCTAssertEqual(viewer.meetings.map(\.title), ["Busy", "Busy", "Busy"])
+        XCTAssertEqual(viewer.busyIntervals.count, 3)
     }
 
     /// Each person chooses per calendar: blocking or visibility. The household calendar blocks

@@ -182,6 +182,7 @@ final class CalendarWriteBack: ObservableObject {
         static let removalGate = "calendarWriteBack.removalGate.v1"
         static let sweepRemovalGate = "calendarWriteBack.sweepRemovalGate.v1"
         static let lastSweep = "calendarWriteBack.lastSweep.v1"
+        static let lastVariantSweep = "calendarWriteBack.lastVariantSweep.v1"
         static let adoption = "calendarWriteBack.legacyAdoption.v1"
         static let adoptionCalendars = "calendarWriteBack.legacyAdoption.calendars.v1"
         /// Set the moment the person confirms. Adoption that is interrupted — the app suspended or
@@ -701,12 +702,16 @@ final class CalendarWriteBack: ObservableObject {
     private func sweepCopiesIfDue(sourceExcluding excluded: Set<String>) async {
         let now = Date()
         let last = defaults.object(forKey: DefaultsKey.lastSweep) as? Date
-        guard !sweepRemovalGate.pendingSince.isEmpty || last.map({ now.timeIntervalSince($0) >= Self.sweepInterval }) ?? true
+        let lastVariantSweep = defaults.object(forKey: DefaultsKey.lastVariantSweep) as? Date
+        let variantSweep = Self.variant == .production
+            && (lastVariantSweep.map { now.timeIntervalSince($0) >= Self.sweepInterval } ?? true)
+        guard variantSweep || !sweepRemovalGate.pendingSince.isEmpty || last.map({ now.timeIntervalSince($0) >= Self.sweepInterval }) ?? true
         else { return }
         let google = GoogleCalendarService.shared
         var copies: [String: [BusyCopyPlanner.Owned]] = [:]
         var calendarOf: [String: String] = [:]   // event id → calendar info id
         var ownedTotal = 0
+        var variantSweepComplete = true
         for calendarID in google.writeBackCandidates.map(\.infoID).sorted() {
             guard let raw = GoogleCalendarIDs.rawCalendarID(from: calendarID) else { continue }
             let owned: [String: [GoogleCalendarService.OwnedBlock]]
@@ -719,6 +724,11 @@ final class CalendarWriteBack: ObservableObject {
                 Log.writeBack.notice("[writeback] sweep skipped: a calendar's copies could not be read")
                 return
             }
+            if variantSweep {
+                let completed = await removeBetaShadows(calendarID: calendarID, rawCalendarID: raw,
+                                                        production: owned.values.flatMap { $0 }, now: now)
+                variantSweepComplete = completed && variantSweepComplete
+            }
             for (itemID, blocks) in owned {
                 ownedTotal += blocks.count
                 for block in blocks {
@@ -728,6 +738,7 @@ final class CalendarWriteBack: ObservableObject {
                 }
             }
         }
+        if variantSweep && variantSweepComplete { defaults.set(now, forKey: DefaultsKey.lastVariantSweep) }
         var qualifying = Set<String>()
         if let earliest = BusyCopySweep.earliestStart(copies: copies, now: now) {
             let read = await google.windowFetch(from: Calendar.current.startOfDay(for: earliest), to: now,
@@ -780,6 +791,50 @@ final class CalendarWriteBack: ObservableObject {
             PlaybackDiagnostics.shared.log("writeback: sweep", "\(byKey.count) copies no longer called for, removed \(removed), \(sweepRemovalGate.pendingSince.count) waiting for a second look")
         }
         if sweepRemovalGate.pendingSince.isEmpty { defaults.set(now, forKey: DefaultsKey.lastSweep) }
+    }
+
+    private func removeBetaShadows(calendarID: String, rawCalendarID: String,
+                                   production: [GoogleCalendarService.OwnedBlock], now: Date) async -> Bool {
+        let google = GoogleCalendarService.shared
+        let accounts = Set(google.accounts.map { $0.email.lowercased() })
+        let coverage = Set(production.compactMap {
+            BusyVariantShadows.Copy(content: $0.content, creator: $0.creatorEmail, blocksTime: $0.blocksTime)
+        }.filter { accounts.contains($0.creator) })
+        guard !coverage.isEmpty else { return true }
+
+        do {
+            let beta = try await ours(google.ownedBusyBlockDetails(
+                calendarID: rawCalendarID, variant: CalendarWriteBackVariant.beta.markerScheme,
+                from: now, to: now, allDates: true), on: calendarID)
+            let shadows = beta.values.joined().filter { block in
+                guard let copy = BusyVariantShadows.Copy(content: block.content, creator: block.creatorEmail,
+                                                         blocksTime: block.blocksTime) else { return false }
+                return coverage.contains(copy)
+            }
+            var removed = 0
+            // Keep a large cleanup from monopolizing write-back. Another healthy pass resumes it.
+            for block in shadows.sorted(by: {
+                let leftPast = $0.end < now, rightPast = $1.end < now
+                if leftPast != rightPast { return !leftPast }
+                return $0.start < $1.start
+            }).prefix(40) {
+                // Ownership was read from Google on this very calendar. Refuse a changed copy.
+                do {
+                    try await google.deleteBusyBlock(calendarID: rawCalendarID, eventID: block.eventID, expectedETag: block.etag)
+                    lastSelfCommit = Date()
+                    removed += 1
+                } catch {
+                    Log.writeBack.notice("[writeback] Beta shadow cleanup will retry a failed deletion")
+                }
+            }
+            if removed > 0 {
+                Log.writeBack.notice("[writeback] removed \(removed, privacy: .public) Beta duplicates of production busy blocks")
+            }
+            return removed == shadows.count
+        } catch {
+            Log.writeBack.notice("[writeback] Beta shadow cleanup will retry after a failed calendar operation")
+            return false
+        }
     }
 
     /// The window blocks are looked for in: a week back to beyond the travel horizon. Must cover
@@ -920,8 +975,9 @@ final class CalendarWriteBack: ObservableObject {
             }
 
             // Only current and future blocks go: every removal is a chance to be wrong.
-            for itemID in plan.unwanted.keys {
-                let current = (ownedDetails[itemID] ?? []).filter { $0.end > now }
+            for (itemID, planned) in plan.unwanted {
+                let removableIDs = Set(planned.map(\.eventID))
+                let current = (ownedDetails[itemID] ?? []).filter { removableIDs.contains($0.eventID) }
                 guard !current.isEmpty else { continue }
                 unwanted[ledgerKey(appItemID: itemID, calendarID: calendarID)] = (calendarID, current)
             }
@@ -1012,7 +1068,7 @@ final class CalendarWriteBack: ObservableObject {
             },
             owned: owned.mapValues {
                 $0.map { BusyCopyPlanner.Owned(eventID: $0.eventID, etag: $0.etag, end: $0.end, content: $0.content,
-                                               start: $0.start, sources: $0.sources,
+                                               start: $0.start, blocksTime: $0.blocksTime, sources: $0.sources,
                                                inputs: $0.inputs, updated: $0.updated) }
             },
             recorded: recorded,
@@ -1266,15 +1322,10 @@ final class CalendarWriteBack: ObservableObject {
         existingBusyIntervals: [CalendarBusyInterval]
     ) -> [DesiredBlock] {
         var byExactSlot: [String: DesiredBlock] = [:]
-        let reusableCoverageByCalendar = Dictionary(
-            grouping: existingBusyIntervals.filter {
-                Self.variant.reusesCoverage(
-                    markerScheme: $0.appMarkerScheme,
-                    appItemID: $0.appItemID
-                )
-            },
-            by: \.calendarID
-        )
+        let coverageByCalendar = Dictionary(grouping: existingBusyIntervals.filter {
+            Self.variant.reusesCoverage(markerScheme: $0.appMarkerScheme, appItemID: $0.appItemID)
+                || (Self.variant == .beta && $0.appMarkerScheme == CalendarWriteBackVariant.production.markerScheme)
+        }, by: \.calendarID)
 
         for occurrence in occurrences {
             var isAuthoredWork = occurrence.isWritable && occurrence.writePolicy == .busy
@@ -1307,7 +1358,8 @@ final class CalendarWriteBack: ObservableObject {
                 if hasForeignCoverage(
                     start: occurrence.start,
                     end: end,
-                    intervals: reusableCoverageByCalendar[calendarID] ?? []
+                    itemID: appItemID,
+                    intervals: coverageByCalendar[calendarID] ?? []
                 ) { continue }
 
                 let keepsTaskTitle = isAuthoredWork && calendarID == liveCalendarID
@@ -1354,11 +1406,22 @@ final class CalendarWriteBack: ObservableObject {
     private func hasForeignCoverage(
         start: Date,
         end: Date,
+        itemID: AppItemID,
         intervals: [CalendarBusyInterval]
     ) -> Bool {
-        intervals.contains { interval in
-            interval.start <= start.addingTimeInterval(Self.coverageTolerance)
-                && interval.end >= end.addingTimeInterval(-Self.coverageTolerance)
+        let latestStart = start.addingTimeInterval(Self.coverageTolerance)
+        let earliestEnd = end.addingTimeInterval(-Self.coverageTolerance)
+        return intervals.contains { interval in
+            guard interval.start <= latestStart, interval.end >= earliestEnd
+            else { return false }
+            if Self.variant != .beta
+                || Self.variant.reusesCoverage(markerScheme: interval.appMarkerScheme, appItemID: interval.appItemID) {
+                return true
+            }
+            return Self.variant.reusesExactProductionCoverage(markerScheme: interval.appMarkerScheme,
+                                                               existingItemID: interval.appItemID, wantedItemID: itemID)
+                && GoogleBusyBlocks.wholeSecond(interval.start) == GoogleBusyBlocks.wholeSecond(start)
+                && GoogleBusyBlocks.wholeSecond(interval.end) == GoogleBusyBlocks.wholeSecond(end)
         }
     }
 

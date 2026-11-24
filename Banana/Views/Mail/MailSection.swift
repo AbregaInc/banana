@@ -44,10 +44,16 @@ struct MailSection: View {
         .task { application.start() }
         .modifier(GooglePermissionUpgradePrompt())
         #if os(macOS)
-        .toolbar {
-            if wideShell, let session = application.session {
-                ToolbarItem(placement: .navigation) { MailPlaceTitleMenu(session: session) }
-                ToolbarItem(placement: .primaryAction) { MailActionsMenu(session: session) }
+        .macToolbarLeading {
+            if let session = application.session {
+                MailPlaceTitleMenu(session: session)
+            } else {
+                PageTitleText(title: AppSection.mail.title)
+            }
+        }
+        .macToolbarActions {
+            if let session = application.session {
+                MailActionsMenu(session: session)
             }
         }
         #endif

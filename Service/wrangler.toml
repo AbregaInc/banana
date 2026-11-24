@@ -8,6 +8,7 @@
 #   APNS_KEY              the .p8 push key's PEM text
 #   APNS_KEY_ID           its key id
 #   APNS_TEAM_ID          the Apple team id
+#   APNS_TOPICS           the app bundle ids the key pushes to, comma-separated (unset: any; set: a device naming another is refused)
 #   TURNSTILE_SECRET      the booking pages' Turnstile secret (unset: unknown browsers cannot book; TURNSTILE_SKIP=1 only for local runs)
 name = "banana-service"
 main = "src/worker.js"
@@ -47,6 +48,14 @@ class_name = "Mailbox"
 [[migrations]]
 tag = "v2"
 new_sqlite_classes = ["Mailbox"]
+
+[[durable_objects.bindings]]
+name = "DESKTOP_RELAY"
+class_name = "DesktopRelayRoom"
+
+[[migrations]]
+tag = "v3"
+new_sqlite_classes = ["DesktopRelayRoom"]
 
 [[r2_buckets]]
 binding = "BLOBS"
@@ -157,6 +166,14 @@ class_name = "Mailbox"
 [[env.beta.migrations]]
 tag = "v2"
 new_sqlite_classes = ["Mailbox"]
+
+[[env.beta.durable_objects.bindings]]
+name = "DESKTOP_RELAY"
+class_name = "DesktopRelayRoom"
+
+[[env.beta.migrations]]
+tag = "v3"
+new_sqlite_classes = ["DesktopRelayRoom"]
 
 [[env.beta.r2_buckets]]
 binding = "BLOBS"

@@ -92,7 +92,8 @@ final class MailDraftsPlaceTests: XCTestCase {
         let h = MailWriteHarness()
         let ids = await threeDrafts(h)
         h.session.show(.drafts)
-        h.session.open(h.id("q3"))                          // a tap on its row
+        let row = try XCTUnwrap(h.rows(.drafts).first { $0.id.thread == ids[1].rowThread })
+        h.session.open(row.id)
         await h.session.settle()
         XCTAssertEqual(h.session.openConversation, h.id("q3"), "it opens in its conversation")
         let composer = try XCTUnwrap(h.composer)

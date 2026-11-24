@@ -86,7 +86,7 @@ struct PlannerTab: View, Equatable {
 
 /// Plan's period picker: the period's name with a chevron and its dates beside it; under the
 /// chevron Day and Week (the Mac adds 3 and 5 days). The middle of Plan's paging group in every
-/// shell (`PlanPagingToolbar`, `PlanPagingRow`), so no two of them can drift.
+/// shell, so no two of them can drift.
 struct PlanPeriodMenu: View {
     /// The dates on screen (`PlanPaging.dates`): its spoken value, and shown beside the name, or
     /// under it and then not at all where the row is narrow (`datesPlace`).
@@ -156,6 +156,7 @@ struct PlanStepButton: View {
     let delta: Int
     let days: Int
     var framed = false
+    var showsPlanShortcut = true
     let step: (Int) -> Void
 
     var body: some View {
@@ -169,7 +170,7 @@ struct PlanStepButton: View {
                 #endif
                 .contentShape(Rectangle())
         }
-        .help(PlanPaging.help(name, key: delta < 0 ? "K" : "J"))
+        .help(showsPlanShortcut ? PlanPaging.help(name, key: delta < 0 ? "K" : "J") : name)
         .accessibilityLabel(name)
         .accessibilityIdentifier(delta < 0 ? "plan.previous" : "plan.next")
     }
@@ -178,6 +179,7 @@ struct PlanStepButton: View {
 /// Today of Plan's paging group, shown only away from the current period (`PlanPaging.showsToday`).
 struct PlanTodayButton: View {
     var framed = false
+    var showsPlanShortcut = true
     let toCurrent: () -> Void
 
     var body: some View {
@@ -190,18 +192,45 @@ struct PlanTodayButton: View {
                 #endif
                 .contentShape(Rectangle())
         }
-        .help(PlanPaging.help("Go to today", key: "T"))
+        .help(showsPlanShortcut ? PlanPaging.help("Go to today", key: "T") : "Go to today")
         .accessibilityIdentifier("plan.today")
     }
 }
 
-/// Plan's paging in a wide toolbar (an iPad on its side, the Mac; docs/design/BOTTOM-BAR-SHELL.md),
-/// as two of the bar's three groups (HIG, Toolbars: three at most): "‹", Today away from the
-/// current period, "›"; then the period picker (Day, several days or Week, with the dates) and
-/// `accessory`, the forecast and a spinner while the dates load. The third group is the field
-/// and "…" at the trailing edge.
+#if os(macOS)
+/// The same date controls for Plan, Workouts, Food and Taken.
+struct MacPeriodPagingControls<Mode: View>: View {
+    let days: Int
+    let dates: String
+    let isCurrent: Bool
+    var canGoForward = true
+    var dateIdentifier = "plan.dateRange"
+    let step: (Int) -> Void
+    let toCurrent: () -> Void
+    @ViewBuilder var mode: Mode
+
+    private var showsPlanShortcuts: Bool { dateIdentifier == "plan.dateRange" }
+
+    var body: some View {
+        HStack(spacing: DS.Space.xs) {
+            PlanStepButton(delta: -1, days: days, showsPlanShortcut: showsPlanShortcuts, step: step)
+            PlanTodayButton(showsPlanShortcut: showsPlanShortcuts, toCurrent: toCurrent).disabled(isCurrent)
+            Text(dates)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .accessibilityIdentifier(dateIdentifier)
+            mode
+            PlanStepButton(delta: 1, days: days, showsPlanShortcut: showsPlanShortcuts, step: step)
+                .disabled(!canGoForward)
+        }
+        .buttonStyle(.borderless)
+        .accessibilityElement(children: .contain)
+    }
+}
+#else
+/// Plan's paging in the landscape iPad toolbar.
 struct PlanPagingToolbar<Accessory: View>: ToolbarContent {
-    /// The days on screen: 1 in Day, the span in Week.
     let days: Int
     let dates: String
     let isCurrent: Bool
@@ -209,56 +238,22 @@ struct PlanPagingToolbar<Accessory: View>: ToolbarContent {
     let toCurrent: () -> Void
     @ViewBuilder let accessory: Accessory
 
-    #if os(macOS)
-    private static var leading: ToolbarItemPlacement { .navigation }
-    #else
-    private static var leading: ToolbarItemPlacement { .topBarLeading }
-    #endif
-
     var body: some ToolbarContent {
-        #if os(macOS)
-        // One item keeps the native toolbar from splitting or reordering the date controls.
-        // Calendar navigation sits on the right; the only leading arrow-like control is the
-        // explicitly labelled sidebar icon. Single chevrons always page dates.
-        ToolbarItem(placement: .primaryAction) {
-            HStack(spacing: DS.Space.m) {
-                PlanPeriodMenu(dates: dates).fixedSize()
-                HStack(spacing: DS.Space.s) {
-                    PlanStepButton(delta: -1, days: days, step: step)
-                    if PlanPaging.showsToday(isCurrent: isCurrent) {
-                        PlanTodayButton(toCurrent: toCurrent)
-                    }
-                    PlanStepButton(delta: 1, days: days, step: step)
-                }
-                .buttonStyle(.borderless)
-                .fixedSize()
-                // Separate the date menu and the paging hit targets.
-                .padding(.leading, DS.Space.s)
-            }
-            .fixedSize()
-        }
-        // Optional forecast/loading status can yield independently of essential date controls.
-        ToolbarItem(placement: .automatic) {
-            HStack(spacing: DS.Space.s) { accessory }.fixedSize()
-        }
-        #else
-        ToolbarItemGroup(placement: Self.leading) {
+        ToolbarItemGroup(placement: .topBarLeading) {
             PlanStepButton(delta: -1, days: days, step: step)
             if PlanPaging.showsToday(isCurrent: isCurrent) {
                 PlanTodayButton(toCurrent: toCurrent)
             }
             PlanStepButton(delta: 1, days: days, step: step)
         }
-        ToolbarSpacer(.fixed, placement: Self.leading)
-        ToolbarItemGroup(placement: Self.leading) {
+        ToolbarSpacer(.fixed, placement: .topBarLeading)
+        ToolbarItemGroup(placement: .topBarLeading) {
             PlanPeriodMenu(dates: dates)
             HStack(spacing: DS.Space.s) { accessory }.fixedSize()
         }
-        #endif
     }
 }
 
-#if os(iOS)
 /// The same group as a row of its own: the bottom-bar shell's top row (a phone, an iPad upright),
 /// whose hidden bar would fold it into an overflow menu. Glass capsules, as the bar's would be;
 /// what needs attention is in the day's row with the reminders (`PlanAttentionChips`).

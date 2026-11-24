@@ -11,7 +11,7 @@ The previous quality profile is:
 - Qwen3.8-27B, community 4-bit MLX conversion, pinned revision `10c35caafbb80f7dc6a7a432cdd11af10a6d4818`. Approximately 16 GB of downloaded weights. [Original model](https://huggingface.co/Qwen/Qwen3.8-27B), [conversion](https://huggingface.co/mlx-community/Qwen3.8-27B-4bit), Apache 2.0.
 - Locals commit `4f4d03f10232c9f2adeb1e96e2a7bd79a9e7fe19`, Apache 2.0; Python/MLX dependency versions in `requirements.lock.txt`. This runs only `locals.server`, never its agent-launch commands.
 - Medium reasoning, 32,768-token app context, up to 8,192 response tokens. The tested action profile uses temperature 0.6, top-p 0.95, top-k 20. Qwen's general thinking recommendation uses temperature 1.0; this profile's evidence is specific to Banana's action checks. Historical reasoning is retained locally for continuation.
-- One worker/request slot and a bounded 2 GB prompt cache. Inference listens only on `127.0.0.1:41789`. No cloud inference, LAN exposure or automatic Apple fallback.
+- One worker/request slot and a bounded 2 GB prompt cache. Inference listens only on loopback. Pi uses the profile port (41789), Stable uses 41792, Beta uses 41793 and Dev uses 41794. No cloud inference, LAN exposure or automatic Apple fallback.
 
 ## Everything is the app's own (since 1 November 2026)
 

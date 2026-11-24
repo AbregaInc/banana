@@ -200,7 +200,7 @@ def embed_settings(have: set[str]) -> str:
     for folder, modules in MAP["embeds"].items():
         if not set(modules) & have:
             lines.append(f"BANANA_{folder.upper()}_EMBED_PATH[config=AppStore] = ModulesLeftOut/{folder}")
-    return "\n".join(lines) + "\n"
+    return "\n".join(lines).rstrip() + "\n"
 
 
 # MARK: - Checking an artifact

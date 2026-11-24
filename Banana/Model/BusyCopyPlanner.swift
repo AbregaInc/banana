@@ -40,6 +40,7 @@ enum BusyCopyPlanner {
         /// unknown: then only this device's own record can show it is unchanged.
         var content: String? = nil
         var start: Date? = nil
+        var blocksTime = true
         /// The sources it names on the server; empty on a copy written before copies named them.
         var sources: Set<String> = []
         /// The inputs stamp it carries; nil on a copy written before copies were stamped.
@@ -92,10 +93,34 @@ enum BusyCopyPlanner {
                      now: Date) -> CalendarPlan {
         var plan = CalendarPlan()
         var stillWanted = Set<String>()
+        let desiredIDs = Set(desired.map(\.appItemID))
+        // A title can differ between accounts or devices. Older mirrors use title and time
+        // for their ID, so the same private Busy interval can already exist under another key.
+        var alternateMirrors: [String: [Owned]] = [:]
+        for (itemID, copies) in owned where itemID.hasPrefix("mirror-") && !desiredIDs.contains(itemID) {
+            for copy in copies {
+                guard copy.blocksTime, let content = copy.content, content.hasPrefix("Busy\u{1F}") else { continue }
+                alternateMirrors[content, default: []].append(copy)
+            }
+        }
+        var protectedCopies = Set<String>()
         for (index, block) in desired.enumerated() {
             stillWanted.insert(block.appItemID)
             let copies = owned[block.appItemID] ?? []
             let keep = BusyBlockDuplicates.copyToKeep(copies.map(\.eventID))
+            if block.appItemID.hasPrefix("mirror-"), let content = block.content,
+               let alternates = alternateMirrors.removeValue(forKey: content),
+               copies.allSatisfy({ $0.blocksTime && $0.content == content }) {
+                // Devices may disagree about the logical ID. Pick the survivor by provider ID
+                // across both groups so two devices cannot each delete the other's survivor.
+                let exact = copies + alternates
+                if let survivor = exact.min(by: { $0.eventID < $1.eventID }) {
+                    plan.matches.append(Match(index: index, eventID: survivor.eventID, etag: survivor.etag))
+                    plan.duplicates += exact.filter { $0.eventID != survivor.eventID }
+                    protectedCopies.formUnion(alternates.map(\.eventID))
+                    continue
+                }
+            }
             plan.duplicates += copies.filter { $0.eventID != keep }
             guard let keep else {
                 plan.writes.append(.create(index: index))
@@ -130,7 +155,7 @@ enum BusyCopyPlanner {
         }
         for (itemID, copies) in owned where !stillWanted.contains(itemID) {
             // A block that is over protects nothing and costs nothing; removing it is churn.
-            let current = copies.filter { $0.end > now }
+            let current = copies.filter { $0.end > now && !protectedCopies.contains($0.eventID) }
             if !current.isEmpty { plan.unwanted[itemID] = current }
         }
         return plan

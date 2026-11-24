@@ -127,7 +127,7 @@ final class MailHeadersTests: XCTestCase {
     func testEveryNamedHeaderIsFoundPastTheCutAndOnlyTheFirstOfEach() {
         let padding = (0..<1_000).map { ("Received", "hop \($0)") }
         let names = ["From", "Sender", "To", "Cc", "Bcc", "Reply-To", "Subject", "Date", "Message-ID",
-                     "In-Reply-To", "References", "List-Id", "List-Unsubscribe", "List-Unsubscribe-Post",
+                     "In-Reply-To", "References", "List-Id", "List-Unsubscribe", "List-Unsubscribe-Post", "DKIM-Signature",
                      "Content-Type", "Delivered-To", "Auto-Submitted", "X-Google-Original-Message-ID",
                      "X-Banana-Send-At", "X-Banana-Send-Owner"]
         XCTAssertEqual(Set(names.map { $0.lowercased() }), MessageHeaders.namedHeaders)

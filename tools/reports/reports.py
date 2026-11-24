@@ -8,6 +8,7 @@
     tools/reports/reports.py mail-case ID [NAME]  a pulled mail report -> private/mail-render-corpus/NAME/
     tools/reports/reports.py anonymise CASE NAME  a private mail case -> tools/reports/mail-cases/NAME/
     tools/reports/reports.py ai-case ID           a pulled 👎 -> private/ai-evals/<id>.json
+    tools/reports/reports.py ai-fixture NAME REVIEW.json  compile reviewed corrections for benchmark.py
 
 Reads the service through wrangler with your own Cloudflare login (`npx wrangler login`): D1 for
 the rows, R2 for the files. `--env beta` (the default) or `--env production`. Nothing pulled ever
@@ -20,6 +21,7 @@ import hashlib
 import html
 import html.parser
 import json
+import os
 import re
 import urllib.parse
 import subprocess
@@ -76,8 +78,8 @@ def cmd_list(a):
                             ORDER BY received_at DESC LIMIT {int(a.limit)}""")
     for r in rows:
         what = r["detector"] or r["rating"] or "report"
-        print(f"{r['id']}  {when(r['received_at'])}  {r['kind']:<7} {what:<15} {r['platform']}/{r['variant']} {r['version']:<10} "
-              f"{r['page']:<9} {(r['signature'] or r['note'] or '')[:60]}")
+        print(printable(f"{r['id']}  {when(r['received_at'])}  {r['kind']:<7} {what:<15} {r['platform']}/{r['variant']} {r['version']:<10} "
+                        f"{r['page']:<9} {(r['signature'] or r['note'] or '')[:60]}"))
     if not rows:
         print("Nothing new." if not a.all else "No reports.")
 
@@ -122,10 +124,10 @@ def cmd_spikes(a):
     for r in rows:
         by[r["detector"]].append(r)
     for detector, group in sorted(by.items(), key=lambda kv: -sum(r["n"] for r in kv[1])):
-        print(f"\n{detector}  ({sum(r['n'] for r in group)})")
+        print(printable(f"\n{detector}  ({sum(r['n'] for r in group)})").replace("\ufffd", "\n", 1))
         for r in group:
-            print(f"  {r['n']:>4}  {r['signature'][:70]:<70}  {when(r['first'])} … {when(r['last'])}  "
-                  f"{r['versions']}  {r['platforms']}  e.g. {r['example']}")
+            print(printable(f"  {r['n']:>4}  {r['signature'][:70]:<70}  {when(r['first'])} … {when(r['last'])}  "
+                            f"{r['versions']}  {r['platforms']}  e.g. {r['example']}"))
 
 
 # ---- mail ----
@@ -221,7 +223,33 @@ def class_stand_in(name):
 def anonymise_css(css):
     css = re.sub(r"/\*.*?\*/", "", css, flags=re.S)
     css = re.sub(r"url\([^)]*\)", "url(https://plan.example/picture.png)", css)
+    # Quoted strings (content: "...", a named font) and font families say who sent it.
+    css = re.sub(r"font-family\s*:[^;}]*", "font-family: sans-serif", css, flags=re.I)
+    css = re.sub(r'"[^"]*"|\'[^\']*\'', '"x"', css)
     return re.sub(r"\.(-?[A-Za-z_][\w-]*)", lambda m: "." + class_stand_in(m.group(1)), css)
+
+
+def printable(value):
+    """Text from an anonymous report as the terminal should show it: control and format characters
+    (escape sequences, bidirectional overrides) become a visible mark instead of acting."""
+    return re.sub(r"[\x00-\x1f\x7f-\x9f\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]", "\ufffd", str(value))
+
+
+# An attribute value from KEEP stays only when it is layout, never words: numbers, sizes and hex
+# colours, a language code, or one of a few layout keywords.
+LAYOUT_VALUE = re.compile(r"^(?:[#0-9A-Fa-f%.,\s-]{0,64}|[a-z]{2,3}(?:-[A-Za-z]{2,4})?|"
+                          r"(?i:left|right|center|centre|top|middle|bottom|baseline|justify|ltr|rtl|auto|none|presentation|"
+                          r"transparent|white|black|red|blue|green|gray|grey|silver|text/css|text/html|text/plain))$")
+# Tag names: HTML's and Office's own (o:p, v:shape); any other name becomes span.
+HTML_TAGS = set("""a abbr address b bdi bdo big blockquote body br caption center cite code col colgroup dd del div dl dt em
+    font footer h1 h2 h3 h4 h5 h6 head header hr html i img ins kbd li link main meta nav ol p pre q s samp section small
+    span strike strong style sub sup table tbody td tfoot th thead title tr tt u ul wbr script noscript button label
+    input form select option textarea picture source figure figcaption map area""".split())
+OFFICE_TAG = re.compile(r"^(o|v|w|m):[a-z]{1,24}$", re.I)
+
+
+def tag_name(tag):
+    return tag if tag.lower() in HTML_TAGS or OFFICE_TAG.match(tag) else "span"
 
 
 class Anonymiser(html.parser.HTMLParser):
@@ -242,7 +270,9 @@ class Anonymiser(html.parser.HTMLParser):
         parts = []
         for key, value in attrs:
             if value is None:
-                parts.append(key)
+                # A bare attribute name can carry the sender's words too: only the kept ones stay.
+                if key in self.KEEP:
+                    parts.append(key)
                 continue
             if key in ("href",):
                 if value.startswith("mailto:"):
@@ -267,21 +297,28 @@ class Anonymiser(html.parser.HTMLParser):
             elif key == "class":
                 value = " ".join(class_stand_in(name) for name in value.split())
             elif key == "style":
-                value = re.sub(r"url\([^)]*\)", "url(https://plan.example/picture.png)", value)
+                value = anonymise_css(value)
+            elif key == "face":
+                value = "sans-serif"
             elif key not in self.KEEP:
+                continue
+            elif not LAYOUT_VALUE.match(value):
                 continue
             parts.append(f'{key}="{html.escape(value, quote=True)}"')
         return (" " + " ".join(parts)) if parts else ""
 
     def handle_starttag(self, tag, attrs):
+        tag = tag_name(tag)
         self.out.append(f"<{tag}{self.attrs(attrs)}>")
         if tag in ("style", "script"):
             self.raw = tag
 
     def handle_startendtag(self, tag, attrs):
+        tag = tag_name(tag)
         self.out.append(f"<{tag}{self.attrs(attrs)} />")
 
     def handle_endtag(self, tag):
+        tag = tag_name(tag)
         self.raw = None if tag == self.raw else self.raw
         self.out.append(f"</{tag}>")
 
@@ -294,17 +331,28 @@ class Anonymiser(html.parser.HTMLParser):
         else:
             self.out.append(anonymise_text(data))
 
+    # A reference that stands for a letter or digit is the sender's text spelled another way: it
+    # becomes a stand-in letter. Spaces and punctuation (&nbsp;, &amp;) stay as they are.
+    def reference(self, written):
+        if self.raw == "script":
+            return
+        char = html.unescape(written)
+        if char == written:
+            return   # not a reference HTML knows
+        self.out.append("x" if any(c.isalnum() for c in char) else written)
+
     def handle_entityref(self, name):
-        self.out.append(f"&{name};")
+        self.reference(f"&{name};")
 
     def handle_charref(self, name):
-        self.out.append(f"&#{name};")
+        self.reference(f"&#{name};")
 
     def handle_comment(self, data):
         pass
 
     def handle_decl(self, decl):
-        self.out.append(f"<!{decl}>")
+        if decl.lower().startswith("doctype"):
+            self.out.append("<!DOCTYPE html>")
 
 
 def cmd_anonymise(a):
@@ -362,6 +410,82 @@ def cmd_ai_case(a):
           "(tools/pi-evaluation; real data stays in private/).")
 
 
+
+def reviewed_ai_fixture(review, templates):
+    template_by_id = {case["id"]: case for case in templates["cases"]}
+    cases = []
+    seen = set()
+    for entry in review:
+        if entry.get("approved") is not True:
+            continue
+        case_id = entry.get("id", "")
+        if not re.fullmatch(r"[a-z][a-z0-9-]{2,63}", case_id) or case_id in seen:
+            raise ValueError("Invalid or duplicate reviewed case identifier")
+        seen.add(case_id)
+        if entry.get("domain") not in {"mail", "calendar"}:
+            raise ValueError("Use mail or calendar for a reviewed case")
+        if not isinstance(entry.get("reason"), str) or not entry["reason"].strip():
+            raise ValueError("A reviewed correction needs a reason")
+        template = template_by_id.get(entry.get("template"))
+        if template is None:
+            raise ValueError("Choose an existing inference request template")
+        messages = entry.get("messages")
+        if not isinstance(messages, list) or not messages or len(messages) > 20:
+            raise ValueError("Use 1 to 20 reviewed messages")
+        if any(not isinstance(m, dict) or set(m) != {"role", "text"}
+               or m["role"] not in {"user", "assistant"} or not isinstance(m["text"], str)
+               or not m["text"].strip() or len(m["text"]) > 4000 for m in messages):
+            raise ValueError("Use reviewed user and assistant messages with text only")
+        if messages[-1]["role"] != "user":
+            raise ValueError("The final message must be the request under test")
+        expected = entry.get("expected", {})
+        if not isinstance(expected, dict) or "tool" not in expected or set(expected) - {"tool", "arguments", "textIncludes", "textExcludes"}:
+            raise ValueError("Choose an explicit expected tool or a reply contract")
+        arguments = expected.get("arguments", {})
+        include = expected.get("textIncludes", "")
+        exclude = expected.get("textExcludes", [])
+        if not isinstance(arguments, dict) or not isinstance(include, str) or not isinstance(exclude, list) or any(
+            not isinstance(value, str) or not value.strip() for value in exclude
+        ):
+            raise ValueError("Invalid expected arguments or reply text checks")
+        request = dict(template["request"], messages=messages)
+        tool = expected["tool"]
+        if tool is None:
+            if not include.strip() or arguments:
+                raise ValueError("A reply contract needs an observable expected phrase")
+        else:
+            schema = next((item["parameters"] for item in request["tools"] if item["name"] == tool), None)
+            if schema is None or set(arguments) - set(schema.get("properties", {})):
+                raise ValueError("Expected tool and arguments must exist in the template")
+            if include or exclude:
+                raise ValueError("Use a separate reply case to check answer text")
+        cases.append({
+            "id": case_id, "module": entry["domain"], "reason": entry["reason"], "reviewed": True,
+            "expected": dict(expected, arguments=arguments),
+            "request": request,
+        })
+    if not cases:
+        raise ValueError("No approved cases")
+    return {"version": 1, "scope": "Reviewed Mail and Calendar feedback contracts. Inference only.", "cases": cases}
+
+
+def cmd_ai_fixture(a):
+    if not re.fullmatch(r"[a-z][a-z0-9-]{2,63}", a.name):
+        sys.exit("Use a short lowercase fixture name.")
+    reviews = json.loads(a.review.read_text())
+    templates = json.loads((ROOT / "tools/pi-evaluation/cases.json").read_text())
+    try:
+        fixture = reviewed_ai_fixture(reviews, templates)
+    except (TypeError, ValueError) as error:
+        sys.exit(str(error))
+    folder = EVALS / "reviewed"
+    folder.mkdir(parents=True, exist_ok=True)
+    output = folder / (a.name + ".json")
+    with open(output, "x", encoding="utf-8", opener=lambda path, flags: os.open(path, flags, 0o600)) as file:
+        json.dump(fixture, file, ensure_ascii=False, indent=2)
+        file.write("\n")
+    print(f"{output.relative_to(ROOT)}: {len(fixture['cases'])} approved inference contracts")
+
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--env", choices=ENVS, default="beta")
@@ -373,6 +497,7 @@ def main():
     s = sub.add_parser("mail-case"); s.add_argument("id"); s.add_argument("name", nargs="?"); s.set_defaults(run=cmd_mail_case)
     s = sub.add_parser("anonymise"); s.add_argument("case"); s.add_argument("name"); s.set_defaults(run=cmd_anonymise)
     s = sub.add_parser("ai-case"); s.add_argument("id"); s.set_defaults(run=cmd_ai_case)
+    s = sub.add_parser("ai-fixture"); s.add_argument("name"); s.add_argument("review", type=Path); s.set_defaults(run=cmd_ai_fixture)
     a = p.parse_args()
     a.run(a)
 

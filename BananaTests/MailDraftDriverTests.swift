@@ -59,16 +59,77 @@ final class MailDraftDriverTests: XCTestCase {
         return (values.0, values.1, Provider())
     }
     private func driver(_ store: MailIntentStore, _ api: Provider, scope: String = "account-context") -> MailDraftDriver {
-        MailDraftDriver(scope: scope, store: store, api: api, token: { _ in "routing-reference" }, allowed: { _ in true }, compose: { snapshot in
-            GmailDraftComposition(from: .init(address: snapshot.account), to: [], cc: [], bcc: [], subject: snapshot.subject,
-                plain: snapshot.subject, html: "", attachments: [], inReplyTo: nil, references: nil, threadID: nil)
-        })
+        MailDraftDriver(scope: scope, store: store, api: api, token: { _ in "routing-reference" }, allowed: { _ in true },
+                        compose: { try GmailDraftComposition(snapshot: $0) })
     }
     private func remote(_ version: String, subject: String, attachment: Bool = false) -> GmailDraftValue {
         let body = GmailPart(partId: "body", mimeType: "text/plain", body: GmailPartBody(size: 5, data: Data("Hello".utf8).base64EncodedString()))
         let payload = GmailPart(mimeType: "multipart/mixed", headers: [GmailHeader(name: "Subject", value: subject)],
             parts: attachment ? [body, GmailPart(partId: "file", mimeType: "application/pdf", filename: "notes.pdf", body: GmailPartBody(attachmentId: "file-id", size: 42))] : [body])
         return GmailDraftValue(id: "remote-draft", message: GmailMessage(id: version, threadId: "thread", internalDate: 1000, payload: payload))
+    }
+
+    func testBananaSignatureRoundTripsWithTheProductionLinkBeforeTheQuote() throws {
+        var message = draft()
+        message.body = MailPlainText.text("Hello")
+        message.signature = MailBodyHTML.bananaSignature
+        message.quote = MailDraftPart(fragment: MailFragment(html: "<blockquote>Earlier message</blockquote>"),
+            body: .text(MailPlainText.text("> Earlier message"), quoteStartsAt: nil, notices: []))
+        let composed = try GmailDraftComposition(snapshot: .init(message))
+        XCTAssertEqual(composed.plain, "Hello\n\n-- \nSent from Banana (https://bananatheapp.com/)\n\n> Earlier message")
+        XCTAssertEqual(composed.html, #"<p>Hello</p><div class="gmail_signature"><p>Sent from <a href="https://bananatheapp.com/">Banana</a></p></div><blockquote>Earlier message</blockquote>"#)
+
+        let imported = try XCTUnwrap(MailHTMLPreparer.editableDraftHTML(composed.html))
+        XCTAssertEqual(imported.signature?.text, message.signature?.text)
+        XCTAssertFalse(imported.body.contains("Sent from Banana"))
+        XCTAssertNotNil(imported.quote)
+
+        message.signature = nil
+        let removed = try GmailDraftComposition(snapshot: .init(message))
+        XCTAssertFalse(removed.html.contains("bananatheapp.com"))
+        XCTAssertFalse(removed.plain.contains("bananatheapp.com"))
+    }
+
+    func testPlainImportedDraftIsEditableAndMarksOnlyItsConversation() async throws {
+        let (_, store, api) = try await setup()
+        let source = driver(store, api)
+        let account = "noor@plan.example"
+        let message = "First line\n\nSecond line"
+        var wire = remote("version", subject: "Draft")
+        wire.message.payload?.parts?[0].body = GmailPartBody(size: message.utf8.count,
+            data: Data(message.utf8).base64EncodedString())
+        try await source.importDraft(wire, account: account)
+        let records = try await source.records()
+        let draft = try XCTUnwrap(records.first?.snapshot)
+        XCTAssertEqual(draft.format, .banana)
+        XCTAssertEqual(draft.body.blocks.flatMap(\.runs).map(\.text).joined(), message)
+        let otherAccount = MailConversationID(account: "other@plan.example", thread: draft.conversation.thread)
+        let marked = try await source.conversationsWithDrafts(among: [draft.conversation, otherAccount])
+        XCTAssertEqual(marked, [draft.conversation])
+        try await source.queueSend(draft.id, options: .init(hold: 0, thenDone: false))
+        let pending = try await source.conversationsWithDrafts(among: [draft.conversation])
+        XCTAssertTrue(pending.isEmpty)
+    }
+
+    func testGmailEchoDoesNotTurnAnEditableReplyIntoAnImportedDraft() async throws {
+        let (_, store, api) = try await setup()
+        let source = driver(store, api)
+        var editable = draft()
+        editable.isReply = true
+        editable.replyToMessage = .init(account: editable.account, message: "received")
+        var record = MailDraftRecord(scope: "account-context", snapshot: .init(editable))
+        record.remote = .init(id: "remote-draft", message: .init(id: "echo", threadId: "thread"))
+        record.acknowledgedRevision = record.revision
+        let inserted = try await store.putDraftRecord(record, expectedGeneration: nil)
+        XCTAssertTrue(inserted)
+
+        var echoed = remote("echo", subject: "First")
+        echoed.message.payload?.parts?[0].mimeType = "text/html"
+        try await source.importDraft(echoed, account: editable.account)
+
+        let saved = try await source.record(editable.id)
+        XCTAssertEqual(saved?.snapshot, record.snapshot)
+        XCTAssertEqual(saved?.snapshot.format, .banana)
     }
     func testRemoteDraftKeepsIdentityAcrossUpdatesAndSendsOriginalAttachments() async throws {
         let (_, store, api) = try await setup(); let source = driver(store, api)
@@ -210,7 +271,11 @@ final class MailDraftDriverTests: XCTestCase {
 
     func testExplicitTextRewritePreservesProviderAttachments() async throws {
         let (_, store, api) = try await setup(); let source = driver(store, api)
-        let wire = remote("v1", subject: "Imported", attachment: true); await api.setFetched(wire)
+        var wire = remote("v1", subject: "Imported", attachment: true)
+        let html = "<table><tr><td>Keep this layout</td></tr></table>"
+        wire.message.payload?.parts?[0].mimeType = "text/html"
+        wire.message.payload?.parts?[0].body = .init(size: html.utf8.count, data: Data(html.utf8).base64EncodedString())
+        await api.setFetched(wire)
         try await source.importDraft(wire, account: "noor@plan.example")
         let records = try await source.records(); let id = try XCTUnwrap(records.first?.snapshot.id)
         let editable = try await source.rewriteAsText(id)
@@ -222,6 +287,95 @@ final class MailDraftDriverTests: XCTestCase {
         XCTAssertEqual(requests.map(\.action), [.update]); XCTAssertEqual(requests.first?.id, "remote-draft")
         XCTAssertEqual(requests.first?.content?.attachments.first?.bytes, 42)
         XCTAssertEqual(parts.count, 1)
+    }
+
+    func testGmailFormattedDraftEditsTheSameProviderDraftAndKeepsFiles() async throws {
+        let (_, store, api) = try await setup(); let source = driver(store, api)
+        let html = #"<div dir="ltr">Hello <b>world</b><div class="gmail_signature">Noor</div></div><br><div class="gmail_quote gmail_quote_container"><blockquote>Earlier message</blockquote></div>"#
+        var wire = remote("gmail-version", subject: "Original", attachment: true)
+        wire.message.payload?.parts?[0].mimeType = "text/html"
+        wire.message.payload?.parts?[0].body = .init(size: html.utf8.count, data: Data(html.utf8).base64EncodedString())
+        wire.message.payload?.headers?.append(.init(name: "References", value: "<first@plan.example> <second@plan.example>"))
+        await api.setFetched(wire)
+        try await source.importDraft(wire, account: "noor@plan.example")
+        let rows = try await source.records()
+        let imported = try XCTUnwrap(rows.first?.snapshot)
+        XCTAssertEqual(imported.format, .banana)
+        XCTAssertTrue(imported.body.blocks.flatMap(\.runs).contains { $0.text == "world" && $0.style.contains(.bold) })
+        XCTAssertEqual(imported.signature?.fragment.html.contains("Noor"), true)
+        XCTAssertEqual(imported.quote?.fragment.html.contains("Earlier message"), true)
+        var edit = imported.value
+        edit.subject = "Edited on phone"
+        try await source.save(edit)
+        let saved = try await source.record(edit.id)
+        XCTAssertEqual(saved?.snapshot.originalHTML, html)
+        XCTAssertEqual(saved?.snapshot.references, ["<first@plan.example>", "<second@plan.example>"])
+        try await source.flush(edit.id)
+        let requests = await api.requests
+        XCTAssertEqual(requests.map(\.action), [.update])
+        XCTAssertEqual(requests.first?.id, wire.id)
+        XCTAssertEqual(requests.first?.expectedMessageID, "gmail-version")
+        XCTAssertEqual(requests.first?.content?.html, html)
+        XCTAssertEqual(requests.first?.content?.references, ["<first@plan.example>", "<second@plan.example>"])
+        XCTAssertEqual(requests.first?.content?.attachments.first?.mimeType, "application/pdf")
+        XCTAssertEqual(requests.first?.content?.attachments.first?.chunks, [MailDraftFiles.hash(Data(repeating: 7, count: 42))])
+        let savedInGmail = try await source.record(edit.id)
+        edit = try XCTUnwrap(savedInGmail?.snapshot.value)
+        edit.body = try MailHTMLPreparer.prepare(plain: nil, html: "<div>Edited <b>again</b></div>").text
+        try await source.save(edit)
+        try await source.flush(edit.id)
+        let subsequent = await api.requests
+        let changed = try XCTUnwrap(subsequent.last?.content?.html)
+        XCTAssertEqual(subsequent.map(\.id), [wire.id, wire.id])
+        XCTAssertTrue(changed.contains("Edited"))
+        XCTAssertTrue(changed.contains("Earlier message"))
+        XCTAssertTrue(changed.contains("Noor"))
+        XCTAssertFalse(changed.contains("world"))
+    }
+
+    func testStaleEditorCannotReplaceAnAttachmentWithTheSamePartID() async throws {
+        let (_, store, api) = try await setup(); let source = driver(store, api)
+        let account = "noor@plan.example"
+        try await source.importDraft(remote("v1", subject: "Original", attachment: true), account: account)
+        let initial = try await source.records()
+        var stale = try XCTUnwrap(initial.first?.snapshot.value)
+        let newer = remote("v2", subject: "Other device", attachment: true)
+        await api.setFetched(newer)
+        try await source.importDraft(newer, account: account)
+        do { try await source.removeAttachment("file", from: stale.id, basedOn: stale.editToken); XCTFail("Changed a newer attachment") }
+        catch MailDraftDriver.Failure.changed {}
+        let afterRemove = try await source.record(stale.id)
+        XCTAssertEqual(afterRemove?.snapshot.attachments.map(\.id), ["file"])
+        stale.subject = "Local edits"
+        try await source.save(stale)
+        do { try await source.resolveConflict(stale.id, keepMine: true); XCTFail("Previous attachment has not been downloaded") }
+        catch MailDraftDriver.Failure.attachmentsNotReady {}
+        let conflicted = try await source.record(stale.id)
+        XCTAssertEqual(conflicted?.snapshot.subject, "Local edits")
+        XCTAssertEqual(conflicted?.snapshot.attachmentMessageID, "v1")
+        XCTAssertEqual(conflicted?.conflict, true)
+        let requests = await api.requests
+        XCTAssertTrue(requests.isEmpty)
+    }
+
+    func testDraftsListsTwoDraftsInOneThreadAcrossPageBoundary() async throws {
+        let (_, store, api) = try await setup(); let source = driver(store, api)
+        var first = draft()
+        first.isReply = true
+        first.replyToMessage = .init(account: first.account, message: "received")
+        var second = draft()
+        second.conversation = first.conversation
+        second.editedAt = first.editedAt
+        try await source.create(first)
+        try await source.create(second)
+        let page = try await source.page(account: first.account, outbox: false, before: nil, limit: 1)
+        let shown = try XCTUnwrap(page.first?.snapshot)
+        let cursor = MailOrderKey(group: 0, sortKey: Int64(shown.editedAt.timeIntervalSince1970 * 1000),
+                                  tie: MailMessageImporter.tie(account: shown.account, thread: shown.id.raw))
+        let rest = try await source.page(account: first.account, outbox: false, before: cursor, limit: 1)
+        XCTAssertEqual(Set((page + rest).map(\.snapshot.id)), Set([first.id, second.id]))
+        let exact = try await source.editableReply(in: first.conversation, message: try XCTUnwrap(first.replyToMessage), rfcID: nil)
+        XCTAssertEqual(exact?.snapshot.id, first.id)
     }
     func testForwardMaterializesAttachmentsBeforeCreatingTheGmailDraft() async throws {
         let (_, store, api) = try await setup(); let source = driver(store, api)

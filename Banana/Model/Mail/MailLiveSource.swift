@@ -115,6 +115,7 @@ import GRDB
     private var pageTasks: [String: Task<Void, Never>] = [:]
     private var completed = Set<String>()
     private var failures = Set<String>()
+    private var pagingFailures = Set<String>()
     private var disabled = Set<String>()
     private var forgettingAccess = Set<String>()
     private var firstPages: [MailScope: MailListSnapshot] = [:]
@@ -215,7 +216,7 @@ import GRDB
             }
             return MailAccount(id: account, shortName: account.components(separatedBy: "@").first ?? account,
                 wantsMail: !disabled.contains(account), state: state, health: syncHealth[account] ?? (failures.contains(account) ? .offline : .catchingUp),
-                lastSyncAt: lastSync[account], identities: [MailIdentity(account: account, address: account, name: nil, isDefault: true, hasSignature: false)], keptAfterRemoval: keptCounts[account] ?? 0)
+                lastSyncAt: lastSync[account], identities: [MailIdentity(account: account, address: account, name: nil, isDefault: true, hasSignature: true)], keptAfterRemoval: keptCounts[account] ?? 0)
         }
     }
     func activate() {
@@ -356,6 +357,7 @@ import GRDB
         let id = UUID()
         subscriptions[id] = Subscription(scope: scope, limit: min(MailTuning.listCap, max(1, limit)), callback: onChange)
         refresh(id)
+        if case .mailbox(.drafts) = scope.place { refreshDrafts() }
         return MailObservation { [weak self] in Task { @MainActor in
             guard let self else { return }
             self.subscriptions[id]?.task?.cancel(); self.subscriptions[id] = nil
@@ -382,10 +384,10 @@ import GRDB
                     $0.mimeType == "text/calendar" || ($0.name.lowercased().hasSuffix(".ics") &&
                         ["application/ics", "application/octet-stream"].contains($0.mimeType))
                 }
-                // Optional verification starts only in an idle queue. At most one check
-                // runs, leaving the second slot available for a newly requested body.
+                // Resolve invitation metadata and verify copies without delaying the body.
+                let minimum = value?.invite == nil ? 1 : 2
                 guard active, downloads.isEmpty, downloadQueue.isEmpty,
-                      (2...4).contains(calendars.count), calendars.allSatisfy({ $0.bytes <= 256 * 1024 }),
+                      (minimum...4).contains(calendars.count), calendars.allSatisfy({ $0.bytes <= 256 * 1024 }),
                       (calendarCheckAfter[message.id] ?? .distantPast) <= Date() else { continue }
                 if calendarCheckAfter.count >= 128 {
                     calendarCheckAfter = calendarCheckAfter.filter { $0.value > Date() }
@@ -574,7 +576,7 @@ import GRDB
                     let records = try await driver.page(account: scope.account, outbox: scope.place == .mailbox(.outbox), before: scope.before, limit: subscription.limit + 1)
                     guard !Task.isCancelled else { return }
                     let shown = Array(records.prefix(subscription.limit))
-                    let rows = scope.filters.isEmpty ? shown.map(Self.draftRow) : []
+                    let rows = scope.filters.isEmpty ? shown.map { Self.draftRow($0, uniqueDraft: scope.place == .mailbox(.drafts)) } : []
                     self.deliver(MailListSnapshot(scope: scope, rows: rows,
                         total: MailCount(value: rows.count, isAtLeast: records.count > subscription.limit || scope.before != nil),
                         hasMore: records.count > subscription.limit, stillLoading: 0, isRebuilding: false,
@@ -619,6 +621,16 @@ import GRDB
                             before: MailOrderKey(group: 0, sortKey: last.sortKey, tie: last.tie), limit: 1, allowedAccounts: allowedAccounts))).isEmpty
                     } else { localMore = false }
                 } else { localMore = rows.count < counts.total.value }
+                var mapped = rows.map { row in
+                    MailRowMapper.row(row, labels: row.labelPKs.compactMap { self.labelCatalog.refs[$0] },
+                                      reason: nil, in: scope)
+                }
+                if let driver = self.draftDriver {
+                    let draftIDs = try? await driver.conversationsWithDrafts(among: mapped.map(\.id))
+                    for index in mapped.indices where mapped[index].reason == nil && draftIDs?.contains(mapped[index].id) == true {
+                        mapped[index].reason = .draft(firstLine: "")
+                    }
+                }
                 guard !Task.isCancelled, allowedAccounts == self.readAccounts else { return }
                 let connected = self.accounts.filter { $0.state == .connected && (Self.account(for: scope) == nil || Self.account(for: scope) == $0.id) }
                 let pending = connected.contains { self.pageTasks[$0.id] != nil }
@@ -627,9 +639,11 @@ import GRDB
                         ? self.syncEnumerationComplete[$0.id] != true
                         : !self.completed.contains($0.id)
                 }
-                let failed = connected.contains { self.failures.contains($0.id) }
+                // Label, sync and delivery failures belong to account health. The list's
+                // Retry control represents an actual failure fetching its next remote page.
+                let failed = connected.contains { self.pagingFailures.contains($0.id) }
                 self.deliver(MailListSnapshot(scope: scope,
-                    rows: rows.map { row in MailRowMapper.row(row, labels: row.labelPKs.compactMap { self.labelCatalog.refs[$0] }, reason: nil, in: scope) },
+                    rows: mapped,
                     total: MailCount(value: counts.total.value, isAtLeast: counts.total.isAtLeast || more),
                     hasMore: localMore || more, stillLoading: counts.stillLoading,
                     isRebuilding: false, remote: pending ? .pending : failed ? .failed : nil, coverage: nil, appliedThrough: through), to: id)
@@ -739,6 +753,7 @@ import GRDB
         guard access.mailGrant(accountID: account) == .granted, !disabled.contains(account), !forgettingAccess.contains(account),
               (syncRetryAt[account] ?? .distantPast) <= Date(), pageTasks[account] == nil, !completed.contains(account) else { return }
         failures.remove(account)
+        pagingFailures.remove(account)
         let loader = self.loader, cursor = pages[account]
         pageTasks[account] = Task { [weak self] in
             do {
@@ -748,6 +763,7 @@ import GRDB
                 if result.next == nil { self.completed.insert(account) }
             } catch {
                 guard !Task.isCancelled, let self else { return }
+                self.pagingFailures.insert(account)
                 self.recordReadFailure(error, account: account)
             }
             guard let self else { return }
@@ -1286,6 +1302,13 @@ extension MailLiveSource {
         return receipt
     }
 
+    func unsubscribe(_ id: MailConversationID, expected: URL) async -> MailUnsubscribeResult {
+        guard canDeliver(id.account),
+              (try? await MailConversationReader(stores: stores).conversation(id))?.unsubscribe == .oneClick(expected),
+              canDeliver(id.account), !Task.isCancelled else { return .unavailable }
+        return await MailUnsubscribeTransport.post(expected)
+    }
+
     func permitsAccountChanges(_ account: String) -> Bool { deliveryAllowed(account) }
 
     /// UI policy only; delivery independently rechecks permission before every provider write.
@@ -1552,6 +1575,7 @@ extension MailLiveSource {
         if cloud {
             pageTasks[account]?.cancel(); pageTasks[account] = nil
             pages[account] = nil
+            pagingFailures.remove(account)
         } else if changed, active {
             loadPage(account)
         }
@@ -1811,10 +1835,11 @@ extension MailLiveSource {
         let previous = draftWork
         draftWork = Task { await previous?.value; await work() }
     }
-    private static func draftRow(_ record: MailDraftRecord) -> MailRow {
+    private static func draftRow(_ record: MailDraftRecord, uniqueDraft: Bool) -> MailRow {
         let draft = record.snapshot, snippet = draft.body.blocks.flatMap(\.runs).map(\.text).joined(separator: " ")
-        return MailRow(id: draft.conversation, key: MailOrderKey(group: 0,
-            sortKey: Int64(draft.editedAt.timeIntervalSince1970 * 1000), tie: MailMessageImporter.tie(account: draft.account, thread: draft.conversation.thread)),
+        let id = uniqueDraft ? MailConversationID(account: draft.account, thread: draft.id.rowThread) : draft.conversation
+        return MailRow(id: id, key: MailOrderKey(group: 0,
+            sortKey: Int64(draft.editedAt.timeIntervalSince1970 * 1000), tie: MailMessageImporter.tie(account: draft.account, thread: draft.id.raw)),
             date: draft.editedAt, people: draft.to, peopleTotal: draft.to.count, messageCount: 1,
             subject: draft.subject, snippet: String(snippet.prefix(300)), isUnread: false, isStarred: false,
             isImportant: false, hasAttachment: !draft.attachments.isEmpty, isInvitation: false,
@@ -1828,6 +1853,7 @@ extension MailLiveSource {
     private func draftChanged(_ record: MailDraftRecord) {
         let id = record.snapshot.id, previous = draftStates[id]
         let previousConversation = draftCache[id]?.conversation
+        let previousEditToken = draftCache[id]?.editToken
         if let generation = draftGenerations[id], generation > record.generation { return }
         draftGenerations[id] = record.generation
         draftCacheOrder.removeAll { $0 == id }; draftCacheOrder.append(id)
@@ -1842,6 +1868,12 @@ extension MailLiveSource {
             }
         }
         var draft = record.snapshot.value
+        if record.state == .editing, record.awaitingFirstEdit != true {
+            let saved: MailDraft.SyncState = record.remote != nil && record.revision == record.acknowledgedRevision
+                && !record.conflict && record.pending == nil ? .gmail : .local
+            draft.syncState = saved
+            emit(.draftSaved(id, draft.editedAt, saved))
+        }
         switch record.state {
         case .held: draft.delivery = draft.schedule.map { .scheduled($0.at) } ?? .held(until: record.sendAt ?? Date())
         case .sending: draft.delivery = .sending
@@ -1850,9 +1882,13 @@ extension MailLiveSource {
         default: break
         }
         if record.deliveryFailed == true, record.state != .uncertain { draft.delivery = .failed(.other) }
-        if let cached = draftCache[id], cached.editedAt > draft.editedAt {
+        if let cached = draftCache[id], cached.editedAt > draft.editedAt,
+           cached.editToken == draft.editToken || record.conflict {
             var newer = cached; newer.delivery = draft.delivery; draftCache[id] = newer
         } else { draftCache[id] = draft }
+        if let previousEditToken, previousEditToken != draft.editToken, draft.syncState == .gmail {
+            emit(.draftRefreshed(draft))
+        }
         draftStates[id] = record.state
         draftSentMessages[id] = record.sentMessage
         draftRemoteMessages[id] = record.remote.map { MailMessageID(account: draft.account, message: $0.message.id) }
@@ -1880,8 +1916,9 @@ extension MailLiveSource {
         }
         let id = MailDraftID(raw: UUID().uuidString.lowercased())
         var draft = MailDraft(id: id, conversation: .init(account: account, thread: "local:" + id.raw), account: account,
-            isReply: false, isForward: false, from: .init(account: account, address: account, name: nil, isDefault: true, hasSignature: false),
-            to: [], cc: [], bcc: [], subject: "", body: .init(blocks: []), signature: nil, quote: nil, attachments: [],
+            isReply: false, isForward: false, from: .init(account: account, address: account, name: nil, isDefault: true, hasSignature: !account.isEmpty),
+            to: [], cc: [], bcc: [], subject: "", body: .init(blocks: []), signature: account.isEmpty ? nil : MailBodyHTML.bananaSignature,
+            quote: nil, attachments: [],
             format: .banana, schedule: nil, remindIfNoReply: nil, delivery: nil, encodedBytes: 0, editedAt: Date())
         var replyID: String?, forwardMessageID: String?
         do {
@@ -1899,15 +1936,25 @@ extension MailLiveSource {
                 guard let identity, let conversation = await conversation(.init(account: account, thread: identity.0)),
                       var original = conversation.messages.first(where: { $0.id == message }) else { throw MailDraftDriver.Failure.notFound }
                 let forward: Bool; if case .forward = kind { forward = true } else { forward = false }
-                if !forward, let existing = try await driver.forConversation(conversation.id), existing.state == .editing { return existing.snapshot.value }
-                try await conversationLoader.body(message)
-                if let hydrated = await self.conversation(conversation.id)?.messages.first(where: { $0.id == message }) { original = hydrated }
+                if forward {
+                    try await conversationLoader.body(message)
+                    if let hydrated = await self.conversation(conversation.id)?.messages.first(where: { $0.id == message }) { original = hydrated }
+                } else {
+                    guard original.canReply else { throw MailDraftDriver.Failure.notFound }
+                    if let existing = try await driver.editableReply(in: conversation.id, message: message, rfcID: identity.1) {
+                        draftChanged(existing)
+                        return draftCache[existing.snapshot.id] ?? existing.snapshot.value
+                    }
+                    draft.replyToMessage = message
+                }
                 let originalBody = await body(message)
                 draft.conversation = conversation.id; draft.isReply = !forward; draft.isForward = forward
                 let recipients = MailReplyRules.recipients(for: kind, original: original, myAddresses: Set(accounts.map { $0.id.lowercased() }))
                 draft.to = recipients.to; draft.cc = recipients.cc
                 draft.subject = MailReplyRules.subject(for: kind, original: conversation.subject)
-                draft.quote = MailReplyRules.quote(message: original, body: originalBody, subject: conversation.subject, forward: forward)
+                if originalBody != .notOnDevice {
+                    draft.quote = MailReplyRules.quote(message: original, body: originalBody, subject: conversation.subject, forward: forward)
+                }
                 replyID = forward ? nil : identity.1
                 if forward {
                     forwardMessageID = message.message
@@ -1916,7 +1963,7 @@ extension MailLiveSource {
                     }
                 }
             }
-            try await driver.create(draft, inReplyTo: replyID, forwardMessageID: forwardMessageID)
+            try await driver.create(draft, inReplyTo: replyID, forwardMessageID: forwardMessageID, awaitingFirstEdit: true)
             draftCache[id] = draft; draftStates[id] = .editing
         } catch {
             // The composer retains this value and receives an explicit save failure.
@@ -1933,16 +1980,16 @@ extension MailLiveSource {
         }) ?? []
     }
 
-    /// From changed to another address of the draft's own account: the draft says it, saved as any
-    /// edit is. The signature goes with the address; the addresses here carry none yet, because
-    /// Gmail's send-as list (aliases and their signatures) is not read. Another account's address is
-    /// not a change of From but of account, which a draft here cannot make: nil, as for an unknown one.
+    /// The account's identity also restores its default signature. Keep any signature already on
+    /// the draft, including one imported from Gmail.
     func changeIdentity(of id: MailDraftID, to address: String) async -> MailDraft? {
         guard var value = await draft(id), draftStates[id] == nil || draftStates[id] == .editing,
               let identity = accounts.first(where: { $0.id == value.account })?.identities
                 .first(where: { $0.address.lowercased() == address.lowercased() }) else { return nil }
         value.from = identity
-        value.signature = nil
+        if value.signature == nil, identity.hasSignature {
+            value.signature = MailBodyHTML.bananaSignature
+        }
         value.editedAt = Date()
         save(value)
         return draftCache[id] ?? value
@@ -1986,14 +2033,20 @@ extension MailLiveSource {
         } catch { emit(.draftNotSaved(id, .unavailable)); return nil }
     }
     func addAttachment(_ file: URL, to id: MailDraftID) async -> MailDraftAttachment? {
+        await addAttachment(file, to: id, basedOn: nil)
+    }
+    func addAttachment(_ file: URL, to id: MailDraftID, basedOn editToken: String?) async -> MailDraftAttachment? {
         await draftWork?.value
-        do { return try await draftDriver?.addAttachment(file, to: id) }
+        do { return try await draftDriver?.addAttachment(file, to: id, basedOn: editToken) }
         catch { emit(.draftNotSaved(id, .unavailable)); return nil }
     }
     func removeAttachment(_ attachment: String, from id: MailDraftID) {
+        removeAttachment(attachment, from: id, basedOn: nil)
+    }
+    func removeAttachment(_ attachment: String, from id: MailDraftID, basedOn editToken: String?) {
         guard let driver = draftDriver else { return }
         enqueueDraftWork { [weak self] in
-            do { try await driver.removeAttachment(attachment, from: id) }
+            do { try await driver.removeAttachment(attachment, from: id, basedOn: editToken) }
             catch { self?.emit(.draftNotSaved(id, .unavailable)) }
         }
     }

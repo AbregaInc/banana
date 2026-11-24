@@ -187,10 +187,10 @@ struct CalendarEventArtwork: View {
         .padding(.vertical, height < 16 ? 0 : DS.Space.hair)
         // Too short for any text: just the block, its colour and ribbon.
         .opacity(height < 9 ? 0 : 1)
-        // The block fills its whole slot at every height, text at the top. Below 46 pt the
-        // content used to hug its text and sit centred in the slot, so a 7:00–7:25 call drew as a
-        // slim pill from about 7:07 to 7:18.
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        // The slot is exact: a title can need more vertical space than a short event.
+        // Size the paint and accessibility element before clipping to that slot.
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(height: height, alignment: .topLeading)
         // Matches the Mac grid: free events keep the calendar colour but lose the solid fill and
         // the full-strength spine, so the column separates held slots from merely-noted ones.
         .background(

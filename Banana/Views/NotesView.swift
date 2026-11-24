@@ -39,17 +39,26 @@ struct NotesView: View {
     private var archivedNotes: [VoiceNote] {
         PendingRemovals.visible(archivedPage, id: { DeleteUndo.hidingID(note: $0.id) }, hiding: toasts.hiddenIDs)
     }
-    @State private var activePage: [VoiceNote] = []
-    @State private var archivedPage: [VoiceNote] = []
-    @State private var activeTotal = 0
-    @State private var archivedTotal = 0
+    @State private var loadedPage: PageSnapshot?
     @State private var pageOffset = 0
     @State private var isLoading = true
+    @State private var showLoading = false
     @State private var pageError: String?
-    @State private var loadedQuery: QueryKey?
+    private var displayedPage: PageSnapshot? {
+        if loadedPage?.query == query { return loadedPage }
+        if presentation.cachedPage?.query == query { return presentation.cachedPage }
+        return loadedPage
+    }
+    private var waitingForFirstPage: Bool { isLoading && displayedPage == nil }
+    private var activePage: [VoiceNote] { displayedPage?.active.rows ?? [] }
+    private var archivedPage: [VoiceNote] { displayedPage?.archived.rows ?? [] }
+    private var query: QueryKey {
+        QueryKey(revision: store.revision, search: search, filter: filter, day: filter.interval()?.start,
+                 archived: includesArchived, offset: pageOffset)
+    }
     private var hasArchived: Bool { store.archivedCount > 0 }
     private var includesArchived: Bool { filter.value("archived") == "true" || (filter.value("archived") == nil && (smart.settings.showArchivedNotes || !filter.isEmpty)) }
-    private struct QueryKey: Hashable {
+    fileprivate struct QueryKey: Hashable {
         let revision: Int
         let search: String
         let filter: LiveFilter
@@ -57,8 +66,14 @@ struct NotesView: View {
         let archived: Bool
         let offset: Int
     }
+    fileprivate struct PageSnapshot {
+        let query: QueryKey
+        let active: NoteRepository.Page
+        let archived: NoteRepository.Page
+    }
+
     @ViewBuilder private var pagingControls: some View {
-        let total = max(activeTotal, archivedTotal)
+        let total = max(displayedPage?.active.total ?? 0, displayedPage?.archived.total ?? 0)
         if total > 100 {
             HStack {
                 Button("Previous") { pageOffset = max(0, pageOffset - 100) }
@@ -130,8 +145,7 @@ struct NotesView: View {
         .onAppear { RenderStats.note("Notes.appear") }
         .onChange(of: filter) { _, _ in pageOffset = 0 }
         .onChange(of: includesArchived) { _, _ in pageOffset = 0 }
-        .task(id: QueryKey(revision: store.revision, search: search, filter: filter, day: filter.interval()?.start, archived: includesArchived, offset: pageOffset)) {
-            let request = QueryKey(revision: store.revision, search: search, filter: filter, day: filter.interval()?.start, archived: includesArchived, offset: pageOffset)
+        .task(id: query) { [request = query] in
             // Keep the displayed page across tab visits. Revision changes, filters and paging
             // invalidate it; cancellation and failures never mark an unfinished page as loaded.
             #if DEBUG
@@ -139,7 +153,8 @@ struct NotesView: View {
             #else
             let reuseLoadedPage = true
             #endif
-            if reuseLoadedPage && loadedQuery == request {
+            if reuseLoadedPage && displayedPage?.query == request {
+                loadedPage = displayedPage
                 isLoading = false
                 pageError = nil
                 return
@@ -161,20 +176,28 @@ struct NotesView: View {
                     pageOffset = max(0, ((max(1, total) - 1) / 100) * 100)
                     return
                 }
-                activePage = active.rows
-                archivedPage = archived.rows
-                activeTotal = active.total
-                archivedTotal = archived.total
+                let snapshot = PageSnapshot(query: request, active: active, archived: archived)
+                loadedPage = snapshot
+                presentation.cachedPage = snapshot
                 pageError = nil
-                loadedQuery = request
             } catch {
                 guard !Task.isCancelled else { return }
                 pageError = error.localizedDescription
             }
             isLoading = false
         }
+        .task(id: isLoading && displayedPage?.query != query) {
+            showLoading = false
+            guard isLoading, displayedPage?.query != query else { return }
+            do { try await Task.sleep(for: .milliseconds(150)) }
+            catch { return }
+            guard !Task.isCancelled else { return }
+            showLoading = true
+        }
         .overlay {
-            if isLoading && filteredNotes.isEmpty && archivedNotes.isEmpty { ProgressView("Loading notes…") }
+            if showLoading && isLoading && filteredNotes.isEmpty && archivedNotes.isEmpty {
+                ProgressView("Loading notes…")
+            }
             if let pageError { ContentUnavailableView("Notes unavailable", systemImage: "exclamationmark.triangle", description: Text(pageError)) }
         }
         // Writing a note, or editing one's text — from the list, the toolbar or a note's own
@@ -261,9 +284,11 @@ struct NotesView: View {
     private var notesList: some View {
             List {
                 if filteredNotes.isEmpty && archivedNotes.isEmpty {
-                    emptyState
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
+                    if !waitingForFirstPage {
+                        emptyState
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                    }
                 } else {
                     if !filteredNotes.isEmpty {
                     Section("Your notes") {
@@ -383,7 +408,7 @@ struct NotesView: View {
                 VStack(spacing: 0) {
                     filterBar
                     if filteredNotes.isEmpty && archivedNotes.isEmpty {
-                        emptyState
+                        if !waitingForFirstPage { emptyState }
                     } else {
                         List(selection: Binding(get: { selection }, set: { selection = $0 })) {
                             ForEach(filteredNotes) { note in
@@ -441,33 +466,16 @@ struct NotesView: View {
                     pagingControls
                 }
             .pageNavigationTitle("Notes")
-            .toolbar {
-                #if os(iOS)
-                ToolbarItem(placement: .primaryAction) {
-                    Button { store.beginCapture(kind: .podcastCapture) } label: {
-                        Label("Record note", systemImage: "mic.fill")
-                    }
+            .macToolbarStatus { syncIndicator }
+            .macToolbarActions {
+                Button(action: writeNote) {
+                    Label("New note", systemImage: "square.and.pencil")
                 }
-                #endif
-                ToolbarItem(placement: .automatic) {
+                .help("Write a note")
+                .accessibilityIdentifier("notes.toolbar.write")
+                MoreMenu(identifier: "notes.toolbar.more") {
                     archivedToggleButton
-                }
-                ToolbarItem(placement: .automatic) {
-                    Button {
-                        Task { await store.refreshFromCloud(force: true) }
-                    } label: {
-                        Label("Refresh notes", systemImage: "arrow.clockwise")
-                    }
-                    .disabled(store.syncState == .syncing)
-                }
-                // Whether iCloud is bringing notes in: the toolbar's, where a header of its own
-                // with three sentences about notes was.
-                ToolbarItem(placement: .automatic) { syncIndicator }
-                ToolbarItem(placement: .primaryAction) {
-                    Button(action: writeNote) {
-                        Label("New note", systemImage: "square.and.pencil")
-                    }
-                    .help("Write a note")
+                    refreshNotesButton
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -504,13 +512,24 @@ struct NotesView: View {
             }
     }
 
+    private var refreshNotesButton: some View {
+        Button {
+            Task { await store.refreshFromCloud(force: true) }
+        } label: {
+            Label("Refresh notes", systemImage: "arrow.clockwise")
+        }
+        .disabled(store.syncState == .syncing)
+    }
+
     #endif
 
     private var macHeader: some View {
         HStack(spacing: DS.Space.s) {
             Text("Notes").font(.headline)
-            Text("\(activeTotal + archivedTotal)")
-                .font(.subheadline).foregroundStyle(.secondary).monospacedDigit()
+            if let displayedPage {
+                Text("\(displayedPage.active.total + displayedPage.archived.total)")
+                    .font(.subheadline).foregroundStyle(.secondary).monospacedDigit()
+            }
             Spacer()
             syncIndicator
         }
@@ -564,6 +583,8 @@ private final class NotesPresentation: ObservableObject {
     static let shared = NotesPresentation()
     @Published var filter = LiveFilter(scope: "notes")
     var offsets: [UUID: CGFloat] = [:]
+    // Only the last successful page. A query key includes the source revision and every filter.
+    var cachedPage: NotesView.PageSnapshot?
 }
 
 private struct VoiceNoteRow: View {
@@ -657,39 +678,11 @@ private struct VoiceNoteDetailView: View {
                 .background(Color(.systemGroupedBackground))
                 #if os(iOS)
                 .navigationTitle("Note")
-                #endif
-                #if os(iOS)
                 .navigationBarTitleDisplayMode(.inline)
-                #endif
                 .toolbar {
-                    // One "…" for what can be done with a note (it was three icons in a row).
-                    ToolbarItem(placement: .automatic) {
-                        Menu {
-                            // Every note's text can change: a written one, or a transcription
-                            // that got words wrong.
-                            Button { ShellNavigation.shared.state.noteComposer = note.id.uuidString } label: {
-                                Label(note.isWritten ? "Edit note" : "Edit text", systemImage: "pencil")
-                            }
-                            .accessibilityIdentifier("notes.edit")
-                            ShareLink(item: shareText(note)) {
-                                Label("Share", systemImage: "square.and.arrow.up")
-                            }
-                            // At once, with Undo in the toast: the list (and this screen with it)
-                            // lets go of the note, and it is removed when that window closes.
-                            Button(role: .destructive) {
-                                DeleteUndo.note(note, in: store)
-                                dismiss()
-                            } label: {
-                                Label("Delete", systemImage: "trash")
-                            }
-                            .accessibilityIdentifier("notes.delete")
-                        } label: {
-                            Image(systemName: "ellipsis.circle")
-                        }
-                        .accessibilityLabel("More")
-                        .accessibilityIdentifier("notes.more")
-                    }
+                    ToolbarItem(placement: .automatic) { noteActions(note) }
                 }
+                #endif
             } else {
                 ContentUnavailableView("Note unavailable", systemImage: "quote.bubble")
             }
@@ -736,14 +729,47 @@ private struct VoiceNoteDetailView: View {
         ticker = nil
     }
 
+    private func noteActions(_ note: VoiceNote) -> some View {
+        Menu {
+            Button { ShellNavigation.shared.state.noteComposer = note.id.uuidString } label: {
+                Label(note.isWritten ? "Edit note" : "Edit text", systemImage: "pencil")
+            }
+            .accessibilityIdentifier("notes.edit")
+            ShareLink(item: shareText(note)) {
+                Label("Share", systemImage: "square.and.arrow.up")
+            }
+            Button(role: .destructive) {
+                DeleteUndo.note(note, in: store)
+                dismiss()
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+            .accessibilityIdentifier("notes.delete")
+        } label: {
+            Image(systemName: "ellipsis.circle")
+        }
+        .accessibilityLabel("More")
+        .accessibilityIdentifier("notes.more")
+    }
+
     private func detailHeader(_ note: VoiceNote) -> some View {
         VStack(alignment: .leading, spacing: 12) {
-            // One line, in the list's format: the long date wrapped in a narrow column.
-            Label("\(sourceLabel(note)) · \(note.createdAt.formatted(date: .abbreviated, time: .shortened))",
-                  systemImage: sourceIcon(note))
-            .lineLimit(1)
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
+            // The selected note's actions stay with the note, leaving the window toolbar
+            // available for actions that work across the whole Notes section.
+            HStack {
+                Label("\(sourceLabel(note)) · \(note.createdAt.formatted(date: .abbreviated, time: .shortened))",
+                      systemImage: sourceIcon(note))
+                    .lineLimit(1)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                #if os(macOS)
+                Spacer(minLength: DS.Space.s)
+                noteActions(note)
+                    .menuStyle(.borderlessButton)
+                    .menuIndicator(.hidden)
+                    .accessibilityLabel("Note actions")
+                #endif
+            }
 
             // A written note, or one whose audio is gone, has nothing to play.
             if !note.isWritten && store.hasAudio(for: note) {

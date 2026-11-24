@@ -29,35 +29,85 @@ final class ReviewLaunchUITests: XCTestCase {
         app.launchArguments = ["-onboardingCompleted", "YES"]
         app.launch()
         requireForeground(app)
-        let plan = app.buttons["Plan"].firstMatch
-        XCTAssertTrue(plan.waitForExistence(timeout: 20), app.debugDescription)
-        plan.tap()
+        app.openPage("plan")
         for mode in ["Day", "Week", "Day"] {
-            let choice = app.segmentedControls.buttons[mode]
-            XCTAssertTrue(choice.waitForExistence(timeout: 10))
-            choice.tap()
-            let surface = app.otherElements["plan.surface." + mode.lowercased()]
+            let title = app.descendants(matching: .any)["plan.mode"].firstMatch
+            XCTAssertTrue(title.waitForExistence(timeout: 10))
+            title.tap()
+            app.buttons[mode].firstMatch.tap()
+            let surface = app.descendants(matching: .any)["plan.surface." + mode.lowercased()].firstMatch
             XCTAssertTrue(surface.waitForExistence(timeout: 10), app.debugDescription)
-            let viewport = surface.collectionViews.firstMatch
-            XCTAssertTrue(viewport.waitForExistence(timeout: 10), app.debugDescription)
+            let viewport = app.calendarTimeGrid()
+            XCTAssertTrue(viewport.waitForExistence(timeout: 10))
             viewport.swipeUp(); viewport.swipeDown()
             let picture = XCTAttachment(screenshot: app.screenshot())
             picture.name = "installed-\(bundle)-\(mode.lowercased())"
             picture.lifetime = .keepAlways; add(picture)
         }
-        app.buttons["calendar.search.open"].tap()
-        let query = app.textFields["filters.plan.query"]
-        XCTAssertTrue(query.waitForExistence(timeout: 5), app.debugDescription)
-        query.tap(); query.typeText("meetings next week")
+        let search = app.textFields["shell.field"]
+        search.tap()
+        search.typeText("meetings next week")
+        let calendars = app.buttons["shell.calendarSearch"]
+        XCTAssertTrue(calendars.waitForExistence(timeout: 10))
+        calendars.tap()
         XCTAssertTrue(app.buttons["Edit Date: Next week"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.buttons["Edit Type: meeting"].exists)
         XCTAssertFalse(app.buttons["Interpret"].exists)
         XCTAssertFalse(app.buttons["Apply filters"].exists)
         app.buttons["Clear filters"].tap()
-        app.buttons["Done"].tap()
-        XCTAssertTrue(app.buttons["calendar.search.open"].waitForExistence(timeout: 5))
+        app.buttons["sheet.close"].tap()
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        app.buttons["shell.field.clear"].tap()
         app.terminate(); app.launch(); requireForeground(app)
-        XCTAssertTrue(app.buttons["calendar.search.open"].waitForExistence(timeout: 15))
+        XCTAssertTrue(search.waitForExistence(timeout: 15))
+    }
+
+    func testInstalledTakenLastRowClearsPhoneBar() throws {
+        let app = XCUIApplication(bundleIdentifier: "com.boris.banana")
+        app.launch()
+        app.openPage("body")
+        let title = app.buttons["body.title"].firstMatch
+        XCTAssertTrue(title.waitForExistence(timeout: 10))
+        if !title.label.hasPrefix("Taken") {
+            title.tap()
+            app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Taken'")).firstMatch.tap()
+        }
+        let list = app.collectionViews.firstMatch
+        XCTAssertTrue(list.waitForExistence(timeout: 10))
+        if app.buttons["taken.empty.add"].exists { throw XCTSkip("No scheduled doses on this installation") }
+        // Scroll until the visible bottom row stops moving, leaving each dose untouched.
+        let rows = list.descendants(matching: .any).matching(NSPredicate(format: "identifier IN %@", ["taken.row", "taken.row.due"]))
+        var previousFrame = CGRect.null
+        var previousLabel: String?
+        for _ in 0..<30 {
+            list.swipeUp()
+            let last = rows.allElementsBoundByIndex.last
+            guard let last else { XCTFail("No identifiable Taken rows"); return }
+            if last.label == previousLabel && last.frame == previousFrame {
+                XCTAssertGreaterThan(last.frame.height, 0)
+                XCTAssertLessThanOrEqual(last.frame.maxY, app.buttons["shell.switcher"].frame.minY)
+                return
+            }
+            previousLabel = last.label
+            previousFrame = last.frame
+        }
+        XCTFail("Bottom of the Taken list was not reached")
+    }
+
+    func testInstalledBetaDesktopLinkSettings() throws {
+        let app = XCUIApplication(bundleIdentifier: "com.boris.banana.beta")
+        app.launch()
+        app.openPage("settings")
+        let link = app.buttons["Desktop Link"].firstMatch
+        for _ in 0..<5 where !(link.exists && link.isHittable) { app.swipeUp() }
+        XCTAssertTrue(link.isHittable, "Desktop Link must be reachable from Settings")
+        link.tap()
+        XCTAssertTrue(app.buttons["Scan Mac QR code"].waitForExistence(timeout: 10))
+        let check = app.buttons["Check connection"]
+        guard check.exists else { throw XCTSkip("QR setup available; the phone has no saved pairing") }
+        check.tap()
+        let connected = app.descendants(matching: .any).matching(NSPredicate(format: "label BEGINSWITH[c] 'Connected'")).firstMatch
+        XCTAssertTrue(connected.waitForExistence(timeout: 20), "No successful route reported")
     }
 
     override func setUpWithError() throws {

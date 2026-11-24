@@ -4,7 +4,7 @@
 // call that made them, a batch at a time, as the object's alarm does on Workers.
 
 import { DatabaseSync } from "node:sqlite";
-import { mkdirSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import * as space from "../space.js";
 import { TRASH_BATCH, trashStep } from "../trash.js";
@@ -68,6 +68,7 @@ export function spacesSqlite(dir, { blobs, batch = TRASH_BATCH, now = Date.now, 
           s.db.close();
           open.delete(id);
           for (const suffix of ["", "-wal", "-shm"]) rmSync(join(dir, `${id}.sqlite${suffix}`), { force: true });
+          writeFileSync(join(dir, `${id}.closed`), String(now()));   // as the Durable Object's mark
           return;
         }
         if (step.next === null && !again.has(id)) return;
@@ -84,11 +85,15 @@ export function spacesSqlite(dir, { blobs, batch = TRASH_BATCH, now = Date.now, 
       const port = () => get(id).port;
       return {
         async sync(request) {
+          if (existsSync(join(dir, `${id}.closed`))) throw new space.SpaceClosed();
           const result = space.sync(port(), { ...request, space: id });
           if (result.trashed) drain(id);
           return result;
         },
-        async recordBlob(sha, size, at, type) { return space.recordBlob(port(), sha, size, at, type); },
+        async recordBlob(sha, size, at, type) {
+          if (existsSync(join(dir, `${id}.closed`))) return { ok: false, reason: "closed" };
+          return space.recordBlob(port(), sha, size, at, type, id);
+        },
         async consents() { return space.consents(port()); },
         async setConsent(kind, consent) { space.setConsent(port(), kind, consent); },
         async withdrawConsent(kind) {
@@ -98,10 +103,13 @@ export function spacesSqlite(dir, { blobs, batch = TRASH_BATCH, now = Date.now, 
         },
         async webStatus(types) { return space.webStatus(port(), types); },
         async counts() { return space.counts(port()); },
+        async usage() { return space.usage(port()); },
+        /** What the Durable Object's alarm does when unnamed bytes come due (tests, a dev run). */
+        async collectUnnamed() { const r = space.collectUnnamed(port(), now()); if (r.trashed) drain(id); return r; },
         async setCalendarPreference(request) { return space.setCalendarPreference(port(), request); },
         async read(type, recordId) { return space.read(port(), type, recordId); },
         async list(type) { return space.list(port(), type); },
-        async browse(type, after) { return space.browse(port(), type, after); },
+        async browse(type, after, limit, ordered) { return space.browse(port(), type, after, limit, ordered); },
         async webBlob(type, recordId, field) { return space.webBlob(port(), type, recordId, field); },
         async wipe() { space.wipe(port(), { space: id, now: now() }); drain(id); },
         async export() { return space.exportResponse(port()); },

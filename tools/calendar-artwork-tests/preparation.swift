@@ -10,6 +10,7 @@ import SwiftUI
             guard value else { fputs("FAIL: \(message)\n", stderr); exit(1) }
             checks += 1
         }
+        check(!CalendarPreparedArtwork.enabled, "Both release channels must use reference event artwork by default")
         let paint = CalendarEventPaint(title: "Actual event artwork", start: Date(timeIntervalSince1970: 1700000000),
             startText: "9:00", timeRange: "9:00–10:00", icon: "calendar")
         var environment = EnvironmentValues(); environment.displayScale = 2
@@ -17,7 +18,7 @@ import SwiftUI
         let cache = CalendarArtworkRasterCache(rendering: CalendarArtworkPreparation.applicationRendering)
         #if BANANA_BETA
         check(cache.preparationReport()["backend"] as? String == "native-core-text",
-              "Beta must select the custom renderer without a launch opt-in")
+              "The Beta experiment must exercise the native Core Text backend")
         #else
         check(cache.preparationReport()["backend"] as? String == "swiftui-core-graphics",
               "Reference configuration must remain available for controlled comparison")

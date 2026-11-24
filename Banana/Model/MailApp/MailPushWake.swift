@@ -21,16 +21,19 @@ import UIKit
         #else
         guard mailWasOpened else { return false }
         let app = MailApplication.shared
-        if app.session == nil {
-            // Woken with no Mail in this process: open its store (the same startup as the tab),
-            // waiting a little for it.
-            app.start()
-            let start = ContinuousClock.now
-            while app.session == nil, !app.failed, ContinuousClock.now - start < .seconds(8) {
-                try? await Task.sleep(for: .milliseconds(100))
-            }
+        // A push needs live credentials as well as the local session. Keep both inside
+        // the same launch window; opening the UI can use saved membership sooner.
+        app.start()
+        if BananaAccount.shared.account == nil {
+            Task { await app.refreshAccount() }
         }
-        guard let source = app.session?.source as? MailLiveSource else { return false }
+        let start = ContinuousClock.now
+        while (app.session == nil || BananaAccount.shared.account == nil),
+              !app.failed, !Task.isCancelled, ContinuousClock.now - start < .seconds(8) {
+            try? await Task.sleep(for: .milliseconds(100))
+        }
+        guard !Task.isCancelled, BananaAccount.shared.account != nil,
+              let source = app.session?.source as? MailLiveSource else { return false }
         let ok = await source.catchUpFromPush(budget: budget)
         PlaybackDiagnostics.shared.log("☁️ push", "mail \(ok ? "pulled" : "not pulled")")
         return ok

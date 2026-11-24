@@ -100,25 +100,18 @@ enum ShellLayout: Equatable, Sendable {
 
     static func of(width: Double) -> Self { width >= railWidth ? .rail : .bottomBar }
 
-    /// The rail's own width on an iPad on its side: its round buttons with room either side.
-    static let railColumn: Double = 80
-    /// The Mac's rail is as wide as the window's three buttons with the same margin after the
-    /// green one as before the red one (owner, 9 Nov 2026: 80 pt ended right at the green dot), so
-    /// the rail's circles centre under the three buttons. Fixed width; it hides, not resizes.
-    static let macRailColumn: Double = macWindowButtonsEnd + macWindowButtonsStart
-    /// A rail button's circle.
-    static let railButton: Double = 48
-    /// The height of an iPad toolbar's controls (the paging group, Today, "…"), which start at
-    /// the top of the safe area.
-    static let barControl: Double = 44
-    /// From the top of the safe area to the first rail button, on an iPad: its centre on the top
-    /// bar's centre line. It was 16, which put the first circle 18 points below the bar's line.
-    /// (The Mac's rail starts under the window's title bar, where the traffic lights are.)
-    static let railTopInset: Double = (barControl - railButton) / 2
-    /// Where the Mac window's close, minimise and zoom buttons start and end, from the window's
-    /// left edge (measured on macOS 26/27: the red button's edge at 19 pt, the green's at 78 pt).
-    static let macWindowButtonsStart: Double = 19
-    static let macWindowButtonsEnd: Double = 78
+    /// Labeled rows need space for the account picker. The Mac column edge clears the title bar buttons.
+    static let railColumn: Double = 206
+    static let macRailColumn: Double = 202
+
+}
+
+/// Membership for the Plan sidebar filter. Shared events may belong to more than one account.
+enum ShellCalendarRules {
+    static func includes(_ calendarID: String?, alsoOn: [String], in calendarIDs: Set<String>) -> Bool {
+        guard let calendarID else { return true }
+        return calendarIDs.contains(calendarID) || alsoOn.contains(where: calendarIDs.contains)
+    }
 }
 
 /// What needs attention, as chips in today's row beside the reminders (`PlanAttentionChips`).
@@ -187,6 +180,17 @@ enum ShellSearchRules {
     static func query(_ text: String) -> String? {
         let words = text.trimmingCharacters(in: .whitespacesAndNewlines)
         return words.count >= 2 ? words : nil
+    }
+
+    /// Route explicit questions and requests on Return. A missing result is never evidence of intent.
+    static func isDirectAsk(_ text: String) -> Bool {
+        guard let query = query(text) else { return false }
+        if query.hasSuffix("?") { return true }
+        let terms = words(query)
+        let prefix = terms.prefix(2).joined(separator: " ")
+        return ["can you", "could you", "please find", "show me", "find me",
+                "move my", "schedule a", "remind me", "when is", "when are",
+                "what is", "what are", "how many", "where is", "where are"].contains(prefix)
     }
 
     /// How long typing waits before the searches run: under one frame of a fast typist's gap, so

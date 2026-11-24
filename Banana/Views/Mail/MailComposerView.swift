@@ -32,8 +32,10 @@ struct MailComposerView: View {
                 Text(model.title).font(.headline)
             }
             if model.isForeign {
+                if let url = model.gmailDraftsURL { Link("Continue in Gmail", destination: url) }
                 Button("Edit as text") { Task { await model.rewriteAsText() } }
             }
+            if !session.isSample { MailDraftSaveStatus(title: model.syncStatusTitle) }
             MailRecipientsView(model: model, focused: $focused).disabled(model.isForeign)
             MailSubjectRow(model: model, focused: $focused).disabled(model.isForeign)
             MailDivider(axis: .horizontal)
@@ -96,6 +98,18 @@ struct MailComposerView: View {
             isThere: { focused == request.field },
             ask: { focused = request.field },
             landed: { model.focusLanded(on: request.field) })
+    }
+}
+
+struct MailDraftSaveStatus: View {
+    let title: String?
+
+    var body: some View {
+        Text(title ?? " ")
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .accessibilityHidden(title == nil)
     }
 }
 

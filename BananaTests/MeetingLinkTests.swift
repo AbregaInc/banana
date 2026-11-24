@@ -160,6 +160,30 @@ final class MeetingLinkTests: XCTestCase {
         }
     }
 
+    func testOnlyWebLinksAreJoinLinks() {
+        // An invitation can carry any URL scheme; Join opens web links only.
+        XCTAssertNil(MeetingLink.detect(location: "zoommtg://zoom.us/join?confno=1", notes: nil, url: nil))
+        XCTAssertNil(MeetingLink.detect(location: nil, notes: "Join: x-apple.systempreferences://zoom.us/j/1",
+                                        url: URL(string: "file:///zoom.us/j/1")))
+        XCTAssertEqual(MeetingLink.detect(location: nil, notes: nil, url: URL(string: "https://zoom.us/j/81234567890"))?.platform, .zoom)
+        // Jitsi by a word of its host, never a substring.
+        XCTAssertEqual(MeetingPlatform.classify(URL(string: "https://our-jitsi.example.org/room")!), .jitsi)
+        XCTAssertEqual(MeetingPlatform.classify(URL(string: "https://notjitsi.example/room")!), .generic)
+    }
+
+    func testTextOnlyKeepsWebAndMailLinks() {
+        XCTAssertNil(LinkPolicy.allowed(URL(string: "javascript:alert(1)")))
+        XCTAssertNil(LinkPolicy.allowed(URL(string: "shortcuts://run-shortcut?name=x")))
+        XCTAssertNil(LinkPolicy.allowed(URL(string: "file:///etc/hosts")))
+        XCTAssertNotNil(LinkPolicy.allowed(URL(string: "https://example.org/a")))
+        XCTAssertNotNil(LinkPolicy.allowed(URL(string: "mailto:noor@plan.example")))
+        var text = AttributedString("a b")
+        text[text.range(of: "a")!].link = URL(string: "shortcuts://run")
+        text[text.range(of: "b")!].link = URL(string: "https://example.org")
+        let kept = LinkPolicy.filtered(text).runs.compactMap(\.link)
+        XCTAssertEqual(kept, [URL(string: "https://example.org")!])
+    }
+
     func testTheHostTableKeepsItsOrder() {
         // Jitsi's anywhere-match came before Slack's domain; it still does.
         XCTAssertEqual(MeetingPlatform.classify(URL(string: "https://jitsi.slack.com/x")!), .jitsi)

@@ -258,6 +258,14 @@ extension MailSource {
 
     // MARK: - Drafts and sending
 
+    func addAttachment(_ file: URL, to draft: MailDraftID, basedOn editToken: String?) async -> MailDraftAttachment? {
+        await addAttachment(file, to: draft)
+    }
+
+    func removeAttachment(_ id: String, from draft: MailDraftID, basedOn editToken: String?) {
+        removeAttachment(id, from: draft)
+    }
+
     /// A draft that exists only as this value: its id is new, and it is saved nowhere, so
     /// `draft(_:)` will not find it and `save` does nothing with it.
     func newDraft(_ kind: MailDraftKind) async -> MailDraft {
@@ -442,7 +450,7 @@ extension MailSource {
         return MailLabelRef(id: "local:" + name, name: name, colorHex: nil)
     }
 
-    func unsubscribe(_ id: MailConversationID) async -> MailUnsubscribeResult {
+    func unsubscribe(_ id: MailConversationID, expected: URL) async -> MailUnsubscribeResult {
         MailNotYet.reached(#function)
         return .unavailable
     }

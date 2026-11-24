@@ -78,9 +78,10 @@
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_$(BANANA_PEER_SERVICE)._tcp</string>
+		<string>_banana-link._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>Banana Beta uses the camera only when you choose to photograph a meal or a supplement label, or scan a food or supplement barcode.</string>
+	<string>Banana Beta uses the camera when you choose to photograph meals or supplement labels, scan product barcodes, or pair with your Mac by QR code.</string>
 	<key>NSContactsUsageDescription</key>
 	<string>Banana Beta looks up the people you type when adding guests to an event, so “Lunch with Sam” can invite the Sam you mean.</string>
 	<key>NSHealthShareUsageDescription</key>
@@ -88,7 +89,7 @@
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Banana Beta saves workouts recorded with Banana to Apple Health and updates them when you trim a workout.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Banana Beta finds your other Banana devices on this Wi-Fi.</string>
+	<string>Banana Beta uses your local network to connect to a Mac for AI and share downloaded podcasts with your devices.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Banana Beta notes where you arrive and leave — only when you turn on Learn from my trips — so travel times match how long your trips really take.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

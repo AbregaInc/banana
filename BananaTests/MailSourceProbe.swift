@@ -44,15 +44,17 @@ enum MailSourceProbe {
         "showPictures(in:always:)", "pictureRules()",
         "removePictureRule(_:)",
         "setWantsMail(_:account:)", "requestPermission(account:)", "forgetPermission(account:)",
-        "saveSplits(_:)", "createLabel(named:account:)", "unsubscribe(_:)",
+        "saveSplits(_:)", "createLabel(named:account:)", "unsubscribe(_:expected:)",
         "removeDownloadedMail(account:)", "reconsiderKeptMail(account:)",
         "observeEvents(_:)",
     ]
 
-    /// These two requirements have complete, intentional defaults: no progress for a source
-    /// without background downloads, and sanitized HTML when no raw diagnostic store exists.
+    /// These requirements have complete, intentional defaults for sources without provider versions,
+    /// background downloads, or a raw diagnostic store.
     /// They are exercised below but do not report an unfinished implementation.
-    nonisolated static let fallbackMembers: Set<String> = ["syncProgress", "reportHTML(_:)"]
+    nonisolated static let fallbackMembers: Set<String> = [
+        "syncProgress", "reportHTML(_:)", "addAttachment(_:to:basedOn:)", "removeAttachment(_:from:basedOn:)"
+    ]
 
     /// The defaults `source` still reaches when every member is called: all of `everyMember`
     /// for a source that has built nothing, none for one that is finished.
@@ -128,6 +130,8 @@ enum MailSourceProbe {
         source.save(made)
         _ = await source.addAttachment(URL(fileURLWithPath: "/dev/null"), to: draft)
         source.removeAttachment("probe-attachment", from: draft)
+        _ = await source.addAttachment(URL(fileURLWithPath: "/dev/null"), to: draft, basedOn: "probe-version")
+        source.removeAttachment("probe-attachment", from: draft, basedOn: "probe-version")
         _ = await source.rewriteAsText(draft)
         _ = await source.quoteAsText(in: draft)
         _ = await source.changeIdentity(of: draft, to: account)
@@ -163,7 +167,7 @@ enum MailSourceProbe {
         source.forgetPermission(account: account)
         source.saveSplits([])
         _ = source.createLabel(named: "probe", account: account)
-        _ = await source.unsubscribe(conversation)
+        _ = await source.unsubscribe(conversation, expected: URL(string: "https://plan.example/unsubscribe")!)
         await source.removeDownloadedMail(account: account)
         source.reconsiderKeptMail(account: account)
 

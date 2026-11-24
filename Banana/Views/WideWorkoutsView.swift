@@ -21,6 +21,7 @@ struct WideWorkoutsView: View {
     @State private var showAll = false
     @State private var filter = LiveFilter(scope: "workouts")
     @State private var autoOpen: FitnessSessionSummary?
+    @State private var prepared: (key: FitnessStore.WorkoutProjectionKey, entries: [WorkoutEntry])?
     /// A workout deleted a moment ago stays hidden until its Undo window closes.
     @ObservedObject private var toasts = ToastCenter.shared
     /// Where you are in Workouts, kept with the phone's (`ShellState.workouts`): a full-width
@@ -80,59 +81,79 @@ struct WideWorkoutsView: View {
 
     private struct PeriodData {
         var entries: [WorkoutEntry]
-        /// The same stretch of the period before (`PeriodPace`).
-        var before: [WorkoutEntry]
         var workoutCount: Int { entries.count }
     }
 
-    /// One pass over each lifetime store per render. The old computed-property graph repeatedly
-    /// filtered/sorted the same arrays for the empty state, header, and auto-open. That made
-    /// changing Week → Month → Quarter progressively slower as history grew.
-    private func makePeriodData() -> PeriodData {
+    private var projectionDates: DateInterval? {
+        guard !showAll, filter.isEmpty else { return nil }
+        let range = period.range()
+        return DateInterval(start: range.start, end: range.end)
+    }
+
+    private func makePeriodData(_ entries: [WorkoutEntry]) -> PeriodData {
         let match = filter.predicate()
-        let range = showAll || !filter.isEmpty ? (start: Date.distantPast, end: Date.distantFuture) : period.range()
-        var selected: [FitnessSessionSummary] = []
-        for workout in fitness.summaries where workout.start >= range.start && workout.start < range.end {
-            selected.append(workout)
+        return PeriodData(entries: WorkoutRemoval.visible(entries, hiding: toasts.hiddenIDs)
+            .filter { match($0.start, $0.activity, $0.activity, $0.duration) })
+    }
+
+    private var periodTitle: String {
+        !filter.isEmpty ? "Filtered workouts" : showAll ? "All workouts" : "This week"
+    }
+
+    private var periodDates: String {
+        !filter.isEmpty || showAll ? "" : period.rangeLabel()
+    }
+
+    private func stepPeriod(_ delta: Int) {
+        showAll = false
+        period = period.stepped(by: delta)
+    }
+
+    private func currentPeriod() {
+        showAll = false
+        period = .current
+    }
+
+    private var showAllButton: some View {
+        Button {
+            withAnimation { showAll.toggle() }
+        } label: {
+            Text(showAll ? "Show week" : "Show all")
+                #if os(macOS)
+                .padding(.horizontal, DS.Space.xs)
+                .frame(minWidth: 88, minHeight: 28)
+                #endif
         }
-        let healthInRange = health.workouts.filter { $0.start >= range.start && $0.start < range.end }
-        let span = PeriodPace.comparison(for: period, calendar: .app, now: Date())
-        let before = WorkoutEntry.merge(summaries: fitness.summaries.filter { span.contains($0.start) },
-                                        health: health.workouts.filter { span.contains($0.start) },
-                                        hiddenHealthIDs: health.hiddenWorkoutIDs)
-        return PeriodData(entries: WorkoutRemoval.visible(
-                              WorkoutEntry.merge(summaries: selected, health: healthInRange,
-                                                 hiddenHealthIDs: health.hiddenWorkoutIDs),
-                              hiding: toasts.hiddenIDs).filter { match($0.start, $0.activity, $0.activity, $0.duration) },
-                          before: before)
+        #if os(macOS)
+        .buttonStyle(.bordered)
+        #else
+        .buttonStyle(.inline)
+        #endif
+        .disabled(!filter.isEmpty)
+        .accessibilityIdentifier("workouts.showAll")
     }
 
     var body: some View {
         let _ = RenderStats.note("WideWorkoutsView")
-        let data = makePeriodData()
-        // Everything is grouped by month, as a year was.
-        let groups = WorkoutGrouping.grouped(data.entries, granularity: showAll ? .year : period.granularity)
+        let key = fitness.workoutProjectionKey(health: health, dates: projectionDates)
+        let cached = fitness.cachedWorkouts(key)
+        let rows = cached ?? (prepared?.key.dates == key.dates ? prepared?.entries : nil)
+        let data = makePeriodData(rows ?? [])
         stack {
             GeometryReader { geo in
                 // Controls, summary, and rows share the same readable desktop column.
                 let navInset = max(DS.Space.xl, (geo.size.width - WorkoutMetrics.listContentMaxWidth) / 2)
 
                 VStack(spacing: 0) {
-                    // The one date line (`PageChrome`): the toolbar's on the Mac, a row on an
-                    // iPad. A week at a time, as Plan steps days; "Show all" beside it.
-                    DateLine(current: !filter.isEmpty ? "Filtered workouts" : showAll ? "All workouts" : "This week",
-                             dates: !filter.isEmpty ? "" : showAll ? "" : period.rangeLabel(),
+                    #if os(iOS)
+                    DateLine(current: periodTitle, dates: periodDates,
                              isCurrent: showAll || period.offset == 0,
                              canGoForward: !showAll && period.canGoForward, unit: "week",
                              titleIdentifier: "workouts.period",
-                             step: { delta in showAll = false; period = period.stepped(by: delta) },
-                             toCurrent: { showAll = false; period = .current }) {
-                        Button(showAll ? "Show week" : "Show all") { withAnimation { showAll.toggle() } }
-                            .buttonStyle(.inline)
-                            .accessibilityIdentifier("workouts.showAll")
+                             step: stepPeriod, toCurrent: currentPeriod) {
+                        showAllButton
                     }
                     .disabled(!filter.isEmpty)
-                    #if os(iOS)
                     .padding(.horizontal, navInset - DS.Space.s)
                     #endif
                     ScrollView {
@@ -140,7 +161,7 @@ struct WideWorkoutsView: View {
                             // The week's summary heads its card; all workouts, or none, get it
                             // in a card of its own.
                             LiveFilterSearch(scope: "workouts", filter: $filter).padding(.horizontal, navInset).padding(.top, DS.Space.s)
-                            if showAll || data.workoutCount == 0 {
+                            if rows != nil && (showAll || data.workoutCount == 0) {
                                 summaryStrip(data)
                                     .padding(.vertical, DS.Space.m)
                                     .frame(maxWidth: WorkoutMetrics.listContentMaxWidth)
@@ -170,7 +191,9 @@ struct WideWorkoutsView: View {
                             }
 
                             Group {
-                                if data.workoutCount == 0 {
+                                if rows == nil {
+                                    ProgressView().frame(maxWidth: .infinity)
+                                } else if data.workoutCount == 0 {
                                     ContentUnavailableView {
                                         Label(!filter.isEmpty ? "No matching workouts" : showAll ? "No workouts yet" : "No workouts this week", systemImage: "figure.run")
                                     } description: {
@@ -178,7 +201,7 @@ struct WideWorkoutsView: View {
                                     }
                                     .frame(maxWidth: .infinity)
                                 } else if showAll {
-                                    ForEach(groups) { group in
+                                    ForEach(WorkoutGrouping.grouped(data.entries, granularity: .year)) { group in
                                         groupSection(group)
                                     }
                                 } else {
@@ -195,8 +218,6 @@ struct WideWorkoutsView: View {
             }
             .navigationDestination(item: $autoOpen) { WideWorkoutDetailView(workout: $0) }
             .onAppear { openSampleRoute(data) }
-            // The sample workouts can arrive after the page (the store reads its index first).
-            .onChange(of: fitness.summaries.count) { openSampleRoute(data) }
             // Inside the stack, where a toolbar belongs to a page.
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -207,7 +228,31 @@ struct WideWorkoutsView: View {
             .bodySwitch(wide: true)
             // As the phone's: the + opens the list of everything.
             .addListButton(identifier: "workouts.add")
+            #else
+            .macToolbarLeading {
+                MacPeriodPagingControls(days: 7, dates: periodDates.isEmpty ? periodTitle : periodDates,
+                                        isCurrent: !showAll && period.offset == 0,
+                                        canGoForward: !showAll && period.canGoForward,
+                                        dateIdentifier: "workouts.period",
+                                        step: stepPeriod, toCurrent: currentPeriod) { EmptyView() }
+                    .disabled(!filter.isEmpty)
+            }
+            .macToolbarActions {
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: DS.Space.xs) {
+                        showAllButton
+                        MoreMenu()
+                    }
+                    .fixedSize()
+                    MoreMenu { showAllButton }
+                }
+            }
             #endif
+        }
+        .task(id: key) {
+            guard let entries = await fitness.prepareWorkouts(key, health: health) else { return }
+            prepared = (key, entries)
+            openSampleRoute(makePeriodData(entries))
         }
         .pageNavigationTitle("Workouts")
     }

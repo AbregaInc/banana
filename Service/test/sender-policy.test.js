@@ -68,3 +68,30 @@ test("forgetting the mailbox removes sender rules and per-message delivery marke
   assert.equal(port.exec("SELECT COUNT(*) AS n FROM sender_policy_applied")[0].n, 0);
   db.close();
 });
+
+
+test("domain rules match one domain, preserve independent address rules, and expire on unblock", async () => {
+  const db = new DatabaseSync(":memory:"), port = sqlitePort(db); migrate(port);
+  const request = { email: "noor@plan.example", scope: "domain", sender: "shop.example" };
+  assert.equal(parseSenderPolicy(request).scope, "domain");
+  for (const sender of ["offers@shop.example", "*.shop.example", "shop.example/", "shop.example:443", "example"]) {
+    assert.equal(parseSenderPolicy({ ...request, sender }), null);
+  }
+  const domain = await senderKey(request.sender, request.scope);
+  const exact = await senderKey("offers@shop.example");
+  setSenderPolicy(port, domain, { blocked: true, revision: 0, operation: "domain" }, 1000);
+  setSenderPolicy(port, exact, { blocked: true, revision: 0, operation: "exact" }, 2000);
+  const applies = (from, time) => blockedSender(port, {
+    internalDate: time, labelIds: ["INBOX"], payload: { headers: [{ name: "From", value: from }] },
+  }, "owner@shop.example");
+  assert.equal(await applies("offers@shop.example", 1001), true);
+  assert.equal(await applies("different@SHOP.EXAMPLE", 1001), true);
+  assert.equal(await applies("different@news.shop.example", 1001), false);
+  assert.equal(await applies("different@shop.example.attacker.example", 1001), false);
+  assert.equal(await applies("owner@shop.example", 1001), false);
+  assert.equal(await applies("different@shop.example", 999), false);
+  setSenderPolicy(port, domain, { blocked: false, revision: 1, operation: "unblock-domain" }, 3000);
+  assert.equal(await applies("offers@shop.example", 3001), true);
+  assert.equal(await applies("different@shop.example", 3001), false);
+  db.close();
+});

@@ -1,4 +1,4 @@
-// Exact sender rules, scoped by the existing Google-identity mailbox. Addresses are
+// Exact sender and domain rules, scoped by the existing Google-identity mailbox. Addresses are
 // hashed before storage; blocked mail is changed through Gmail and read back.
 import addressparser from "nodemailer/lib/addressparser/index.js";
 import { sha256Hex } from "./crypto.js";
@@ -11,18 +11,31 @@ export function senderAddress(value) {
   return address.includes("@") && address.lastIndexOf("@") > 0 ? address : null;
 }
 
+function senderDomain(value) {
+  if (typeof value !== "string" || value.length > 253 || !/^[\p{L}\p{M}0-9._-]+$/u.test(value)) return null;
+  try {
+    const host = new URL(`https://${value}`).hostname.toLowerCase();
+    const labels = host.split(".");
+    return labels.length >= 2 && labels.every(label => /^[a-z0-9_](?:[a-z0-9_-]{0,61}[a-z0-9_])?$/.test(label))
+      && /[a-z]/.test(labels.at(-1)) ? host : null;
+  } catch { return null; }
+}
+
 export function parseSenderPolicy(value) {
   if (!value || typeof value.email !== "string" || value.email.length > 320) return null;
-  const sender = senderAddress(value.sender);
+  const scope = value.scope ?? "address";
+  if (scope !== "address" && scope !== "domain") return null;
+  const sender = scope === "domain" ? senderDomain(value.sender) : senderAddress(value.sender);
   if (!sender || sender !== value.sender.trim().toLowerCase()) return null;
   const read = value.blocked === undefined;
   if (!read && (typeof value.blocked !== "boolean" || !Number.isSafeInteger(value.revision)
       || value.revision < 0 || typeof value.operation !== "string" || !/^[a-f0-9-]{36}$/i.test(value.operation))) return null;
-  return { email: value.email.toLowerCase(), sender,
+  return { email: value.email.toLowerCase(), sender, scope,
     ...(read ? {} : { blocked: value.blocked, revision: value.revision, operation: value.operation }) };
 }
 
-export const senderKey = (address) => sha256Hex(address.toLowerCase());
+export const senderKey = (address, scope = "address") =>
+  sha256Hex((scope === "domain" ? "domain\0" : "") + address.toLowerCase());
 export const hasBlockedSenders = (port) => Boolean(port.exec("SELECT EXISTS(SELECT 1 FROM sender_policy WHERE blocked=1) AS yes")[0].yes);
 export function senderPolicy(port, key) {
   const row = port.exec("SELECT blocked,revision,operation FROM sender_policy WHERE sender=?", key)[0];
@@ -51,10 +64,13 @@ export async function matchingSenderPolicy(port, message, ownAddress) {
   if (from.length !== 1) return null;
   const address = senderAddress(from[0].value);
   if (address === null || address === ownAddress.toLowerCase()) return null;
-  const row = port.exec("SELECT blocked,blocked_since FROM sender_policy WHERE sender=?", await senderKey(address))[0];
   const received = Number(message.internalDate);
-  return Boolean(row?.blocked) && Number.isFinite(received) && received >= Number(row.blocked_since)
-    ? { period: Number(row.blocked_since) } : null;
+  if (!Number.isFinite(received)) return null;
+  const domain = senderDomain(address.slice(address.lastIndexOf("@") + 1));
+  const [key, domainKey] = await Promise.all([senderKey(address), domain ? senderKey(domain, "domain") : null]);
+  const row = port.exec("SELECT blocked_since FROM sender_policy WHERE sender IN (?,?) AND blocked=1 AND blocked_since<=? ORDER BY blocked_since LIMIT 1",
+    key, domainKey, received)[0];
+  return row ? { period: Number(row.blocked_since) } : null;
 }
 export async function blockedSender(port, message, ownAddress) {
   const labels = message.labelIds ?? [];

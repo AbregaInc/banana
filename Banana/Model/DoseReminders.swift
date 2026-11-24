@@ -46,7 +46,7 @@ enum DoseReminders {
             ShellNavigation.shared.state.tab = .nutrition
             ShellNavigation.shared.state.nutritionSection = "Taken"
             #if os(macOS)
-            MacNavigator.shared.section = .nutrition
+            MacNavigator.shared.openBody(.taken)
             #endif
         }
     }

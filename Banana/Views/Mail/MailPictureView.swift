@@ -72,8 +72,8 @@ struct MailPictureView: View {
         if picture.width == nil, let height = picture.height, height > 0 {
             box.frame(height: CGFloat(height)).frame(maxWidth: .infinity, alignment: .leading)
         } else {
-            box.frame(maxWidth: picture.width.map { CGFloat($0) } ?? 280)
-                .aspectRatio(ratio, contentMode: .fit)
+            box.aspectRatio(ratio, contentMode: .fit)
+                .frame(maxWidth: picture.width.map { CGFloat($0) } ?? 280)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
     }

@@ -369,11 +369,12 @@ targets:
         BananaPrivateCloudCompute: false
         NSSpeechRecognitionUsageDescription: "Banana transcribes downloaded episodes on your device so you can follow along word-by-word while listening."
         NSMicrophoneUsageDescription: "Banana records quick voice notes — pause a podcast, capture a thought, and it's saved with the moment it came from for later."
-        NSCameraUsageDescription: "Banana uses the camera only when you choose to photograph a meal or a supplement label, or scan a food or supplement barcode."
+        NSCameraUsageDescription: "Banana uses the camera only when you choose to photograph a meal or a supplement label, scan a food or supplement barcode, or pair with your Mac by QR code."
         NSContactsUsageDescription: "Banana looks up the people you type when adding guests to an event, so \u201CLunch with Sam\u201D can invite the Sam you mean."
-        NSLocalNetworkUsageDescription: "Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again."
+        NSLocalNetworkUsageDescription: "Banana uses your local network to connect to a Mac for AI and share downloaded podcasts with your devices."
         NSBonjourServices:
           - _banana-audio._tcp
+          - _banana-link._tcp
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true      # podcast feeds/audio are still served over plain HTTP
         ITSAppUsesNonExemptEncryption: false
@@ -418,18 +419,18 @@ targets:
         ENABLE_USER_SCRIPT_SANDBOXING: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       configs:
-        # TestFlight is Stable: no Email and no local AI (tools/check-release.sh refuses both).
+        # TestFlight carries the production features with Email excluded.
         TestFlight:
           BANANA_RELEASE_CHANNEL: testflight
           BANANA_UNRELEASED: NO
           BANANA_LOCAL_EMAIL: NO
-          BANANA_LOCAL_AI: NO
+          BANANA_LOCAL_AI: YES
         # The App Store app: TestFlight's identity, only BANANA_APP_STORE_MODULES' modules.
         AppStore:
           BANANA_RELEASE_CHANNEL: appstore
           BANANA_UNRELEASED: NO
           BANANA_LOCAL_EMAIL: NO
-          BANANA_LOCAL_AI: NO
+          BANANA_LOCAL_AI: YES
           # Only its modules' usage strings, background modes and entitlements (tools/modules).
           # XcodeGen sets every configuration's CODE_SIGN_ENTITLEMENTS from `entitlements:`;
           # modules.py points this one at the derived file after each generate.
@@ -556,11 +557,12 @@ targets:
         NSHealthUpdateUsageDescription: "Banana Beta saves workouts recorded with Banana to Apple Health and updates them when you trim a workout."
         NSSpeechRecognitionUsageDescription: "Banana Beta transcribes downloaded episodes on your device."
         NSMicrophoneUsageDescription: "Banana Beta records quick voice notes."
-        NSCameraUsageDescription: "Banana Beta uses the camera only when you choose to photograph a meal or a supplement label, or scan a food or supplement barcode."
+        NSCameraUsageDescription: "Banana Beta uses the camera when you choose to photograph meals or supplement labels, scan product barcodes, or pair with your Mac by QR code."
         NSContactsUsageDescription: "Banana Beta looks up the people you type when adding guests to an event, so \u201CLunch with Sam\u201D can invite the Sam you mean."
-        NSLocalNetworkUsageDescription: "Banana Beta finds your other Banana devices on this Wi-Fi."
+        NSLocalNetworkUsageDescription: "Banana Beta uses your local network to connect to a Mac for AI and share downloaded podcasts with your devices."
         NSBonjourServices:
           - _$(BANANA_PEER_SERVICE)._tcp
+          - _banana-link._tcp
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
         ITSAppUsesNonExemptEncryption: false
@@ -1104,6 +1106,8 @@ targets:
       - path: BananaTests/ReminderToTakenTests.swift
       - path: Banana/Model/GoogleEventEditing.swift
       - path: Banana/Model/MeetingLinkDetection.swift
+      - path: Banana/Model/LinkPolicy.swift
+      - path: Banana/Model/PeerProof.swift
       - path: BananaTests/MeetingLinkTests.swift
       - path: Banana/Model/Intelligence.swift
       - path: BananaTests/IntelligenceRoutingTests.swift
@@ -1572,9 +1576,10 @@ targetTemplates:
         NSRemindersFullAccessUsageDescription: "Banana reads your reminders on-device so it can schedule tasks onto your day."
         NSLocationWhenInUseUsageDescription: "Banana uses your location for your local forecast."
         NSSpeechRecognitionUsageDescription: "Banana transcribes downloaded episodes on your device."
-        NSLocalNetworkUsageDescription: "Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again."
+        NSLocalNetworkUsageDescription: "Banana Beta connects to your other devices on the local network to share the Mac model and transfer downloaded podcasts."
         NSBonjourServices:
           - _$(BANANA_PEER_SERVICE)._tcp
+          - _banana-link._tcp
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
     settings:
@@ -1699,9 +1704,10 @@ targetTemplates:
         NSRemindersFullAccessUsageDescription: "Banana reads your reminders on-device so it can schedule tasks onto your day."
         NSLocationWhenInUseUsageDescription: "Banana uses your location for your local forecast."
         NSSpeechRecognitionUsageDescription: "Banana transcribes downloaded episodes on your device."
-        NSLocalNetworkUsageDescription: "Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again."
+        NSLocalNetworkUsageDescription: "Banana uses your local network to share this Mac’s AI model and downloaded podcasts with your devices."
         NSBonjourServices:
           - _banana-audio._tcp
+          - _banana-link._tcp
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
     settings:
@@ -1726,19 +1732,19 @@ targetTemplates:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) MAC_APP"
       configs:
-        # TestFlight is Stable: no Email and no local AI (tools/check-release.sh refuses both).
+        # TestFlight carries the production features with Email excluded.
         TestFlight:
           BANANA_RELEASE_CHANNEL: testflight
           BANANA_UNRELEASED: NO
           BANANA_LOCAL_EMAIL: NO
-          BANANA_LOCAL_AI: NO
+          BANANA_LOCAL_AI: YES
           CODE_SIGN_ENTITLEMENTS: BananaMac/BananaMacAppStore.entitlements
         # The App Store app: TestFlight's identity, only BANANA_APP_STORE_MODULES' modules.
         AppStore:
           BANANA_RELEASE_CHANNEL: appstore
           BANANA_UNRELEASED: NO
           BANANA_LOCAL_EMAIL: NO
-          BANANA_LOCAL_AI: NO
+          BANANA_LOCAL_AI: YES
           INFOPLIST_FILE: Config/Generated/BananaMac-AppStore-Info.plist
           CODE_SIGN_ENTITLEMENTS: Config/Generated/BananaMac-AppStore.entitlements
         # Local Mac builds should not require a developer-portal provisioning profile.
@@ -1758,6 +1764,10 @@ targetTemplates:
     postBuildScripts:
       - name: Gate local features and resources
         script: '"$SRCROOT/tools/local-feature-resources.sh"'
+        basedOnDependencyAnalysis: false
+
+      - name: Embed Banana Pi runtime
+        script: '"$SRCROOT/tools/pi-mac-inference/embed-runtime.sh"'
         basedOnDependencyAnalysis: false
 
   DirectMacApplication:

@@ -131,6 +131,46 @@ import GRDB
         return record
     }
 
+    func testReplyUsesCachedHeadersAlongsideAnImportedDraft() async throws {
+        let (stores, intent, source, row) = try await actionSource()
+        let sender = "noor@plan.example"
+        let message = MailMessageID(account: row.id.account, message: "received")
+        let wire = GmailMessage(id: message.message, threadId: row.id.thread, labelIds: ["INBOX"],
+            historyId: 2, internalDate: 2_000, payload: GmailPart(headers: [
+                GmailHeader(name: "From", value: sender),
+                GmailHeader(name: "To", value: row.id.account),
+                GmailHeader(name: "Message-ID", value: "<received@plan.example>"),
+                GmailHeader(name: "Subject", value: "Action"),
+            ]))
+        _ = try await MailWriter(stores: stores, sink: nil).transact {
+            try MailMessageImporter.apply(FetchedMessage(wire: wire, floor: 2, headers: MessageHeaders(payload: wire.payload), structure: nil),
+                                          account: row.id.account, myAddresses: [row.id.account], in: $0)
+        }
+        var imported = outgoingRecord(state: .editing, conversation: row.id)
+        imported.snapshot.format = .foreign
+        imported.snapshot.inReplyTo = "<received@plan.example>"
+        imported.acknowledgedRevision = imported.revision
+        let inserted = try await intent.putDraftRecord(imported, expectedGeneration: nil)
+        XCTAssertTrue(inserted)
+        try await prepareDrafts(source, intent)
+
+        // The original has cached headers only, and the provider cannot supply its body.
+        let reply = await source.newDraft(.reply(to: message))
+        XCTAssertNotEqual(reply.id, imported.snapshot.id)
+        XCTAssertEqual(reply.format, .banana)
+        XCTAssertEqual(reply.conversation, row.id)
+        XCTAssertEqual(reply.replyToMessage, message)
+        XCTAssertEqual(reply.to.map(\.address), [sender])
+        XCTAssertEqual(reply.signature, MailBodyHTML.bananaSignature)
+        XCTAssertNil(reply.quote)
+        let persisted = try await intent.draftRecord(scope: imported.scope, id: reply.id)
+        XCTAssertEqual(persisted?.snapshot.inReplyTo, "<received@plan.example>")
+        let reopened = await source.newDraft(.replyAll(to: message))
+        XCTAssertEqual(reopened.id, reply.id)
+        let retained = try await intent.draftRecord(scope: imported.scope, id: imported.snapshot.id)
+        XCTAssertEqual(retained?.snapshot, imported.snapshot)
+    }
+
     func testLiveUndoHoldShowsOutgoingContentWithoutADraftNoticeAndUndoRestoresDraft() async throws {
         let (_, intent, source, row) = try await actionSource()
         let record = outgoingRecord(state: .held, conversation: row.id)
@@ -248,10 +288,14 @@ import GRDB
     func testLiveChangeOfFromIsSavedOnTheDraft() async throws {
         let (_, intent, source, _) = try await actionSource()
         try await prepareDrafts(source, intent)
-        let draft = await source.newDraft(.new(account: "a@example.com"))
+        var draft = await source.newDraft(.new(account: "a@example.com"))
+        XCTAssertEqual(draft.signature, MailBodyHTML.bananaSignature)
+        XCTAssertTrue(draft.from.hasSignature)
+        draft.signature = nil
+        source.save(draft)
         let changed = await source.changeIdentity(of: draft.id, to: "A@example.com")
         XCTAssertEqual(changed?.from.address, "a@example.com")
-        XCTAssertNil(changed?.signature)
+        XCTAssertEqual(changed?.signature, MailBodyHTML.bananaSignature)
         let refused = await source.changeIdentity(of: draft.id, to: "someone@else.example")
         XCTAssertNil(refused, "another account's address is not this draft's to change to")
         let unknown = await source.changeIdentity(of: MailDraftID(raw: "missing"), to: "a@example.com")

@@ -64,6 +64,7 @@
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_$(BANANA_PEER_SERVICE)._tcp</string>
+		<string>_banana-link._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Banana Beta uses the camera only when you choose to photograph a meal or a supplement label, or scan a barcode.</string>
@@ -74,7 +75,7 @@
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Banana Beta saves workouts to Apple Health and updates them when you trim a workout.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again.</string>
+	<string>Banana Beta connects to your other devices on the local network to share the Mac model and transfer downloaded podcasts.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Banana uses your location for your local forecast.</string>
 	<key>NSMicrophoneUsageDescription</key>

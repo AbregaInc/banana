@@ -317,3 +317,16 @@ test('web status: actual content only, opaque version, no payload reads or provi
   s.deps.spaces.get=id=>new Proxy(originalGet(id),{get(target,key){const value=target[key];return typeof value==='function'?(...args)=>{calls.push(key);return value.apply(target,args);}:value;}});
   await status();assert.equal(s.google.listCalls.length,before);assert.deepEqual(calls,['webStatus']);
 });
+
+test('web: the owner reads what the space holds (sizes only) with ?usage=1; it is not in the plain answer and is paced',async()=>{
+  const f=await fixture();
+  await f.put('notes.voiceNote','n1',{title:'One'});
+  assert.equal('usage' in await (await f.get('/app/api/account')).json(),false);
+  const u=(await (await f.get('/app/api/account?usage=1')).json()).usage;
+  assert.equal(u.records['notes.voiceNote'].count,1);
+  assert.deepEqual([u.blobs,u.unnamed,u.trash],[{}, {count:0,bytes:0}, {waiting:0,moved:0}]);
+  assert.equal(JSON.stringify(u).includes('One'),false,'sizes only, never content');
+  let last;for(let i=0;i<8;i++)last=await f.get('/app/api/account?usage=1');
+  assert.equal(last.status,429);
+  assert.equal((await f.get('/app/api/account')).status,200);
+});

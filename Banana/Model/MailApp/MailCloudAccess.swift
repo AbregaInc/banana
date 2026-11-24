@@ -4,7 +4,10 @@ import Foundation
 /// The existing Banana identity selects Mail access on every device. Provider grants stay in Cloud.
 @MainActor final class MailCloudAccess: MailAccountAccess {
     private var consenting = false
-    var connectedAccountIDs: [String] { BananaAccount.shared.account?.google.map { $0.email.lowercased() } ?? [] }
+    var connectedAccountIDs: [String] {
+        BananaAccount.shared.account?.google.map { $0.email.lowercased() }
+            ?? FeatureAccessStore.shared.cachedMailAccounts ?? []
+    }
     func mailGrant(accountID: String) -> MailGrant {
         guard FeatureAccessStore.shared.allows("email"), let link = linked(accountID) else { return .none }
         return link.capabilities?.mailRead == true ? .granted : .none

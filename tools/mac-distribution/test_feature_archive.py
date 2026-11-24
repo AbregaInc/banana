@@ -25,7 +25,14 @@ class FeatureArchiveTests(unittest.TestCase):
     def app(self, parent, channel='stable', bundle='org.example.banana', marker='EMAIL\n'):
         app = parent / 'Banana.app'
         app.mkdir(parents=True)
-        (app / 'Info.plist').write_bytes(plistlib.dumps(dict(BananaReleaseChannel=channel, CFBundleIdentifier=bundle, BananaPrimaryBundleIdentifier='org.example.banana')))
+        info = {
+            'BananaReleaseChannel': channel,
+            'CFBundleIdentifier': bundle,
+            'BananaPrimaryBundleIdentifier': 'org.example.banana',
+            'CFBundleExecutable': 'Banana',
+            'BananaModules': 'BANANA_MODULE_EMAIL',
+        }
+        (app / 'Info.plist').write_bytes(plistlib.dumps(info))
         exe = app / 'Banana'
         exe.write_bytes(self.binary.read_bytes())
         exe.chmod(0o755)

@@ -4,13 +4,10 @@ import XCTest
 final class OptimisticEventUITest: XCTestCase {
     func testCreatedEventAppearsImmediately() {
         let app = XCUIApplication()
-        app.launchArguments += ["--week"]
+        app.launchArguments = ["--ui-preview", "--plan", "--tab", "plan", "-planMode", "week",
+                               "--disable-icloud", "-onboardingCompleted", "YES", "-finishSetupDismissed", "YES"]
         app.withoutSpaceSync()
         app.launch()
-        let week = app.buttons["Week"]
-        if week.waitForExistence(timeout: 25) { week.tap() }
-        sleep(2)
-
         // Through the toolbar menu, not a tap at a fixed screen position: the fixture day moves
         // with the clock, so a coordinate that was empty yesterday lands on an event today and the
         // create gesture correctly refuses. Grid creation has its own test; this one is about what
@@ -18,6 +15,7 @@ final class OptimisticEventUITest: XCTestCase {
         let plus = app.plus("mobile.week.newEvent")
         XCTAssertTrue(plus.waitForExistence(timeout: 20), "no + menu")
         plus.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["page.add.list"].firstMatch.waitForExistence(timeout: 5))
         let item = app.buttons["mobile.week.add.event"]
         XCTAssertTrue(item.waitForExistence(timeout: 6), "menu did not open")
         item.tap()

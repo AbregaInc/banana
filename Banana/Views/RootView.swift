@@ -185,6 +185,9 @@ struct RootView: View {
                 }
             } else if ProcessInfo.processInfo.arguments.contains("--settings") {
                 SettingsView()
+                    .onAppear {
+                        if ProcessInfo.processInfo.arguments.contains("--account-disconnected-preview") { BananaAccount.shared.showRefusalForPreview() }
+                    }
             } else if ProcessInfo.processInfo.arguments.contains("--place-picker") {
                 PlacePickerView(locationText: "Chelsea", context: "Lap Swim at 7:45 PM", eventTitle: "Lap Swim")
             } else if ["--wellness", "--scan-correct-preview", "--my-foods", "--energy-balance", "--food-search"].contains(where: { ProcessInfo.processInfo.arguments.contains($0) }) {
@@ -199,7 +202,9 @@ struct RootView: View {
                 }
                     // With the toasts the Nutrition tab has, so an Undo can be seen here too.
                     .toastHost()
+                    .modifier(PageChromeHost(sidebar: false))
                     .onAppear {
+                        ShellNavigation.shared.state.tab = .nutrition
                         WellnessStore.shared.injectPreviewData()
                         // `--nutrition-week`: a week of meals for the day strip; not in the App
                         // Store set, which stays one meal. `--nutrition-yesterday` opens a past day.
@@ -731,7 +736,9 @@ struct RootView: View {
         // edge (docs/design/BOTTOM-BAR-SHELL.md, Wide); anywhere narrower, the bar at the bottom.
         HStack(spacing: 0) {
             if !bottomBarShell, railShown {
-                ShellRail(pages: shellPages, current: currentShellPage, open: openShellPage)
+                ShellSidebar(pages: shellPages, current: currentShellPage, open: openShellPage)
+                    .background(.regularMaterial)
+                    .overlay(alignment: .trailing) { Divider() }
                     .transition(.move(edge: .leading))
             }
             browseTabs
@@ -739,7 +746,10 @@ struct RootView: View {
         // The whole shell's width, rail included: measured inside it, the rail's own width would
         // flip the class back and forth at the line.
         .onGeometryChange(for: ShellLayout.self) { ShellLayout.of(width: Double($0.size.width)) } action: { layout in
-            if rootShell != layout { rootShell = layout }
+            if rootShell != layout {
+                rootShell = layout
+                if layout == .rail, ShellChrome.shared.switcherOpen { ShellChrome.shared.switcherOpen = false }
+            }
         }
     }
 
@@ -992,7 +1002,11 @@ struct RootView: View {
         // Modal navigation stays above transient playback notices.
         .overlay {
             if bottomBarShell {
-                ShellSwitcherOverlay(pages: shellPages, current: currentShellPage, open: openShellPage)
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    ShellSidebarDrawer(pages: shellPages, current: currentShellPage, open: openShellPage)
+                } else {
+                    ShellSwitcherOverlay(pages: shellPages, current: currentShellPage, open: openShellPage)
+                }
             }
         }
     }

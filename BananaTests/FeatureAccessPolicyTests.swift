@@ -27,6 +27,29 @@ final class FeatureAccessPolicyTests: XCTestCase {
         XCTAssertFalse(gate.allows("email", now: now.addingTimeInterval(901)))
     }
 
+    @MainActor
+    func testSavedMailMembershipIsAvailableOfflineOnlyToTheBoundSession() throws {
+        let suite = "MailMembership-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let host = "https://beta.plan.example"
+        let clock = now
+        let original = FeatureAccessStore(defaults: defaults, now: { clock })
+        original.bind(session: "session", host: host)
+        original.receive(account: "account-1", policy: cache().policy)
+        let upgraded = FeatureAccessStore(defaults: defaults, now: { clock })
+        upgraded.bind(session: "session", host: host)
+        XCTAssertNil(upgraded.cachedMailAccounts, "Older caches do not establish mailbox membership")
+        upgraded.receive(account: "account-1", policy: cache().policy, mailAccounts: ["noor@plan.example"])
+
+        let reopened = FeatureAccessStore(defaults: defaults, now: { clock.addingTimeInterval(901) })
+        reopened.bind(session: "session", host: host)
+        XCTAssertEqual(reopened.cachedMailAccounts, ["noor@plan.example"])
+        XCTAssertNil(reopened.mailContext, "The saved list does not authorize requests")
+        reopened.bind(session: "another-session", host: host)
+        XCTAssertNil(reopened.cachedMailAccounts)
+    }
+
     func testUnseenDeniedInvalidOrDifferentSessionPoliciesCannotOfferMail() {
         var denied = cache().policy
         denied.enabled = []
@@ -147,6 +170,43 @@ final class FeatureAccessPolicyTests: XCTestCase {
         XCTAssertFalse(store.emailOffered)
         XCTAssertFalse(store.emailAvailable)
         XCTAssertFalse(store.policyLoaded)
+    }
+
+    @MainActor
+    func testPersistentMailSurvivesStaleRefreshesAndRelaunchUntilDenied() throws {
+        let suite = "FeatureAccessPolicyTests-" + UUID().uuidString
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        var time = now
+        let store = FeatureAccessStore(defaults: defaults, now: { time })
+        store.bind(session: "session", host: "https://beta.plan.example")
+        var policy = cache().policy
+        policy.enabled.append("calendarCloud")
+        policy.persistent = ["email", "calendarCloud"]
+        store.receive(account: "account-1", policy: policy)
+
+        time = now.addingTimeInterval(7 * 86_400)
+        let relaunched = FeatureAccessStore(defaults: defaults, now: { time })
+        relaunched.bind(session: "session", host: "https://beta.plan.example")
+        XCTAssertTrue(relaunched.emailAvailable)
+        XCTAssertTrue(relaunched.emailOffered)
+        XCTAssertNotNil(relaunched.mailContext)
+        XCTAssertTrue(FeatureAccessStore.network.allows("email", now: time))
+        XCTAssertNil(relaunched.calendarReadContext)
+
+        var denied = policy
+        denied.enabled = []
+        denied.persistent = nil
+        denied.issuedAt = 1
+        relaunched.receive(account: "account-1", policy: denied)
+        XCTAssertFalse(relaunched.emailAvailable)
+        XCTAssertNil(relaunched.mailContext)
+        XCTAssertFalse(FeatureAccessStore.network.allows("email", now: time))
+        XCTAssertTrue(relaunched.emailOffered, "Previously saved mail remains visible during grace")
+        relaunched.receive(account: "account-1", policy: policy)
+        XCTAssertFalse(relaunched.emailAvailable, "An old refresh cannot undo an explicit denial")
+        relaunched.bind(session: "different-session", host: "https://beta.plan.example")
+        XCTAssertFalse(relaunched.emailOffered)
     }
 
     func testFuturePoliciesAndInvalidLifetimeFailClosed() {

@@ -869,7 +869,9 @@ actor SpaceSync {
         do {
             let file = try await transport.getBlob(sha256: wanted.sha)
             defer { try? FileManager.default.removeItem(at: file) }
-            await MainActor.run { adapter.adapter.storeBlob(key.type, id: key.id, field: wanted.field, file: file) }
+            guard !stopped, read({ try $0.record(key)?.state.fields[wanted.field]?.blobReference?.sha256 }) == wanted.sha else { return }
+            try await adapter.adapter.installBlob(key.type, id: key.id, field: wanted.field, file: file)
+            guard !stopped, read({ try $0.record(key)?.state.fields[wanted.field]?.blobReference?.sha256 }) == wanted.sha else { return }
             saveMeta { tx in
                 try tx.setLocalBlob(key, field: wanted.field, sha: wanted.sha)
                 try tx.blobFetched(wanted)
@@ -890,7 +892,9 @@ actor SpaceSync {
         do {
             let file = try await transport.getBlob(sha256: ref.sha256)
             defer { try? FileManager.default.removeItem(at: file) }
-            await MainActor.run { adapter.adapter.storeBlob(type, id: id, field: field, file: file) }
+            guard !stopped, read({ try $0.record(key)?.state.fields[field]?.blobReference?.sha256 }) == ref.sha256 else { return false }
+            try await adapter.adapter.installBlob(type, id: id, field: field, file: file)
+            guard !stopped, read({ try $0.record(key)?.state.fields[field]?.blobReference?.sha256 }) == ref.sha256 else { return false }
             saveMeta { try $0.setLocalBlob(key, field: field, sha: ref.sha256) }
             return true
         } catch {

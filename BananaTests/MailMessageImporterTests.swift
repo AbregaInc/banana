@@ -72,6 +72,21 @@ final class MailMessageImporterTests: XCTestCase {
         let state = try await stores.index.read { try Int.fetchOne($0, sql: "SELECT fetch_state FROM message") }
         XCTAssertEqual(state, 1)
     }
+    func testOwnAddressInFromIsMineOnlyWhenGmailFiledItAsSent() async throws {
+        let stores = try await stores()
+        let forged = #"{"id":"f1","threadId":"t9","historyId":"30","internalDate":"124000","labelIds":["INBOX","UNREAD"],"payload":{"headers":[{"name":"From","value":"Me <a@example.com>"},{"name":"To","value":"Stranger <stranger@evil.example>"},{"name":"Subject","value":"Hi"}]}}"#
+        let sent = #"{"id":"s1","threadId":"t8","historyId":"31","internalDate":"125000","labelIds":["SENT"],"payload":{"headers":[{"name":"From","value":"Me <a@example.com>"},{"name":"To","value":"Friend <friend@example.com>"},{"name":"Subject","value":"Yo"}]}}"#
+        _ = try await stores.index.write { db in
+            try MailMessageImporter.apply(try self.fetched(forged), account: "a@example.com", myAddresses: ["a@example.com"], in: db)
+            try MailMessageImporter.apply(try self.fetched(sent), account: "a@example.com", myAddresses: ["a@example.com"], in: db)
+        }
+        let flags = try await stores.index.read { db in
+            try Dictionary(uniqueKeysWithValues: Row.fetchAll(db, sql: "SELECT gmail_id, flags FROM message").map {
+                (String($0["gmail_id"] as String), MailMessageFlags(rawValue: $0["flags"]).contains(.fromMe)) })
+        }
+        XCTAssertEqual(flags["f1"], false, "a received message with my address in From is not mine")
+        XCTAssertEqual(flags["s1"], true)
+    }
     func testPartialAndStaleResponsesPreserveKnownData() async throws {
         let stores = try await stores()
         let values = try [fetched(original), fetched(#"{"id":"m1","threadId":"t1","historyId":"21"}"#),

@@ -60,6 +60,7 @@
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_banana-audio._tcp</string>
+		<string>_banana-link._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Banana uses the camera only when you choose to photograph a meal or a supplement label, or scan a barcode.</string>
@@ -70,7 +71,7 @@
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>Banana saves workouts to Apple Health and updates them when you trim a workout.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>Banana finds your other Banana devices on this Wi-Fi so one downloaded podcast file can be reused without downloading it again.</string>
+	<string>Banana uses your local network to share this Mac’s AI model and downloaded podcasts with your devices.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Banana uses your location for your local forecast.</string>
 	<key>NSMicrophoneUsageDescription</key>

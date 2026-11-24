@@ -6,7 +6,8 @@ import XCTest
 final class NutritionEntryUITest: XCTestCase {
     private func launch() -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["--wellness", "--disable-icloud", "--no-space-sync", "--ui-audit", "-onboardingCompleted", "YES"]
+        app.launchArguments = ["--ui-preview", "--tab", "nutrition", "--store-capture", "--disable-icloud",
+                               "--ui-audit", "-onboardingCompleted", "YES", "-finishSetupDismissed", "YES"]
         app.withoutSpaceSync()
         app.launch()
         return app
@@ -16,6 +17,7 @@ final class NutritionEntryUITest: XCTestCase {
         let app = launch()
         XCTAssertTrue(app.plus("wellness.add").waitForExistence(timeout: 10), app.debugDescription)
         app.plus("wellness.add").tap()
+        XCTAssertTrue(app.descendants(matching: .any)["page.add.list"].firstMatch.waitForExistence(timeout: 5))
         let scan = app.buttons["wellness.barcodeMeal"]
         XCTAssertTrue(scan.waitForExistence(timeout: 4), app.debugDescription)
         scan.tap()
@@ -28,6 +30,7 @@ final class NutritionEntryUITest: XCTestCase {
         let app = launch()
         XCTAssertTrue(app.plus("wellness.add").waitForExistence(timeout: 10), app.debugDescription)
         app.plus("wellness.add").tap()
+        XCTAssertTrue(app.descendants(matching: .any)["page.add.list"].firstMatch.waitForExistence(timeout: 5))
         let byHand = app.buttons["wellness.manualMeal"]
         XCTAssertTrue(byHand.waitForExistence(timeout: 4), app.debugDescription)
         byHand.tap()

@@ -25,7 +25,7 @@ export async function guestOf(deps, c) {
   if (!token || !/^[A-Za-z0-9_-]{20,200}$/.test(token)) return null;
   const hash = await sha256Hex(token);
   const row = await deps.db.first(
-    `SELECT s.account_id, s.profile, s.verified_at, s.last_used_at, g.email, g.name, g.phone, g.zone, g.person_account_id, g.verified_at AS guest_verified_at
+    `SELECT s.account_id, s.profile, s.verified_at, s.last_used_at, s.google_sub, g.email, g.name, g.phone, g.zone, g.person_account_id, g.verified_at AS guest_verified_at
      FROM sessions s LEFT JOIN guests g ON g.account_id = s.account_id WHERE s.token_hash = ? AND s.kind = 'guest'`, hash);
   if (!row) return null;
   const t = deps.now();
@@ -39,6 +39,9 @@ export async function guestOf(deps, c) {
   try { profile = JSON.parse(row.profile ?? "{}") ?? {}; } catch { /* none */ }
   return {
     hash, accountId: row.account_id, profile, verifiedAt: row.verified_at == null ? null : Number(row.verified_at),
+    // The Google account this browser proved (the connect), or null: an emailed code proves the
+    // address, not who it is at Google, so it opens nothing that came from Google.
+    sub: row.google_sub ?? null,
     guest: row.email ? { email: row.email, name: row.name, phone: row.phone, zone: row.zone, personAccountId: row.person_account_id } : null,
   };
 }
@@ -69,23 +72,22 @@ export async function guestAccount(deps, email, { name = null, phone = null, zon
     return existing.account_id;
   }
   const id = newId(deps.random);
-  const person = await db.first("SELECT account_id FROM google_links WHERE email = ? AND status <> 'unlinked' ORDER BY created_at LIMIT 1", email);
   await db.batch([
     { sql: "INSERT INTO accounts (id, created_at, kind) VALUES (?, ?, 'guest')", params: [id, t] },
     { sql: `INSERT INTO guests (account_id, email, name, phone, zone, person_account_id, verified_at, last_seen_at, created_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, params: [id, email, name, phone, zone, verified ? person?.account_id ?? null : null, verified ? t : null, t, t] },
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, params: [id, email, name, phone, zone, null, verified ? t : null, t, t] },
   ]);
   return id;
 }
 
 /** A new guest session for the browser, replacing the one it had. */
-export async function startSession(deps, c, accountId, { profile, verified }) {
+export async function startSession(deps, c, accountId, { profile, verified, sub = null }) {
   const t = deps.now();
   const old = getCookie(c, COOKIE);
   const token = newSessionToken(deps.random);
   const statements = [{
-    sql: "INSERT INTO sessions (token_hash, account_id, created_at, last_used_at, kind, profile, verified_at) VALUES (?, ?, ?, ?, 'guest', ?, ?)",
-    params: [await sha256Hex(token), accountId, t, t, JSON.stringify(profile ?? {}), verified ? t : null],
+    sql: "INSERT INTO sessions (token_hash, account_id, created_at, last_used_at, kind, profile, verified_at, google_sub) VALUES (?, ?, ?, ?, 'guest', ?, ?, ?)",
+    params: [await sha256Hex(token), accountId, t, t, JSON.stringify(profile ?? {}), verified ? t : null, verified ? sub : null],
   }];
   if (old && /^[A-Za-z0-9_-]{20,200}$/.test(old)) statements.push({ sql: "DELETE FROM sessions WHERE token_hash = ? AND kind = 'guest'", params: [await sha256Hex(old)] });
   await deps.db.batch(statements);

@@ -85,6 +85,28 @@ final class WideShellUITest: XCTestCase {
         XCTAssertTrue(waitUntil(timeout: 5) { app.buttons["shell.page.notes"].isSelected })
     }
 
+    func testNarrowIPadSidebarOpensOverThePageAndDismissesAfterSelection() throws {
+        XCUIDevice.shared.orientation = .portrait
+        let app = try launch(["--tab", "plan", "--plan"])
+        let sidebar = app.descendants(matching: .any)["shell.rail"].firstMatch
+        let field = app.textFields["shell.field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        let before = field.frame.width
+        app.buttons["shell.switcher"].tap()
+        XCTAssertTrue(sidebar.waitForExistence(timeout: 5))
+        let plan = app.buttons["shell.page.plan"]
+        XCTAssertTrue(plan.isHittable)
+        XCTAssertGreaterThanOrEqual(plan.frame.height, 44)
+        plan.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { !sidebar.exists })
+        XCTAssertEqual(field.frame.width, before, accuracy: 1)
+        app.buttons["shell.switcher"].tap()
+        app.buttons["shell.page.notes"].tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { !sidebar.exists })
+        app.buttons["shell.switcher"].tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { app.buttons["shell.page.notes"].isSelected })
+    }
+
     /// Notes is a split view on an iPad: the field sits on the note's bar, and focused with
     /// nothing typed it offers what Notes can add.
     func testNotesFieldIsOnTheNotesBarAndOffersItsKinds() throws {

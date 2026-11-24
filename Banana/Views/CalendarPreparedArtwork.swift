@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Prepared event presentation used by Beta. The viewport owns layout, gestures and durable
+/// Opt-in prepared event presentation. The viewport owns layout, gestures and durable
 /// writes; immutable artwork is cached separately from reusable interactive cells.
 struct CalendarPreparedArtwork: View {
     let paint: CalendarEventPaint
@@ -23,9 +23,7 @@ struct CalendarPreparedArtwork: View {
     }
 
     static var enabled: Bool {
-        #if BANANA_BETA
-        true
-        #elseif DEBUG
+        #if DEBUG
         ProcessInfo.processInfo.arguments.contains("--calendar-prepared-artwork")
         #else
         false

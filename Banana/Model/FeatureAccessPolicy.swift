@@ -6,6 +6,12 @@ struct FeatureAccessPolicy: Codable, Equatable, Sendable {
     var issuedAt: Double
     var expiresAt: Double
     var enabled: [String]
+    /// No scheduled end on the server. Older services omit this field.
+    var persistent: [String]? = nil
+
+    var hasPersistentMail: Bool {
+        lifetime > 0 && enabled.contains("email") && persistent?.contains("email") == true
+    }
 
     var lifetime: TimeInterval {
         guard version == 1, issuedAt.isFinite, expiresAt.isFinite else { return 0 }
@@ -20,6 +26,9 @@ struct FeatureAccessCache: Codable, Equatable {
     var account: String
     var policy: FeatureAccessPolicy
     var receivedAt: Date
+    /// Linked mailbox identities from the same authenticated response as this policy.
+    /// Optional for devices upgrading from before Mail could open offline.
+    var mailAccounts: [String]? = nil
 
     func accepts(account nextAccount: String, policy nextPolicy: FeatureAccessPolicy) -> Bool {
         // Concurrent foreground/background refreshes may finish in reverse order.
@@ -39,6 +48,8 @@ struct FeatureAccessCache: Codable, Equatable {
         for feature in ["email", "calendarCloud"] {
             if policy.lifetime > 0, policy.enabled.contains(feature) {
                 offers[feature] = receivedAt.addingTimeInterval(policy.lifetime)
+            } else if feature == "email", previous?.policy.hasPersistentMail == true {
+                offers[feature] = receivedAt
             } else if let end = previous?.lastOfferEnd(feature) {
                 // A denial starts grace at once; repeated denials cannot slide its deadline.
                 offers[feature] = min(end, receivedAt)
@@ -59,11 +70,13 @@ struct FeatureAccessCache: Codable, Equatable {
     }
 
     func visibilityDeadline(_ feature: String, context expected: String?) -> Date? {
-        guard matches(feature, context: expected), let end = lastOfferEnd(feature) else { return nil }
+        guard matches(feature, context: expected), !(feature == "email" && policy.hasPersistentMail),
+              let end = lastOfferEnd(feature) else { return nil }
         return end.addingTimeInterval(Self.visibilityGrace)
     }
 
     func offers(_ feature: String, context expected: String?, now: Date) -> Bool {
+        if allows(feature, context: expected, now: now) { return true }
         guard now.timeIntervalSince(receivedAt) >= 0, let deadline = visibilityDeadline(feature, context: expected) else { return false }
         return now.timeIntervalSince(deadline) < 0
     }
@@ -71,7 +84,10 @@ struct FeatureAccessCache: Codable, Equatable {
     func allows(_ feature: String, context expected: String?, now: Date) -> Bool {
         guard matches(feature, context: expected), policy.enabled.contains(feature) else { return false }
         let age = now.timeIntervalSince(receivedAt)
-        return age >= 0 && age < policy.lifetime
+        guard age >= 0 else { return false }
+        // Mail routes go through Banana Cloud, which checks the current grant on each call.
+        // Keep the last confirmed persistent grant while a periodic check is delayed.
+        return (feature == "email" && policy.hasPersistentMail) || age < policy.lifetime
     }
 
 }

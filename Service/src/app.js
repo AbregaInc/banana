@@ -1,3 +1,4 @@
+import { desktopLinkName, desktopNonce } from "./desktop-relay.js";
 import {parseMailDraftRequest,mailDraft} from './mail-drafts.js';
 import {uploadMailPart,removeMailParts} from './mail-uploads.js';
 import {parseMailOperation,mailOperation} from "./mail-operation.js";
@@ -18,6 +19,9 @@ import { rows as usageRows } from "./usage.js";
 import { MOST_PER_DAY, reportRows } from "./diagnostics.js";
 import { reportRoutes } from "./reports.js";
 import { GoogleRefused } from "./google.js";
+import { SESSION_PROOF } from "./sessions.js";
+import { readText, TOO_LARGE } from "./body.js";
+import { takeShare } from "./anonymous-shares.js";
 import { constantTimeEqual, createVault, newId, newSecret, newSessionToken, sha256Hex, uuid } from "./crypto.js";
 import { audit, forget, forgetUnwatched, reconcile, WATCH_TTL_SECONDS } from "./calendar.js";
 import { clearAlert, syncCalendar } from "./events.js";
@@ -74,10 +78,12 @@ const DAY = 24 * 60 * 60 * 1000;
 const PUSH_GAP = 3000;
 const MOST_DEVICES = 25;              // device rows per account
 const MOST_DEVICE_WATCHES = 100;      // channels a person's devices may hold open at once
-const MOST_DIAGNOSTIC_BYTES = 128 * 1024 * 1024;   // kept per day across everyone
+// Kept per day across everyone. Times the 90 days kept (src/diagnostics.js KEEP): at most 1.4 GiB
+// of the shared database, well under its 10 GB.
+const MOST_DIAGNOSTIC_BYTES = 16 * 1024 * 1024;
+const utf8Bytes = (text) => new TextEncoder().encode(text).byteLength;
 const MOST_COUNT_ROWS_PER_DAY = 20_000;            // distinct usage rows a day across everyone
 const CALENDAR_PUSH = { aps: { "content-available": 1 }, b: { k: "calendar" } };
-const TOO_LARGE = Symbol("too large");
 const BAD = Symbol("bad");
 
 /** The device an app sends, or null when it isn't one. */
@@ -94,7 +100,10 @@ export function parseDevice(input, id = input?.id) {
   // What the device can take pushes about (src/device-features.js); undefined from older builds.
   const capabilities = parseCapabilities(input.capabilities);
   if (capabilities === null) return null;
-  return { id, platform: input.platform, push: push && push.toLowerCase(), pushEnv: input.pushEnv, bundle: input.bundle, providerProtocol, capabilities };
+  // This install's secret (migration 0034); undefined from older builds.
+  const secret = input.secret ?? null;
+  if (secret !== null && (typeof secret !== "string" || !/^[A-Za-z0-9_-]{32,128}$/.test(secret))) return null;
+  return { id, platform: input.platform, push: push && push.toLowerCase(), pushEnv: input.pushEnv, bundle: input.bundle, providerProtocol, capabilities, secret };
 }
 
 export { pushTo } from "./push.js";
@@ -143,28 +152,46 @@ export function createApp(deps) {
 
   async function readJson(c, limit) {
     if (Number(c.req.header("content-length") || 0) > limit) return TOO_LARGE;
-    const text = await c.req.text();
-    if (text.length > limit) return TOO_LARGE;
+    const text = await readText(c, limit);
+    if (text === TOO_LARGE) return TOO_LARGE;
     try { return JSON.parse(text); } catch { return BAD; }
   }
 
-  /** The account of the bearer session, or null. */
-  async function sessionAccount(c) {
+  /**
+   * The bearer session: {account, hash}; {reprove: true} when it ended or its proof is too old
+   * (the account is there, the app signs in again by itself); null when there is none.
+   */
+  async function sessionState(c) {
     const match = /^Bearer ([A-Za-z0-9_-]{20,200})$/.exec(c.req.header("authorization") ?? "");
     if (!match) return null;
     const hash = await sha256Hex(match[1]);
     // Person sessions only: a guest's (the booking pages' cookie) never reaches the API.
-    const row = await db.first("SELECT account_id, last_used_at FROM sessions WHERE token_hash = ? AND kind = 'person'", hash);
-    if (!row) return null;
+    const row = await db.first(
+      `SELECT s.account_id, s.created_at, s.last_used_at, s.proven_at, s.ended_at,
+         EXISTS (SELECT 1 FROM google_links g WHERE g.sub = s.google_sub AND g.account_id = s.account_id AND g.refresh_token IS NOT NULL) AS checked
+       FROM sessions s WHERE s.token_hash = ? AND s.kind = 'person'`, hash);
+    if (!row) return (await db.first("SELECT 1 AS x FROM deleted_sessions WHERE token_hash = ?", hash)) ? { deleted: true } : null;
     const t = now();
+    // Google is asked daily about a link the service holds a token for; about any other, the app's
+    // fresh proof every SESSION_PROOF is what says Google still says yes.
+    if (row.ended_at != null || (!Number(row.checked) && t - Number(row.proven_at ?? row.created_at) > SESSION_PROOF)) return { reprove: true };
     if (t - Number(row.last_used_at) >= DAY) await db.run("UPDATE sessions SET last_used_at = ? WHERE token_hash = ?", t, hash);
-    return row.account_id;
+    return { account: row.account_id, hash };
+  }
+
+  /** The account of the bearer session, or null. */
+  async function sessionAccount(c) {
+    const state = await sessionState(c);
+    if (!state?.account) return null;
+    c.set("sessionHash", state.hash);
+    return state.account;
   }
 
   const signedIn = async (c, next) => {
-    const account = await sessionAccount(c);
-    if (!account) return c.json({ error: "signed_out" }, 401);
-    c.set("account", account);
+    const state = await sessionState(c);
+    if (!state?.account) return c.json({ error: "signed_out", ...(state?.reprove ? { reprove: true } : {}), ...(state?.deleted ? { deleted: true } : {}) }, 401);
+    c.set("account", state.account);
+    c.set("sessionHash", state.hash);
     await next();
   };
 
@@ -178,17 +205,24 @@ export function createApp(deps) {
   /** An account holds at most MOST_DEVICES rows (a person's own devices are a handful). */
   const roomForDevice = async (account) => Number((await db.first("SELECT COUNT(*) AS n FROM devices WHERE account_id = ?", account)).n) < MOST_DEVICES;
 
-  function deviceStatements(device, account) {
+  /** A device's bundle is its APNs topic: one the service's key signs for, when they are configured. */
+  const pushTopicAllowed = (device) => !deps.config.apnsTopics?.length || deps.config.apnsTopics.includes(device.bundle);
+
+  /** The SHA-256 of the install's secret, or null when the device sent none (older builds). */
+  const deviceSecretHash = async (device) => (device.secret ? await sha256Hex(`device-secret:${device.secret}`) : null);
+
+  function deviceStatements(device, account, secretHash = null) {
     const t = now();
     const out = [{
-      sql: `INSERT INTO devices (id, account_id, platform, push_token, push_env, bundle, updated_at, provider_protocol, capabilities) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      sql: `INSERT INTO devices (id, account_id, platform, push_token, push_env, bundle, updated_at, provider_protocol, capabilities, secret_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT (id) DO UPDATE SET account_id = excluded.account_id, platform = excluded.platform,
+              secret_hash = COALESCE(excluded.secret_hash, devices.secret_hash),
               push_token = excluded.push_token, push_env = excluded.push_env, bundle = excluded.bundle, updated_at = excluded.updated_at, provider_protocol = excluded.provider_protocol,
               capabilities = excluded.capabilities,
               seeded_types = CASE WHEN devices.account_id = excluded.account_id THEN devices.seeded_types END,
               seeded_at = CASE WHEN devices.account_id = excluded.account_id THEN devices.seeded_at END,
               flipped_at = CASE WHEN devices.account_id = excluded.account_id THEN devices.flipped_at END`,
-      params: [device.id, account, device.platform, device.push, device.pushEnv, device.bundle, t, device.providerProtocol, capabilitiesColumn(device.capabilities)],
+      params: [device.id, account, device.platform, device.push, device.pushEnv, device.bundle, t, device.providerProtocol, capabilitiesColumn(device.capabilities), secretHash],
     }];
     // A push token reaches one device: an older row holding it (a reinstall) lets go of it.
     if (device.push) out.push({ sql: "UPDATE devices SET push_token = NULL WHERE push_token = ? AND id <> ?", params: [device.push, device.id] });
@@ -239,7 +273,7 @@ export function createApp(deps) {
     const body = await readJson(c, 16_384);
     const code = body?.code;
     const device = parseDevice(body?.device);
-    if (typeof code !== "string" || !code || code.length > 2048 || !device) return c.json({ error: "bad_request" }, 400);
+    if (typeof code !== "string" || !code || code.length > 2048 || !device || !pushTopicAllowed(device)) return c.json({ error: "bad_request" }, 400);
     // A session that no longer exists (the account was deleted elsewhere) counts as signed out.
     const current = await sessionAccount(c);
 
@@ -255,7 +289,7 @@ export function createApp(deps) {
     const body = await readJson(c, 16_384);
     const idToken = body?.idToken;
     const device = parseDevice(body?.device);
-    if (typeof idToken !== "string" || !idToken || idToken.length > 8192 || !device) return c.json({ error: "bad_request" }, 400);
+    if (typeof idToken !== "string" || !idToken || idToken.length > 8192 || !device || !pushTopicAllowed(device)) return c.json({ error: "bad_request" }, 400);
     const current = await sessionAccount(c);
     let who;
     try { who = await deps.google.verifyIdToken(idToken); }
@@ -267,10 +301,21 @@ export function createApp(deps) {
     return signInAs(c, { ...who, refreshToken: null, scopes: "" }, device, current);
   });
 
+  /**
+   * Another Google account of the same Banana account that may still sign in. While there is one,
+   * a disconnected Google account has no authority over the account: it cannot sign in, keep a
+   * session or delete. Alone, it keeps all three, so the account is never stranded.
+   */
+  const otherIdentity = async (link) => Boolean(await db.first(
+    "SELECT 1 AS x FROM google_links WHERE account_id = ? AND sub <> ? AND status <> 'unlinked' LIMIT 1", link.account_id, link.sub));
+  const disconnected = async (link) => link?.status === "unlinked" && await otherIdentity(link);
+
   /** Signs in as, or links, the Google account `google` ({sub, email, refreshToken|null, scopes}). */
   async function signInAs(c, google, device, current) {
     const existing = await db.first("SELECT sub, account_id, refresh_token, scopes, status FROM google_links WHERE sub = ?", google.sub);
     if (current && existing && existing.account_id !== current) return c.json({ error: "other_account" }, 409);
+    // A disconnected Google account comes back only through a device already signed in.
+    if (!current && await disconnected(existing)) return c.json({ error: "disconnected" }, 403);
 
     const t = now();
     const account = current ?? existing?.account_id ?? newId(random);
@@ -307,17 +352,30 @@ export function createApp(deps) {
     }
     // Connected again: calendars waiting for a retry are tried at the next job run.
     if (existing) statements.push({ sql: "UPDATE watches SET retry_at = NULL, failures = 0 WHERE google_sub = ?", params: [google.sub] });
-    // The device: a row another account holds moves to this one (the same device, signed in as
-    // someone else), on the record; a new row only while the account has room.
-    const owner = await deviceOwner(device.id);
+    // The device: a row another account holds moves to this one (the same install, signed in as
+    // someone else) only with the install's secret, on the record; a new row only while the
+    // account has room.
+    const row = await db.first("SELECT account_id, secret_hash FROM devices WHERE id = ?", device.id);
+    const owner = row?.account_id ?? null;
+    const secretHash = await deviceSecretHash(device);
+    if (owner && owner !== account && row.secret_hash && !(secretHash && constantTimeEqual(row.secret_hash, secretHash))) {
+      return c.json({ error: "device_taken" }, 409);
+    }
     if (owner && owner !== account) statements.push(audit(deps, account, "device_moved"));
     if (!owner && !(await roomForDevice(account))) return c.json({ error: "too_many_devices" }, 409);
-    statements.push(...deviceStatements(device, account));
+    statements.push(...deviceStatements(device, account, secretHash));
     let session;
     if (!current) {
       session = newSessionToken(random);
-      statements.push({ sql: "INSERT INTO sessions (token_hash, account_id, created_at, last_used_at) VALUES (?, ?, ?, ?)",
-        params: [await sha256Hex(session), account, t, t] });
+      statements.push({ sql: "INSERT INTO sessions (token_hash, account_id, created_at, last_used_at, google_sub, proven_at) VALUES (?, ?, ?, ?, ?, ?)",
+        params: [await sha256Hex(session), account, t, t, google.sub, t] });
+    } else if (c.get("sessionHash")) {
+      // Signed in already: the Google account that stands behind the session, proven again,
+      // renews its proof; a session from before identities were recorded takes this one. Linking
+      // another Google account leaves the session as it is.
+      statements.push({ sql: `UPDATE sessions SET proven_at = CASE WHEN google_sub IS NULL OR google_sub = ? THEN ? ELSE proven_at END,
+                                google_sub = COALESCE(google_sub, ?) WHERE token_hash = ? AND kind = 'person'`,
+        params: [google.sub, t, google.sub, c.get("sessionHash")] });
     }
     statements.push(audit(deps, account, "link"));
     await db.batch(statements);
@@ -325,6 +383,17 @@ export function createApp(deps) {
   }
 
   app.get("/v1/account", signedIn, async (c) => c.json(await summary(c.get("account"))));
+
+  app.get("/v1/desktop/:link/:role", signedIn, async (c) => {
+    const link = c.req.param("link"), role = c.req.param("role"), nonce = c.req.query("nonce");
+    if (!deps.desktopRelay) return c.body(null, 404);
+    if (!desktopLinkName.test(link) || !["host", "client"].includes(role)
+        || (role === "host" && !desktopNonce.test(nonce ?? ""))) return c.body(null, 400);
+    if (c.req.header("upgrade")?.toLowerCase() !== "websocket") return c.body(null, 426);
+    const account = c.get("account");
+    if (!(await deps.limit("api", "desktop:" + account))) return c.body(null, 429);
+    return deps.desktopRelay(account, link, role, nonce, c.req.raw);
+  });
 
   app.put("/v1/mail/attachment/:operation/:hash", signedIn, async (c) => {
     c.header("Cache-Control","no-store");
@@ -480,17 +549,22 @@ export function createApp(deps) {
     if (typeof code !== "string" || !code || code.length > 2048) return c.json({ error: "google_sign_in_required" }, 401);
     const { google, answer } = await exchange(c, code);
     if (answer) return answer;
-    const owner = await db.first("SELECT account_id FROM google_links WHERE sub = ?", google.sub);
+    const owner = await db.first("SELECT sub, account_id, status FROM google_links WHERE sub = ?", google.sub);
     if (google.refreshToken) defer(deps.google.revoke(google.refreshToken).catch(() => {}));
     if (!owner) return c.json({ error: "no_account" }, 404);
+    if (await disconnected(owner)) return c.json({ error: "disconnected" }, 403);
     const current = await sessionAccount(c);
     if (current && current !== owner.account_id) return c.json({ error: "other_account" }, 409);
     const account = owner.account_id;
     const links = await db.all("SELECT * FROM google_links WHERE account_id = ?", account);
     for (const link of links) await stopMailWatch(deps, link.sub);   // while the grants still work
     for (const link of links) await forget(deps, vault, link);
-    // The data first (the space empties at once; its blobs follow to the trash), then the rows.
-    const spaces = await wipeSpaces(deps, account);
+    // Authority first (sessions, memberships), then the data (the space empties at once and takes
+    // no more writes; its blobs follow to the trash), then the rows.
+    const spaces = await wipeSpaces(deps, account, { first: [
+      { sql: "INSERT OR IGNORE INTO deleted_sessions (token_hash, deleted_at) SELECT token_hash, ? FROM sessions WHERE account_id = ? AND kind = 'person'", params: [now(), account] },
+      { sql: "DELETE FROM sessions WHERE account_id = ?", params: [account] },
+    ] });
     const mailboxes=await db.all('SELECT google_sub FROM mail_mailboxes WHERE account_id=?',account);
     for(const sub of new Set([...links.map(l=>l.sub),...mailboxes.map(m=>m.google_sub)])){await stopMailWatch(deps,sub);await wipeMailbox(deps,sub);}
     const uploads=await db.all('SELECT DISTINCT operation_id FROM mail_uploads WHERE account_id=?',account);
@@ -517,13 +591,13 @@ export function createApp(deps) {
   app.put("/v1/devices/:id", signedIn, async (c) => {
     const body = await readJson(c, 4096);
     const device = parseDevice(typeof body === "object" ? body : null, c.req.param("id"));
-    if (!device) return c.json({ error: "bad_request" }, 400);
+    if (!device || !pushTopicAllowed(device)) return c.json({ error: "bad_request" }, 400);
     // A session names its own devices only: another account's row is not taken over here (a device
     // changes hands only through a sign-in, which proves a Google identity and is audited).
     const owner = await deviceOwner(device.id);
     if (owner && owner !== c.get("account")) return c.json({ error: "other_account" }, 409);
     if (!owner && !(await roomForDevice(c.get("account")))) return c.json({ error: "too_many_devices" }, 409);
-    await db.batch(deviceStatements(device, c.get("account")));
+    await db.batch(deviceStatements(device, c.get("account"), await deviceSecretHash(device)));
     return c.body(null, 204);
   });
 
@@ -558,9 +632,14 @@ export function createApp(deps) {
     await forget(deps, vault, link);
     await wipeMailbox(deps, link.sub);
     await forgetContacts(deps, account, link.sub);
-    // The sub and email stay (status 'unlinked'), so this Google account can sign in to the same
-    // account again, and delete it.
+    // The sub and email stay (status 'unlinked'). Alone, this Google account can still sign in to
+    // the account and delete it. With another Google account left, it can do neither, and the
+    // sessions it proved end (as do sessions from before identities were recorded).
+    const others = await otherIdentity(link);
     await db.batch([
+      ...(others ? [{ sql: "UPDATE sessions SET ended_at = ? WHERE account_id = ? AND kind = 'person' AND ended_at IS NULL AND (google_sub = ? OR google_sub IS NULL)", params: [now(), account, link.sub] }] : []),
+      // Mail consent goes with the Google account; only the Mail consent action brings it back.
+      { sql: "UPDATE mail_grants SET refresh_token = NULL, status = 'unlinked', updated_at = ? WHERE google_sub = ?", params: [now(), link.sub] },
       { sql: "DELETE FROM watches WHERE google_sub = ?", params: [link.sub] },
       ...forgetUnwatched(link.sub),
       { sql: "UPDATE google_links SET status = 'unlinked', refresh_token = NULL, updated_at = ? WHERE sub = ?", params: [now(), link.sub] },
@@ -721,6 +800,7 @@ export function createApp(deps) {
     // The table holds daily totals, a small set of rows a day; a flood of made-up versions stops here.
     const rows = await db.first("SELECT COUNT(*) AS n FROM counts WHERE day = ?", day);
     if (Number(rows.n) + add.length > MOST_COUNT_ROWS_PER_DAY) return c.body(null, 429);
+    if (!(await takeShare(deps, "usage", clientIp(c), add.length, utf8Bytes(JSON.stringify(add))))) return c.body(null, 429);
     const statements = [];
     for (const r of add) {
       statements.push({
@@ -751,10 +831,12 @@ export function createApp(deps) {
     const add = body === BAD ? null : reportRows(body);
     if (add === null) return c.body(null, 400);
     const t = now();
-    // A flood stops at a number of reports and at a number of bytes a day.
-    const today = await db.first("SELECT COUNT(*) AS n, COALESCE(SUM(LENGTH(payload)), 0) AS bytes FROM diagnostics WHERE received_at >= ?", t - DAY);
-    const adding = add.reduce((sum, r) => sum + r.payload.length, 0);
+    // A flood stops at a number of reports and at a number of bytes a day (UTF-8 bytes, as the
+    // database holds them), and one address gets a share of that, not all of it.
+    const today = await db.first("SELECT COUNT(*) AS n, COALESCE(SUM(LENGTH(CAST(payload AS BLOB))), 0) AS bytes FROM diagnostics WHERE received_at >= ?", t - DAY);
+    const adding = add.reduce((sum, r) => sum + utf8Bytes(r.payload), 0);
     if (Number(today?.n) + add.length > MOST_PER_DAY || Number(today?.bytes) + adding > MOST_DIAGNOSTIC_BYTES) return c.body(null, 429);
+    if (add.length && !(await takeShare(deps, "diagnostics", clientIp(c), add.length, adding))) return c.body(null, 429);
     if (add.length) {
       await db.batch(add.map((r) => ({
         sql: `INSERT INTO diagnostics (id, received_at, kind, signature, platform, channel, version, os, payload)

@@ -15,14 +15,14 @@ import Foundation
     /// When the cache last changed here: the snapshot's own time (§3 seeding rule 3).
     var snapshotDate: Date? { get }
     /// The phone's snapshot, arrived (`adoptCloudSnapshot`).
-    func adoptSnapshot(_ packed: Data)
+    func adoptSnapshot(file: URL) async throws
 }
 
 /// How often the Health snapshot goes up (§3 "The Health snapshot"): at most once an hour, and at
-/// once when a workout is removed or hidden. Today every `persist()` publishes, and
-/// each publish is a new blob of a megabyte or more, kept for good. Pure.
+/// once when a workout is removed or hidden. Each publish is a new blob of a megabyte or more;
+/// the space keeps the latest (`keep: latest`) and moves the one before to its trash. Pure.
 struct SnapshotPace: Codable, Equatable, Sendable {
-    /// At most hourly: each publish is a new blob of 1 MB or more, kept for good (§3).
+    /// At most hourly: each publish is a new blob of 1 MB or more (§3).
     static let interval: TimeInterval = 60 * 60
 
     var lastPublished: Date?
@@ -152,10 +152,10 @@ final class HealthSnapshotAdapter: RecordAdapter {
         return files.file(sha: sha)
     }
 
-    func storeBlob(_ type: String, id: String, field: String, file: URL) {
+    func installBlob(_ type: String, id: String, field: String, file: URL) async throws {
         // The phone reads Health itself: another copy of its own snapshot is nothing to it.
-        guard field == "v", !isHub, let data = try? Data(contentsOf: file) else { return }
-        port.adoptSnapshot(data)
+        guard field == "v", !isHub else { return }
+        try await port.adoptSnapshot(file: file)
     }
 }
 

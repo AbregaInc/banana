@@ -46,8 +46,9 @@ py="$work/python/bin/python3"
 git clone --quiet --filter=blob:none --no-checkout "$LOCALS_REPO" "$work/locals" >&2
 git -C "$work/locals" checkout --quiet --detach "$LOCALS_COMMIT"
 [ "$(git -C "$work/locals" rev-parse HEAD)" = "$LOCALS_COMMIT" ] || { echo "error: Locals is not at $LOCALS_COMMIT" >&2; exit 1; }
-"$uv" pip install --quiet --python "$py" --no-cache -r "$here/requirements.lock.txt" >&2
-"$uv" pip install --quiet --python "$py" --no-cache --no-deps "$work/locals" >&2
+# Every file checked against its pinned SHA-256; Locals built with the pinned setuptools only.
+"$uv" pip install --quiet --python "$py" --no-cache --require-hashes -r "$here/requirements.lock.txt" >&2
+"$uv" pip install --quiet --python "$py" --no-cache --no-deps --no-build-isolation "$work/locals" >&2
 mkdir -p "$work/python/share/licenses"
 cp "$work/locals/LICENSE" "$work/python/share/licenses/Locals-LICENSE.txt"
 rm -rf "$work/locals"

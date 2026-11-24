@@ -32,21 +32,32 @@ final class UntimedRoutineMomentsUITest: XCTestCase {
 
     func testTheDayShowsThemOnlyWhileTheyAreDue() {
         let app = XCUIApplication()
-        app.launchArguments = ["--ui-preview", "--tab", "plan", "--modules", "everything", "--plan", "-planMode", "day",
+        app.launchArguments = ["--ui-preview", "--tab", "plan", "--modules", "everything", "--plan",
                                "--untimed-reminders", "--disable-icloud", "--no-space-sync", "--ui-audit", "-onboardingCompleted", "YES"]
         app.withoutSpaceSync()
         app.launch()
-        XCTAssertTrue(app.segmentedControls.buttons["Day"].waitForExistence(timeout: 10), app.debugDescription)
+        let picker = app.descendants(matching: .any)["plan.mode"].firstMatch
+        let day = app.descendants(matching: .any)["plan.surface.day"].firstMatch
+        XCTAssertTrue(picker.waitForExistence(timeout: 10), app.debugDescription)
+        if !day.exists {
+            picker.tap()
+            app.buttons["Day"].firstMatch.tap()
+        }
+        XCTAssertTrue(day.waitForExistence(timeout: 8))
         let workout = app.buttons["Workout, no set time"]
         let sleep = app.buttons["Sleep, no set time"]
         XCTAssertEqual(workout.waitForExistence(timeout: 4), Self.workoutIsDue, "Workout, from 7:00 AM")
         XCTAssertEqual(sleep.exists, Self.sleepIsDue, "Sleep, not before 10:30 PM")
-        // Routines and reminders occupy one wrapping container, in both Day and Week.
-        let shared = app.otherElements["mobile.plan.todo"]
+        // The phone puts routines and reminders in the same scrollable row in Day and Week.
+        let shared = app.descendants(matching: .any)["mobile.plan.todo"].firstMatch
         XCTAssertTrue(shared.exists, app.debugDescription)
         XCTAssertTrue(shared.buttons["mobile.reminder.preview-untimed-0"].exists)
         if Self.workoutIsDue { XCTAssertTrue(shared.buttons["Workout, no set time"].exists) }
-        app.segmentedControls.buttons["Week"].tap()
+        picker.tap()
+        let week = app.buttons["Week"].firstMatch
+        XCTAssertTrue(week.waitForExistence(timeout: 5))
+        week.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["plan.surface.week"].firstMatch.waitForExistence(timeout: 8))
         XCTAssertTrue(shared.waitForExistence(timeout: 5), app.debugDescription)
         XCTAssertTrue(shared.buttons["mobile.reminder.preview-untimed-0"].exists)
         if Self.workoutIsDue { XCTAssertTrue(shared.buttons["Workout, no set time"].exists) }

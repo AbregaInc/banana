@@ -65,6 +65,40 @@ final class MailConversationReaderTests: XCTestCase {
         XCTAssertEqual(value?.messages.count, 2)
     }
 
+    func testBrowserFreeUnsubscribeRequiresOneMatchedSignatureCoveringBothHeaders() throws {
+        let url = try XCTUnwrap(URL(string: "https://lists.plan.example/unsubscribe"))
+        let auth = ("Authentication-Results", "mx.google.com; dkim=pass header.i=@plan.example header.s=list header.b=abcdefgh")
+        let signature = ("DKIM-Signature", "v=1; d=plan.example; s=list; h=from:list-unsubscribe:list-unsubscribe-post; b=abcdefghijklmnop")
+        let post = ("List-Unsubscribe-Post", "List-Unsubscribe=One-Click")
+        let headers = [("From", "Noor <noor@plan.example>"), ("List-Id", "Updates <list.plan.example>"),
+                       ("List-Unsubscribe", "<https://lists.plan.example/unsubscribe>")]
+        XCTAssertEqual(MailUnsubscribeRules.decide(headers: MessageHeaders(headers + [auth, signature, post])), .oneClick(url))
+        let unsignedPost = ("DKIM-Signature", "d=plan.example; s=list; h=from:list-unsubscribe; b=abcdefghijklmnop")
+        XCTAssertEqual(MailUnsubscribeRules.decide(headers: MessageHeaders(headers + [auth, unsignedPost, post])), .openPage(url))
+        XCTAssertEqual(MailUnsubscribeRules.decide(headers: MessageHeaders(headers + [auth, signature, signature, post])), .openPage(url))
+        XCTAssertEqual(MailUnsubscribeRules.decide(headers: MessageHeaders(headers + [auth, signature, post, post])), .openPage(url))
+        let otherHost = try XCTUnwrap(URL(string: "https://notplan.example/unsubscribe"))
+        XCTAssertEqual(MailUnsubscribeRules.decide(headers: MessageHeaders(Array(headers.dropLast()) +
+            [("List-Unsubscribe", "<https://notplan.example/unsubscribe>"), auth, signature, post])), .openPage(otherHost))
+    }
+
+    func testListUnsubscribeUsesTheNewestReceivedMessageAndHTTPS() async throws {
+        let stores = try await stores()
+        var wire = try message()
+        let url = try XCTUnwrap(URL(string: "https://plan.example/unsubscribe"))
+        wire.payload?.headers?.append(GmailHeader(name: "List-Unsubscribe",
+            value: "<mailto:leave@plan.example>, <www.plan.example>, <" + url.absoluteString + ">"))
+        try await importMessage(wire, stores: stores)
+        let blobs = MailBlobStore(stores: stores)
+        try await blobs.put(wire, account: "a@example.com", extraction: MIMEStructure.extract(try XCTUnwrap(wire.payload)),
+                            ftsRowID: 1, at: 1000)
+        let id = MailConversationID(account: "a@example.com", thread: "t1")
+        let conversation = try await MailConversationReader(stores: stores).conversation(id)
+        XCTAssertEqual(conversation?.unsubscribe, .openPage(url))
+        let insecure = MessageHeaders([("List-Unsubscribe", "<http://plan.example/unsubscribe>")])
+        XCTAssertNil(MailUnsubscribeRules.decide(headers: insecure))
+    }
+
     func testMetadataAndPreparedStateDoNotReadRawBodyColumns() async throws {
         let stores = try await stores(), wire = try message()
         try await importMessage(wire, stores: stores)

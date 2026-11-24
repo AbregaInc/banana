@@ -730,6 +730,20 @@ test("sender blocking is shared across devices and enforces future incoming mail
   assert.equal((await policyRequest(t, t.phone, sender, { blocked: true, revision: 0, operation: policyOperation(1) })).status, 409);
 });
 
+test("an exact domain can be blocked and unblocked through the shared Mail endpoint", async () => {
+  const t = await mailbox(), sender = "shop.example", scope = "domain";
+  const block = await policyRequest(t, t.phone, sender, { scope, blocked: true, revision: 0, operation: policyOperation(1) });
+  assert.equal(block.status, 200, block.text);
+  assert.equal((await policyRequest(t, t.mac, sender, { scope })).json.blocked, true);
+  assert.equal((await policyRequest(t, t.mac, "person@shop.example")).json.blocked, false);
+  t.gmail.add("same-domain"); t.gmail.messages.get("same-domain").from = "person@shop.example";
+  t.gmail.messages.get("same-domain").internalDate = t.s.now() + 1000;
+  await t.feed(t.phone);
+  await t.drain(async () => t.gmail.messages.get("same-domain").labels.has("SPAM") && await t.settled());
+  assert.equal((await policyRequest(t, t.mac, sender, { scope, blocked: false, revision: 1, operation: policyOperation(2) })).status, 200);
+  assert.equal((await policyRequest(t, t.phone, sender, { scope })).json.blocked, false);
+});
+
 test("a lost Gmail spam mutation response reconciles before retry without a duplicate write", async () => {
   const t = await mailbox(), sender = "offers@shop.example";
   await policyRequest(t, t.phone, sender, { blocked: true, revision: 0, operation: policyOperation(1) });
@@ -803,4 +817,40 @@ test("Not spam overrides a delivered message while its sender stays blocked for 
   assert.ok(feed.get("first").labels.includes("INBOX"));
   assert.ok(feed.get("next").labels.includes("SPAM"));
   assert.equal(t.gmail.writes.filter(w => w.id === "first" && w.add?.includes("SPAM")).length, 1);
+});
+
+test("a content pull's budget counts what is stored before reading it: one large message, the rest later", async () => {
+  const t = await mailbox({ count: 3, labels: () => ["INBOX"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const blobs = t.s.deps.blobs, get = blobs.get.bind(blobs);
+  let opened = 0;
+  // Each stored object as if it held 5 MiB: two would pass the 8 MiB budget. Its bytes are counted
+  // only when something reads them.
+  blobs.get = async (key) => {
+    const o = await get(key);
+    if (!o || !key.startsWith("mail/")) return o;
+    const body = o.body.pipeThrough(new TransformStream({ start() { opened++; } }));
+    return { body, size: 5 * 1024 * 1024 };
+  };
+  const pull = await t.s.call("POST", "/v1/mail/content", { session: t.mac.session, body: { email: EMAIL, ids: ["m1", "m2", "m3"] } });
+  blobs.get = get;
+  assert.equal(pull.status, 200);
+  assert.deepEqual(pull.json.messages.map((m) => (m.message ? "message" : m.later ? "later" : "other")), ["message", "later", "later"]);
+  assert.ok(opened <= 3);
+  assert.equal(pull.json.messages.filter((m) => m.message).length, 1, "only one message's bytes were opened into the answer");
+});
+
+test("a content fetch that keeps failing goes behind the rest, and after three tries it is dropped", async () => {
+  const { DatabaseSync } = await import("node:sqlite");
+  const { sqlitePort } = await import("../src/adapters/spaces-sqlite.js");
+  const port = sqlitePort(new DatabaseSync(":memory:"));
+  box.migrate(port);
+  for (const [id, at] of [["bad", 1], ["m2", 2], ["m3", 3]]) port.exec("INSERT INTO fetch (id, prio, at) VALUES (?, 1, ?)", id, at);
+  assert.deepEqual(box.fetchNext(port, 1), ["bad"]);
+  box.fetchFailed(port, "bad", 10);
+  assert.deepEqual(box.fetchNext(port, 3), ["m2", "m3", "bad"], "the others come first now");
+  box.fetchFailed(port, "bad", 11);
+  box.fetchFailed(port, "bad", 12);
+  assert.deepEqual(box.fetchNext(port, 3), ["m2", "m3"]);
 });

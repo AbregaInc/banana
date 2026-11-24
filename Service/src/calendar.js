@@ -37,8 +37,9 @@ export function forgetUnwatched(sub) {
 /**
  * Google said invalid_grant: the person removed Banana's access, or the Google account changed or
  * went. The link forgets its refresh token (it no longer works) and its watches, and stays only as
- * the sub and email that let that Google account sign in again. When it was the account's last
- * working link, the account's sessions end: a session lasts exactly as long as Google says yes.
+ * the sub and email that let that Google account sign in again. The sessions it proved end; when
+ * it was the account's last working link, all of the account's sessions end: a session lasts
+ * exactly as long as Google says yes.
  */
 export async function markRefused(deps, link) {
   const changed = await deps.db.run(
@@ -56,6 +57,10 @@ export async function markRefused(deps, link) {
   if (!Number(working?.n)) {
     statements.push({ sql: "DELETE FROM sessions WHERE account_id = ?", params: [link.account_id] },
                     audit(deps, link.account_id, "signed_out"));
+  } else {
+    // Other links still work: only the sessions this Google account proved end, and their apps
+    // prove themselves again with another.
+    statements.push({ sql: "UPDATE sessions SET ended_at = ? WHERE account_id = ? AND kind = 'person' AND google_sub = ? AND ended_at IS NULL", params: [deps.now(), link.account_id, link.sub] });
   }
   await deps.db.batch(statements);
 }

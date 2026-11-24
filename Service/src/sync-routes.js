@@ -53,10 +53,13 @@ export async function syncSummary(deps, account) {
  * Account deletion (§9): every space the account alone belongs to is wiped (its blobs go to the
  * trash afterwards, a batch at a time). Returns the D1 statements for the deletion's batch.
  */
-export async function wipeSpaces(deps, account) {
+export async function wipeSpaces(deps, account, { first = [] } = {}) {
   const alone = await deps.db.all(
     `SELECT m.space_id FROM space_members m WHERE m.account_id = ?
        AND NOT EXISTS (SELECT 1 FROM space_members o WHERE o.space_id = m.space_id AND o.account_id <> ?)`, account, account);
+  // Authority first (`first`: the account's sessions), and its memberships: nothing signed in can
+  // reach the spaces while they are wiped.
+  await deps.db.batch([...first, { sql: "DELETE FROM space_members WHERE account_id = ?", params: [account] }]);
   for (const { space_id } of alone) await deps.spaces.get(space_id).wipe();
   return [
     { sql: "DELETE FROM space_members WHERE account_id = ?", params: [account] },
@@ -159,7 +162,14 @@ export function syncRoutes(app, deps, { signedIn, readJson, TOO_LARGE, BAD, push
     const space = await spaceFor(account, body.space);
     if (!space) return notMember(c);
     const t = now();
-    const { answer, accepted } = await deps.spaces.get(space).sync({ account, device: device.id, platform: device.platform, since, changes, now: t });
+    let result;
+    try { result = await deps.spaces.get(space).sync({ account, device: device.id, platform: device.platform, since, changes, now: t }); }
+    catch (error) {
+      // The account was deleted while this request was on its way: nothing is written.
+      if (error?.name === "SpaceClosed" || /space closed/.test(String(error?.message))) return c.json({ error: "signed_out" }, 401);
+      throw error;
+    }
+    const { answer, accepted } = result;
     await db.run("UPDATE devices SET last_sync_at = ? WHERE id = ?", t, device.id);
     if (accepted.length) {
       // The other devices fetch: at most one push every 3 s per account, never to the sender. All of
@@ -205,7 +215,7 @@ export function syncRoutes(app, deps, { signedIn, readJson, TOO_LARGE, BAD, push
     const indexed = await stub.recordBlob(sha, size, now(), type);
     if (!indexed.ok) {
       if (fresh) await deps.blobs.delete(key);
-      return c.json({ error: "consent" }, 403);
+      return indexed.reason === "closed" ? c.json({ error: "signed_out" }, 401) : c.json({ error: "consent" }, 403);
     }
     // These bytes were on their way to the trash: if the file left meanwhile, it comes back.
     if (indexed.restore && !(await deps.blobs.head(key))) await deps.blobs.move(`trash/${space}/${sha}`, key);

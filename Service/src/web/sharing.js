@@ -1,3 +1,4 @@
+import { readText, TOO_LARGE } from "../body.js";
 import { sharingFeeds } from "./sharing-feeds.js";
 import { contentVersion } from "./status.js";
 import { CATALOG } from '../catalog.js';
@@ -8,6 +9,9 @@ import { calendarSettings } from './calendar.js';
 import { GoogleRefused } from '../google.js';
 import { lzfseDecompress } from '../../public/app/assets/vendor/lzfse.js';
 const MOST_SNAPSHOT_BYTES = 8 * 1024 * 1024;   // a packed Health snapshot the Worker decodes
+// What it may decode to. Its buffer starts at four times the packed size and grows only as far as
+// the bytes really need, so a small snapshot never takes this much.
+const MOST_SNAPSHOT_DECODED = 24 * 1024 * 1024;
 import { allowedTypes, allowedViews, feedAccess, calendarKey, normalizePolicy, policyExpired, projectHealthSnapshot, sharedCalendar } from './sharing-policy.js';
 
 const DAY = 86_400_000, HOUR = 3_600_000;
@@ -33,8 +37,8 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
   app.use('/app/api/shares/*', sameOrigin);
   async function body(c) {
     if (c.req.header('Origin') !== webOrigin) return null;
-    const raw = await c.req.text();
-    if (raw.length > 65_536) return null;
+    const raw = await readText(c, 65_536);
+    if (raw === TOO_LARGE) return null;
     return parse(raw);
   }
   async function checkedPolicy(c, value, retained = null) {
@@ -216,8 +220,9 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
   async function recordsResponse(c, parameters) {
     const { row, policy } = c.get('share'), type = parameters?.type ?? c.req.query('type'), after = parameters?.after ?? c.req.query('after') ?? '';
     if (!allowedTypes(policy).has(type)) return error(c, 'not_shared', 403);
-    if (after.length > 200) return error(c, 'bad_request');
-    const result = await spaceFor(row.owner_id).browse(type, after);
+    const limit = Number(c.req.query('limit') ?? 100), ordered = c.req.query('order') === 'display';
+    if (after.length > 200 || !Number.isInteger(limit) || limit < 1 || limit > 100) return error(c, 'bad_request');
+    const result = await spaceFor(row.owner_id).browse(type, after, limit, ordered);
     if (type === 'health.snapshot') result.records = result.records.map(record => ({ ...record,
       fields: { v: record.fields.v?.$blob ? { $blob: 'shared-health-snapshot', ext: 'json' }
         : projectHealthSnapshot(record.fields.v ?? record.fields, policy) } }));
@@ -283,7 +288,7 @@ export function sharingRoutes(app, deps, { owner, signedIn, calendarChoices, vau
       if (Number(found.size) > MOST_SNAPSHOT_BYTES) return error(c, 'not_found', 404);
       try {
         let bytes = new Uint8Array(await new Response(found.body).arrayBuffer());
-        if (new TextDecoder().decode(bytes.subarray(0, 6)) === 'LZFSE1') bytes = lzfseDecompress(bytes.subarray(6), MOST_SNAPSHOT_BYTES * 8);
+        if (new TextDecoder().decode(bytes.subarray(0, 6)) === 'LZFSE1') bytes = lzfseDecompress(bytes.subarray(6), bytes.length * 4, MOST_SNAPSHOT_DECODED);
         return c.json(projectHealthSnapshot(JSON.parse(new TextDecoder().decode(bytes)), policy));
       } catch { return error(c, 'not_found', 404); }
     }

@@ -351,9 +351,11 @@ test('recurring invitations ring once for the earliest occurrence, say series, a
   const invite = (i) => timed(`series_${i}`, s.now() + i * DAY, { recurringEventId: 'series', iCalUID: 'series@example.com',
     organizer: { email: 'coach@example.com' }, creator: { email: 'coach@example.com' },
     attendees: [{ email: 'ann@example.com', self: true, responseStatus: 'needsAction' }] });
-  s.google.changed.set('ann@example.com', [invite(4), invite(2), invite(3)]);
+  // A Google delta can return historical instances alongside the upcoming ones.
+  s.google.changed.set('ann@example.com', [invite(4), invite(-400), invite(2), invite(3)]);
   await notify(s, channel, token); await s.settle();
   assert.equal(visible(s).length, 2, 'one notification on each of the two devices');
+  assert.equal(await s.count("event_state", "event_id = 'series_-400'"), 0);
   for (const push of visible(s)) {
     assert.match(push.payload.aps.alert.body, /Recurring series/);
     assert.equal(push.payload.b.event, 'series', 'Accept and Decline address the series master');
@@ -451,4 +453,41 @@ test("one calendar's flood of instances neither sets the size of a run nor holds
   s.google.listEvents = listEvents;
   assert.equal(Number((await s.db.first("SELECT dirty_at FROM watches WHERE calendar_id = 'A'")).dirty_at), s.now(), "A is marked again, at the back");
   assert.equal((await s.db.first("SELECT dirty_at FROM watches WHERE calendar_id = 'B'")).dirty_at, null);
+});
+
+test("a minute's dispatch takes a share per account: one account's burst doesn't hold another's alert", async () => {
+  const s = setup();
+  const { ALERTS_PER_ACCOUNT } = await import("../src/events.js");
+  await ready(s);
+  const ann = (await s.db.first("SELECT account_id FROM google_links WHERE sub = 'sub-1'")).account_id;
+  await s.db.run("INSERT INTO accounts (id, created_at) VALUES ('acct-flood', 0)");
+  await s.db.run("INSERT INTO google_links (sub, account_id, email, status, scopes, created_at, updated_at) VALUES ('sub-flood', 'acct-flood', 'flood@example.com', 'ok', '', 0, 0)");
+  const t = s.now();
+  for (let i = 0; i < 300; i++) {
+    await s.db.run(`INSERT INTO alerts (id, account_id, google_sub, calendar_id, event_id, kind, due_at, title, body, status, created_at)
+                    VALUES (?, 'acct-flood', 'sub-flood', 'c', ?, 'lead', ?, 't', 'b', 'pending', ?)`, `flood|${i}`, `e${i}`, t - 1000 + i, t);
+  }
+  await s.db.run(`INSERT INTO alerts (id, account_id, google_sub, calendar_id, event_id, kind, due_at, title, body, status, created_at)
+                  VALUES ('ann|late', ?, 'sub-1', 'ann@example.com', 'e1', 'lead', ?, 't', 'b', 'pending', ?)`, ann, t + 500, t);
+  const r = await dispatchAlerts(s.deps, async () => {});
+  assert.equal(r.due, ALERTS_PER_ACCOUNT + 1);
+  assert.equal((await s.db.first("SELECT status FROM alerts WHERE id = 'ann|late'")).status, "sent");
+  assert.equal(await s.count("alerts", "account_id = 'acct-flood' AND status = 'pending'"), 300 - ALERTS_PER_ACCOUNT);
+});
+
+test("a calendar whose plan read keeps failing goes to the back, so other calendars are still planned", async () => {
+  const { planAhead } = await import("../src/events.js");
+  const s = setup();
+  await ready(s);
+  // Five other accounts' calendars that always fail, older than Ann's.
+  for (let i = 0; i < 5; i++) {
+    await s.db.run("INSERT INTO accounts (id, created_at) VALUES (?, 0)", `acct-${i}`);
+    await s.db.run("INSERT INTO google_links (sub, account_id, email, refresh_token, status, scopes, created_at, updated_at) VALUES (?, ?, ?, 'sealed-junk', 'ok', '', 0, 0)", `sub-x${i}`, `acct-${i}`, `x${i}@example.com`);
+    await s.db.run("INSERT INTO calendar_sync (google_sub, calendar_id, read_at, planned_at) VALUES (?, 'c', 0, 0)", `sub-x${i}`);
+    await s.db.run("INSERT INTO watches (channel_id, account_id, google_sub, calendar_id, resource_id, secret, expires_at, status, created_at) VALUES (?, ?, ?, 'c', 'r', 's', ?, 'live', 0)",
+      `ch-x${i}`, `acct-${i}`, `sub-x${i}`, s.now() + DAY);
+  }
+  await s.db.run("INSERT INTO calendar_sync (google_sub, calendar_id, read_at, planned_at) VALUES ('sub-1', 'ann@example.com', 0, 1) ON CONFLICT (google_sub, calendar_id) DO UPDATE SET planned_at = 1");
+  await planAhead(s.deps);   // the five fail
+  assert.equal(await planAhead(s.deps), 1, "Ann's calendar is planned on the next run");
 });

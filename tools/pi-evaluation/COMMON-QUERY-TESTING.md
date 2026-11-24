@@ -55,3 +55,17 @@ Calendar day arguments require user evidence. The host recognizes the native API
 Use `benchmark.py --capability-routing` to run the production JavaScript routing function, not merely the original one-shot model prompt. The runner records both inference stages, source hashes and total latency. Its JSON serialization preserves the production transport's sorted object keys. This changes the workflow being measured; do not compare raw generation latency as if it were the same single call. The routing policy is still a model classifier, so refusal or clarification is not proof of correct understanding; supported cases and semantic review remain necessary.
 
 `node --test tools/pi-host-proof/runtime/capability-routing.test.mjs` checks capability isolation, malformed choices, cancellation, grounded dates, clarification context, and conversation/read-only tool boundaries. The full-app workspace verifier additionally checks unsupported requests produce no tool effects or stored records. The policy currently applies to the local Mac provider; the Apple Foundation Models provider is unchanged.
+
+
+## Reviewed Mail and Calendar feedback
+
+The **ai-case** command in `tools/reports/reports.py` extracts a submitted answer for local review.
+After identifying the failure and the observable behavior you expect, write a private JSON list
+of reviewed cases. Each entry contains `id`, `domain` (`mail` or `calendar`), `template` (an ID
+from `cases.json`), `approved`, `reason`, `messages` (roles and text), and `expected`. Use
+`expected.tool` and `expected.arguments` for a tool call, or `expected.tool: null`,
+`expected.textIncludes`, and optional `expected.textExcludes` for a reply.
+
+Run `python3 tools/reports/reports.py ai-fixture NAME REVIEW.json` to compile approved entries
+into `private/ai-evals/reviewed/NAME.json`. Pass that file as `--fixture` to `benchmark.py`.
+Review failures before applying model or prompt changes and retain the before and after reports.

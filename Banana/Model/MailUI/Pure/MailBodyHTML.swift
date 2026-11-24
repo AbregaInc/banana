@@ -15,6 +15,19 @@ import Foundation
 /// "- " and "1. " lines, a quote is "> " lines, and a link is "text (address)".
 enum MailBodyHTML {
 
+    static let bananaSignature: MailDraftPart = {
+        let text = MailText(blocks: [
+            MailTextBlock(kind: .paragraph, runs: [
+                MailTextRun(text: "Sent from ", link: nil),
+                MailTextRun(text: "Banana", link: URL(string: "https://bananatheapp.com/")),
+            ]),
+        ])
+        return MailDraftPart(
+            fragment: MailFragment(html: "<div class=\"gmail_signature\">" + html(text) + "</div>"),
+            body: .text(text, quoteStartsAt: nil, notices: [])
+        )
+    }()
+
     /// The only schemes a link in a message he writes may have.
     static let allowedSchemes: Set<String> = ["http", "https", "mailto"]
 

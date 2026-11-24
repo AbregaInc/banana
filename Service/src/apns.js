@@ -17,6 +17,9 @@ export function pemBytes(pem) {
 }
 
 /** The provider token every isolate shares, in the database (migration 0028). */
+/** Apple's 403 reasons that are about the provider token itself. */
+const TOKEN_REFUSALS = new Set(["ExpiredProviderToken", "InvalidProviderToken", "MissingProviderToken", "UnrelatedKeyIdInToken"]);
+
 export function sharedProviderTokens(db) {
   const read = (keyId) => db.first("SELECT token, issued_at AS issuedAt FROM apns_provider_tokens WHERE key_id = ?", keyId);
   return {
@@ -99,8 +102,10 @@ export function createApns(config, fetch, now = Date.now, tokens = null) {
       let reason = null;
       if (!response.ok) {
         try { reason = (await response.json()).reason ?? null; } catch { reason = null; }
-        // An expired or refused provider token: make a new one next time.
-        if (response.status === 403) { refused = jwt; jwt = null; }
+        // An expired or refused provider token: make a new one next time. Only when Apple says it is
+        // the token: a 403 for anything else (a topic this key doesn't sign for, which the device
+        // chose) says nothing about the token every account shares.
+        if (response.status === 403 && TOKEN_REFUSALS.has(reason)) { refused = jwt; jwt = null; }
         // Another isolate's token is in force: read the shared one again next time.
         else if (response.status === 429 && reason === "TooManyProviderTokenUpdates" && tokens) jwt = null;
       }

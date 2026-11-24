@@ -1,5 +1,5 @@
 {
-  "comment": "The App Store app's set: the calendar alone (BANANA_APP_STORE_MODULES). python3 -u tools/app-store/generate.py --flavour calendar-only --platform iphone|ipad|mac --keep-output. No Watch set: this app has no Watch app.",
+  "comment": "The App Store app's screenshot set (BANANA_APP_STORE_MODULES). The calendar leads the phone, iPad, and Mac sets.",
   "xcconfig": "tools/app-store/flavours/calendar-only.xcconfig",
   "modules_setting": "BANANA_APP_STORE_MODULES",
   "metadata": "metadata/calendar-only/en-US",
@@ -283,6 +283,27 @@
       "foreground": "ink",
       "accent": "purple",
       "settle_seconds": 6
+    }
+  ],
+  "watch_scenes": [
+    {
+      "id": "01-workout",
+      "route": [
+        "--activeworkout"
+      ]
+    },
+    {
+      "id": "02-now-playing",
+      "route": [
+        "--activeworkout",
+        "--media-page"
+      ]
+    },
+    {
+      "id": "03-workout-picker",
+      "route": [
+        "--workout-picker"
+      ]
     }
   ],
   "mac_scenes": [

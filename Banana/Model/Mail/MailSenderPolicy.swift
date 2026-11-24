@@ -1,5 +1,17 @@
 #if !BANANA_PUBLIC
 import Foundation
+enum MailSenderPolicyTarget {
+    static func domainKey(for address: String) -> String? {
+        guard let normalized = MailAddressRules.normalized(address), let separator = normalized.firstIndex(of: "@") else { return nil }
+        return String(normalized[separator...])
+    }
+
+    static func isValid(_ value: String) -> Bool {
+        if value.hasPrefix("@") { return domainKey(for: "sender" + value) == value }
+        return MailAddressRules.isValid(value)
+    }
+}
+
 protocol MailSenderPolicyAPI: Sendable {
     func read(account: String, sender: String) async throws -> MailSenderPolicyRemote
     func write(account: String, sender: String, blocked: Bool, revision: Int, operation: String) async throws -> MailSenderPolicyRemote
@@ -51,7 +63,7 @@ actor MailSenderPolicyDriver {
         self.store = store; self.api = api; self.allowed = allowed; self.settled = settled
     }
     func queue(account: String, sender: String, blocked: Bool) async throws {
-        guard MailAddressRules.isValid(account), MailAddressRules.isValid(sender),
+        guard MailAddressRules.isValid(account), MailSenderPolicyTarget.isValid(sender),
               account.lowercased() != sender.lowercased(), await allowed(account) else { throw MailSenderPolicyError.unavailable }
         try await store.queueSenderPolicy(account: account.lowercased(), sender: sender.lowercased(), blocked: blocked)
     }

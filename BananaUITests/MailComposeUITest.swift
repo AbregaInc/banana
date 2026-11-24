@@ -34,6 +34,19 @@ final class MailComposeUITest: MailUITestCase {
         reply(style)
     }
 
+    func testMessageReplyActionOpensEditableComposer() {
+        launch()
+        if hasPane { row("q3").tap() } else { openConversation("q3") }
+        let action = app.buttons["mail.message.reply.q3~3"]
+        XCTAssertTrue(action.waitForExistence(timeout: 8))
+        action.tap()
+        menuItem("Reply").tap()
+        XCTAssertTrue(chip("sam@lee.example").waitForExistence(timeout: 5))
+        typeIntoBody("Thanks for the update.")
+        XCTAssertTrue(bodyText.contains("Thanks for the update."))
+        XCTAssertFalse(app.buttons["Edit as text"].exists)
+    }
+
     // MARK: Reply, draft, Drafts, send, undo, send
 
     func testReplyKeepDraftFindItFinishSendUndoAndSendAgain() {
@@ -57,11 +70,12 @@ final class MailComposeUITest: MailUITestCase {
 
         // The draft is in Drafts, and the conversation's row says so.
         show(place: "Drafts")
-        Thread.sleep(forTimeInterval: 0.6)
+        let draftRow = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", MailID.list + ".row.draft-row:")).firstMatch
+        XCTAssertTrue(draftRow.waitForExistence(timeout: 5), "the reply's draft is listed in Drafts: \(visibleRowKeys())")
         snap("03-drafts")
-        XCTAssertTrue(row("q3").waitForExistence(timeout: 5), "the reply's draft is listed in Drafts: \(visibleRowKeys())")
         XCTAssertEqual(headerCount(), 1)
-        row("q3").tap()
+        draftRow.tap()
         XCTAssertTrue(body.waitForExistence(timeout: 10), "choosing the draft opens its composer\n\(app.debugDescription)")
         Thread.sleep(forTimeInterval: 0.6)
         snap("04-reopened")
@@ -92,9 +106,10 @@ final class MailComposeUITest: MailUITestCase {
         if !again.isHittable { app.swipeUp() }
         again.tap()
         XCTAssertTrue(waitForToast(containing: "Sending", timeout: 5))
-        Thread.sleep(forTimeInterval: 11.5)
+        XCTAssertTrue(element("toast").staticTexts["Sent"].firstMatch.waitForExistence(timeout: 15),
+                      "delivery confirmation replaces the undo hold")
+        XCTAssertTrue(waitGone(undoButton, timeout: 3), "confirmed delivery can no longer be undone")
         snap("07-after-hold")
-        XCTAssertNil(toastText, "the toast is gone with the hold; saw \(toastText ?? "")")
         // Sent from Drafts, the draft's row left that place; with a pane the place is empty and so
         // is the pane (T19, case 4), and the conversation is back in the inbox. Awkward in use —
         // the thread you just answered is gone from view — but the design's rule.
@@ -308,32 +323,34 @@ final class MailComposeUITest: MailUITestCase {
             XCTAssertTrue(menuItem(item).waitForExistence(timeout: 3), "\(item) in the paperclip's menu")
         }
         menuItem("Photos").tap()
-        Thread.sleep(forTimeInterval: 3)
+        let cancel = app.buttons["Cancel"].firstMatch
+        XCTAssertTrue(cancel.waitForExistence(timeout: 8), "The photo picker can be dismissed")
         snap("01-photo-picker")
-        let pickerUp = app.navigationBars.firstMatch.exists || app.otherElements["PXGGridLayout-Index:0"].exists
-        note("The photo picker came up: \(pickerUp)")
-        // The picker is the system's: a tap on its first picture, if the test can see one.
-        let firstPhoto = app.images.firstMatch
-        if firstPhoto.waitForExistence(timeout: 5), firstPhoto.isHittable {
+
+        let grid = app.otherElements["PXGGridLayout-Index:0"]
+        let firstPhoto = grid.images.firstMatch
+        if firstPhoto.exists && firstPhoto.isHittable {
             firstPhoto.tap()
             let add = app.buttons["Add"].firstMatch
-            if add.waitForExistence(timeout: 3) { add.tap() }
+            XCTAssertTrue(add.waitForExistence(timeout: 5))
+            add.tap()
             let chip = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", MailID.attachments + ".")).firstMatch
-            let got = chip.waitForExistence(timeout: 10)
-            note("A picture chosen in the photo picker became a chip: \(got)")
+            XCTAssertTrue(chip.waitForExistence(timeout: 10), "A selected picture becomes an attachment")
             snap("02-after-photo")
         } else {
-            note("No picture was reachable in the photo picker from the test; stopped here.")
-            let cancel = app.buttons["Cancel"].firstMatch
-            if cancel.waitForExistence(timeout: 3) { cancel.tap() }
+            cancel.tap()
         }
+
+        XCTAssertTrue(cancel.waitForNonExistence(timeout: 8), "The photo picker must close before reopening the paperclip")
+        XCTAssertTrue(waitUntil(timeout: 5) { attach.isHittable })
         attach.tap()
-        menuItem("Files").tap()
-        Thread.sleep(forTimeInterval: 3)
+        let files = menuItem("Files")
+        XCTAssertTrue(files.waitForExistence(timeout: 5), "The paperclip must reopen after the photo picker")
+        files.tap()
+        XCTAssertTrue(cancel.waitForExistence(timeout: 8), "The document picker can be dismissed")
         snap("03-file-picker")
-        note("The document picker came up: \(app.navigationBars.firstMatch.exists)")
-        let cancel = app.buttons["Cancel"].firstMatch
-        if cancel.waitForExistence(timeout: 3) { cancel.tap() }
+        cancel.tap()
+        XCTAssertTrue(cancel.waitForNonExistence(timeout: 8))
     }
 
     // MARK: Formatting
@@ -515,8 +532,9 @@ final class MailComposeUITest: MailUITestCase {
         XCTAssertTrue(waitForToast(containing: "Kept as a draft", timeout: 5))
         snap("01-kept")
         show(place: "Drafts")
-        Thread.sleep(forTimeInterval: 0.6)
-        XCTAssertTrue(row("q3").waitForExistence(timeout: 5), "the draft is in Drafts, whole: \(visibleRowKeys())")
+        let draftRow = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier BEGINSWITH %@", MailID.list + ".row.draft-row:")).firstMatch
+        XCTAssertTrue(draftRow.waitForExistence(timeout: 5), "the draft is in Drafts: \(visibleRowKeys())")
         snap("02-drafts")
     }
 }

@@ -27,6 +27,7 @@ final class MacToolbarTests: XCTestCase {
                                    "-onboardingCompleted", "YES"]
         }
         if name.contains("FieldPrompt") { app.launchArguments += ["--mac-new-event"] }
+        if name.contains("BodySidebar") { app.launchArguments += ["--modules", "everything", "-onboardingCompleted", "YES"] }
         app.launch()
         if name.contains("FieldPrompt") {
             // A newly signed fixture can raise Local Network privacy before its window opens.
@@ -66,16 +67,90 @@ final class MacToolbarTests: XCTestCase {
     private var period: XCUIElement { app.descendants(matching: .any)["mac.planner.view"].firstMatch }
     private var toggle: XCUIElement { app.buttons["shell.railToggle"] }
 
+    func testSettingsSidebarOpensDesktopLinkAndAbout() throws {
+        guard Bundle(url: candidate)?.bundleIdentifier?.hasSuffix(".beta") == true else {
+            throw XCTSkip("Desktop Link is available in Beta.")
+        }
+        app.typeKey(",", modifierFlags: .command)
+        let sidebar = app.descendants(matching: .any)["settings.sidebar"].firstMatch
+        let desktopLink = app.descendants(matching: .any)["settings.page.desktopLink"].firstMatch
+        let about = app.descendants(matching: .any)["settings.page.about"].firstMatch
+        wait("Desktop Link is selectable in the Settings sidebar") {
+            sidebar.exists && desktopLink.isEnabled && desktopLink.isHittable
+        }
+        desktopLink.click()
+        let pair = app.buttons["Enable desktop link"]
+        let qrCode = app.descendants(matching: .any)["Pairing QR code"].firstMatch
+        wait("Desktop Link opens its pairing settings") { pair.exists || qrCode.exists }
+
+        wait("About is selectable in the Settings sidebar") { about.isEnabled && about.isHittable }
+        about.click()
+        let version = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "This Mac")).firstMatch
+        wait("About opens its version settings") { version.exists }
+        XCTAssertGreaterThan(version.frame.minX, sidebar.frame.midX)
+        let settings = app.windows.containing(.any, identifier: "settings.sidebar").firstMatch
+        XCTAssertGreaterThan(settings.frame.width - sidebar.frame.width, sidebar.frame.width)
+    }
+
+    func testBodySidebarOpensWorkoutsFoodAndTaken() {
+        wait("Sidebar control is available") { self.toggle.isHittable }
+        if toggle.label == "Show sidebar" { toggle.click() }
+        let expansion = app.buttons["shell.expand.body"]
+        wait("Body can expand") { expansion.isHittable }
+        if expansion.value as? String == "Collapsed" { expansion.click() }
+
+        let toolbar = app.toolbars.firstMatch
+        let previousWeek = toolbar.buttons["Previous week"]
+        let previousDay = toolbar.buttons["Previous day"]
+        let food = app.textFields["nutrition.phrase"].firstMatch
+        for page in ["workouts", "food", "taken"] {
+            let row = app.buttons["shell.body." + page]
+            wait("Body has a \(page) destination") { row.isHittable }
+            row.click()
+            wait("The selected Body destination has its date controls in the toolbar") {
+                row.isSelected && (page == "workouts" ? previousWeek : previousDay).isHittable
+            }
+            XCTAssertEqual(food.exists, page == "food")
+        }
+    }
+
+    func testRightPanelToggleKeepsTheLeftSidebarAndSearch() {
+        let right = app.buttons["shell.rightPanel.toggle"]
+        let search = app.textFields["shell.field"]
+        wait("Both sidebar controls and search are available") {
+            self.toggle.isHittable && right.isHittable && search.isHittable
+        }
+        let baseline = search.frame
+        let sidebarLabel = toggle.label
+        XCTAssertGreaterThan(right.frame.minX, search.frame.maxX)
+        for label in ["Hide right panel", "Show right panel", "Hide right panel"] {
+            right.click()
+            wait("Right panel toggle now says \(label)") { right.label == label && right.isHittable }
+            XCTAssertEqual(toggle.label, sidebarLabel)
+            XCTAssertEqual(search.frame.minX, baseline.minX, accuracy: 1)
+        }
+    }
+
+    private func checkRailWidth() {
+        let icon = app.buttons["shell.page.plan"]
+        let sidebar = app.descendants(matching: .any)["app.sidebar"].firstMatch
+        wait("The native sidebar is 202 points wide") {
+            icon.isHittable && sidebar.exists && abs(sidebar.frame.width - 202) <= 1
+        }
+    }
+
     private func checkPlacement(_ name: String) {
         let previous = app.buttons["plan.previous"], next = app.buttons["plan.next"]
         wait("All navigation controls remain reachable") { self.toggle.isHittable && previous.isHittable && next.isHittable && self.period.isHittable }
         let window = app.windows.firstMatch.frame
         XCTAssertLessThan(toggle.frame.maxX, window.midX, "Sidebar control belongs on the left")
-        XCTAssertGreaterThan(previous.frame.midX, window.midX, "Calendar navigation belongs on the right")
-        XCTAssertGreaterThan(next.frame.minX, previous.frame.midX, "Next follows Previous")
+        XCTAssertGreaterThanOrEqual(previous.frame.minX, toggle.frame.maxX, "Calendar navigation follows the sidebar toggle")
+        XCTAssertGreaterThanOrEqual(next.frame.minX, period.frame.maxX - 2, "Next follows the period picker")
         XCTAssertGreaterThanOrEqual(previous.frame.width, 28)
         XCTAssertGreaterThanOrEqual(next.frame.width, 28)
-        XCTAssertLessThanOrEqual(period.frame.maxX, previous.frame.minX + 2, "Range and paging form one ordered group")
+        let date = app.staticTexts["plan.dateRange"]
+        XCTAssertTrue(date.exists)
+        XCTAssertLessThanOrEqual(date.frame.maxX, period.frame.minX + 2, "The date precedes the period picker")
         XCTAssertLessThanOrEqual(next.frame.maxX, window.maxX, "Next is not clipped into overflow")
         let screenshot = XCTAttachment(screenshot: app.screenshot())
         screenshot.name = "mac-toolbar-" + name
@@ -141,6 +216,46 @@ final class MacToolbarTests: XCTestCase {
         XCTAssertTrue((body.value as? String)?.contains("Thanks") == true)
     }
 
+    func testSearchAndSidebarStayAnchoredAcrossSections() {
+        app.terminate()
+        app.launchArguments += ["--modules", "everything", "-onboardingCompleted", "YES",
+                                "-ApplePersistenceIgnoreState", "YES", "-NSQuitAlwaysKeepsWindows", "NO"]
+        for width in [1120, 800] {
+            app.launchArguments += ["--mac-window-size", "\(width)x780"]
+            app.launch()
+            wait("Sidebar is available at width \(width)") { self.toggle.isHittable }
+            if toggle.label == "Show sidebar" { toggle.click() }
+            let search = app.textFields["shell.field"]
+            let plan = app.buttons["shell.page.plan"]
+            wait("Plan controls and search are visible") { self.period.isHittable && search.isHittable && plan.isHittable }
+            let searchFrame = search.frame
+            let toggleFrame = toggle.frame
+
+            let destinations: [(String, XCUIElement?)] = [
+                ("notes", app.buttons["notes.toolbar.write"]),
+                ("body", app.toolbars.firstMatch.buttons["Previous week"]),
+                ("library", nil),
+                ("review", app.descendants(matching: .any)["review.span"].firstMatch),
+                ("plan", period)
+            ]
+            for (page, control) in destinations {
+                let row = app.buttons["shell.page." + page]
+                wait("Sidebar contains \(page)") { row.isHittable }
+                row.click()
+                wait("\(page) toolbar is ready") {
+                    row.isSelected && (control?.isHittable ?? true) && search.isHittable
+                }
+                XCTAssertEqual(search.frame.minX, searchFrame.minX, accuracy: 1, page)
+                XCTAssertEqual(search.frame.minY, searchFrame.minY, accuracy: 1, page)
+                XCTAssertEqual(search.frame.width, searchFrame.width, accuracy: 1, page)
+                XCTAssertEqual(toggle.frame.minX, toggleFrame.minX, accuracy: 1, page)
+                XCTAssertEqual(toggle.frame.minY, toggleFrame.minY, accuracy: 1, page)
+            }
+            app.terminate()
+            app.launchArguments.removeLast(2)
+        }
+    }
+
     func testSidebarAndWeekNavigationAtWideAndNarrowWidths() {
         wait("Period menu") { self.period.isHittable }
         period.click()
@@ -152,6 +267,8 @@ final class MacToolbarTests: XCTestCase {
         guard let week else { return }
         week.click()
         checkPlacement("wide")
+        if toggle.label == "Show sidebar" { toggle.click() }
+        checkRailWidth()
         let before = period.value as? String
         XCTAssertNotNil(before)
         app.buttons["plan.next"].click()
@@ -160,12 +277,14 @@ final class MacToolbarTests: XCTestCase {
         app.buttons["plan.today"].click()
         wait("Today restores the original week") { (self.period.value as? String) == before }
 
-        wait("Today disappears in the current period") { !self.app.buttons["plan.today"].exists }
+        wait("Today stays in place and is disabled in the current period") { !self.app.buttons["plan.today"].isEnabled }
 
         toggle.click()
         wait("Sidebar button remains reachable while collapsed") { self.toggle.isHittable && self.toggle.label == "Show sidebar" }
+        wait("The rail is hidden") { !self.app.buttons["shell.page.plan"].isHittable }
         app.typeKey("s", modifierFlags: [.control, .command])
         wait("Native sidebar shortcut restores the same column") { self.toggle.label == "Hide sidebar" }
+        checkRailWidth()
         XCTAssertEqual(period.value as? String, before, "Sidebar changes must not page the calendar")
 
         let window = app.windows.firstMatch, frame = window.frame
@@ -175,8 +294,9 @@ final class MacToolbarTests: XCTestCase {
         app.launch()
         wait("Window launches at the requested narrow width") { window.frame.width < frame.width - 100 }
         checkPlacement("narrow")
+        checkRailWidth()
         app.buttons["plan.next"].click()
-        wait("Narrow paging shows Today") { self.app.buttons["plan.today"].isHittable }
+        wait("Narrow paging enables Today") { self.app.buttons["plan.today"].isHittable && self.app.buttons["plan.today"].isEnabled }
         checkPlacement("narrow-paged")
     }
 }

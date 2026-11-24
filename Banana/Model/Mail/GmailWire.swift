@@ -770,6 +770,8 @@ struct MIMEStructure: Codable, Equatable, Sendable {
     /// The part chosen as the plain body; its text is `content.plain`.
     var plainPartID: String?
     var invite: Invite?
+    /// Whether bounded provider reads already checked the calendar parts for an invitation.
+    var calendarInvitationChecked: Bool? = nil
     /// Nil: the tree is whole.
     var cut: Cut?
 

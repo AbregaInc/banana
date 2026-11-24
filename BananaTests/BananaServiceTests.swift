@@ -88,6 +88,25 @@ final class BananaServiceTests: XCTestCase {
         XCTAssertEqual((body["device"] as? [String: Any])?["id"] as? String, device.id)
     }
 
+    func testTheDeviceCarriesThisInstallsSecretWhenItHasOne() throws {
+        var withSecret = device
+        withSecret.secret = String(repeating: "s", count: 43)
+        let signIn = try json(BananaService.request(.identity(idToken: "eyJ.x.y", device: withSecret), host: "service.example", session: nil))
+        XCTAssertEqual((signIn["device"] as? [String: Any])?["secret"] as? String, withSecret.secret)
+        let put = try json(BananaService.request(.device(withSecret), host: "service.example", session: "abc"))
+        XCTAssertEqual(put["secret"] as? String, withSecret.secret)
+        let without = try json(BananaService.request(.device(device), host: "service.example", session: "abc"))
+        XCTAssertNil(without["secret"])
+    }
+
+    func testAnEndedSessionIsToldApartFromADeletedAccount() {
+        XCTAssertTrue(BananaService.reproves(in: Data(#"{"error":"signed_out","reprove":true}"#.utf8)))
+        XCTAssertFalse(BananaService.reproves(in: Data(#"{"error":"signed_out"}"#.utf8)))
+        XCTAssertFalse(BananaService.reproves(in: Data()))
+        XCTAssertTrue(BananaService.wasDeleted(in: Data(#"{"error":"signed_out","deleted":true}"#.utf8)))
+        XCTAssertFalse(BananaService.wasDeleted(in: Data(#"{"error":"signed_out","reprove":true}"#.utf8)))
+    }
+
     func testAWatchIsConfirmedWithGooglesAnswerInMilliseconds() throws {
         let when = Date(timeIntervalSince1970: 1_800_000_000)
         let request = BananaService.request(.confirmChannel(id: "c1", resourceID: "r1", expiration: when),

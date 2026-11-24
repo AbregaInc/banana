@@ -71,7 +71,7 @@ enum MailAuthRules {
 
     /// Whether Gmail's own header, where it carries a `dmarc=` result of any verdict, names
     /// `domain` as its `header.from`, or names a parent on a pass independently corroborated by
-    /// DKIM for the exact From domain — true when it carries none, or when Gmail wrote no header
+    /// DKIM or SPF for the exact From domain — true when it carries none, or when Gmail wrote no header
     /// to read. False when a `dmarc=` result names another domain or none, and when the header
     /// is Gmail's and was cut (a result that cannot be read is not agreement). It is how
     /// `MessageHeaders.sender` learns that Gmail read the `From` line as someone else.
@@ -84,20 +84,64 @@ enum MailAuthRules {
         case .results(let results):
             let want = normalizedDomain(domain)
             // Gmail can report the organizational domain here even when From is a subdomain.
-            // Accept that only with a separate DKIM pass for the exact From domain. A suffix
-            // alone establishes no ownership (public suffixes and delegated domains included).
-            let exactDKIM = results.contains { result in
-                guard result.method == "dkim", result.verdict == "pass",
-                      let signing = result.properties["header.d"]
-                        ?? result.properties["header.i"].flatMap({ domainAfterLastAt($0) }) else { return false }
-                return normalizedDomain(signing) == want
+            // Gmail must also authenticate the exact From domain. A matching suffix alone
+            // establishes no ownership, including for public suffixes and delegated domains.
+            let exactAuthentication = results.contains { result in
+                guard result.verdict == "pass" else { return false }
+                switch result.method {
+                case "dkim":
+                    let signing = result.properties["header.d"]
+                        ?? result.properties["header.i"].flatMap { domainAfterLastAt($0) }
+                    return signing.map(normalizedDomain) == want
+                case "spf":
+                    guard let envelope = result.properties["smtp.mailfrom"] else { return false }
+                    return normalizedDomain(domainAfterLastAt(envelope) ?? envelope) == want
+                default:
+                    return false
+                }
             }
             return results.filter { $0.method == "dmarc" }.allSatisfy { result in
                 guard let named = result.properties["header.from"].map(normalizedDomain), !named.isEmpty else { return false }
                 if named == want { return true }
-                return result.verdict == "pass" && exactDKIM && want.hasSuffix("." + named)
+                return result.verdict == "pass" && exactAuthentication && want.hasSuffix("." + named)
             }
         }
+    }
+
+    /// Bind Gmail's passing result to one actual signature, then inspect what it signed.
+    static func unsubscribeSigningDomain(headers: MessageHeaders, fromDomain: String) -> String? {
+        guard headers.isComplete, case .results(let results) = firstHeader(of: headers) else { return nil }
+        let signatures = headers.fields.filter { MessageHeaders.fold($0.name) == "dkim-signature" }
+        for result in results where result.method == "dkim" && result.verdict == "pass" {
+            let signing = result.properties["header.d"] ?? result.properties["header.i"].flatMap { domainAfterLastAt($0) }
+            guard let domain = signing.map(normalizedDomain), isAligned(domain, with: normalizedDomain(fromDomain)),
+                  let selector = result.properties["header.s"], !selector.isEmpty,
+                  let fingerprint = result.properties["header.b"], fingerprint.count >= 8 else { continue }
+            let matches = signatures.compactMap { field -> [String: String]? in
+                guard !field.wasCut, let tags = signatureTags(field.value),
+                      tags["d"].map(normalizedDomain) == domain,
+                      tags["s"]?.lowercased() == selector.lowercased(),
+                      let signature = tags["b"], signature.count > fingerprint.count,
+                      signature.hasPrefix(fingerprint) else { return nil }
+                return tags
+            }
+            guard matches.count == 1, let signed = matches[0]["h"] else { continue }
+            let names = Set(signed.lowercased().split(separator: ":").map(String.init))
+            if names.isSuperset(of: ["from", "list-unsubscribe", "list-unsubscribe-post"]) { return domain }
+        }
+        return nil
+    }
+
+    private static func signatureTags(_ value: String) -> [String: String]? {
+        var tags: [String: String] = [:]
+        for field in value.split(separator: ";") {
+            let tag = field.split(separator: "=", maxSplits: 1, omittingEmptySubsequences: false)
+            guard tag.count == 2 else { return nil }
+            let name = tag[0].trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            let text = tag[1].filter { !$0.isWhitespace }
+            guard !name.isEmpty, tags.updateValue(text, forKey: name) == nil else { return nil }
+        }
+        return tags
     }
 
     // MARK: - Which header

@@ -93,6 +93,41 @@ final class MailComposerTests: XCTestCase {
         XCTAssertEqual(composer.currentDraft()?.body, draft.body)
     }
 
+    func testGmailRefreshReplacesOnlyACleanEditorAndAcksOnlyTheSavedEdit() async throws {
+        let h = Harness()
+        var draft = await h.source.newDraft(.new(account: nil))
+        draft.conversation = .init(account: draft.account, thread: "provider-thread")
+        draft.subject = "Saved in Gmail"
+        draft.body = MailRichText.text(AttributedString("First Gmail version"))
+        draft.syncState = .gmail
+        h.source.save(draft)
+        h.session.begin(.continuing(draft.id))
+        let composer = try XCTUnwrap(h.composer)
+        await composer.waitForDraft()
+        XCTAssertEqual(composer.syncStatusTitle, "Saved to Gmail")
+        XCTAssertNil(composer.host)
+
+        draft.body = MailRichText.text(AttributedString("New Gmail version"))
+        draft.editToken = "gmail-version-2"
+        composer.refreshCleanDraft(draft)
+        XCTAssertEqual(composer.body, "New Gmail version")
+        composer.rich = AttributedString("Unsent local edits")
+        draft.body = MailRichText.text(AttributedString("Another Gmail version"))
+        draft.editToken = "gmail-version-3"
+        composer.refreshCleanDraft(draft)
+        XCTAssertEqual(composer.body, "Unsent local edits")
+        XCTAssertNil(composer.syncStatusTitle)
+
+        h.now += 1
+        composer.flush()
+        composer.updateSyncState(.gmail, for: draft.id, editedAt: draft.editedAt)
+        XCTAssertNil(composer.syncStatusTitle)
+        composer.updateSyncState(.local, for: draft.id, editedAt: h.now)
+        XCTAssertEqual(composer.syncStatusTitle, "Saved on this device")
+        composer.updateSyncState(.gmail, for: draft.id, editedAt: h.now)
+        XCTAssertEqual(composer.syncStatusTitle, "Saved to Gmail")
+    }
+
     func testRichEditKeepsLatestDraftWithoutReenteringEditorCallback() async throws {
         let h = Harness()
         let composer = await h.reply()
@@ -213,6 +248,49 @@ final class MailComposerTests: XCTestCase {
         let again = await h.reply()
         XCTAssertEqual(again.draftID, first.draftID, "the draft he began, not a second one")
         XCTAssertEqual(again.body, "Half a thought", "he continues where he was")
+    }
+
+    func testReplyToAnEarlierMessageKeepsThatTargetWhenSwitchingReplyStyle() async throws {
+        let h = Harness()
+        let loaded = await h.conversation("q3")
+        let conversation = try XCTUnwrap(loaded)
+        let message = try XCTUnwrap(conversation.messages.first)
+        XCTAssertNotEqual(message.id, conversation.messages.last?.id)
+
+        h.session.reply(.reply, to: message.id, in: conversation.id)
+        let composer = try XCTUnwrap(h.composer)
+        await composer.waitForDraft()
+        XCTAssertEqual(composer.currentDraft()?.replyToMessage, message.id)
+        XCTAssertFalse(composer.isForeign)
+        composer.switchReply(to: .replyAll)
+        await composer.waitForSwitch()
+        XCTAssertEqual(composer.currentDraft()?.replyToMessage, message.id)
+        XCTAssertEqual(composer.replyStyle, .replyAll)
+        let recipients = MailReplyRules.recipients(for: .replyAll(to: message.id), original: message, myAddresses: [account])
+        XCTAssertEqual(Set(composer.to.map(\.address)), Set(recipients.to.map(\.address)))
+    }
+
+    func testReplyFromAnOpenImportedDraftLeavesItIntact() async throws {
+        let h = Harness()
+        let loaded = await h.conversation("q3")
+        let conversation = try XCTUnwrap(loaded)
+        let message = try XCTUnwrap(MailReplyRules.original(in: conversation))
+        var imported = await h.source.newDraft(.reply(to: message.id))
+        imported.format = .foreign
+        imported.body = MailText(blocks: [.init(kind: .paragraph, runs: [.init(text: "Imported version")])])
+        h.source.save(imported)
+        h.session.begin(.continuing(imported.id))
+        await h.composer?.waitForDraft()
+        XCTAssertTrue(h.composer?.isForeign == true)
+
+        h.session.reply(.reply, to: message.id, in: conversation.id)
+        let reply = try XCTUnwrap(h.composer)
+        await reply.waitForDraft()
+        XCTAssertFalse(reply.isForeign)
+        XCTAssertNotEqual(reply.draftID, imported.id)
+        let retained = await h.source.draft(imported.id)
+        XCTAssertEqual(retained?.body, imported.body)
+        XCTAssertEqual(retained?.format, .foreign)
     }
 
     /// Found on the phone: a composer reopened on a draft put the caret in front of its text, and

@@ -1451,12 +1451,20 @@ private final class PodcastPeerTransfer: NSObject {
 
     private func answer(_ message: PodcastPeerMessage, from peer: MCPeerID) {
         guard let nonce = message.payload, nonce.count == 16 else { return }
+        // Never answer a nonce this device issued (a peer reflecting our own challenge back), nor a
+        // peer that took this device's own name: either would make our answer the proof we accept.
+        guard !challenges.values.contains(nonce), peer.displayName != peerID.displayName else {
+            PlaybackDiagnostics.shared.log("peer audio: refused to answer a reflected challenge", PlaybackDiagnostics.personal(peer.displayName))
+            session.cancelConnectPeer(peer)
+            return
+        }
         let proof = Data(HMAC<SHA256>.authenticationCode(for: Self.proofMessage(nonce: nonce, challenger: peer, responder: peerID), using: groupKey))
         send(PodcastPeerMessage(kind: .proof, requestID: message.requestID, episodeID: "", sourceURL: "", payload: proof), to: [peer])
     }
 
     private func admit(_ message: PodcastPeerMessage, from peer: MCPeerID) {
-        guard let nonce = challenges.removeValue(forKey: peer), let proof = message.payload,
+        guard peer.displayName != peerID.displayName,
+              let nonce = challenges.removeValue(forKey: peer), let proof = message.payload,
               HMAC<SHA256>.isValidAuthenticationCode(proof, authenticating: Self.proofMessage(nonce: nonce, challenger: peerID, responder: peer), using: groupKey)
         else {
             PlaybackDiagnostics.shared.log("peer audio: peer failed the token check", PlaybackDiagnostics.personal(peer.displayName))
@@ -1471,10 +1479,7 @@ private final class PodcastPeerTransfer: NSObject {
     }
 
     private static func proofMessage(nonce: Data, challenger: MCPeerID, responder: MCPeerID) -> Data {
-        var message = Data("banana-peer-proof-v2|".utf8)
-        message.append(nonce)
-        message.append(Data("|\(challenger.displayName)|\(responder.displayName)".utf8))
-        return message
+        PeerProof.message(nonce: nonce, challenger: challenger.displayName, responder: responder.displayName)
     }
 
     private func send(_ message: PodcastPeerMessage, to peers: [MCPeerID]) {

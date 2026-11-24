@@ -20,11 +20,15 @@ export const MOST_AHEAD = 5 * 60 * 1000;
 const HLC = /^\d{13}\.[0-9a-f]{4}\.[A-Za-z0-9_-]{1,64}$/;
 const SHA = /^[0-9a-f]{64}$/;
 const encoder = new TextEncoder();
+const WEB_DATED_TYPES = "('food.meal','podcast.listen','notes.voiceNote')";
+const webNumber = key => `CAST(COALESCE(json_extract(fields,'$.v.${key}'),json_extract(fields,'$.${key}'),0) AS REAL)`;
+const WEB_DATE = `CASE WHEN type='notes.voiceNote' THEN ${webNumber('createdAt')} ELSE ${webNumber('date')} END`;
 
 const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS records (type TEXT NOT NULL, id TEXT NOT NULL, fields TEXT NOT NULL, clocks TEXT NOT NULL,
      deleted TEXT, seq INTEGER NOT NULL, PRIMARY KEY (type, id))`,
   "CREATE INDEX IF NOT EXISTS records_seq ON records (seq)",
+  `CREATE INDEX IF NOT EXISTS records_web_date ON records (type, (${WEB_DATE}) DESC, id) WHERE type IN ${WEB_DATED_TYPES}`,
   // before/after: the changed fields only, {fields, clocks, deleted?}; before is null for a new record.
   `CREATE TABLE IF NOT EXISTS history (seq INTEGER NOT NULL, type TEXT NOT NULL, id TEXT NOT NULL, device TEXT NOT NULL,
      at INTEGER NOT NULL, before TEXT, after TEXT NOT NULL)`,
@@ -47,6 +51,9 @@ const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS trash (sha TEXT PRIMARY KEY)",
   "CREATE TABLE IF NOT EXISTS trashed (sha TEXT PRIMARY KEY)",
 ];
+
+/** A write to a space that was wiped, or is being wiped: its account is gone. */
+export class SpaceClosed extends Error { constructor() { super("space closed"); this.name = "SpaceClosed"; } }
 
 const prepared = new WeakSet();
 function ready(port) {
@@ -203,6 +210,8 @@ const tooFar = (clock, most) => clock !== null && Number(clock.slice(0, 13)) > m
 export function sync(port, { device, platform, since = 0, changes = [], now, space, pageRecords = PAGE_RECORDS, pageBytes = PAGE_BYTES }) {
   ready(port);
   return port.transaction(() => {
+    // A space being wiped (its account deleted) takes nothing more.
+    if (meta(port, "wiping") !== null) throw new SpaceClosed();
     const consents = consentsOf(port);
     const epoch = epochOf(port);
     const startHead = Number(meta(port, "head") ?? 0);
@@ -273,7 +282,8 @@ export function sync(port, { device, platform, since = 0, changes = [], now, spa
     if (head !== startHead) setMeta(port, "head", head);
     if (webRevisions) setMeta(port, "web-revisions", JSON.stringify(webRevisions));
     if (hlc !== startHlc) setMeta(port, "hlc", hlc);
-    if (trashed && space) setMeta(port, "space", space);
+    // The space's own id: the trash needs it, for removed blobs and for unnamed ones (written once).
+    if (space && (trashed || meta(port, "space") === null)) setMeta(port, "space", space);
 
     // A cursor past the head means the space was started over (a wipe): read it from the start.
     const from = Number.isInteger(since) && since >= 0 && since <= head ? since : 0;
@@ -315,17 +325,24 @@ export function consents(port) {
  * withdrawn after the route's check is refused ({ok: false, reason: "consent"}), and the route
  * removes what it put.
  */
-export function recordBlob(port, sha, size, at, type) {
+export function recordBlob(port, sha, size, at, type, space = null) {
   ready(port);
   const entry = CATALOG.get(type);
   if (!SHA.test(sha) || !entry) throw new Error("bad blob");
   return port.transaction(() => {
+    if (meta(port, "wiping") !== null) return { ok: false, reason: "closed" };
     if (entry.tier === "T2" && !consentsOf(port).health) return { ok: false, reason: "consent" };
+    // An upload of bytes already here keeps their size and (once a record names them) their date.
+    // Bytes no record names yet are dated again: the wait for their record starts over.
     port.exec(`INSERT INTO blobs (sha, size, at, type, tier) VALUES (?, ?, ?, ?, ?)
-               ON CONFLICT (sha) DO UPDATE SET tier = 'T1' WHERE excluded.tier = 'T1'`, sha, Number(size), Number(at), type, entry.tier);
+               ON CONFLICT (sha) DO UPDATE SET tier = CASE WHEN excluded.tier = 'T1' THEN 'T1' ELSE blobs.tier END,
+                 at = CASE WHEN EXISTS (SELECT 1 FROM blob_refs r WHERE r.sha = blobs.sha) THEN blobs.at ELSE excluded.at END`,
+      sha, Number(size), Number(at), type, entry.tier);
     const restore = port.exec("SELECT sha FROM trash WHERE sha = ? UNION SELECT sha FROM trashed WHERE sha = ?", sha, sha).length > 0;
     port.exec("DELETE FROM trash WHERE sha = ?", sha);
     port.exec("DELETE FROM trashed WHERE sha = ?", sha);
+    // The space's own id, for the day these bytes are collected unnamed (the trash needs it).
+    if (space && meta(port, "space") !== space) setMeta(port, "space", space);
     return { ok: true, restore };
   });
 }
@@ -407,6 +424,91 @@ export function counts(port) {
   return out;
 }
 
+const DAY = 24 * 60 * 60 * 1000;
+/** How long uploaded bytes wait for a record to name them (the upload goes first, the record after). */
+export const UNNAMED_GRACE = 7 * DAY;
+const UNNAMED = "NOT EXISTS (SELECT 1 FROM blob_refs r WHERE r.sha = b.sha)";
+
+/** The shas the current records of blob-carrying types name. */
+function namedByRecords(port) {
+  const named = new Map();   // sha → {type, id, seq}
+  const types = [...CATALOG.values()].filter((e) => e.blobs).map((e) => e.type);
+  if (!types.length) return named;
+  for (const r of port.exec(`SELECT type, id, fields, seq FROM records WHERE type IN (${types.map(() => "?").join(", ")})`, ...types)) {
+    for (const sha of refsIn(JSON.parse(r.fields), new Set())) if (!named.has(sha)) named.set(sha, { type: r.type, id: r.id, seq: Number(r.seq) });
+  }
+  return named;
+}
+
+/**
+ * Uploaded bytes no record ever named, once they have waited UNNAMED_GRACE: off the index and onto
+ * the trash list (30 days there; an upload of the same bytes brings them back). A record that
+ * names them later is refused with `blob_missing` and its device uploads again.
+ * A blob the index holds no reference for but a current record names is not unnamed: its
+ * reference is written instead, so it is never looked at again.
+ * @returns {{trashed: number, next: number|null}} next: when the oldest still waiting is due.
+ */
+export function collectUnnamed(port, now, limit = 200) {
+  ready(port);
+  return port.transaction(() => {
+    if (meta(port, "wiping") !== null || meta(port, "space") === null) return { trashed: 0, next: null };
+    const due = port.exec(`SELECT sha FROM blobs b WHERE at <= ? AND ${UNNAMED} ORDER BY at, sha LIMIT ?`, now - UNNAMED_GRACE, limit).map((r) => r.sha);
+    let trashed = 0;
+    if (due.length) {
+      const named = namedByRecords(port);
+      for (const sha of due) {
+        const by = named.get(sha);
+        if (by) { port.exec("INSERT INTO blob_refs (sha, type, id, seq) VALUES (?, ?, ?, ?)", sha, by.type, by.id, by.seq); continue; }
+        port.exec("DELETE FROM blobs WHERE sha = ?", sha);
+        port.exec("INSERT INTO trash (sha) VALUES (?) ON CONFLICT (sha) DO NOTHING", sha);
+        trashed++;
+      }
+    }
+    const oldest = port.exec(`SELECT MIN(at) AS at FROM blobs b WHERE ${UNNAMED}`)[0]?.at;
+    return { trashed, next: oldest == null ? null : Math.max(Number(oldest) + UNNAMED_GRACE, due.length === limit ? now : 0) };
+  });
+}
+
+/**
+ * When the oldest bytes no record names come due, or null; looked at most once a day (the alarm
+ * arms itself on a sync without waiting for an upload, so a space that only syncs still clears).
+ */
+export function unnamedDue(port, now) {
+  ready(port);
+  const looked = Number(meta(port, "unnamed-looked") ?? 0);
+  if (now - looked < DAY) return null;
+  setMeta(port, "unnamed-looked", String(now));
+  const oldest = port.exec(`SELECT MIN(at) AS at FROM blobs b WHERE ${UNNAMED}`)[0]?.at;
+  return oldest == null ? null : Math.max(Number(oldest) + UNNAMED_GRACE, now);
+}
+
+/**
+ * What the space holds, for sizing a storage limit from real use: blobs by type (count, bytes,
+ * median and largest, and by month uploaded), the bytes no record names, record and history
+ * sizes, and what waits for the trash. Sizes of text are in characters. Reads only.
+ */
+export function usage(port) {
+  ready(port);
+  const n = (v) => Number(v ?? 0);
+  const blobs = {};
+  for (const r of port.exec("SELECT type, COUNT(*) AS count, SUM(size) AS bytes, MAX(size) AS largest FROM blobs GROUP BY type")) {
+    const median = port.exec("SELECT size FROM blobs WHERE type = ? ORDER BY size LIMIT 1 OFFSET ?", r.type, Math.floor(n(r.count) / 2))[0]?.size;
+    blobs[r.type] = { count: n(r.count), bytes: n(r.bytes), median: n(median), largest: n(r.largest), months: {} };
+  }
+  for (const r of port.exec("SELECT type, strftime('%Y-%m', at / 1000, 'unixepoch') AS month, COUNT(*) AS count, SUM(size) AS bytes FROM blobs GROUP BY type, month")) {
+    blobs[r.type].months[r.month] = { count: n(r.count), bytes: n(r.bytes) };
+  }
+  const named = namedByRecords(port);
+  let unnamed = { count: 0, bytes: 0 };
+  for (const r of port.exec(`SELECT sha, size FROM blobs b WHERE ${UNNAMED}`)) if (!named.has(r.sha)) unnamed = { count: unnamed.count + 1, bytes: unnamed.bytes + n(r.size) };
+  const records = {};
+  for (const r of port.exec("SELECT type, COUNT(*) AS count, SUM(LENGTH(fields) + LENGTH(clocks)) AS chars FROM records GROUP BY type")) records[r.type] = { count: n(r.count), chars: n(r.chars) };
+  const history = {};
+  for (const r of port.exec("SELECT type, COUNT(*) AS count, SUM(LENGTH(after) + COALESCE(LENGTH(before), 0)) AS chars FROM history GROUP BY type")) history[r.type] = { count: n(r.count), chars: n(r.chars) };
+  return { blobs, unnamed, records, history,
+    trash: { waiting: n(port.exec("SELECT COUNT(*) AS c FROM trash")[0]?.c), moved: n(port.exec("SELECT COUNT(*) AS c FROM trashed")[0]?.c) } };
+}
+
 /** Bounded metadata only: no record scan, blob download, or write on established spaces. */
 export function webStatus(port, types) {
   ready(port);
@@ -416,10 +518,34 @@ export function webStatus(port, types) {
 }
 
 /** The signed-in web reader: one page, including T2 only while consent stands. No history. */
-export function browse(port, type, after = "", limit = 100) {
+export function browse(port, type, after = "", limit = 100, ordered = false) {
   ready(port);
   const entry = CATALOG.get(type);
   if (!entry || (entry.tier === "T2" && !consentsOf(port).health)) return { records: [], next: null };
+  if (ordered) {
+    const routine = type === 'plan.routine';
+    if (!routine && !['food.meal','podcast.listen','notes.voiceNote'].includes(type)) return { records: [], next: null };
+    const sort = routine ? `(${webNumber('hour')} * 60 + ${webNumber('minute')})` : `(${WEB_DATE})`;
+    const direction = routine ? 'ASC' : 'DESC';
+    const where = routine
+      ? "AND COALESCE(json_type(fields,'$.v.enabled'),json_type(fields,'$.enabled'),'true') <> 'false'"
+      : `AND type IN ${WEB_DATED_TYPES}`;
+    let boundary = '', args = [];
+    if (after) {
+      let marker;
+      try { marker = JSON.parse(after); } catch {}
+      if (!Array.isArray(marker) || marker.length !== 2 || !Number.isFinite(marker[0]) || typeof marker[1] !== 'string')
+        return { records: [], next: null };
+      boundary = `AND (${sort} ${routine ? '>' : '<'} ? OR (${sort} = ? AND id > ?))`;
+      args = [marker[0], marker[0], marker[1]];
+    }
+    const rows = port.exec(`SELECT id, fields, ${sort} AS sort FROM records WHERE type = ? ${where}
+      AND (deleted IS NULL OR EXISTS (SELECT 1 FROM json_each(records.clocks) WHERE value >= records.deleted))
+      ${boundary} ORDER BY ${sort} ${direction}, id LIMIT ?`, type, ...args, limit + 1);
+    const page = rows.slice(0, limit);
+    return { records: page.map(r => ({ id:r.id, fields:JSON.parse(r.fields), cursor:JSON.stringify([r.sort, r.id]) })),
+      next: rows.length > limit ? JSON.stringify([page.at(-1).sort, page.at(-1).id]) : null };
+  }
   const rows = port.exec("SELECT id, fields, clocks, deleted FROM records WHERE type = ? AND id > ? ORDER BY id LIMIT ?",
     type, after, limit + 1);
   const page = rows.slice(0, limit);

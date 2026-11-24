@@ -47,6 +47,16 @@ extension MailFixtureSource {
     // MARK: - Making and keeping a draft
 
     func newDraft(_ kind: MailDraftKind) async -> MailDraft {
+        let replyTo: MailMessageID?
+        switch kind {
+        case .reply(let message), .replyAll(let message): replyTo = message
+        default: replyTo = nil
+        }
+        if let replyTo, let found = original(replyTo), let kept = found.stored.conversation.draft,
+           let existing = drafts[kept], held[kept] == nil, existing.format == .banana,
+           existing.replyToMessage == replyTo {
+            return existing
+        }
         draftNumber += 1
         let id = MailDraftID(raw: "draft-\(draftNumber)")
         var identity = accounts[0].identities[0]
@@ -79,6 +89,7 @@ extension MailFixtureSource {
             draft.conversation = found.stored.conversation.id
             draft.isReply = !isForward
             draft.isForward = isForward
+            if !isForward { draft.replyToMessage = message }
             draft.to = recipients.to
             draft.cc = recipients.cc
             draft.subject = MailReplyRules.subject(for: kind, original: found.stored.conversation.subject)

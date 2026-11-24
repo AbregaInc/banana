@@ -42,8 +42,11 @@ enum MeetingPlatform: String, Codable, Hashable {
     /// explicit substring test because self-hosted Jitsi genuinely has no fixed domain.
     static func classify(_ url: URL) -> MeetingPlatform {
         let h = (url.host ?? "").lowercased()
+        // `anywhere` (self-hosted Jitsi) matches a word of the host (jitsi.acme.com, our-jitsi.acme.com),
+        // not any substring (notjitsi.example would otherwise be named Jitsi).
+        let words = h.split(whereSeparator: { $0 == "." || $0 == "-" })
         for entry in hosts where entry.domains.contains(where: { h == $0 || h.hasSuffix("." + $0) })
-            || entry.anywhere.map(h.contains) == true {
+            || entry.anywhere.map { word in words.contains { $0.hasPrefix(word) } } == true {
             return entry.platform
         }
         return .generic
@@ -219,7 +222,8 @@ enum MeetingLink {
     private static func urls(in text: String) -> [URL] {
         guard let d = linkDetector else { return [] }
         let ns = text as NSString
-        return d.matches(in: text, range: NSRange(location: 0, length: ns.length)).compactMap(\.url)
+        // Joinable links are web links: an invitation's text may hold any URL scheme.
+        return d.matches(in: text, range: NSRange(location: 0, length: ns.length)).compactMap { LinkPolicy.web($0.url) }
     }
 
     private struct DetectionKey: Hashable {
