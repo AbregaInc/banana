@@ -115,6 +115,10 @@ for channel in stable testflight appstore; do
   if tools/check-release.sh "$prod" > "$scratch/production-email.log" 2>&1; then echo "Email marker accepted for $channel"; exit 1; fi
   printf 'AI\n' > "$marker"
 done
+/usr/libexec/PlistBuddy -c 'Set :BananaModules BANANA_MODULE_NOTES' "$prod/Contents/Info.plist"
+if tools/check-release.sh "$prod" > "$scratch/store-modules.log" 2>&1; then echo 'App Store accepted an optional module'; exit 1; fi
+grep -q 'declares optional modules in the App Store configuration' "$scratch/store-modules.log"
+/usr/libexec/PlistBuddy -c 'Set :BananaModules ""' "$prod/Contents/Info.plist"
 printf '#include <stdio.h>\nint main(void) { puts("banana-unreleased-modules-built-in"); return 0; }\n' > "$scratch/probe.c"
 xcrun clang "$scratch/probe.c" -o "$prod/Contents/MacOS/probe"
 if tools/check-release.sh "$prod" > "$scratch/production-email.log" 2>&1; then echo 'Production Email binary accepted'; exit 1; fi

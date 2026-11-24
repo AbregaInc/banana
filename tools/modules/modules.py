@@ -88,6 +88,11 @@ def derive_info(info: dict, have: set[str]) -> dict:
             t for t in out["BGTaskSchedulerPermittedIdentifiers"] if not removed("taskIdentifiers", t, have)]
         if not out["BGTaskSchedulerPermittedIdentifiers"]:
             del out["BGTaskSchedulerPermittedIdentifiers"]
+    if "NSBonjourServices" in out:
+        out["NSBonjourServices"] = [name for name in out["NSBonjourServices"]
+                                    if not removed("bonjourServices", name, have)]
+        if not out["NSBonjourServices"]:
+            del out["NSBonjourServices"]
     if "CFBundleURLTypes" in out:
         types = []
         for entry in out["CFBundleURLTypes"]:
@@ -103,7 +108,10 @@ def derive_info(info: dict, have: set[str]) -> dict:
         for reword in module.get("rewords", []):
             text = out.get(reword["key"])
             if isinstance(text, str) and reword["when"] in text.lower():
-                out[reword["key"]] = reword["text"]
+                if reword["text"] is None:
+                    del out[reword["key"]]
+                else:
+                    out[reword["key"]] = reword["text"]
     return out
 
 
@@ -254,6 +262,9 @@ def check(target: Path) -> int:
     if setting is None:
         print(f"Not for distribution: {app.name} has no BananaModules in its Info.plist")
         return 1
+    if info.get("BananaReleaseChannel") == "appstore" and setting.split():
+        print(f"Not for distribution: {app.name} declares optional modules in the App Store configuration")
+        return 1
     have = carried(setting)
     absent = [name for name in MODULES if name not in have]
     problems: list[str] = []
@@ -264,6 +275,9 @@ def check(target: Path) -> int:
     for mode in info.get("UIBackgroundModes", []):
         if removed("backgroundModes", mode, have):
             problems.append(f"background mode {mode}")
+    for service in info.get("NSBonjourServices", []):
+        if removed("bonjourServices", service, have):
+            problems.append(f"Bonjour service {service}")
     for task in info.get("BGTaskSchedulerPermittedIdentifiers", []):
         if removed("taskIdentifiers", task, have):
             problems.append(f"background task {task}")

@@ -18,6 +18,10 @@
       "info": ["NSPhotoLibraryUsageDescription"],
       "backgroundModes": ["processing"],
       "taskIdentifiers": ["com.boris.banana.meals.scan", "com.boris.banana.meals.estimate.*", "com.boris.banana.meals.catchup"],
+      "rewords": [
+        {"key": "NSCameraUsageDescription", "when": "pair with your mac", "text": "Banana uses the camera to scan a Desktop Link code and pair with your Mac."},
+        {"key": "NSCameraUsageDescription", "when": "photograph a meal", "text": null}
+      ],
       "markers": ["WellnessStore", "MealInboxStore", "MealBacklogProcessor"]
     },
     "notes": {
@@ -37,10 +41,13 @@
                     "acq2.jpg", "acquired.jpg", "complex-systems.jpg", "gamecraft.jpg", "get-sleepy.jpg", "step-change.jpg"],
       "info": ["NSAppleMusicUsageDescription", "NSSpeechRecognitionUsageDescription", "NSAppTransportSecurity"],
       "backgroundModes": ["audio", "processing", "location"],
+      "bonjourServices": ["_banana-audio._tcp"],
       "taskIdentifiers": ["com.boris.banana.transcribe.overnight", "com.boris.banana.feeds.overnight", "com.boris.banana.transcribe.*"],
       "rewords": [
         {"key": "NSLocationWhenInUseUsageDescription", "when": "podcast",
-         "text": "Banana uses your location for forecasts and travel estimates."}
+         "text": "Banana uses your location for forecasts and travel estimates."},
+        {"key": "NSLocalNetworkUsageDescription", "when": "podcast",
+         "text": "Banana uses your local network to connect your devices for Desktop Link."}
       ],
       "markers": ["PodcastLibrary", "PlayerController", "TranscriptCoordinator"]
     },
