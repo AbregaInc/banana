@@ -109,18 +109,28 @@ struct AssistantWorkspaceView: View {
     let action: AssistantAction
     var request: String? = nil
     @ObservedObject private var assistant = AssistantStore.shared
+    #if BANANA_MODULE_FOOD
     @ObservedObject private var wellness = WellnessStore.shared
+    #endif
     @ObservedObject private var calendarWrites = OccurrenceStore.shared.pendingWrites
+    #if BANANA_MODULE_NOTES
     @ObservedObject private var noteStore = VoiceNoteStore.shared
     @State private var noteText = ""
+    #endif
     @State private var eventSubmitted = false
     @State private var expandedResult: String?
+    #if BANANA_MODULE_FOOD
     @State private var editingSaved: MealEntry?
+    #endif
     @Environment(\.workspaceChrome) private var chrome
 
 
+    #if BANANA_MODULE_FOOD
     private var savedMeal: MealEntry? { wellness.meals.first { $0.id == UUID(uuidString: action.id) } }
+    #endif
+    #if BANANA_MODULE_NOTES
     private var savedNote: VoiceNote? { noteStore.notes.first { $0.id == UUID(uuidString: action.id) } }
+    #endif
     private var eventWrite: PendingCalendarWrite? {
         guard let id = UUID(uuidString: action.id) else { return nil }
         return calendarWrites.pending.first { $0.input.assistantOperationID == id }
@@ -144,6 +154,7 @@ struct AssistantWorkspaceView: View {
             }
             switch action.kind {
             case .meal:
+                #if BANANA_MODULE_FOOD
                 if let savedMeal {
                     SavedMealSummary(meal: savedMeal) { open("nutrition", itemID: "meal:\(savedMeal.id)") }
                         edit: { editingSaved = savedMeal }
@@ -152,6 +163,9 @@ struct AssistantWorkspaceView: View {
                         .environmentObject(wellness)
                         .disabled(assistant.busy)
                 }
+                #else
+                EmptyView()
+                #endif
             case .event:
                 if !eventStatus.isDraft {
                     if let write = eventWrite, write.isFailed {
@@ -168,6 +182,7 @@ struct AssistantWorkspaceView: View {
                         .disabled(assistant.busy)
                 }
             case .note:
+                #if BANANA_MODULE_NOTES
                 if let savedNote {
                     Text(savedNote.transcript ?? "").textSelection(.enabled)
                     Button("Show in Notes") { open("notes", itemID: "note:\(savedNote.id)") }
@@ -185,6 +200,9 @@ struct AssistantWorkspaceView: View {
                     .disabled(assistant.busy || noteText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     .accessibilityIdentifier("assistant.note.save")
                 }
+                #else
+                EmptyView()
+                #endif
             case .search:
                 searchResults
             case .navigation:
@@ -200,17 +218,27 @@ struct AssistantWorkspaceView: View {
                 }
             }
         }
+        #if BANANA_MODULE_FOOD
         // The app's own meal editor, as Nutrition opens it: a correction is one tap from the result.
         .sheet(item: $editingSaved) { meal in
             FoodTextCaptureView(editing: meal).environmentObject(wellness)
         }
+        #endif
     }
 
     private var title: String {
         switch action.kind {
+        #if BANANA_MODULE_FOOD
         case .meal: savedMeal.map { $0.name.isEmpty ? "Meal" : $0.name } ?? (action.title.isEmpty ? "Meal" : action.title)
+        #else
+        case .meal: action.title
+        #endif
         case .event: action.title
+        #if BANANA_MODULE_NOTES
         case .note: savedNote == nil ? "New note" : "Note saved"
+        #else
+        case .note: action.title
+        #endif
         case .search: action.title
         case .navigation: action.title
         }
@@ -218,8 +246,16 @@ struct AssistantWorkspaceView: View {
 
     private var status: WorkspaceObjectHeader.Status {
         switch action.kind {
+        #if BANANA_MODULE_FOOD
         case .meal: return savedMeal == nil ? .draft : .saved
+        #else
+        case .meal: return .results
+        #endif
+        #if BANANA_MODULE_NOTES
         case .note: return savedNote == nil ? .draft : .saved
+        #else
+        case .note: return .results
+        #endif
         case .event: return eventStatus
         case .search, .navigation: return .results
         }
@@ -228,7 +264,7 @@ struct AssistantWorkspaceView: View {
     @ViewBuilder private var searchResults: some View {
         let results = action.results ?? []
         if results.isEmpty {
-            Text("Nothing in notes, meals, workouts, routines, podcasts or the plan matches.").foregroundStyle(.secondary)
+            Text("No matching results.").foregroundStyle(.secondary)
         }
         let sections = Dictionary(grouping: results, by: \.section)
         ForEach(AppSection.allCases.filter { sections[$0.rawValue] != nil }, id: \.self) { section in
@@ -240,7 +276,8 @@ struct AssistantWorkspaceView: View {
     }
 
     @ViewBuilder private func resultRow(_ result: AssistantAction.Result) -> some View {
-        let previews = result.id.hasPrefix("meal:") || result.id.hasPrefix("note:")
+        let previews = (AppModule.food.isAvailable && result.id.hasPrefix("meal:"))
+            || (AppModule.notes.isAvailable && result.id.hasPrefix("note:"))
         let open = expandedResult == result.id
         Button {
             if previews { withAnimation(.snappy(duration: 0.2)) { expandedResult = open ? nil : result.id } }
@@ -277,6 +314,7 @@ struct AssistantWorkspaceView: View {
     }
 }
 
+#if BANANA_MODULE_FOOD
 /// What a saved meal is, at a glance, after Pi's draft became a real entry. Undo stays in the
 /// toast above the input; this is the record you can check and open.
 struct SavedMealSummary: View {
@@ -316,16 +354,22 @@ enum MealTotalsLine {
     }
 }
 
+#endif
 /// Read saved records directly; expanding a result never starts inference or changes stores.
 private struct AssistantSearchDetail: View {
     let result: AssistantAction.Result
+    #if BANANA_MODULE_FOOD
     @ObservedObject private var wellness = WellnessStore.shared
+    #endif
+    #if BANANA_MODULE_NOTES
     @ObservedObject private var notes = VoiceNoteStore.shared
+    #endif
     private var recordID: UUID? { result.id.split(separator: ":", maxSplits: 1).last.flatMap { UUID(uuidString: String($0)) } }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             if result.id.hasPrefix("meal:") {
+                #if BANANA_MODULE_FOOD
                 if let meal = wellness.meals.first(where: { $0.id == recordID }) {
                     ForEach(meal.items) { item in
                         Text("\(item.name) · \(item.serving)")
@@ -334,7 +378,9 @@ private struct AssistantSearchDetail: View {
                 } else {
                     Text("This meal is no longer available.")
                 }
+                #endif
             } else if result.id.hasPrefix("note:") {
+                #if BANANA_MODULE_NOTES
                 if let note = notes.notes.first(where: { $0.id == recordID && $0.archivedAt == nil }) {
                     let text = note.transcript ?? ""
                     Text(text.isEmpty ? "No transcript yet." : String(text.prefix(10_000)))
@@ -342,6 +388,7 @@ private struct AssistantSearchDetail: View {
                 } else {
                     Text("This note is no longer available.")
                 }
+                #endif
             } else {
                 Text(result.detail)
             }

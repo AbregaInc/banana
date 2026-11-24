@@ -35,8 +35,8 @@ struct AssistantAgenda: Decodable, Equatable {
     var zone: TimeZone { TimeZone(identifier: timeZone) ?? .current }
     var zoneLabel: String { zone.localizedName(for: .generic, locale: .current) ?? timeZone }
     var heading: String {
-        let calendar = AssistantNutrition.calendar(zone)
-        guard let day = try? AssistantNutrition.date(date, calendar: calendar) else { return date }
+        let calendar = AssistantLocalDay.calendar(zone)
+        guard let day = try? AssistantLocalDay.date(date, calendar: calendar) else { return date }
         let formatter = DateFormatter(); formatter.timeZone = zone
         formatter.dateStyle = .full; formatter.timeStyle = .none
         return formatter.string(from: day)
@@ -55,12 +55,12 @@ struct AssistantAgenda: Decodable, Equatable {
         let formatter = DateFormatter()
         formatter.locale = locale; formatter.timeZone = zone
         var calendar = Calendar(identifier: .gregorian); calendar.timeZone = zone
-        formatter.dateStyle = AssistantNutrition.key(start, calendar: calendar) == date ? .none : .short
+        formatter.dateStyle = AssistantLocalDay.key(start, calendar: calendar) == date ? .none : .short
         formatter.timeStyle = .short
         let first = formatter.string(from: start)
         guard let end = try? Date(item.end, strategy: .iso8601), end > start else { return first }
         let crossesOffset = zone.secondsFromGMT(for: start) != zone.secondsFromGMT(for: end)
-        formatter.dateStyle = AssistantNutrition.key(end, calendar: calendar) == date ? .none : .short
+        formatter.dateStyle = AssistantLocalDay.key(end, calendar: calendar) == date ? .none : .short
         let last = formatter.string(from: end)
         return first + (crossesOffset ? " " + (zone.abbreviation(for: start) ?? "") : "")
             + " – " + last + (crossesOffset ? " " + (zone.abbreviation(for: end) ?? "") : "")
@@ -85,7 +85,9 @@ private struct AssistantSnapshot: Decodable {
     var hasMoreConversations: Bool
     var availability: AssistantAvailability
     var error: String?
+    #if BANANA_MODULE_FOOD
     var surface: AssistantNutritionSurface?
+    #endif
     var workspace: AssistantWorkspaceState?
 }
 
@@ -104,12 +106,21 @@ final class AssistantStore: ObservableObject {
     @Published private(set) var hasEarlier = false
     @Published private(set) var hasMoreConversations = false
     @Published private(set) var workspace: AssistantWorkspaceState?
+    #if BANANA_MODULE_FOOD
     @Published private(set) var surface: AssistantNutritionSurface?
     @Published private(set) var updatingSurface = false
+    #endif
     @Published var error: String?
     /// Notes Pi saved, by conversation, in order: the conversation shows each as the note it
     /// is (its words, a way to it), not only as a "Saved a note" step.
     @Published private(set) var savedNotes: [String: [SavedNote]] = [:]
+    var hasSurface: Bool {
+        #if BANANA_MODULE_FOOD
+        surface != nil
+        #else
+        false
+        #endif
+    }
     var isDiagnostic: Bool { diagnostic }
     #if DEBUG
     @Published private(set) var fixtureNoteCount = 0
@@ -203,6 +214,7 @@ final class AssistantStore: ObservableObject {
         }
         host.toolHandler = { [weak self] request in
             guard let self else { throw AssistantFailure(message: "The assistant is unavailable.") }
+            #if BANANA_MODULE_FOOD
             if let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any],
                value["name"] as? String == "read_nutrients", let args = value["arguments"] as? [String: Any] {
                 await WellnessStore.shared.whenLoaded()
@@ -216,12 +228,15 @@ final class AssistantStore: ObservableObject {
                 #endif
                 return try AssistantNutrition.validateRequest(args)
             }
+            #endif
             if let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any],
                value["name"] as? String == "app_workspace", let args = value["arguments"] as? [String: Any],
                let operation = value["operationId"] as? String {
+                #if BANANA_MODULE_FOOD
                 await WellnessStore.shared.whenLoaded()
                 #if DEBUG
                 if AppSupport.isPiUITest && WellnessStore.shared.meals.isEmpty { WellnessStore.shared.injectPreviewData() }
+                #endif
                 #endif
                 return String(decoding: try JSONEncoder().encode(AssistantWorkspace.prepare(args, operation: operation)), as: UTF8.self)
             }
@@ -254,7 +269,11 @@ final class AssistantStore: ObservableObject {
             }
         }
         host.eventHandler = { [weak self] event in self?.receive(event) }
-        var configuration: [String: Any] = ["testModel": diagnostic]
+        var configuration: [String: Any] = [
+            "testModel": diagnostic,
+            "modules": AppModule.carried.map(\.rawValue).sorted(),
+            "sections": AppSection.sidebar(with: .everything).filter { $0 != .mail }.map(\.rawValue),
+        ]
         #if os(macOS)
         // The Mac's own model, kept by the app: Qwen through the app's Locals once `LocalModel`
         // has its files here and checked, Apple's on-device model until then. Never in
@@ -368,7 +387,13 @@ final class AssistantStore: ObservableObject {
         guard let data = raw.data(using: .utf8) else { return }
         if let state = try? JSONDecoder().decode(AssistantSnapshot.self, from: data) {
             conversations = state.conversations; messages = state.messages; selected = state.selected
-            surface = state.surface; workspace = state.workspace
+            #if BANANA_MODULE_FOOD
+            surface = state.surface
+            #endif
+            var nextWorkspace = state.workspace
+            let availableAction = nextWorkspace?.action?.availableInBuild
+            nextWorkspace?.action = availableAction
+            workspace = nextWorkspace
             busy = state.busy; available = state.availability.available
             modelName = state.availability.modelName
             if state.availability.available {
@@ -509,6 +534,7 @@ final class AssistantStore: ObservableObject {
     func loadEarlier() async { await perform("earlier") }
     func loadMoreConversations() async { await perform("moreConversations") }
     func compact() async { await perform("compact") }
+    #if BANANA_MODULE_FOOD
     func updateSurface(_ patch: [String: Any]) async {
         guard active, !updatingSurface else { return }
         updatingSurface = true
@@ -517,6 +543,7 @@ final class AssistantStore: ObservableObject {
         patch["revision"] = surface?.revision ?? 0
         await perform("surface", ["patch": patch, "requestId": UUID().uuidString])
     }
+    #endif
     func dismissWorkspace(actionID: String? = nil) async {
         guard actionID == nil || workspace?.action?.id == actionID else { return }
         await perform("workspace", ["fields": ["kind": "dismiss", "revision": workspace?.revision ?? 0], "requestId": UUID().uuidString])
@@ -532,7 +559,10 @@ final class AssistantStore: ObservableObject {
                 self.host = nil
                 if FileManager.default.fileExists(atPath: self.directory.path) { try FileManager.default.removeItem(at: self.directory) }
                 UserDefaults.standard.removeObject(forKey: self.selectionKey)
-                self.selected = nil; self.messages = []; self.conversations = []; self.surface = nil; self.workspace = nil; self.busy = false
+                self.selected = nil; self.messages = []; self.conversations = []; self.workspace = nil; self.busy = false
+                #if BANANA_MODULE_FOOD
+                self.surface = nil
+                #endif
                 self.host = try self.makeHost(); self.active = true
                 _ = try await self.call("activate")
             } catch { self.error = Self.message(error) }

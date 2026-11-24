@@ -76,7 +76,9 @@ struct AgentResult: View {
     let purpose: AgentPurpose
     let finished: (AgentDestination) -> Void
     @ObservedObject private var assistant = AssistantStore.shared
+    #if BANANA_MODULE_FOOD
     @ObservedObject private var wellness = WellnessStore.shared
+    #endif
     @ObservedObject private var occurrences = OccurrenceStore.shared
 
     private var request: String? { assistant.messages.last(where: { $0.role == "user" })?.text }
@@ -92,9 +94,13 @@ struct AgentResult: View {
             if let action = assistant.workspace?.action {
                 // The words the draft came from, on the draft: what Pi was told, beside what it made.
                 AssistantWorkspaceView(action: action, request: purpose == .add ? action.sourceRequest : nil).id(action.id)
-            } else if let surface = assistant.surface {
+            }
+            #if BANANA_MODULE_FOOD
+            if let surface = assistant.surface, assistant.workspace?.action == nil {
                 AssistantNutritionView(surface: surface)
-            } else if assistant.busy {
+            }
+            #endif
+            if assistant.busy && assistant.workspace?.action == nil && !assistant.hasSurface {
                 HStack {
                     Label { Text("Working…") } icon: { ProgressView().controlSize(.small) }
                         .foregroundStyle(.secondary)
@@ -124,8 +130,10 @@ struct AgentResult: View {
     private var savedDestination: AgentDestination? {
         guard let action = assistant.workspace?.action, let id = UUID(uuidString: action.id) else { return nil }
         switch action.kind {
+        #if BANANA_MODULE_FOOD
         case .meal:
             return wellness.meals.contains(where: { $0.id == id }) ? AgentDestination(section: .nutrition, itemID: "meal:\(id)") : nil
+        #endif
         case .event:
             return occurrences.pendingWrites.pending.contains(where: { $0.input.assistantOperationID == id })
                 ? AgentDestination(section: .plan, itemID: nil) : nil
@@ -292,13 +300,17 @@ struct AgentAnswerPage: View {
 
     /// Examples that fit what's on the page, not ones the page's own controls already do.
     private var refineHint: String {
+        #if BANANA_MODULE_FOOD
         if assistant.surface != nil { return "Refine: just October, carbs instead…" }
-        if assistant.workspace?.action?.kind == .search { return "Refine: only notes, from last week…" }
+        #endif
+        if assistant.workspace?.action?.kind == .search { return "Refine: try a different title…" }
         return "Ask a follow-up…"
     }
 
     private var title: String {
+        #if BANANA_MODULE_FOOD
         if let surface = assistant.surface { return surface.metric.title }
+        #endif
         if assistant.workspace?.action?.kind == .search { return "Search" }
         return "Answer"
     }

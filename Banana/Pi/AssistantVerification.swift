@@ -32,14 +32,18 @@ enum AssistantVerification {
             return
         }
         #endif
+        #if BANANA_MODULE_FOOD && BANANA_MODULE_NOTES
         if ProcessInfo.processInfo.arguments.contains("--assistant-workspace-verify") {
             await AssistantWorkspaceVerification.run(assistant)
             return
         }
+        #endif
+        #if BANANA_MODULE_FOOD
         if ProcessInfo.processInfo.arguments.contains("--assistant-nutrition-verify") {
             await AssistantNutritionVerification.run(assistant)
             return
         }
+        #endif
         print("PI_APP_VERIFICATION starting")
         fflush(stdout)
         var report: [String: Any] = ["passed": false, "bundle": Bundle.main.bundleIdentifier ?? "", "model": "apple-foundation/on-device", "run": runIdentifier]

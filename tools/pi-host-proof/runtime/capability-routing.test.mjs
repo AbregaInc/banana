@@ -219,3 +219,30 @@ test('compound, quoted, and unsupported birthday questions remain with normal ro
     assert.equal(output.content[0].type, 'text');
   }
 });
+
+test('App Store routing respects available pages and tool schemas', async () => {
+  function appStoreRequest(message) {
+    const input = request(message, ['day_plan', 'prepare_event', 'search_app', 'open_page']);
+    input.tools.find(tool => tool.name === 'open_page').parameters.properties.section = {
+      type: 'string', enum: ['plan', 'routines', 'assistant', 'settings'],
+    };
+    return input;
+  }
+  const direct = await routeGeneration(appStoreRequest('Open Notes'), async () => {
+    throw new Error('Unavailable direct navigation should never run inference');
+  });
+  assert.equal(direct.content[0].type, 'text');
+  assert.match(direct.content[0].text, /this version/);
+
+  const agenda = await routeGeneration(appStoreRequest('What is on my agenda tomorrow?'), async next => {
+    if (next.tools[0].name === 'select_capability') {
+      const operations = next.tools[0].parameters.properties.operation.enum;
+      assert.ok(operations.includes('day_plan'));
+      assert.ok(!operations.includes('list_notes'));
+      assert.ok(!operations.includes('nutrition_view'));
+      return pick('day_plan');
+    }
+    return response('day_plan', {date: 'tomorrow'});
+  });
+  assert.equal(agenda.content[0].name, 'day_plan');
+});

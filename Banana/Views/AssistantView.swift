@@ -10,9 +10,6 @@ struct AssistantView: View {
     @State private var showingHistory = false
     /// Words handed over by the shell's "Ask Banana" row, sent once the model is ready.
     @State private var sendWhenReady = false
-    #if PI_DEVELOPMENT
-    @ObservedObject private var wellness = WellnessStore.shared
-    #endif
     var showsDoneButton = false
     /// Embedded beside a Mac page; controls stay in the panel rather than the window toolbar.
     var panelClose: (() -> Void)? = nil
@@ -192,7 +189,7 @@ struct AssistantView: View {
                 .scrollDismissesKeyboard(.interactively)
                 .background(DS.Palette.page)
                 .onChange(of: assistant.messages.count) { _, _ in
-                    if assistant.surface == nil && assistant.workspace?.action == nil {
+                    if !hasObject {
                         proxy.scrollTo("assistant.bottom", anchor: .bottom)
                     }
                 }
@@ -202,12 +199,14 @@ struct AssistantView: View {
                 .onChange(of: assistant.workspace?.action?.id) { _, id in
                     if id != nil { proxy.scrollTo("assistant.workspace.top", anchor: .top) }
                 }
+                #if BANANA_MODULE_FOOD
                 .onChange(of: assistant.surface?.draftID) { _, id in
                     if id != nil { proxy.scrollTo("assistant.copy.top", anchor: .top) }
                 }
                 .onChange(of: assistant.surface != nil) { _, visible in
                     if visible { proxy.scrollTo("assistant.surface.top", anchor: .top) }
                 }
+                #endif
             }
             #if os(iOS)
             // Inside the composer's inset, so an Undo toast sits above the input, never on it.
@@ -294,11 +293,19 @@ struct AssistantView: View {
         let title: String, symbol: String, prefill: String?
         var id: String { title }
     }
-    private let starters = [
-        Starter(title: "Log a meal", symbol: "fork.knife", prefill: "Log "),
-        Starter(title: "Add an event", symbol: "calendar.badge.plus", prefill: "Add "),
-        Starter(title: "Find a note or meal", symbol: "magnifyingglass", prefill: "Find "),
-    ]
+    private var starters: [Starter] {
+        var starts: [Starter] = []
+        #if BANANA_MODULE_FOOD
+        starts.append(Starter(title: "Log a meal", symbol: "fork.knife", prefill: "Log "))
+        #endif
+        starts.append(Starter(title: "Add an event", symbol: "calendar.badge.plus", prefill: "Add "))
+        #if BANANA_MODULE_FOOD && BANANA_MODULE_NOTES
+        starts.append(Starter(title: "Find a note or meal", symbol: "magnifyingglass", prefill: "Find "))
+        #else
+        starts.append(Starter(title: "Find an event", symbol: "magnifyingglass", prefill: "Find "))
+        #endif
+        return starts
+    }
 
     @ViewBuilder private var emptyWorkspace: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -313,6 +320,7 @@ struct AssistantView: View {
                 .accessibilityIdentifier("assistant.starter.\(starter.symbol)")
                 Divider()
             }
+            #if BANANA_MODULE_FOOD
             Button {
                 Task { await assistant.updateSurface(["period": "this_month", "metric": "protein"]) }
             } label: {
@@ -320,6 +328,7 @@ struct AssistantView: View {
             }
             .accessibilityLabel("Show my protein this month")
             .disabled(assistant.selected == nil || assistant.busy || assistant.updatingSurface)
+            #endif
         }
         .padding(.top, 12)
     }
@@ -374,7 +383,7 @@ struct AssistantView: View {
         #endif
     }
 
-    private var hasObject: Bool { assistant.surface != nil || assistant.workspace?.action != nil }
+    private var hasObject: Bool { assistant.hasSurface || assistant.workspace?.action != nil }
 
     @ViewBuilder private var workspaceContent: some View {
         if hasObject {
@@ -396,10 +405,13 @@ struct AssistantView: View {
             Color.clear.frame(height: 0).id("assistant.workspace.top")
             // Beside the conversation column the request is already in view.
             AssistantWorkspaceView(action: action, request: showsRequest ? action.sourceRequest : nil).id(action.id)
-        } else if let surface = assistant.surface {
+        }
+        #if BANANA_MODULE_FOOD
+        if let surface = assistant.surface, assistant.workspace?.action == nil {
             Color.clear.frame(height: 0).id("assistant.surface.top")
             AssistantNutritionView(surface: surface)
         }
+        #endif
     }
 
 
@@ -463,7 +475,7 @@ struct AssistantView: View {
             .accessibilityIdentifier("assistant.agenda")
         } else if message.role == "activity" {
             let inFlight = assistant.busy && message.id == assistant.messages.last?.id
-            if !inFlight, message.text.contains("Saving a note"), let note = savedNote(for: message) {
+            if (AppModule.notes.isAvailable || assistant.isDiagnostic), !inFlight, message.text.contains("Saving a note"), let note = savedNote(for: message) {
                 // What Pi wrote, as the note it is: its words and the way to it.
                 SavedNoteRow(note: note)
             } else {

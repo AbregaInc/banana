@@ -3,6 +3,20 @@ import Foundation
 /// Native descriptors persisted by the Pi extension. Models propose fields; native code validates them.
 struct AssistantAction: Codable, Equatable, Identifiable {
     enum Kind: String, Codable { case meal, event, note, search, navigation }
+
+    var availableInBuild: Self? {
+        switch kind {
+        case .meal where !AppModule.food.isAvailable, .note where !AppModule.notes.isAvailable:
+            return nil
+        case .navigation:
+            guard let section, AppSection(rawValue: section)?.isShown(with: .everything) == true else { return nil }
+        default:
+            break
+        }
+        var action = self
+        action.results = results?.filter { AppSection(rawValue: $0.section)?.isShown(with: .everything) == true }
+        return action
+    }
     struct Food: Codable, Equatable { var name: String; var quantity: String }
     struct Result: Codable, Equatable, Identifiable {
         var id: String; var title: String; var detail: String; var section: String
@@ -42,15 +56,19 @@ enum AssistantWorkspace {
         guard action.title.count <= 200 else { throw AssistantFailure(message: "Use a shorter title.") }
         switch kind {
         case .meal:
+            #if BANANA_MODULE_FOOD
             guard let foods = action.foods, (1...12).contains(foods.count), foods.allSatisfy({
                 !$0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && $0.name.count <= 120 && !$0.quantity.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && $0.quantity.count <= 80
             }) else { throw AssistantFailure(message: "List one to twelve foods with their amounts for review.") }
             action.day = try day(fields, now: now)
             if action.title.isEmpty { action.title = "New meal" }
+            #else
+            throw AssistantFailure(message: "Food is unavailable in this build.")
+            #endif
         case .event:
             guard !action.title.isEmpty else { throw AssistantFailure(message: "Give the event a title.") }
             let day = try day(fields, now: now)
-            let base = try AssistantNutrition.date(day)
+            let base = try AssistantLocalDay.date(day)
             let allDay = action.isAllDay ?? false
             let duration = fields["durationMinutes"] as? Int ?? 60
             guard (15...1440).contains(duration), (action.location?.count ?? 0) <= 300, (action.notes?.count ?? 0) <= 2000 else {
@@ -62,16 +80,16 @@ enum AssistantWorkspace {
                 let pieces = time.split(separator: ":", omittingEmptySubsequences: false)
                 guard pieces.count == 2, pieces[0].count == 2, pieces[1].count == 2,
                       let hour = Int(pieces[0]), let minute = Int(pieces[1]), (0...23).contains(hour), (0...59).contains(minute),
-                      let date = AssistantNutrition.calendar().date(bySettingHour: hour, minute: minute, second: 0, of: base),
-                      AssistantNutrition.calendar().component(.hour, from: date) == hour,
-                      AssistantNutrition.calendar().component(.minute, from: date) == minute else {
+                      let date = AssistantLocalDay.calendar().date(bySettingHour: hour, minute: minute, second: 0, of: base),
+                      AssistantLocalDay.calendar().component(.hour, from: date) == hour,
+                      AssistantLocalDay.calendar().component(.minute, from: date) == minute else {
                     throw AssistantFailure(message: "Use a valid local start time in HH:mm format.")
                 }
                 start = date
                 // An omitted day means the next occurrence of this clock time.
                 // Explicit dates (including today) retain the user's choice.
                 if fields["day"] == nil && fields["relativeDay"] == nil && start <= now {
-                    guard let next = AssistantNutrition.calendar().nextDate(after: now,
+                    guard let next = AssistantLocalDay.calendar().nextDate(after: now,
                         matching: DateComponents(hour: hour, minute: minute, second: 0),
                         matchingPolicy: .nextTime) else {
                         throw AssistantFailure(message: "Choose a date for this event.")
@@ -79,15 +97,19 @@ enum AssistantWorkspace {
                     start = next
                 }
             }
-            let end = allDay ? AssistantNutrition.calendar().date(byAdding: .day, value: 1, to: base)! : start.addingTimeInterval(Double(duration) * 60)
-            action.day = AssistantNutrition.key(start); action.start = start.ISO8601Format(); action.end = end.ISO8601Format(); action.isAllDay = allDay
+            let end = allDay ? AssistantLocalDay.calendar().date(byAdding: .day, value: 1, to: base)! : start.addingTimeInterval(Double(duration) * 60)
+            action.day = AssistantLocalDay.key(start); action.start = start.ISO8601Format(); action.end = end.ISO8601Format(); action.isAllDay = allDay
         case .note:
+            #if BANANA_MODULE_NOTES
             let text = (action.notes ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
             guard !text.isEmpty, text.count <= 4000 else { throw AssistantFailure(message: "A note needs between 1 and 4,000 characters.") }
             action.notes = text
             action.title = "New note"
+            #else
+            throw AssistantFailure(message: "Notes are unavailable in this build.")
+            #endif
         case .navigation:
-            guard let raw = action.section, let section = AppSection(rawValue: raw) else { throw AssistantFailure(message: "Choose a Banana page to open.") }
+            guard let raw = action.section, let section = AppSection(rawValue: raw), section.isShown(with: .everything) else { throw AssistantFailure(message: "Choose a Banana page to open.") }
             action.title = section.title
         case .search:
             let query = (action.query ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -105,15 +127,16 @@ enum AssistantWorkspace {
     private static func day(_ fields: [String: Any], now: Date) throws -> String {
         let requested = fields["day"] as? String ?? fields["relativeDay"] as? String ?? "today"
         switch requested {
-        case "today": return AssistantNutrition.key(now)
-        case "tomorrow": return AssistantNutrition.key(AssistantNutrition.calendar().date(byAdding: .day, value: 1, to: now)!)
-        case "yesterday": return AssistantNutrition.key(AssistantNutrition.calendar().date(byAdding: .day, value: -1, to: now)!)
+        case "today": return AssistantLocalDay.key(now)
+        case "tomorrow": return AssistantLocalDay.key(AssistantLocalDay.calendar().date(byAdding: .day, value: 1, to: now)!)
+        case "yesterday": return AssistantLocalDay.key(AssistantLocalDay.calendar().date(byAdding: .day, value: -1, to: now)!)
         default:
-            _ = try AssistantNutrition.date(requested)
+            _ = try AssistantLocalDay.date(requested)
             return requested
         }
     }
 
+    #if BANANA_MODULE_FOOD
     static func mealItems(_ action: AssistantAction) -> [ResolvedFoodItem] {
         (action.foods ?? []).map { food in
             let input = ExtractedFoodItem(name: food.name, quantityPhrase: food.quantity,
@@ -125,26 +148,34 @@ enum AssistantWorkspace {
         }
     }
 
-    static func routedState(_ section: AppSection, itemID: String?, from state: ShellState, meals: [MealEntry]) -> ShellState {
+    #endif
+    static func routedState(_ section: AppSection, itemID: String?, from state: ShellState) -> ShellState {
+        guard let itemID else { return state }
+        let pieces = itemID.split(separator: ":", maxSplits: 1)
+        guard pieces.count == 2, let id = UUID(uuidString: String(pieces[1])) else { return state }
         var result = state
-        if let itemID {
-            let pieces = itemID.split(separator: ":", maxSplits: 1).map(String.init)
-            if pieces.count == 2, let id = UUID(uuidString: pieces[1]) {
-                if section == .notes, pieces[0] == "note" { result.notes = [id] }
-                if section == .library, pieces[0] == "podcast" { result.library = [id] }
-                if section == .workouts, pieces[0] == "workout" { result.workouts = [.workout("s-\(id.uuidString)")] }
-                if section == .nutrition, pieces[0] == "meal", let meal = meals.first(where: { $0.id == id }) {
-                    result.nutritionDay = meal.date
-                    result.nutritionSection = "food"
-                }
-            }
+        #if BANANA_MODULE_NOTES
+        if section == .notes, pieces[0] == "note" { result.notes = [id] }
+        #endif
+        #if BANANA_MODULE_PODCASTS
+        if section == .library, pieces[0] == "podcast" { result.library = [id] }
+        #endif
+        #if BANANA_MODULE_WORKOUTS
+        if section == .workouts, pieces[0] == "workout" { result.workouts = [.workout("s-\(id.uuidString)")] }
+        #endif
+        #if BANANA_MODULE_FOOD
+        if section == .nutrition, pieces[0] == "meal", let meal = WellnessStore.shared.meals.first(where: { $0.id == id }) {
+            result.nutritionDay = meal.date
+            result.nutritionSection = "food"
         }
+        #endif
         return result
     }
 
     static func open(_ section: AppSection, itemID: String? = nil) {
+        guard section.isShown(with: .everything) else { return }
         let shell = ShellNavigation.shared
-        shell.state = routedState(section, itemID: itemID, from: shell.state, meals: WellnessStore.shared.meals)
+        shell.state = routedState(section, itemID: itemID, from: shell.state)
         if section == .plan, let itemID, itemID.hasPrefix("plan:"),
            let occurrence = OccurrenceStore.shared.occurrences.first(where: { $0.id == String(itemID.dropFirst(5)) }) {
             let route = occurrence.meeting?.eventID.flatMap(GoogleCalendarIDs.rawEventRoute(from:))
@@ -179,9 +210,12 @@ enum AssistantWorkspace {
             counts[section, default: 0] += 1
             results.append(.init(id: id, title: title, detail: String(detail.prefix(240)), section: section.rawValue))
         }
+        #if BANANA_MODULE_NOTES
         for note in VoiceNoteStore.shared.matchingNotes(search: query, archived: false).prefix(6) {
             let text = note.transcript ?? ""; add("note:\(note.id)", String(text.prefix(80)), text, .notes)
         }
+        #endif
+        #if BANANA_MODULE_FOOD
         for meal in WellnessStore.shared.meals.sorted(by: { $0.date > $1.date }) {
             // A result is named by what it is ("Chicken grain bowl, Greek yogurt"), not by its kind.
             let foods = meal.items.map(\.name).joined(separator: ", ")
@@ -189,13 +223,18 @@ enum AssistantWorkspace {
                 meal.date.formatted(.dateTime.month(.abbreviated).day()) + " · \(Int(meal.totals.calories.rounded())) kcal"
                     + (meal.name.isEmpty ? "" : " · " + foods), .nutrition)
         }
+        #endif
+        #if BANANA_MODULE_WORKOUTS
         for workout in FitnessStore.shared.summaries {
             add("workout:\(workout.id)", workout.activity, workout.start.formatted(), .workouts)
         }
+        #endif
         for routine in RoutineStore.shared.routines { add("routine:\(routine.id)", routine.name, "Routine", .routines) }
+        #if BANANA_MODULE_PODCASTS
         for podcast in WakeCoordinator.shared.library.podcasts { add("podcast:\(podcast.id)", podcast.title, "Podcast", .library) }
+        #endif
         for occurrence in OccurrenceStore.shared.occurrences { add("plan:\(occurrence.id)", occurrence.title, occurrence.start.formatted(), .plan) }
-        for section in AppSection.macSidebar { add("page:\(section.id)", section.title, "Banana page", section) }
+        for section in AppSection.macSidebar(with: .everything) { add("page:\(section.id)", section.title, "Banana page", section) }
         return results
     }
 }

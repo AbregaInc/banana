@@ -15,7 +15,7 @@ import Foundation
         ]
         for (zone, instant, expected) in cases {
             var calendar = Calendar(identifier: .gregorian); calendar.timeZone = TimeZone(identifier: zone)!
-            let targetDay = AssistantNutrition.key(try Date(instant, strategy: .iso8601), calendar: calendar)
+            let targetDay = AssistantLocalDay.key(try Date(instant, strategy: .iso8601), calendar: calendar)
             let agenda = AssistantAgenda(date: targetDay, timeZone: zone, items: [], hasMore: false)
             let item = AssistantAgenda.Item(title: "Test", start: instant, end: "", kind: "meeting", hasScheduledTime: true)
             let actual = agenda.time(item, locale: Locale(identifier: "en_US"))
@@ -49,6 +49,7 @@ import Foundation
         #endif
     }
 
+    #if BANANA_MODULE_FOOD && BANANA_MODULE_NOTES
     static func run(_ assistant: AssistantStore) async {
         var report: [String: Any] = ["passed": false, "run": AssistantVerification.runIdentifier,
             "bundle": Bundle.main.bundleIdentifier ?? "", "model": assistant.modelIdentity]
@@ -95,7 +96,7 @@ import Foundation
             await assistant.newConversation()
             let mealTiming = try await send("Log a new meal for today: 2 eggs and 1 banana. Prepare it for review; do not save it yet.", assistant)
             guard let meal = assistant.workspace?.action, meal.kind == .meal,
-                  meal.day == AssistantNutrition.key(Date()), meal.foods?.count == 2,
+                  meal.day == AssistantLocalDay.key(Date()), meal.foods?.count == 2,
                   wellness.meals.count == initialMeals else { throw AssistantFailure(message: "New meal was not prepared without saving") }
             report["newMealFromWords"] = true; report["mealMilliseconds"] = mealTiming
             let resolved = AssistantWorkspace.mealItems(meal)
@@ -150,7 +151,7 @@ import Foundation
             guard let search = assistant.workspace?.action, search.kind == .search,
                   search.results?.contains(where: { $0.id == "note:\(id)" }) == true else { throw AssistantFailure(message: "Global search did not return the actual native note") }
             report["localSearchGrounded"] = true
-            let routed = AssistantWorkspace.routedState(.notes, itemID: "note:\(id)", from: ShellState(), meals: wellness.meals)
+            let routed = AssistantWorkspace.routedState(.notes, itemID: "note:\(id)", from: ShellState())
             guard routed.notes == [id] else { throw AssistantFailure(message: "Search link did not select the real note") }
             report["searchUsesAppNavigation"] = true
             await assistant.newConversation()
@@ -205,7 +206,7 @@ import Foundation
             await assistant.updateSurface(["period": "this_month", "metric": "protein"])
             try await send("What is going on tomorrow?", assistant)
             guard let agenda = assistant.messages.compactMap(\.agenda).last,
-                  agenda.date == AssistantNutrition.key(Calendar.current.date(byAdding: .day, value: 1, to: Date())!),
+                  agenda.date == AssistantLocalDay.key(Calendar.current.date(byAdding: .day, value: 1, to: Date())!),
                   agenda.timeZone == TimeZone.current.identifier, assistant.surface == nil,
                   assistant.workspace?.action == nil else {
                 throw AssistantFailure(message: "Tomorrow must produce a native agenda in the device timezone")
@@ -249,7 +250,7 @@ import Foundation
             #if PI_DEVELOPMENT
             let flight = PiSampleData.flights()[0]
             await assistant.newConversation()
-            let flightDay = AssistantNutrition.key(flight.start)
+            let flightDay = AssistantLocalDay.key(flight.start)
             try await send("What is on my schedule on \(flightDay)?", assistant)
             guard let travel = assistant.messages.compactMap(\.agenda).last,
                   let displayed = travel.items.first(where: { $0.title == flight.title }),
@@ -322,6 +323,7 @@ import Foundation
             try await Task.sleep(for: .milliseconds(75))
         }
     }
+    #endif
 }
 #endif
 

@@ -11,6 +11,7 @@ enum AssistantCapabilities {
         }
         let result: Any
         switch name {
+        #if BANANA_MODULE_NOTES
         case "list_notes":
             let limit = arguments["limit"] as? Int ?? 5
             guard (1...10).contains(limit) else { throw AssistantFailure(message: "Request between one and ten notes.") }
@@ -31,6 +32,7 @@ enum AssistantCapabilities {
                   let id = UUID(uuidString: operation) else { throw AssistantFailure(message: "The note action is invalid.") }
             try VoiceNoteStore.shared.addAssistantNote(id: id, text: text)
             result = ["id": id.uuidString, "saved": true] as [String: Any]
+        #endif
         case "day_plan":
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "en_US_POSIX")

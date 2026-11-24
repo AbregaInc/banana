@@ -37,22 +37,15 @@ enum AssistantNutrition {
     }
 
     static func calendar(_ zone: TimeZone = .current) -> Calendar {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = zone
-        return calendar
+        AssistantLocalDay.calendar(zone)
     }
+
     static func key(_ date: Date, calendar: Calendar = calendar()) -> String {
-        let parts = calendar.dateComponents([.year, .month, .day], from: date)
-        return String(format: "%04d-%02d-%02d", parts.year!, parts.month!, parts.day!)
+        AssistantLocalDay.key(date, calendar: calendar)
     }
+
     static func date(_ text: String, calendar: Calendar = calendar()) throws -> Date {
-        let parts = text.split(separator: "-").compactMap { Int($0) }
-        guard parts.count == 3, text.count == 10,
-              let date = calendar.date(from: DateComponents(year: parts[0], month: parts[1], day: parts[2])),
-              key(date, calendar: calendar) == text else {
-            throw AssistantFailure(message: "Use a valid date in YYYY-MM-DD format.")
-        }
-        return date
+        try AssistantLocalDay.date(text, calendar: calendar)
     }
 
     static func resolve(_ value: AssistantNutritionSurface, period: String?, now: Date = Date(), calendar: Calendar = calendar()) throws -> AssistantNutritionSurface {
