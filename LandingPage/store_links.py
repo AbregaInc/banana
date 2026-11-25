@@ -16,6 +16,7 @@ HERE = Path(__file__).resolve().parent
 CONFIG = HERE / "store.json"
 TESTFLIGHT = "https://testflight.apple.com/join/47yxmU8U"
 MAC = "/download/mac"
+APP_STORE_BADGE = "/assets/img/download-on-the-app-store.svg"
 APP_STORE = re.compile(r"https://apps\.apple\.com/(?:[a-z]{2}/)?app/(?:[a-z0-9-]+/)?id\d{6,}")
 PAGES = ("index.html", "support.html")
 REGION = re.compile(r"(<!--store:(\w+)-->)(.*?)(<!--/store-->)", re.S)
@@ -57,13 +58,17 @@ def regions(url: str | None) -> dict[str, str]:
             "end": buttons + '\n    <p class="fine">Mac: Apple silicon, macOS 26+. iPhone and iPad: iOS 26.1+ through TestFlight. Calendar features need a Google account.</p>',
             "get": f'<h2>The beta</h2>\n    <p>Download <a href="{MAC}">Banana for Mac</a>, or join the <a href="{TESTFLIGHT}">iPhone and iPad TestFlight beta</a>. On Mac, update controls are in Settings → About → Updates. For feedback, write to us; TestFlight users can also send a screenshot through TestFlight.</p>',
         }
-    buttons = f'<div class="download-actions"><a class="btn" href="{url}">App Store</a>{mac.replace("btn", "btn secondary")}</div>'
+    direct = mac.replace("btn", "btn secondary")
+    beta = f'<a class="btn secondary" href="{TESTFLIGHT}">Join TestFlight beta</a>'
+    badge = (f'<a class="app-store-badge" href="{url}">'
+             f'<img src="{APP_STORE_BADGE}" alt="Download on the App Store" width="132" height="44"></a>')
+    buttons = f'<div class="download-actions"><a class="btn" href="{url}">App Store</a>{direct}</div>'
     return {
         "schema": _schema(url),
         "header": f'<a class="btn small" href="{url}">App Store</a>',
-        "hero": buttons + '\n    <p class="compatibility">iPhone · iPad · Mac</p>',
+        "hero": f'<div class="download-actions">{badge}{direct}{beta}</div>\n    <p class="compatibility">iPhone · iPad · Mac</p>',
         "end": buttons + f'\n    <p class="fine">iPhone and iPad: iOS 26.1+. Mac: Apple silicon, macOS 26+. Beta: <a href="{TESTFLIGHT}">TestFlight</a>. Calendar features need a Google account.</p>',
-        "get": f'<h2>Getting Banana</h2>\n    <p>Get Banana on the <a href="{url}">App Store</a> for iPhone, iPad and Mac. The <a href="{MAC}">Mac download</a> and the <a href="{TESTFLIGHT}">iPhone and iPad TestFlight beta</a> also have the modules still to come. In the Mac download, update controls are in Settings → About → Updates. For feedback, write to us; TestFlight users can also send a screenshot through TestFlight.</p>',
+        "get": f'<h2>Getting Banana</h2>\n    <p>Get Banana on the <a href="{url}">App Store</a> for iPhone, iPad and Mac. The <a href="{MAC}">Mac download</a> and the <a href="{TESTFLIGHT}">iPhone and iPad TestFlight beta</a> are also available. In the Mac download, update controls are in Settings → About → Updates. For feedback, write to us; TestFlight users can also send a screenshot through TestFlight.</p>',
     }
 
 
@@ -71,12 +76,9 @@ def about(url: str | None) -> str:
     """The About page's paragraph on getting Banana."""
     if url is None:
         get = "Banana for Mac is available as a direct download. iPhone and iPad use the public TestFlight beta."
-        early = "the Mac download and the beta have them now"
     else:
         get = f'Banana is on the <a href="{url}">App Store</a> for iPhone, iPad and Mac.'
-        early = "the Mac download and the TestFlight beta have them now"
-    return (f"<p>{get} Calendar features require a Google account. Workouts and sleep, food, notes and "
-            f"podcasts are coming later as modules; {early}. Banana does not give medical advice.</p>")
+    return f"<p>{get} Calendar features require a Google account. Email and other modules are planned.</p>"
 
 
 def render(html: str, url: str | None) -> str:

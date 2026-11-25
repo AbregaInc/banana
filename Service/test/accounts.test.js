@@ -488,3 +488,26 @@ test("with push topics configured, a device must name one of them as its bundle"
   assert.equal((await s.call("PUT", "/v1/devices/phone-0002", { body: device("phone-0002", { bundle: "com.someone.else" }), session: ann.session })).status, 400);
   assert.equal((await s.call("PUT", "/v1/devices/phone-0002", { body: device("phone-0002"), session: ann.session })).status, 204);
 });
+
+test("first signup queues one welcome; linking, signing in again and overlapping workers send no duplicates", async () => {
+  const { deliverSignupWelcomes } = await import("../src/signup-welcome.js");
+  const s = setup();
+  const messages = [];
+  s.deps.config.welcomeReplyTo = "owner@plan.example";
+  s.deps.config.welcomeFounderName = "Noor";
+  const { cloudflareEmail } = await import("../src/booking/email.js");
+  s.deps.email = cloudflareEmail({ async send(message) { messages.push(message); return { messageId: "welcome" }; } });
+  s.google.person("first", "sub-first", "first@plan.example");
+  s.google.person("second", "sub-second", "second@plan.example");
+  const first = await s.signIn("first", device("phone-0001"));
+  await s.signIn("second", device("phone-0001"), first.json.session);
+  await s.signIn("first", device("phone-0002"));
+  await Promise.all([deliverSignupWelcomes(s.deps), deliverSignupWelcomes(s.deps)]);
+  assert.equal(messages.length, 1);
+  assert.equal(messages[0].to, "first@plan.example");
+  assert.equal(messages[0].replyTo, "owner@plan.example");
+  assert.equal(messages[0].text.split("\n")[0], "Thanks for trying Banana. I’m Noor, the founder.");
+  assert.ok(messages[0].text.includes("Your reply comes straight to me"));
+  assert.equal(Object.hasOwn(messages[0], "html"), false);
+  assert.equal(await s.count("signup_welcomes"), 0);
+});

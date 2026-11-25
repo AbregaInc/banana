@@ -97,6 +97,15 @@ def check_seo(site: Path) -> list[str]:
         expected = {u for u in documents if not u.endswith("/404")}
         if set(urls) != expected or len(urls) != len(set(urls)):
             errors.append("sitemap must contain every indexable page exactly once")
+        reader_index = (site / "llms.txt").read_text()
+        for url in urls:
+            path = urlsplit(url).path
+            alternate = path + ("index.md" if path.endswith("/") else ".md")
+            markdown = site / alternate.lstrip("/")
+            if not markdown.is_file() or f"]({ORIGIN}{alternate})" not in reader_index:
+                errors.append(f"{path}: Markdown alternate missing from site or llms.txt")
+            elif f"[Canonical HTML page]({url})" not in markdown.read_text():
+                errors.append(f"{alternate}: missing canonical HTML link")
         feed = ET.parse(site / "blog/feed.xml")
         items = feed.findall("./channel/item")
         posts = {u for u in documents if u.startswith(ORIGIN + "/blog/") and u != ORIGIN + "/blog/"}
