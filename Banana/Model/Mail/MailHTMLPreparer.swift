@@ -33,7 +33,7 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
 
 /// Runs on the preparation worker, before opening. Uses the pinned library's parser.
 enum MailHTMLPreparer {
-    static let version = 13
+    static let version = 14
     static let maximumBytes = 2 * 1024 * 1024
     static let maximumNodes = 50_000
     /// Tags counted before parsing (one pass over the bytes): the parser's work grows with them,
@@ -145,7 +145,7 @@ enum MailHTMLPreparer {
             // walking up its ancestors, which was half the parse. What moves to the head is title,
             // style, meta, link and base, never shown as text, and a noscript before any body
             // content, now not shown; a frameset document has no body and shows its plain part.
-            let source = try SwiftSoup.parse(html)
+            let source = try SwiftSoup.parse(MailCharset.recoverUTF8HTML(html))
             mark("parse")
             // Bound subsequent walks independently of the parser's input-size bound.
             // Depth is not a limit: below `maximumDepth` the walk reads a subtree's words flat
@@ -164,7 +164,7 @@ enum MailHTMLPreparer {
             if let measure {
                 for (name, count) in pictures.named { measure("pictures." + name, Double(count)) }
             }
-            let formatted = needsFormattedLayout(body, needs: needs)
+            let formatted = needsFormattedLayout(body, needs: needs, native: native)
             mark("layoutDecision")
             return MailPreparedBody(version: version, text: native, shownAsText: true,
                                     quoteStartsAt: MailPreparedBody.quoteStart(of: native.blocks),
@@ -176,15 +176,18 @@ enum MailHTMLPreparer {
     /// Use formatted layout when native blocks lose a visual relationship or omit a table image.
     /// Fonts, colors, wrapper tables, and quoted history alone are not evidence.
     /// This uses the same visibility and table rules as native preparation.
-    static func needsFormattedLayout(_ root: Element, needs: DocNeeds) -> Bool {
+    private static func needsFormattedLayout(_ root: Element, needs: DocNeeds, native: MailText) -> Bool {
         var stack: [Element] = [root]
         while let element = stack.popLast() {
             let tag = element.tagNameNormal()
             let traits = look(of: element, tag: tag, needs: needs)
             if traits.contains(.hidden) || traits.contains(.quoteHeader) || traits.contains(.outlookReply) || tag == "blockquote" { continue }
             if tag == "td", traits.contains(.backgroundImage) {
-                // Image-backed cards often hide the equivalent img element in this viewport.
-                return true
+                guard let alternate = backgroundAlternate(in: element), let url = URL(string: alternate.source),
+                      native.blocks.contains(where: {
+                          if case .picture(let image) = $0.kind { return image.source == .remote(url) }
+                          return false
+                      }) else { return true }
             }
             if tag == "tr", hasParallelHeadings(element, needs: needs),
                plainPanelCells(element, needs: needs) == nil, headedRecords(element, needs: needs) == nil {
@@ -207,6 +210,42 @@ enum MailHTMLPreparer {
             stack.append(contentsOf: elements(element))
         }
         return false
+    }
+
+    /// An image-only cell can describe the same artwork as a CSS background and as an alternate
+    /// image, hidden when its background is in use. Keep that image with its own description.
+    private static func backgroundAlternate(in cell: Element) -> (image: Element, source: String)? {
+        guard let style = try? cell.attr("style") else { return nil }
+        let values = style.split(separator: ";").compactMap { declaration -> String? in
+            let pair = declaration.split(separator: ":", maxSplits: 1)
+            guard pair.count == 2,
+                  pair[0].trimmingCharacters(in: .whitespacesAndNewlines).lowercased() == "background-image"
+            else { return nil }
+            return pair[1].trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        guard values.count == 1, let value = values.first, value.lowercased().hasPrefix("url("),
+              value.hasSuffix(")") else { return nil }
+        let source = value.dropFirst(4).dropLast().trimmingCharacters(in: CharacterSet(charactersIn: " \"'\t\r\n"))
+        guard !source.isEmpty else { return nil }
+        var stack = cell.getChildNodes()
+        var image: Element?
+        while let node = stack.popLast() {
+            if let text = node as? TextNode {
+                guard text.getWholeText().allSatisfy(\.isWhitespace) else { return nil }
+            } else if let element = node as? Element {
+                switch element.tagNameNormal() {
+                case "table", "tbody", "thead", "tfoot", "tr", "td", "div", "span":
+                    stack.append(contentsOf: element.getChildNodes())
+                case "img":
+                    guard image == nil,
+                          (try? element.attr("src"))?.trimmingCharacters(in: .whitespacesAndNewlines) == source
+                    else { return nil }
+                    image = element
+                default: return nil
+                }
+            }
+        }
+        return image.map { ($0, source) }
     }
 
     private static let panelHeadings: Set<String> = ["h1", "h2", "h3", "h4", "h5", "h6"]
@@ -466,6 +505,9 @@ enum MailHTMLPreparer {
         static let k_0 = Array("0".utf8)
         static let k_0_0 = Array("0.0".utf8)
         static let k_block = Array("block".utf8)
+        static let k_border_bottom_width = Array("border-bottom-width".utf8)
+        static let k_border_style = Array("border-style".utf8)
+        static let k_solid = Array("solid".utf8)
         static let k_class = Array("class".utf8)
         static let k_colspan = Array("colspan".utf8)
         static let k_rowspan = Array("rowspan".utf8)
@@ -512,6 +554,7 @@ enum MailHTMLPreparer {
                 while i < n {
                     var c = b[i]; if c >= 65 && c <= 90 { c += 32 }
                     switch c {
+                    case UInt8(ascii: "b"): if match(i, "border-bottom-width") { style = true }
                     case UInt8(ascii: "d"):
                         if match(i, "display") { style = true } else if match(i, "divrplyfwdmsg") { outlook = true }
                     case UInt8(ascii: "f"):
@@ -554,6 +597,7 @@ enum MailHTMLPreparer {
         static let quoteHeader = Look(rawValue: 16)
         static let outlookReply = Look(rawValue: 32)
         static let backgroundImage = Look(rawValue: 64)
+        static let sectionRule = Look(rawValue: 128)
     }
 
     private static func contains(_ hay: [UInt8], _ needle: StaticString) -> Bool {
@@ -610,6 +654,7 @@ enum MailHTMLPreparer {
         var name: [UInt8] = [], value: [UInt8] = []
         var inValue = false
         var maxHeightZero = false, overflowHidden = false
+        var bottomWidth = false, solidBorder = false
         func finish() {
             defer { name.removeAll(keepingCapacity: true); value.removeAll(keepingCapacity: true); inValue = false }
             guard inValue else { return }
@@ -630,6 +675,10 @@ enum MailHTMLPreparer {
                 if value.first == 48, value.dropFirst().allSatisfy({ !($0 >= 49 && $0 <= 57) && $0 != 46 }) { look.insert(.zeroFont) }
             case 16 where name == Bytes.k_background_image:
                 if value.starts(with: Bytes.k_url) { look.insert(.backgroundImage) }
+            case 19 where name == Bytes.k_border_bottom_width:
+                bottomWidth = value.first.map { (49...57).contains($0) } == true
+            case 12 where name == Bytes.k_border_style:
+                solidBorder = value == Bytes.k_solid
             case 5 where name == Bytes.k_float:
                 if value == Bytes.k_left || value == Bytes.k_right { look.insert(.sideBySide) }
             default: break
@@ -647,6 +696,7 @@ enum MailHTMLPreparer {
         }
         finish()
         if maxHeightZero && overflowHidden { look.insert(.hidden) }
+        if bottomWidth && solidBorder { look.insert(.sectionRule) }
         return look
     }
 
@@ -1003,6 +1053,40 @@ enum MailHTMLPreparer {
         return out
     }
 
+    /// Layout cards often make both a short label and their surrounding prose clickable.
+    /// Keep the label as the action and let longer copy read as text. Compare full URLs so
+    /// links to related actions, such as following an author or expanding a post, stay separate.
+    private static func proseWithNearbyLinks(_ blocks: [MailTextBlock]) -> [MailTextBlock] {
+        var out = blocks
+        for index in blocks.indices where blocks[index].kind == .paragraph {
+            for runIndex in blocks[index].runs.indices {
+                let run = blocks[index].runs[runIndex]
+                guard let link = run.link else { continue }
+                let length = run.text.utf8.count
+                guard length >= 24 else { continue }
+                func hasLabel(_ block: MailTextBlock, maxLength: Int = 40) -> Bool {
+                    guard block.kind == .paragraph else { return false }
+                    return block.runs.contains { label in
+                        label.link == link && (3...maxLength).contains(label.text.utf8.count)
+                            && label.text.contains(where: \.isLetter)
+                    }
+                }
+                let hasAlternative: Bool
+                if length >= 64 {
+                    let before = blocks[max(0, index - 5)..<index].reversed().prefix { $0.kind != .rule }
+                    let after = blocks[(index + 1)..<min(blocks.count, index + 6)].prefix { $0.kind != .rule }
+                    hasAlternative = before.contains { hasLabel($0) } || after.contains { hasLabel($0) }
+                } else if index > 0 {
+                    let previous = blocks[index - 1]
+                    hasAlternative = blocks[index].runs.count == 1 && previous.runs.count == 1
+                        && hasLabel(previous, maxLength: min(40, length / 2))
+                } else { hasAlternative = false }
+                if hasAlternative { out[index].runs[runIndex].link = nil }
+            }
+        }
+        return out
+    }
+
     // MARK: Fine print
 
     private static let finePrintNeedles: [StaticString] = ["unsubscribe", "manage preferences", "manage your preferences", "email preferences", "update your preferences",
@@ -1124,6 +1208,14 @@ enum MailHTMLPreparer {
 
         func shortened(_ text: String) -> String { displayAddress(text) }
 
+        func emitPicture(_ picture: MailPicture) {
+            if case .picture(let last)? = blocks.last?.kind, last.source == picture.source { return }
+            if counts.kept >= maximumPictures { counts.capped += 1; return }
+            counts.kept += 1
+            flush()
+            blocks.append(MailTextBlock(kind: .picture(picture), runs: []))
+        }
+
         func walk(_ node: Node, style: MailTextStyle, link: URL?, quote: Int, pre: Bool, depth: Int) throws {
             if let text = node as? TextNode {
                 if pre {
@@ -1142,6 +1234,14 @@ enum MailHTMLPreparer {
             let tag = element.tagNameNormal()
             let traits = look(of: element, tag: tag, needs: needs)
             if traits.contains(.hidden) { return }
+            let sectionStart = tag == "td" && traits.contains(.sectionRule) && !inCell && !pre && quote == 0 && !outlookQuote
+                ? blocks.count : nil
+            if tag == "td", traits.contains(.backgroundImage), quote == 0, !outlookQuote, !inCell, !pre,
+               let alternate = backgroundAlternate(in: element),
+               let image = picture(of: alternate.image, link: link, counts: &counts) {
+                emitPicture(image)
+                return
+            }
             if tag == "table", quote == 0, !outlookQuote, !inCell, !pre, let found = try table(element, depth: depth) {
                 flush()
                 blocks.append(contentsOf: found)
@@ -1227,11 +1327,7 @@ enum MailHTMLPreparer {
                     return
                 }
                 if quote > 0 || outlookQuote { counts.quoted += 1; return }
-                if case .picture(let last)? = blocks.last?.kind, last.source == picture.source { return }
-                if counts.kept >= maximumPictures { counts.capped += 1; return }
-                counts.kept += 1
-                flush()
-                blocks.append(MailTextBlock(kind: .picture(picture), runs: []))
+                emitPicture(picture)
                 return
             }
             if isBlock {
@@ -1291,6 +1387,12 @@ enum MailHTMLPreparer {
             if tag == "td" || tag == "th", hasVisible, runs.last?.text.hasSuffix(cellSeparator) != true { append(cellSeparator, style: [], link: nil) }
             for child in element.getChildNodes() {
                 try walk(child, style: nextStyle, link: nextLink, quote: quote, pre: pre || tag == "pre", depth: depth + 1)
+            }
+            if let sectionStart, blocks.count >= sectionStart + 2 {
+                flush()
+                if blocks.count >= sectionStart + 3, blocks.last?.kind != .rule {
+                    blocks.append(MailTextBlock(kind: .rule, runs: []))
+                }
             }
             if isBlock {
                 flush()
@@ -1416,7 +1518,7 @@ enum MailHTMLPreparer {
         let joined = attributionsJoinedToTheirQuotes(blocks)
         let listed = listsFromLines(joined)
         let marked = markingFinePrint(picturesWithoutRepeatedLinks(listed), counts: &counts)
-        return (MailText(blocks: marked), counts)
+        return (MailText(blocks: proseWithNearbyLinks(marked)), counts)
     }
 
     /// "On Tue, Nov 3, Ann wrote:" that a client wrote as a plain line above its quote belongs to the quote.

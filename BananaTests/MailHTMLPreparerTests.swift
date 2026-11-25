@@ -21,6 +21,55 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertTrue(prepared.text.blocks.contains { $0.kind == .quote(depth: 1) })
         XCTAssertTrue(prepared.shownAsText)
     }
+
+    func testCachedHTMLRepairsOnlyReversibleMojibakeInNativeAndOriginal() throws {
+        let correct = "<html><head><meta charset='utf-8'></head><body><p>Ângela\u{00A0}·\u{00A0}Updates ©</p></body></html>"
+        let damaged = try XCTUnwrap(String(data: Data(correct.utf8), encoding: .isoLatin1))
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: damaged)
+        XCTAssertEqual(text(prepared), "Ângela · Updates ©")
+        let original = try MailOriginalDocument.prepare(damaged)
+        XCTAssertTrue(original.contains("Ângela"))
+        XCTAssertFalse(original.contains("Â\u{00A0}"))
+        XCTAssertFalse(original.contains("Â·"))
+        for input in [
+            "<html><head><meta charset='utf-8'></head><body>Â\u{00A0}example</body></html>",
+            "<html><body>Â\u{00A0}example Â\u{00A0}rest</body></html>",
+            damaged + "雪"
+        ] { XCTAssertEqual(MailCharset.recoverUTF8HTML(input), input) }
+    }
+
+    func testNearbyExactLinksKeepAnActionAndLetTheDigestReadAsProse() throws {
+        let html = """
+        <table role="presentation"><tr><td style="border-width:0;border-bottom-width:1px;border-style:solid">
+        <p><a href="https://plan.example/profile">Noor</a></p>
+        <p><a href="https://plan.example/profile">Program director for community research</a></p>
+        <p><a href="https://plan.example/story">New article</a></p>
+        <p><a href="https://plan.example/story">The study follows families as they make choices about travel over several years.</a>
+        <a href="https://plan.example/story?expand=1">Read more</a></p>
+        </td></tr></table><p>Next section</p>
+        """
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        let runs = prepared.text.blocks.flatMap(\.runs)
+        XCTAssertEqual(runs.first { $0.text == "Noor" }?.link?.path, "/profile")
+        XCTAssertNil(runs.first { $0.text.contains("Program director") }?.link)
+        XCTAssertEqual(runs.first { $0.text == "New article" }?.link?.path, "/story")
+        XCTAssertNil(runs.first { $0.text.contains("The study") }?.link)
+        XCTAssertEqual(runs.first { $0.text == "Read more" }?.link?.query, "expand=1")
+        XCTAssertEqual(prepared.text.blocks.dropLast().last?.kind, .rule)
+    }
+
+    func testDuplicateBackgroundDoesNotForceOriginalLayout() throws {
+        let duplicate = """
+        <table role="presentation"><tr><td style="display:block; background-image:url('https://img.example/art.png')">
+        <img style="display:none" src="https://img.example/art.png" width="400" height="200" alt="A view of the garden">
+        </td></tr></table>
+        """
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: duplicate)
+        XCTAssertFalse(prepared.prefersOriginal == true)
+        XCTAssertTrue(prepared.text.blocks.contains { if case .picture = $0.kind { return true }; return false })
+        let differentImage = duplicate.replacingOccurrences(of: "src=\"https://img.example/art.png", with: "src=\"https://img.example/other.png")
+        XCTAssertTrue(try MailHTMLPreparer.prepare(plain: nil, html: differentImage).prefersOriginal == true)
+    }
     func testUnsafeSchemesCannotBecomeNativeLinks() throws {
         let prepared = try MailHTMLPreparer.prepare(plain: nil, html: #"<a href="javascript:alert(1)">one</a><a href="data:text/html,bad">two</a><a href="ftp://example.com">three</a><a href="jav&#x61;script:alert(1)">four</a>"#)
         XCTAssertTrue(prepared.text.blocks.flatMap(\.runs).allSatisfy { $0.link == nil })

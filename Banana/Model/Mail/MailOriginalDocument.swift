@@ -8,7 +8,7 @@ enum MailOriginalDocument {
     static func prepare(_ html: String) throws -> String {
         guard html.utf8.count <= MailHTMLPreparer.maximumBytes else { throw MailHTMLPreparer.Failure.tooLarge }
         guard MailHTMLPreparer.cutAtTagLimit(html) == nil else { throw MailHTMLPreparer.Failure.tooComplex }
-        let source = try SwiftSoup.parse(html)
+        let source = try SwiftSoup.parse(MailCharset.recoverUTF8HTML(html))
         var stack: [(Node, Int)] = [(source, 0)], count = 0
         while let (node, depth) = stack.popLast() {
             count += 1
