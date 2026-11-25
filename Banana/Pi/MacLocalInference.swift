@@ -52,10 +52,10 @@ final class MacLocalInference {
             return try? JSONDecoder().decode(Configuration.self, from: Data(contentsOf: url))
         }
         let store = LocalModel.shared
-        guard store.state == .ready, let manifest = store.manifest, let python = Self.runtimePython,
+        guard store.state == .ready, let manifest = store.manifest, let directory = store.modelDirectory, let python = Self.runtimePython,
               FileManager.default.isExecutableFile(atPath: python.path) else { return nil }
         let profile = manifest.profile
-        return Configuration(python: python.path, modelDirectory: PinnedModelFiles.folder(for: manifest).path,
+        return Configuration(python: python.path, modelDirectory: directory.path,
                              modelId: profile.modelId, serverModel: profile.serverModel, name: profile.name,
                              revision: manifest.revision, port: profile.macWorkerPort, contextWindow: profile.contextWindow,
                              maxTokens: profile.maxTokens, thinkingLevel: profile.thinkingLevel,
@@ -105,6 +105,9 @@ final class MacLocalInference {
     func startIfConfigured() async throws {
         if configuration == nil {
             guard let candidate = resolvedConfiguration() else { return }
+            let hasWeights = ["model.safetensors", "model.safetensors.index.json"].contains {
+                FileManager.default.fileExists(atPath: candidate.modelDirectory + "/" + $0)
+            }
             guard (1024...65535).contains(candidate.port), candidate.contextWindow >= 4096,
                   candidate.maxTokens > 0, candidate.maxTokens < candidate.contextWindow,
                   ["off", "low", "medium", "high", "xhigh"].contains(candidate.thinkingLevel),
@@ -114,7 +117,7 @@ final class MacLocalInference {
                   (candidate.topP ?? 0.95).isFinite, (0...1).contains(candidate.topP ?? 0.95), (candidate.topP ?? 0.95) > 0,
                   (candidate.topK ?? 20) >= 0,
                   candidate.modelDirectory.hasPrefix("/"), FileManager.default.isExecutableFile(atPath: candidate.python),
-                  FileManager.default.fileExists(atPath: candidate.modelDirectory + "/model.safetensors.index.json") else {
+                  hasWeights else {
                 throw AssistantFailure(message: "This Mac's model isn't complete. Banana will fetch it again.")
             }
             configuration = candidate

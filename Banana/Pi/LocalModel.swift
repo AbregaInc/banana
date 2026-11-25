@@ -4,11 +4,8 @@ import Foundation
 
 /// Banana Pi's model files on the Mac, kept by the app itself: nothing to install or set up.
 ///
-/// The pinned files (`pi-local-model.json`: repo, revision, each file's size and SHA-256) are
-/// fetched from Hugging Face into Application Support on first launch and checked. The app's own
-/// Python and Locals (Contents/Resources/PiRuntime) run them (`MacLocalInference`). Until they
-/// are ready, Pi uses Apple's on-device model. There is nothing to press: the only sign of it is
-/// the line in Settings › Assistant (`statusLine`). See docs/design/PI-LOCAL-MODEL.md.
+/// A signed catalog chooses a compatible model. The bundled pin is the offline default.
+/// The app stages replacements beside the active model and adopts them on the next launch.
 @MainActor
 final class LocalModel: ObservableObject {
     static let shared = LocalModel()
@@ -24,23 +21,100 @@ final class LocalModel: ObservableObject {
     typealias Manifest = PinnedModelFiles.Manifest
 
     @Published private(set) var state: State = .missing
-    let manifest: Manifest?
+    private(set) var manifest: Manifest?
+    private(set) var modelDirectory: URL?
+    private let bundled: Manifest?
     private var started = false
+    private var restoration: Task<Void, Never>?
 
     private init() {
-        manifest = Bundle.main.url(forResource: "pi-local-model", withExtension: "json")
+        bundled = Bundle.main.url(forResource: "pi-local-model", withExtension: "json")
             .flatMap { try? Data(contentsOf: $0) }
             .flatMap { try? JSONDecoder().decode(Manifest.self, from: $0) }
+        manifest = bundled
     }
 
-    /// Called at launch: if the files are here and checked, the model is ready; otherwise they
-    /// are fetched in the background. Safe to call again.
     func start() {
-        guard !started, let manifest else { return }
+        guard !started else { return }
         started = true
-        // A few file sizes and a stamp: answered now, so Pi's first start already knows.
-        if PinnedModelFiles.isChecked(manifest, in: PinnedModelFiles.folder(for: manifest)) { state = .ready; return }
-        Task { await prepare(manifest) }
+        #if PI_DEVELOPMENT
+        let host: String? = nil
+        #else
+        let host = BananaService.host
+        #endif
+        let channel = AppModule.isBetaBuild ? "beta" : "production"
+        let folder = AppSupport.directory.appendingPathComponent("ModelCatalog-\(channel)", isDirectory: true)
+        let build = (Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String).flatMap(Int.init) ?? 0
+        let memory = ProcessInfo.processInfo.physicalMemory
+        let bundled = self.bundled
+        let restore = Task {
+            let saved = await Task.detached(priority: .utility) {
+                ModelCatalog.file(named: "last-ready.json", in: folder)
+                    .flatMap { ModelCatalog.verify($0, channel: channel) }
+                    .flatMap { listing in
+                        listing.models.first { entry in
+                            entry.supports(build: build, memory: memory)
+                                && Self.catalogInstall(entry.pin, bundled: bundled).checked
+                        }?.pin
+                    }
+            }.value
+            if state != .ready {
+                if let saved {
+                    manifest = saved
+                    modelDirectory = Self.catalogInstall(saved, bundled: bundled).folder
+                    state = .ready
+                } else if let bundled, PinnedModelFiles.isChecked(bundled, in: PinnedModelFiles.folder(for: bundled)) {
+                    manifest = bundled
+                    modelDirectory = PinnedModelFiles.folder(for: bundled)
+                    state = .ready
+                }
+            }
+        }
+        restoration = restore
+        Task {
+            await restore.value
+            if let host, let (catalog, signed) = await ModelCatalog.refresh(host: host, channel: channel, in: folder) {
+                let match = await Task.detached(priority: .utility) {
+                    catalog.models.first(where: {
+                        $0.supports(build: build, memory: memory) && Self.canInstall($0.pin, bundled: bundled)
+                    })?.pin
+                }.value
+                guard let candidate = match else { return }
+                let install = Self.catalogInstall(candidate, bundled: bundled)
+                if await prepare(candidate, in: install.folder, allowLegacy: install.isBundled) {
+                    await Task.detached(priority: .utility) {
+                        try? ModelCatalog.save(signed, as: "last-ready.json", in: folder)
+                    }.value
+                }
+            } else if state != .ready, let bundled {
+                await prepare(bundled, in: PinnedModelFiles.folder(for: bundled), allowLegacy: true)
+            }
+        }
+    }
+
+    /// Wait for the existing local pin only. Assistant never waits for the catalog or weights.
+    func waitForRestoredModel() async {
+        start()
+        await restoration?.value
+    }
+
+    nonisolated private static func catalogInstall(_ manifest: Manifest, bundled: Manifest?) -> (folder: URL, isBundled: Bool, checked: Bool) {
+        let isBundled = manifest.verificationStamp == bundled?.verificationStamp
+        let folder = isBundled ? PinnedModelFiles.folder(for: manifest) : PinnedModelFiles.catalogFolder(for: manifest)
+        return (folder, isBundled, PinnedModelFiles.isChecked(manifest, in: folder, allowLegacy: isBundled))
+    }
+
+    nonisolated private static func canInstall(_ manifest: Manifest, bundled: Manifest?) -> Bool {
+        let (folder, _, checked) = catalogInstall(manifest, bundled: bundled)
+        if checked { return true }
+        let remaining = manifest.files.reduce(Int64(0)) { sum, entry in
+            let size = PinnedModelFiles.size(of: folder.appendingPathComponent(entry.key))
+            return sum + (size == entry.value.bytes ? 0 : entry.value.bytes)
+        }
+        let home = FileManager.default.homeDirectoryForCurrentUser
+        guard let available = try? home.resourceValues(forKeys: [.volumeAvailableCapacityForImportantUsageKey])
+            .volumeAvailableCapacityForImportantUsage else { return false }
+        return available >= remaining + (1 << 30)
     }
 
     /// "Qwen3.5 4B · on this Mac", "Getting Qwen3.5 4B · 1.2 of 3.1 GB", or what's wrong.
@@ -59,51 +133,64 @@ final class LocalModel: ObservableObject {
 
     // MARK: - The files
 
-    private func prepare(_ manifest: Manifest) async {
-        let folder = PinnedModelFiles.folder(for: manifest)
+    @discardableResult
+    private func prepare(_ candidate: Manifest, in folder: URL, allowLegacy: Bool) async -> Bool {
+        let isReplacement = state == .ready
+        if !isReplacement {
+            manifest = candidate
+            modelDirectory = folder
+        }
+        let report: @MainActor @Sendable (State) -> Void = { [weak self] state in
+            if !isReplacement { self?.state = state }
+        }
         do {
-            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-            if PinnedModelFiles.isChecked(manifest, in: folder) { state = .ready; return }
-            try await download(manifest, into: folder)
-            state = .verifying
-            try await PinnedModelFiles.verify(manifest, in: folder)
-            try PinnedModelFiles.stamp(manifest, in: folder)
-            state = .ready
+            if !PinnedModelFiles.isChecked(candidate, in: folder, allowLegacy: allowLegacy) {
+                try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                try await download(candidate, into: folder, report: report)
+                report(.verifying)
+                try await PinnedModelFiles.verify(candidate, in: folder)
+                try PinnedModelFiles.stamp(candidate, in: folder)
+            }
+            report(.ready)
+            return true
         } catch is CancellationError {
-            state = .missing
+            report(.missing)
         } catch {
-            state = .failed(error.localizedDescription)
-            // Passing trouble (no network, a sleep mid-download) is tried again later, quietly.
+            report(.failed(error.localizedDescription))
             Task {
                 try? await Task.sleep(for: .seconds(300))
-                started = false
-                start()
+                self.started = false
+                self.start()
             }
         }
+        return false
     }
 
-    private func download(_ manifest: Manifest, into folder: URL) async throws {
+    private func download(_ manifest: Manifest, into folder: URL, report: @escaping @MainActor @Sendable (State) -> Void) async throws {
         let total = manifest.totalBytes
         var done: Int64 = manifest.files.reduce(0) { sum, entry in
             PinnedModelFiles.size(of: folder.appendingPathComponent(entry.key)) == entry.value.bytes ? sum + entry.value.bytes : sum
         }
-        state = .downloading(received: done, total: total)
+        report(.downloading(received: done, total: total))
         for (name, file) in manifest.files.sorted(by: { $0.value.bytes < $1.value.bytes }) {
             let target = folder.appendingPathComponent(name)
             guard PinnedModelFiles.size(of: target) != file.bytes else { continue }
             guard let url = URL(string: "https://huggingface.co/\(manifest.repo)/resolve/\(manifest.revision)/\(name)") else { continue }
             let base = done
-            let progress = DownloadProgress { [weak self] received in
-                Task { @MainActor in self?.state = .downloading(received: base + received, total: total) }
+            let progress = DownloadProgress { received in
+                Task { @MainActor in report(.downloading(received: base + received, total: total)) }
             }
             let (temporary, response) = try await URLSession.shared.download(from: url, delegate: progress)
             guard (response as? HTTPURLResponse)?.statusCode == 200 else {
                 throw PinnedModelFailure("Hugging Face answered \((response as? HTTPURLResponse)?.statusCode ?? 0) for \(name)")
             }
+            guard PinnedModelFiles.size(of: temporary) == file.bytes else {
+                throw PinnedModelFailure("\(name) is incomplete")
+            }
             try? FileManager.default.removeItem(at: target)
             try FileManager.default.moveItem(at: temporary, to: target)
             done += file.bytes
-            state = .downloading(received: done, total: total)
+            report(.downloading(received: done, total: total))
         }
     }
 

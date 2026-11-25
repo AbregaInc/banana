@@ -272,6 +272,7 @@ final class DesktopAssistantLink: ObservableObject {
         guard request.operation == Self.describe || request.operation == Self.infer else {
             throw DesktopPeerLink.Failure.incompatible
         }
+        await LocalModel.shared.waitForRestoredModel()
         guard let config = MacLocalInference.shared.resolvedConfiguration() else {
             throw DesktopPeerLink.Failure.rejected("The model on your Mac is still getting ready.")
         }

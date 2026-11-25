@@ -92,3 +92,34 @@ The extended workspace check covers a missing-time event request, no draft befor
 See [the full-app comparison](../pi-evaluation/RESULTS-APP-PROFILES-2026-10-25.md) for the observed timings and the candidate failure.
 
 New meal/event drafts now expose their shared native editors directly in the assistant workspace. See [the workspace UX and acceptance record](../../docs/design/PI-WORKSPACE-UX.md) for the removed transition, scoped tests, screenshots and remaining edit-persistence/visual-test limitations.
+
+### Publish a model catalog
+
+Compatible Mac builds fetch the signed catalog once per app launch, from
+`/v1/assistant/model-catalog` on their configured Banana service. Production and Beta use
+separate buckets. Clients reject catalogs for the other channel. A valid cached catalog covers a
+temporary failure. The bundled pin covers installations that have never fetched a catalog.
+
+The input JSON is an array of entries in recommended order. Each entry contains `pin` (the
+shape of `Banana/Pi/Resources/pi-local-model.json`), `minimumBuild`, `minimumMemoryGiB`, and
+`runtimeABI` (currently `1`, the bundled Locals model loader). Qualify each pin on that runtime
+before publication. Store only JSON, Jinja tokenizer templates and SafeTensors files at a pinned
+Hugging Face commit. The app checks free space, sizes and hashes before using a model. A verified
+replacement is activated on the next app launch when a model is already running.
+
+Use the offline signing key at the path given by `BANANA_MODEL_CATALOG_SIGNING_KEY`, or the
+default `~/.config/banana/model-catalog-ed25519.pem`. Keep the private key out of source and
+deployment environments. Retain a protected backup. The signing command checks that its public
+key matches the one pinned in the app.
+
+```sh
+node tools/pi-mac-inference/sign-model-catalog.mjs beta 1 models.json catalog.json
+cd Service
+npx wrangler r2 object put banana-blobs-beta/public/assistant-model-catalog-v1 \
+  --env beta --remote --file ../catalog.json
+```
+
+Production uses channel `production`, bucket `banana-blobs`, and the default Wrangler
+environment. Advance the sequence for every publication, including a rollback. Publish an
+empty array to pause new downloads. The existing verified model continues to work. The Worker
+must have the catalog route deployed once. Later catalog publications only update the R2 object.

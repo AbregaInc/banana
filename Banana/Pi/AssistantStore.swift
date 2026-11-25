@@ -336,7 +336,7 @@ final class AssistantStore: ObservableObject {
                     #endif
                     #if os(macOS)
                     if !self.diagnostic {
-                        LocalModel.shared.start()
+                        await LocalModel.shared.waitForRestoredModel()
                         let local = MacLocalInference.shared.resolvedConfiguration() != nil
                         // The model finished downloading since Pi started: start Pi again on it.
                         if self.host != nil, local != self.hostUsesLocalModel { self.host?.stop(); self.host = nil }

@@ -1,23 +1,24 @@
-Build 117 is a new, smaller app: the calendar alone. It has Plan (Google Calendar, Apple Reminders, routines, alarms, event alerts, weather, travel time), Booking and Settings. Workouts, Food, Notes, Podcasts, Email and the Apple Watch app are not in this build. There are no purchases.
+Banana 1.0.1 adds Assistant to its calendar, reminders, routines, alarms, booking and travel time. Workouts, Food, Notes, Podcasts, Email and the Watch app are compiled out. There are no purchases.
 
-HOW EARLIER ISSUES ARE RESOLVED IN THIS BUILD
-- 2.5.4 audio: no podcast player and no "audio" background mode.
-- 2.5.4 location: no background or Always location, no visit monitoring and no Motion. Location is When In Use only, for the forecast and travel time. Background modes are only remote notifications and background fetch, which refresh the calendar.
-- 2.5.1 HealthKit: no HealthKit entitlement, no Health usage strings and no Health features.
-- 5.2.5 WeatherKit: in Plan, tap the temperature beside the date (Mac: click it in the toolbar). The forecast ends with the Apple Weather mark and the "Other data sources" link to Apple's legal attribution page. Settings > About > Credits also links it.
-- 2.4.5 (Mac): the com.apple.security.network.server entitlement and the Bonjour/local network keys are removed. The Mac app makes outgoing connections only.
+DESKTOP LINK AND INCOMING CONNECTIONS (MAC)
+The com.apple.security.network.server entitlement lets Desktop Link accept a direct connection from a paired iPhone or iPad. The listener starts when the user enables Desktop Link and resumes on launch while paired. The bundled Mac inference worker also listens on loopback for requests from Banana itself.
 
-QUICK REVIEW, NO SIGN-IN
-1. On the welcome screen choose "Explore an example" (or Settings > About > Try with sample data). A Demo banner marks this fictional, local workspace.
-2. Switch Day and Week, change calendar visibility, create, edit and delete sample events, complete a reminder or routine. The Alex calendar shows availability only and is read-only.
-3. Demo options > Reset sample data restores it. Exit demo returns to your own setup.
+1. Put both devices on the same Wi-Fi network. On Mac, open Settings > Desktop Link > Enable desktop link. Allow Local Network access if prompted.
+2. When the Mac model is ready, open Settings > Desktop Link on iPhone or iPad and tap Scan Mac QR code. You can also copy the code from the Mac and enter it manually.
+3. Tap Check connection to verify the local network route. Ask Assistant “What’s on my calendar today?” Its model status shows the paired Mac. Turn off and revoke pairing on the Mac closes the listener and revokes access.
 
-LIVE GOOGLE CALENDAR
-Exit the demo. Choose "Continue with Google" on the calendar step, or Settings > Accounts & calendars > Connect Google Calendar, and use the Google account in App Review Sign-In Information. Allow Calendar access, then test Day and Week, visibility, and creating, editing and deleting an event. "Not now" on the same step skips Google; routines, alarms and reminders work without it.
+The Mac advertises _banana-link._tcp over Bonjour. The pairing secret authenticates and encrypts the direct connection. When the Mac is discovered locally, inference requests stay on the local network. Tailscale and the optional encrypted Banana Cloud relay support connections away from home. The camera is used when the user scans the pairing code.
 
-GUIDELINE 4.8
-Banana is a client for Google Calendar. Its only sign-in is Google's own, and every feature that needs it works on the person's own Google Calendar through the Google Calendar API. Banana has no account, username or password of its own and offers no other sign-in. We ask that the 4.8 exception for clients of a specific third-party service apply.
-Booking (Settings > Booking) is part of this: the booking page offers only the times free on the person's Google Calendar and writes each booking into it as a Google Calendar event, so it cannot work without the Google sign-in. Behind that sign-in, Banana's server also relays Google's calendar change notifications to the person's devices and keeps routines and settings in step between them. It holds no profile. Settings > Accounts & calendars > Delete account removes it, confirmed with a fresh Google sign-in.
+MODEL DOWNLOADS (MAC)
+Banana downloads model weights, tokenizer and configuration data to its data folder. The inference runtime ships in the signed app. Banana verifies the catalog signature and the size and SHA-256 hash of each downloaded file. The catalog can change which compatible model powers the existing Assistant feature. The catalog request carries no prompts, calendar data or account credentials. Apple’s on-device model can answer on supported devices while the Mac model downloads.
 
-PERMISSIONS, ALL OPTIONAL
-Calendar (Google), Reminders, Notifications, Alarms (AlarmKit, for wake alarms), Contacts (picking guests) and Location When In Use. Each can be declined.
+CALENDAR REVIEW
+Choose Explore an example on the welcome screen for a fictional local workspace. Switch Day and Week, change calendar visibility, create, edit or delete sample events, and complete a reminder or routine. With the Google account in App Review Sign-In Information, use Continue with Google on the calendar step or Settings > Accounts & calendars > Connect Google Calendar to test live calendar access. The Not now option skips Google.
+
+PRIOR REVIEW ITEMS
+- 2.5.4: no podcast player, audio background mode, Always location, visit monitoring or Motion. Location When In Use supports weather and travel time.
+- 2.5.1: the build has no HealthKit entitlement, usage strings or Health features.
+- 5.2.5: open the temperature in Plan to see the Apple Weather attribution and Other data sources link. Settings > About > Credits also links to it.
+- 4.8: Banana is a Google Calendar client. Google signs users in to their own calendar through the Google Calendar API. Booking uses that calendar’s availability and writes bookings to it. Banana has no separate username or password. The service relays calendar changes and syncs routines and settings. Settings > Accounts & calendars > Delete account removes the account after confirming with Google.
+
+Permissions for Google Calendar, Reminders, Notifications, Alarms, Contacts, Location When In Use, Local Network and pairing QR camera access can be declined.
