@@ -288,3 +288,26 @@ test("an account holds a handful of device rows, not thousands (audit run-1)", a
   // One of its own again is fine.
   assert.equal((await s.call("PUT", "/v1/devices/dev-00002", { session, body: { platform: "ipad", pushEnv: "production", bundle: "app.banana.Banana" } })).status, 204);
 });
+
+test("first signup queues one welcome; linking, signing in again and overlapping workers send no duplicates", async () => {
+  const { deliverSignupWelcomes } = await import("../src/signup-welcome.js");
+  const s = setup();
+  const messages = [];
+  s.deps.config.welcomeReplyTo = "owner@plan.example";
+  s.deps.config.welcomeFounderName = "Noor";
+  const { cloudflareEmail } = await import("../src/booking/email.js");
+  s.deps.email = cloudflareEmail({ async send(message) { messages.push(message); return { messageId: "welcome" }; } });
+  s.google.person("first", "sub-first", "first@plan.example");
+  s.google.person("second", "sub-second", "second@plan.example");
+  const first = await s.signIn("first", device("phone-0001"));
+  await s.signIn("second", device("phone-0001"), first.json.session);
+  await s.signIn("first", device("phone-0002"));
+  await Promise.all([deliverSignupWelcomes(s.deps), deliverSignupWelcomes(s.deps)]);
+  assert.equal(messages.length, 1);
+  assert.equal(messages[0].to, "first@plan.example");
+  assert.equal(messages[0].replyTo, "owner@plan.example");
+  assert.equal(messages[0].text.split("\n")[0], "Thanks for trying Banana. I’m Noor, the founder.");
+  assert.ok(messages[0].text.includes("Your reply comes straight to me"));
+  assert.equal(Object.hasOwn(messages[0], "html"), false);
+  assert.equal(await s.count("signup_welcomes"), 0);
+});

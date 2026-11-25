@@ -52,6 +52,8 @@ export function configFrom(env) {
     /** Node behind a proxy that sets x-forwarded-for: TRUST_FORWARDED_FOR=1. Workers use Cloudflare's header. */
     trustForwardedFor: env.TRUST_FORWARDED_FOR === "1",
     /** Sender on the Cloudflare Email Sending domain (shared by booking and guest invitations). */
+    welcomeFounderName: env.WELCOME_FOUNDER_NAME?.trim() || null,
+    welcomeReplyTo: env.WELCOME_REPLY_TO?.trim() || null,
     emailFrom: env.EMAIL_FROM ?? "Banana <book@ce.bananatheapp.com>",
   };
 }
