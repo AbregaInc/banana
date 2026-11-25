@@ -236,6 +236,20 @@ export function createApp(deps) {
 
   app.get("/v1/health", (c) => c.text("ok"));
 
+  // Deployment buckets are separate for Beta and production. Only this fixed object is public.
+  app.get("/v1/assistant/model-catalog", async (c) => {
+    const catalog = await deps.blobs.get("public/assistant-model-catalog-v1");
+    if (!catalog) return c.json({ error: "catalog_unavailable" }, 404, { "cache-control": "no-store" });
+    if (catalog.size > 128 * 1024) {
+      await catalog.body.cancel();
+      return c.json({ error: "catalog_unavailable" }, 503, { "cache-control": "no-store" });
+    }
+    return new Response(catalog.body, { headers: {
+      "content-type": "application/json",
+      "cache-control": "public, max-age=300",
+    } });
+  });
+
   app.post("/v1/google", async (c) => {
     const body = await readJson(c, 16_384);
     const code = body?.code;
