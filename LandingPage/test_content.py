@@ -86,12 +86,11 @@ class StoreSwitchTests(unittest.TestCase):
     URL = 'https://apps.apple.com/app/banana-daily-planner/id1234567890'
     SITE = Path(__file__).parent / 'site'
 
-    def test_empty_switch_leaves_the_published_pages_as_they_are(self):
+    def test_published_pages_match_the_configured_store(self):
         import store_links
-        self.assertIsNone(store_links.app_store_url())
         for name in store_links.PAGES:
             html = (self.SITE/name).read_text()
-            self.assertEqual(store_links.render(html, None), html)
+            self.assertEqual(store_links.render(html, store_links.app_store_url()), html)
 
     def test_app_store_url_leads_and_keeps_mac_download_and_beta(self):
         import json, store_links
@@ -102,7 +101,10 @@ class StoreSwitchTests(unittest.TestCase):
         schema = json.loads(home.split('<script type="application/ld+json">')[1].split('</script>')[0])
         app = next(n for n in schema['@graph'] if n['@type'] == 'SoftwareApplication')
         self.assertEqual(app['downloadUrl'][0], self.URL)
-        self.assertEqual(store_links.render(home, None), (self.SITE/'index.html').read_text())
+        beta = store_links.render(home, None)
+        self.assertNotIn(self.URL, beta)
+        self.assertIn('iPhone &amp; iPad beta', beta)
+        self.assertEqual(store_links.render(beta, self.URL), home)
         self.assertIn(self.URL, store_links.render((self.SITE/'support.html').read_text(), self.URL))
 
     def test_build_writes_the_about_page_for_the_switch(self):

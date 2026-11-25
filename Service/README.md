@@ -341,3 +341,7 @@ It extends the existing `GOOGLE_APP_CLIENT_IDS` audience list without replacing 
 this in production. Dev uses the staging web client for server authorization codes and the
 staging native client for identity-token sign-in. Keep actual client identifiers in deployment
 settings and private local configuration, never in tracked source.
+
+### Signup welcome email
+
+With the Worker email binding configured, set the private Worker secret `WELCOME_REPLY_TO` to the mailbox that should receive replies. Set `WELCOME_FOUNDER_NAME` privately to personalize the opening line. The existing `EMAIL_FROM` remains the sender. A new full account queues a welcome in the signup transaction. The minute job sends it. Guest bookings, linked identities and returning accounts do not queue welcomes. Apply migration 0037 before enabling the secret. The service retries explicit rate limits. A row remaining in `sending` or `unknown` requires checking the provider’s delivery record before replaying it.

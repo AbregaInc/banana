@@ -13,7 +13,8 @@ export function cloudflareEmail(binding) {
     enabled: true,
     async send(message) {
       const { messageId } = await binding.send({
-        to: message.to, from: address(message.from), subject: message.subject, html: message.html, text: message.text,
+        to: message.to, from: address(message.from), subject: message.subject, text: message.text,
+        ...(message.html === undefined ? {} : { html: message.html }),
         ...(message.replyTo ? { replyTo: address(message.replyTo) } : {}),
         ...(message.attachments?.length ? { attachments: message.attachments } : {}),
       });

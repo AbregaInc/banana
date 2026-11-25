@@ -36,7 +36,7 @@ from store_links import TESTFLIGHT
 import store_links
 # Outside pages the Privacy Policy points to on purpose: Google's rules for its user data, and
 # where a Google account's access to Banana is taken away.
-OUTSIDE = {"https://github.com/AbregaInc/banana",
+OUTSIDE = {"https://app.bananatheapp.com/", "https://github.com/AbregaInc/banana",
            "https://developers.google.com/terms/api-services-user-data-policy",
            "https://myaccount.google.com/permissions"}
 
@@ -191,7 +191,7 @@ def check() -> list[str]:
                 pass
             elif "apps.apple.com" in link or "itunes.apple.com" in link:
                 faults.append(f"{name}: {link} — there is no App Store page yet")
-            elif name.startswith("blog/") and urlsplit(link).scheme == "https" and urlsplit(link).hostname:
+            elif name.startswith(("blog/", "guides/", "compare/")) and urlsplit(link).scheme == "https" and urlsplit(link).hostname:
                 pass  # editorial citations may link to public HTTPS sources
             elif not link.startswith("mailto:") and link not in OUTSIDE:
                 faults.append(f"{name}: {link} leaves the site; add it to this check on purpose")

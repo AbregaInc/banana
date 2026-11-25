@@ -1,7 +1,7 @@
 #!/usr/bin/env -S uv run --script
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["markdown-it-py==4.0.0"]
+# dependencies = ["markdown-it-py==4.0.0", "markdownify==1.2.0"]
 # ///
 """Build static editorial pages, RSS and sitemap. No runtime or CMS credentials.
 
@@ -18,6 +18,7 @@ import argparse
 from datetime import date, datetime, time, timezone
 from email.utils import format_datetime
 from html import escape
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -28,6 +29,7 @@ import xml.etree.ElementTree as ET
 from markdown_it import MarkdownIt
 
 import store_links
+from reader_exports import export_readers
 
 HERE = Path(__file__).resolve().parent
 ORIGIN = "https://bananatheapp.com"
@@ -69,7 +71,7 @@ def _table_cards(state) -> None:
             if kind == "th_open":
                 headers.append(_text(tokens[i + 1]))
         widths = [max(_narrowest(text) for text in column) for column in zip(*[[text for _, text in r] for r in rows])]
-        stack = token.meta["stack"] = sum(w * CHAR_WIDTH + CELL_PADDING for w in widths) > PHONE_TABLE_WIDTH
+        stack = token.meta["stack"] = state.env.get("comparison", False) or sum(w * CHAR_WIDTH + CELL_PADDING for w in widths) > PHONE_TABLE_WIDTH
         for r in rows[1:]:
             for (cell, text), header in zip(r, headers):
                 if MEASURE.search(text) and len(text) <= 16:
@@ -144,6 +146,13 @@ def _fence(tokens, idx, options, env):
     token = tokens[idx]
     kind = (token.info or "").strip()
     slug = env.get("slug", "post")
+    if kind == "screenshot":
+        fields = _embed_fields(token.content, kind, ("src", "width", "height", "alt", "caption"), slug)
+        src = escape(fields["src"])
+        return (f'<figure class="media-figure guide-shot"><a href="{src}">'
+                f'<img src="{src}" width="{int(fields["width"])}" height="{int(fields["height"])}" '
+                f'loading="lazy" alt="{escape(fields["alt"])}"></a>'
+                f'<figcaption>{escape(fields["caption"])}</figcaption></figure>')
     if kind == "video":
         return _render_video(_embed_fields(token.content, kind, ("src", "poster", "width", "height", "caption"), slug))
     if kind == "diagram":
@@ -154,7 +163,7 @@ def _fence(tokens, idx, options, env):
 MD.renderer.rules["fence"] = _fence
 
 
-def read_post(path: Path, today: date, include_unpublished: bool = False) -> dict | None:
+def read_post(path: Path, today: date, include_unpublished: bool = False, section: str = "blog") -> dict | None:
     parts = path.read_text().split("+++", 2)
     if len(parts) != 3 or parts[0].strip():
         raise ValueError(f"{path}: expected +++ TOML metadata +++")
@@ -189,7 +198,7 @@ def read_post(path: Path, today: date, include_unpublished: bool = False) -> dic
         raise ValueError(f"{path}: title supplies h1; use ## for headings")
     if any(t.type == "inline" and any(c.type == "image" for c in (t.children or [])) for t in tokens):
         raise ValueError(f"{path}: images need sized template support; use text links until added")
-    data.update(slug=path.stem, body=MD.render(parts[2], {"slug": path.stem}), url=ORIGIN + f"/blog/{path.stem}/")
+    data.update(slug=path.stem, body=MD.render(parts[2], {"slug": path.stem, "comparison": data["category"] == "Calendar comparison"}), url=ORIGIN + f"/{section}/{path.stem}/")
     return data
 
 
@@ -202,9 +211,11 @@ DEFAULT_IMAGE = ("/assets/img/social.png", "Banana brings work, personal and stu
 
 def render(title: str, description: str, path: str, body: str, schema: dict, *, article: bool = False, extra_head: str = "", image: tuple[str, str] = DEFAULT_IMAGE) -> str:
     return Template((HERE / "templates/editorial.html").read_text()).substitute(
+        style_version=hashlib.sha256((HERE / "site/editorial.css").read_bytes()).hexdigest()[:12],
         title=escape(title), description=escape(description), url=ORIGIN + path,
         og_image=ORIGIN + image[0], og_image_alt=escape(image[1]),
         body=body, schema=schema_text(schema), og_type="article" if article else "website",
+        header_action=('<a class="button" href="https://app.bananatheapp.com/">Open web app</a>' if path.startswith("/compare/") else '<a class="button" href="/download/mac">Download for Mac</a>'),
         blog_current='aria-current="page"' if path == "/blog/" else "",
         about_current='aria-current="page"' if path == "/about" else "", extra_head=extra_head)
 
@@ -213,6 +224,11 @@ def build(out: Path, content: Path, today: date, preview: bool = False, store: s
     store_links.apply(out, store)
     posts = [post for path in sorted(content.glob("*.md")) if (post := read_post(path, today, preview))]
     posts.sort(key=lambda p: (p["published"], p["slug"]), reverse=True)
+    guides = [guide for path in sorted((content.parent / "guides").glob("*.md"))
+              if (guide := read_post(path, today, preview, section="guides"))]
+    comparisons = [item for path in sorted((content.parent / "compare").glob("*.md"))
+                   if (item := read_post(path, today, preview, section="compare"))]
+    articles = posts + guides + comparisons
     blog = out / "blog"
     blog.mkdir(parents=True, exist_ok=True)
     # Remove only outputs owned by this generator, including a formerly published draft.
@@ -220,32 +236,68 @@ def build(out: Path, content: Path, today: date, preview: bool = False, store: s
     if manifest.exists():
         for relative in json.loads(manifest.read_text()):
             candidate = out / relative
-            if candidate.is_file() and candidate.resolve().is_relative_to(blog.resolve()):
+            if candidate.is_file() and any(candidate.resolve().is_relative_to((out / section).resolve()) for section in ("blog", "guides", "compare")):
                 candidate.unlink()
     generated = []
     def write(path: str, value: str) -> None:
         target = out / path
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(value)
-        if path.startswith("blog/"):
+        if path.startswith(("blog/", "guides/", "compare/")):
             generated.append(path)
     rows = []
-    for post in posts:
+    guide_rows = []
+    comparison_rows = []
+    for post in articles:
+        is_guide = post in guides
+        section, section_label = ("guides", "Guides") if is_guide else ("blog", "Blog")
+        if post in comparisons:
+            section, section_label = "compare", "Comparisons"
         title, desc = escape(post["title"]), escape(post["description"])
         pub, updated = post["published"].isoformat(), post["updated"].isoformat()
         label = post["published"].strftime("%B %d, %Y").replace(" 0", " ")
-        path = f'/blog/{post["slug"]}/'
-        rows.append(f'<article class="post-row"><div class="meta"><time datetime="{pub}">{label}</time><br>{escape(post["category"])}</div><div><h2><a href="{path}">{title}</a></h2><p>{desc}</p><a class="read" href="{path}">Read the post <span aria-hidden="true">→</span></a></div></article>')
-        body = f'<nav aria-label="Breadcrumb"><ol class="breadcrumb"><li><a href="/">Home</a></li><li aria-hidden="true">/</li><li><a href="/blog/">Blog</a></li></ol></nav><article><header class="article-head"><p class="eyebrow">{escape(post["category"])}</p><h1>{title}</h1><p class="meta">By <a href="/about#team">Banana team</a> · Published <time datetime="{pub}">{label}</time>'
+        path = f'/{section}/{post["slug"]}/'
+        if section == "compare":
+            comparison_rows.append(f'<li><a href="{path}">{title}</a><p>{escape(post["question"])}</p></li>')
+        else:
+            (guide_rows if is_guide else rows).append(f'<article class="post-row"><div class="meta"><time datetime="{pub}">{label}</time><br>{escape(post["category"])}</div><div><h2><a href="{path}">{title}</a></h2><p>{desc}</p><a class="read" href="{path}">Read the {"guide" if is_guide else "post"} <span aria-hidden="true">→</span></a></div></article>')
+        body = f'<nav aria-label="Breadcrumb"><ol class="breadcrumb"><li><a href="/">Home</a></li><li aria-hidden="true">/</li><li><a href="/{section}/">{section_label}</a></li></ol></nav><article><header class="article-head"><p class="eyebrow">{escape(post["category"])}</p><h1>{title}</h1><p class="meta">By <a href="/about#team">Banana team</a> · Published <time datetime="{pub}">{label}</time>'
         if updated != pub:
             body += f' · Updated <time datetime="{updated}">{updated}</time>'
-        body += f'</p></header><div class="prose">{post["body"]}<div class="article-end"><a href="/blog/">← All posts</a> · <a href="/support">Questions? Contact us</a></div></div></article>'
-        graph = {"@context": "https://schema.org", "@graph": [PUBLISHER, AUTHOR, {"@type": "BlogPosting", "@id": post["url"] + "#article", "headline": post["title"], "description": post["description"], "url": post["url"], "mainEntityOfPage": post["url"], "datePublished": pub, "dateModified": updated, "author": {"@id": AUTHOR["@id"]}, "publisher": {"@id": PUBLISHER["@id"]}, "image": ORIGIN + post.get("image", DEFAULT_IMAGE[0]), "inLanguage": "en", "isPartOf": {"@id": ORIGIN + "/blog/#blog"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": i, "name": name, "item": ORIGIN + link} for i, (name, link) in enumerate([("Home", "/"), ("Blog", "/blog/"), (post["title"], path)], 1)]}]}
+        body += f'</p></header><div class="prose">{post["body"]}<div class="article-end"><a href="/{section}/">← {section_label}</a> · <a href="/support">Questions? Contact us</a></div></div></article>'
+        if is_guide:
+            lead, _, rest = post["body"].partition("</p>")
+            lead += "</p>"
+            visual = ""
+            rest = rest.lstrip()
+            if rest.startswith("<figure"):
+                figure, _, rest = rest.partition("</figure>")
+                visual = figure.replace('loading="lazy"', 'loading="eager"') + "</figure>"
+            date_line = f'<time datetime="{updated}">{escape(label) if updated == pub else updated}</time>'
+            body = (f'<article class="reader {"field-guide" if post["category"] == "Calendar guide" else ""}"><nav class="reader-trail" aria-label="Breadcrumb">'
+                    f'<a href="/">Home</a> / <a href="/guides/">Guides</a></nav>'
+                    f'<header class="reader-head"><div><h1>{title}</h1>'
+                    f'<p class="meta">{escape(post["category"])} · {date_line}</p></div>'
+                    f'<div class="reader-lead">{lead}</div>{visual}</header>'
+                    f'<div class="prose reader-body">{rest}</div></article>')
+        if section == "compare":
+            template = Template((HERE / "templates/comparison.html").read_text())
+            body = template.substitute(get_url=escape(store or "/calendar/"), summary=escape(post["summary"]), competitor=escape(post["competitor"]),
+                                       question=escape(post["question"]), banana_fit=escape(post["banana_fit"]),
+                                       competitor_fit=escape(post["competitor_fit"]), details=post["body"])
+        graph = {"@context": "https://schema.org", "@graph": [PUBLISHER, AUTHOR, {"@type": "BlogPosting" if section == "blog" else "Article", "@id": post["url"] + "#article", "headline": post["title"], "description": post["description"], "url": post["url"], "mainEntityOfPage": post["url"], "datePublished": pub, "dateModified": updated, "author": {"@id": AUTHOR["@id"]}, "publisher": {"@id": PUBLISHER["@id"]}, "image": ORIGIN + post.get("image", DEFAULT_IMAGE[0]), "inLanguage": "en", "isPartOf": {"@id": ORIGIN + f"/{section}/#{section}"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": i, "name": name, "item": ORIGIN + link} for i, (name, link) in enumerate([("Home", "/"), (section_label, f"/{section}/"), (post["title"], path)], 1)]}]}
         extra = f'<meta property="article:published_time" content="{pub}">\n<meta property="article:modified_time" content="{updated}">'
         image = (post["image"], post["image_alt"]) if "image" in post else DEFAULT_IMAGE
-        write(f'blog/{post["slug"]}/index.html', render(post["title"] + " · Banana", post["description"], path, body, graph, article=True, extra_head=extra, image=image))
+        write(f'{section}/{post["slug"]}/index.html', render(post["title"] + " · Banana", post["description"], path, body, graph, article=True, extra_head=extra, image=image))
     body = '<header class="intro"><p class="eyebrow">The Banana blog</p><h1 class="index-title">Building Banana.</h1><p>Engineering notes on the calendar, the app, and the tests behind them. What we built, what we measured, and what still needs work.</p><a href="/blog/feed.xml">Follow along with RSS →</a></header><section class="posts" aria-label="Latest posts">' + ("".join(rows) or '<p>No posts yet. Check back soon.</p>') + '</section>'
     write("blog/index.html", render("Banana blog · Engineering and product development", "Engineering notes from the Banana team on calendar rendering, performance testing, and building a native daily planning app.", "/blog/", body, {"@context": "https://schema.org", "@type": "Blog", "@id": ORIGIN + "/blog/#blog", "url": ORIGIN + "/blog/", "name": "Banana blog", "publisher": PUBLISHER, "blogPost": [{"@type": "BlogPosting", "url": p["url"], "headline": p["title"]} for p in posts]}))
+    guide_index = '<header class="intro"><h1>Calendar guides</h1></header>' + "".join(guide_rows)
+    write("guides/index.html", render("Calendar guides · Banana", "Step-by-step guides to planning across Google calendars with Banana.", "/guides/", guide_index, {"@context": "https://schema.org", "@type": "CollectionPage", "@id": ORIGIN + "/guides/#guides", "url": ORIGIN + "/guides/"}))
+    compare_index = '<section class="compare-page"><h1>Calendar comparisons</h1><ul class="compare-list">' + "".join(comparison_rows) + '</ul></section>'
+    write("compare/index.html", render("Compare calendar apps · Banana", "Compare calendar providers, sharing controls and prices with Banana Calendar.", "/compare/", compare_index, {"@context": "https://schema.org", "@type": "CollectionPage", "@id": ORIGIN + "/compare/#compare", "url": ORIGIN + "/compare/"}))
+    calendar = (HERE / "templates/calendar.html").read_text()
+    calendar = calendar.replace("$download", store_links.regions(store)["hero"])
+    write("calendar/index.html", render("Google Calendar planner for multiple accounts · Banana", "Plan across Google accounts with Apple Reminders, travel time and private Busy blocks on iPhone, iPad and Mac.", "/calendar/", calendar, {"@context": "https://schema.org", "@type": "WebPage", "url": ORIGIN + "/calendar/", "name": "Banana Calendar", "about": {"@id": ORIGIN + "/#application"}}))
     about_body = '<header class="intro"><p class="eyebrow">About Banana</p><h1>Many calendars.<br>One you.</h1><p>Banana brings Google calendars, reminders, routines, travel time, and weather into one daily plan on iPhone, iPad, and Apple silicon Mac.</p></header><div class="prose"><h2 id="team">Made by Abrega, Inc.</h2><p>The Banana team publishes engineering notes and product documentation on this site. We explain what the app does, the permissions it needs, and the limits that matter when you use it.</p>' + store_links.about(store) + '<h2>Get in touch</h2><p>For product questions, feedback, or corrections to a guide, write to <a href="mailto:support@abrega.com">support@abrega.com</a>.</p><p><a href="/blog/">Read the blog</a> · <a href="/support">Get help</a> · <a href="/privacy">Read the Privacy Policy</a></p></div>'
     write("about.html", render("About Banana · Made by Abrega, Inc.", "Banana is made by Abrega, Inc. Learn about the daily planning app, the Banana team, and how to contact us.", "/about", about_body, {"@context": "https://schema.org", "@graph": [PUBLISHER, AUTHOR, {"@type": "AboutPage", "url": ORIGIN + "/about", "name": "About Banana", "about": {"@id": ORIGIN + "/#application"}}]}))
     ET.register_namespace("atom", "http://www.w3.org/2005/Atom")
@@ -263,13 +315,14 @@ def build(out: Path, content: Path, today: date, preview: bool = False, store: s
     ns = "http://www.sitemaps.org/schemas/sitemap/0.9"
     ET.register_namespace("", ns)
     sitemap = ET.Element(f"{{{ns}}}urlset")
-    for path in ["/", "/about", "/support", "/privacy", "/terms", "/blog/", *[f'/blog/{p["slug"]}/' for p in posts]]:
+    for path in ["/", "/about", "/support", "/privacy", "/terms", "/blog/", "/calendar/", "/guides/", "/compare/", *[p["url"].removeprefix(ORIGIN) for p in articles]]:
         item = ET.SubElement(sitemap, f"{{{ns}}}url")
         ET.SubElement(item, f"{{{ns}}}loc").text = ORIGIN + path
-        matching = next((p for p in posts if path == f'/blog/{p["slug"]}/'), None)
+        matching = next((p for p in articles if ORIGIN + path == p["url"]), None)
         if matching:
             ET.SubElement(item, f"{{{ns}}}lastmod").text = matching["updated"].isoformat()
     write("sitemap.xml", '<?xml version="1.0" encoding="utf-8"?>\n' + ET.tostring(sitemap, encoding="unicode") + "\n")
+    export_readers(out, ORIGIN)
     manifest.write_text(json.dumps(sorted(generated), indent=2) + "\n")
     if preview:
         for file in out.rglob("*.html"):

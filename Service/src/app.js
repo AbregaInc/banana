@@ -377,6 +377,13 @@ export function createApp(deps) {
                                 google_sub = COALESCE(google_sub, ?) WHERE token_hash = ? AND kind = 'person'`,
         params: [google.sub, t, google.sub, c.get("sessionHash")] });
     }
+    if (!current && !existing && deps.config.welcomeReplyTo && deps.email?.enabled) {
+      statements.push({
+        sql: `INSERT INTO signup_welcomes (account_id, google_sub, available_at)
+              SELECT account_id, sub, ? FROM google_links WHERE sub = ? AND account_id = ?`,
+        params: [t, google.sub, account],
+      });
+    }
     statements.push(audit(deps, account, "link"));
     await db.batch(statements);
     return c.json({ ...(session ? { session } : {}), account: await summary(account) });
