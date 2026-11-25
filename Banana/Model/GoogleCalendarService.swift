@@ -2027,6 +2027,20 @@ final class GoogleCalendarService: ObservableObject {
             return "calendar request failed"
         }
     }
+
+    /// A temporary read failure can reuse the timeline's event. Permission and account failures
+    /// keep their error state. RSVP always fetches the provider event again before writing.
+    func cachedInvitationEvents(calendarID: String, accountEmail: String, after error: Error) -> [GoogleEvent] {
+        let email = accountEmail.lowercased()
+        guard accounts.contains(where: { $0.id == email }),
+              MailInviteLookup.calendarIDs(account: email, calendars: calendars).contains(calendarID) else { return [] }
+        if let error = error as? GoogleCalendarError {
+            guard case .api(let status, _) = error, (500..<600).contains(status) else { return [] }
+        } else if let network = error as? URLError {
+            guard [.notConnectedToInternet, .networkConnectionLost, .timedOut, .cannotConnectToHost].contains(network.code) else { return [] }
+        } else { return [] }
+        return eventCache[calendarID]?.events ?? []
+    }
     #endif
 
     /// Events on one calendar carrying an iCalendar UID — how a block written through Apple

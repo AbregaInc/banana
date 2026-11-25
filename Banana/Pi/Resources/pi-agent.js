@@ -21895,16 +21895,20 @@ For read_nutrients, needsUnavailableData must be false for dietary intake/adequa
       if (calls2.length > 1 || calls2.some((p) => !next.tools.some((t) => t.name === p.name))) return text(questions.intent);
       return calls2.length ? { content: calls2 } : result2;
     };
+    const turn = request2.messages.at(-1);
+    const calendarQuery = turn?.role === "user" ? namedCalendarLookup(turn.text) : null;
+    if (calendarQuery) {
+      if (!request2.tools.some((tool3) => tool3.name === "search_app" && tool3.parameters.properties.section)) {
+        return text("Calendar search is unavailable in this conversation.");
+      }
+      return call("search_app", { query: calendarQuery, section: "plan" }, "calendar-search-" + Date.now() + "-" + ++navigationSequence);
+    }
     if (!request2.tools.length) return generate(request2, signal);
-    if (request2.messages.at(-1)?.role !== "user") return generate({ ...request2, tools: request2.tools.filter((t) => t.name === "read_note"), instructions: request2.instructions + "\nAnswer only from the tool results for the current question. For nutrients, report the requested nutrient, units, date range, coverage gaps, and source links. Missing data is not zero; do not infer age, sex, pregnancy, deficiency or a personal goal. Do not prepare new records or perform unrelated actions during a read continuation." }, signal);
-    const latest = request2.messages.at(-1).text;
+    if (turn?.role !== "user") return generate({ ...request2, tools: request2.tools.filter((t) => t.name === "read_note"), instructions: request2.instructions + "\nAnswer only from the tool results for the current question. For nutrients, report the requested nutrient, units, date range, coverage gaps, and source links. Missing data is not zero; do not infer age, sex, pregnancy, deficiency or a personal goal. Do not prepare new records or perform unrelated actions during a read continuation." }, signal);
+    const latest = turn.text;
     const directPage = directPageCommand(latest);
     if (directPage && request2.tools.some((t) => t.name === "open_page")) return call("open_page", { section: directPage }, "navigation-" + Date.now() + "-" + ++navigationSequence);
     if (directConversationCommand(latest) === "new") return text("I can\u2019t start a separate conversation from a message. Use New Conversation in the chat menu.");
-    const calendarQuery = namedCalendarLookup(latest);
-    if (calendarQuery && request2.tools.some((tool3) => tool3.name === "search_app" && tool3.parameters.properties.section)) {
-      return call("search_app", { query: calendarQuery, section: "plan" }, "calendar-search-" + Date.now() + "-" + ++navigationSequence);
-    }
     const chart = nutritionCommand(latest, /Current native nutrition view:\s*\{/.test(request2.instructions));
     if (chart && request2.tools.some((t) => t.name === chart.name)) return call(chart.name, chart.arguments, "chart-" + Date.now() + "-" + ++navigationSequence);
     const chosen = await generate(selectionRequest(request2), signal);
