@@ -23,6 +23,7 @@ import sys
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import urlsplit
+from xml.etree import ElementTree
 
 sys.dont_write_bytecode = True
 
@@ -164,13 +165,25 @@ def check() -> list[str]:
                 faults.append(f"{name} points at {ref}, which isn't there")
         for image in page.images:
             src = image.get("src")
+            target = local(src or "")
             if "alt" not in image:
                 faults.append(f"{name}: {src} has no alt (decoration takes an empty one)")
             if not (image.get("width") and image.get("height")):
                 faults.append(f"{name}: {src} has no width and height, so the page jumps as it loads")
-            elif Image and local(src or "") and local(src).exists():
+            elif target and target.is_file():
                 stated = int(image["width"]) / int(image["height"])
-                width, height = Image.open(local(src)).size
+                if target.suffix == ".svg":
+                    try:
+                        _, _, width, height = map(float, ElementTree.parse(target).getroot().attrib["viewBox"].split())
+                        if width <= 0 or height <= 0:
+                            raise ValueError("nonpositive image size")
+                    except (ElementTree.ParseError, KeyError, ValueError):
+                        faults.append(f"{name}: {src} has no valid SVG viewBox")
+                        continue
+                elif Image:
+                    width, height = Image.open(target).size
+                else:
+                    continue
                 if abs(stated - width / height) > 0.01:
                     faults.append(f"{name}: {src} is {width}x{height}, not the shape its width and height say")
         for link in page.links:

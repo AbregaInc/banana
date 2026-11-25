@@ -86,25 +86,32 @@ class StoreSwitchTests(unittest.TestCase):
     URL = 'https://apps.apple.com/app/banana-daily-planner/id1234567890'
     SITE = Path(__file__).parent / 'site'
 
-    def test_published_pages_match_the_configured_store(self):
+    def test_configured_switch_matches_the_published_pages(self):
         import store_links
+        url = store_links.app_store_url()
         for name in store_links.PAGES:
             html = (self.SITE/name).read_text()
-            self.assertEqual(store_links.render(html, store_links.app_store_url()), html)
+            self.assertEqual(store_links.render(html, url), html)
 
     def test_app_store_url_leads_and_keeps_mac_download_and_beta(self):
         import json, store_links
         home = store_links.render((self.SITE/'index.html').read_text(), self.URL)
         self.assertIn(f'<a class="btn" href="{self.URL}">App Store</a>', home)
+        hero = store_links.regions(self.URL)['hero']
+        self.assertIn(f'<a class="app-store-badge" href="{self.URL}">', hero)
+        self.assertIn('alt="Download on the App Store"', hero)
+        self.assertLess(hero.index(store_links.APP_STORE_BADGE), hero.index('href="/download/mac"'))
+        self.assertEqual(home.count(store_links.APP_STORE_BADGE), 1)
         self.assertIn('href="/download/mac"', home)
         self.assertIn(store_links.TESTFLIGHT, home)
         schema = json.loads(home.split('<script type="application/ld+json">')[1].split('</script>')[0])
         app = next(n for n in schema['@graph'] if n['@type'] == 'SoftwareApplication')
         self.assertEqual(app['downloadUrl'][0], self.URL)
-        beta = store_links.render(home, None)
-        self.assertNotIn(self.URL, beta)
-        self.assertIn('iPhone &amp; iPad beta', beta)
-        self.assertEqual(store_links.render(beta, self.URL), home)
+        prelaunch = store_links.render(home, None)
+        self.assertNotIn(self.URL, prelaunch)
+        self.assertIn('href="/download/mac"', prelaunch)
+        self.assertIn(store_links.TESTFLIGHT, prelaunch)
+        self.assertEqual(store_links.render(prelaunch, self.URL), home)
         self.assertIn(self.URL, store_links.render((self.SITE/'support.html').read_text(), self.URL))
 
     def test_build_writes_the_about_page_for_the_switch(self):
