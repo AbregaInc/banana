@@ -179,6 +179,10 @@ struct MailFormattedBody<Fallback: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: DS.Space.s) {
             if active, let fragment {
+                if !remoteImages && (fragment.contains("src=\"https://") || fragment.contains("url(")) {
+                    Button("Load images") { remoteImages = true }
+                        .accessibilityIdentifier("mail.body.images." + id.message)
+                }
                 MailHTMLWebView(document: MailOriginalDocument.page(fragment, remoteImages: remoteImages, embedded: true),
                     open: { openURL($0) }, height: { value in
                         if abs(height - value) >= 1 { height = value }
@@ -195,10 +199,6 @@ struct MailFormattedBody<Fallback: View>: View {
                     .accessibilityIdentifier("mail.body.html." + id.message)
                 Button("Simplify message") { simplified = true; slots.hide(id) }
                     .accessibilityIdentifier("mail.body.simplify." + id.message)
-                if !remoteImages && (fragment.contains("src=\"https://") || fragment.contains("url(")) {
-                    Button("Load images") { remoteImages = true }
-                        .accessibilityIdentifier("mail.body.images." + id.message)
-                }
             } else {
                 fallback()
                 if visible && (!active || failed) {

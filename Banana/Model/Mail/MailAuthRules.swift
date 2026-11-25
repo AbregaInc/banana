@@ -69,12 +69,9 @@ enum MailAuthRules {
         return authenticatedDomain(results: results, fromDomain: fromDomain)
     }
 
-    /// Whether Gmail's own header, where it carries a `dmarc=` result of any verdict, names
-    /// `domain` as its `header.from`, or names a parent on a pass independently corroborated by
-    /// DKIM or SPF for the exact From domain — true when it carries none, or when Gmail wrote no header
-    /// to read. False when a `dmarc=` result names another domain or none, and when the header
-    /// is Gmail's and was cut (a result that cannot be read is not agreement). It is how
-    /// `MessageHeaders.sender` learns that Gmail read the `From` line as someone else.
+    /// Check that Gmail and Banana read the same From domain. Gmail can report the
+    /// organizational domain on a relaxed DMARC pass. In that case require a passing
+    /// DKIM or SPF identity within that same organization before accepting the From mailbox.
     static func dmarcAgrees(headers: MessageHeaders, with domain: String) -> Bool {
         switch firstHeader(of: headers) {
         case .absent:
@@ -83,27 +80,32 @@ enum MailAuthRules {
             return false
         case .results(let results):
             let want = normalizedDomain(domain)
-            // Gmail can report the organizational domain here even when From is a subdomain.
-            // Gmail must also authenticate the exact From domain. A matching suffix alone
-            // establishes no ownership, including for public suffixes and delegated domains.
-            let exactAuthentication = results.contains { result in
-                guard result.verdict == "pass" else { return false }
-                switch result.method {
+            var organization: String?
+            for result in results where result.method == "dmarc" {
+                guard let named = result.properties["header.from"].map(normalizedDomain), !named.isEmpty else { return false }
+                if named == want { continue }
+                // Conflicting parent claims are ambiguous. Check the corroborating
+                // identities once, even if a header carries repeated results.
+                guard result.verdict == "pass", isAligned(named, with: want),
+                      organization == nil || organization == named else { return false }
+                organization = named
+            }
+            guard let organization else { return true }
+            return results.contains { candidate in
+                guard candidate.verdict == "pass" else { return false }
+                let identity: String?
+                switch candidate.method {
                 case "dkim":
-                    let signing = result.properties["header.d"]
-                        ?? result.properties["header.i"].flatMap { domainAfterLastAt($0) }
-                    return signing.map(normalizedDomain) == want
+                    identity = candidate.properties["header.d"]
+                        ?? candidate.properties["header.i"].flatMap { domainAfterLastAt($0) }
                 case "spf":
-                    guard let envelope = result.properties["smtp.mailfrom"] else { return false }
-                    return normalizedDomain(domainAfterLastAt(envelope) ?? envelope) == want
+                    identity = candidate.properties["smtp.mailfrom"].map { domainAfterLastAt($0) ?? $0 }
                 default:
                     return false
                 }
-            }
-            return results.filter { $0.method == "dmarc" }.allSatisfy { result in
-                guard let named = result.properties["header.from"].map(normalizedDomain), !named.isEmpty else { return false }
-                if named == want { return true }
-                return result.verdict == "pass" && exactAuthentication && want.hasSuffix("." + named)
+                guard let identity else { return false }
+                let verified = normalizedDomain(identity)
+                return isAuthenticationDomain(verified) && isAligned(organization, with: verified)
             }
         }
     }
@@ -332,6 +334,10 @@ enum MailAuthRules {
     /// never a signing domain, and one with anything but letters, digits, hyphen, underscore
     /// and dots is not a domain.
     private static func isAligned(_ domain: String, with from: String) -> Bool {
+        isAuthenticationDomain(domain) && (domain == from || from.hasSuffix("." + domain))
+    }
+
+    private static func isAuthenticationDomain(_ domain: String) -> Bool {
         guard domain.contains("."), !domain.hasPrefix("."), !domain.contains("..") else { return false }
         for byte in domain.utf8 {
             switch byte {
@@ -342,7 +348,7 @@ enum MailAuthRules {
                 return false
             }
         }
-        return domain == from || from.hasSuffix("." + domain)
+        return true
     }
 }
 

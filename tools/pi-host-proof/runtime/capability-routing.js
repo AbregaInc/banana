@@ -66,17 +66,21 @@ export async function routeGeneration(request, rawGenerate, signal) {
     // Native tool results establish effects; do not publish a model's premature success claim.
     return calls.length ? {content:calls} : result;
   };
+  const turn = request.messages.at(-1);
+  const calendarQuery = turn?.role === 'user' ? namedCalendarLookup(turn.text) : null;
+  if (calendarQuery) {
+    if (!request.tools.some(tool => tool.name === 'search_app' && tool.parameters.properties.section)) {
+      return text('Calendar search is unavailable in this conversation.');
+    }
+    return call('search_app', {query: calendarQuery, section: 'plan'}, 'calendar-search-' + Date.now() + '-' + (++navigationSequence));
+  }
   // Tool-result continuations need grounded synthesis, not a new routing decision.
   if (!request.tools.length) return generate(request,signal);
-  if(request.messages.at(-1)?.role !== 'user') return generate({...request,tools:request.tools.filter(t=>t.name==='read_note'),instructions:request.instructions+'\nAnswer only from the tool results for the current question. For nutrients, report the requested nutrient, units, date range, coverage gaps, and source links. Missing data is not zero; do not infer age, sex, pregnancy, deficiency or a personal goal. Do not prepare new records or perform unrelated actions during a read continuation.'},signal);
-  const latest=request.messages.at(-1).text;
+  if(turn?.role !== 'user') return generate({...request,tools:request.tools.filter(t=>t.name==='read_note'),instructions:request.instructions+'\nAnswer only from the tool results for the current question. For nutrients, report the requested nutrient, units, date range, coverage gaps, and source links. Missing data is not zero; do not infer age, sex, pregnancy, deficiency or a personal goal. Do not prepare new records or perform unrelated actions during a read continuation.'},signal);
+  const latest=turn.text;
   const directPage=directPageCommand(latest);
   if(directPage && request.tools.some(t=>t.name==='open_page'))return call('open_page',{section:directPage},'navigation-'+Date.now()+'-'+(++navigationSequence));
   if(directConversationCommand(latest)==='new')return text('I can’t start a separate conversation from a message. Use New Conversation in the chat menu.');
-  const calendarQuery = namedCalendarLookup(latest);
-  if (calendarQuery && request.tools.some(tool => tool.name === 'search_app' && tool.parameters.properties.section)) {
-    return call('search_app', {query: calendarQuery, section: 'plan'}, 'calendar-search-' + Date.now() + '-' + (++navigationSequence));
-  }
   const chart=nutritionCommand(latest, /Current native nutrition view:\s*\{/.test(request.instructions));
   if(chart && request.tools.some(t=>t.name===chart.name))return call(chart.name,chart.arguments,'chart-'+Date.now()+'-'+(++navigationSequence));
   const chosen = await generate(selectionRequest(request),signal);

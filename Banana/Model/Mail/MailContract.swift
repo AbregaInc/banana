@@ -513,6 +513,15 @@ struct MailIdentity: Hashable, Codable, Sendable {
 struct MailDraftPart: Equatable, Sendable {
     let fragment: MailFragment
     var body: MailBody
+
+    /// What the quote says, as text; nil for a part with no body to show.
+    var text: MailText? {
+        switch body {
+        case .text(let text, _, _): return text
+        case .designed(_, _, _, let plain, _): return plain
+        case .notOnDevice: return nil
+        }
+    }
 }
 
 struct MailDraftAttachment: Identifiable, Equatable, Codable, Sendable {

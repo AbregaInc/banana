@@ -10,16 +10,23 @@ struct MailTextView: View {
     var styled: [AttributedString]? = nil
     /// The prepared body's `quoteStartsAt`: quoted history waits behind one button.
     var foldFrom: Int? = nil
+    var foldEntireTail = false
+    var timeNotes: [Int: [MailReaderTime.Note]] = [:]
     @State private var showsQuote = false
 
     var body: some View {
         let ready = styled?.count == text.blocks.count ? styled : nil
-        let hidden = MailQuoteFolding.hiddenRange(in: text.blocks, from: foldFrom, expanded: showsQuote)
+        let hidden = MailQuoteFolding.hiddenRange(in: text.blocks, from: foldFrom, expanded: showsQuote,
+                                                 entireTail: foldEntireTail)
         VStack(alignment: .leading, spacing: DS.Space.s) {
             ForEach(text.blocks.indices, id: \.self) { index in
                 if hidden?.lowerBound == index { showQuoteButton }
                 if hidden?.contains(index) != true {
-                    MailBlockView(block: text.blocks[index], styled: ready?[index])
+                    if let notes = timeNotes[index] {
+                        MailLocalTimeParagraph(runs: ready?[index] ?? MailAttributedText.make(text.blocks[index].runs), notes: notes)
+                    } else {
+                        MailBlockView(block: text.blocks[index], styled: ready?[index])
+                    }
                 }
             }
         }
@@ -34,6 +41,67 @@ struct MailTextView: View {
         .accessibilityIdentifier("mail.body.quote")
     }
 
+}
+
+private struct MailLocalTimeParagraph: View {
+    let runs: AttributedString
+    let notes: [MailReaderTime.Note]
+    @Environment(\.timeZone) private var zone
+    @Environment(\.locale) private var locale
+
+    var body: some View {
+        let rendered = annotatedText()
+        if runs.runs.contains(where: { $0.link != nil }) {
+            rendered.text.font(.body)
+        } else {
+            rendered.text.font(.body).accessibilityLabel(Text(rendered.spoken))
+        }
+    }
+
+    private func annotatedText() -> (text: Text, spoken: String) {
+        var text = Text("")
+        var spoken = ""
+        var previous = runs.startIndex
+        for note in notes where zone.secondsFromGMT(for: note.date) != note.sourceZone.secondsFromGMT(for: note.date) {
+            guard let end = runs.characters.index(runs.startIndex, offsetBy: note.end, limitedBy: runs.endIndex),
+                  end >= previous else { continue }
+            let prefix = AttributedString(runs[previous..<end])
+            var localCalendar = Calendar(identifier: .gregorian)
+            localCalendar.timeZone = zone
+            var sourceCalendar = localCalendar
+            sourceCalendar.timeZone = note.sourceZone
+            let components: Set<Calendar.Component> = [.year, .month, .day]
+            let rollover = localCalendar.dateComponents(components, from: note.date)
+                != sourceCalendar.dateComponents(components, from: note.date)
+            let value = note.date.formatted(Date.FormatStyle(date: rollover ? .abbreviated : .omitted,
+                                                            time: .shortened, locale: locale, timeZone: zone))
+            let shortZone = zone.abbreviation(for: note.date) ?? zone.identifier
+            let longZone = zone.localizedName(for: zone.isDaylightSavingTime(for: note.date) ? .daylightSaving : .standard,
+                                               locale: locale) ?? shortZone
+            let badge = Text("(\(Self.mark) \(value) \(shortZone))")
+            text = Text("\(text)\(Text(prefix)) \(badge)")
+            spoken += String(prefix.characters) + ", Banana, your local time, \(value) \(longZone), "
+            previous = end
+        }
+        let tail = AttributedString(runs[previous..<runs.endIndex])
+        return (Text("\(text)\(Text(tail))"), spoken + String(tail.characters))
+    }
+
+    private static let mark: Image = {
+        let size = CGSize(width: 14, height: 14)
+        #if os(macOS)
+        guard let original = NSImage(named: "BrandMark") else { return Image("BrandMark") }
+        return Image(nsImage: NSImage(size: size, flipped: false) { rect in
+            original.draw(in: rect)
+            return true
+        })
+        #else
+        guard let original = UIImage(named: "BrandMark") else { return Image("BrandMark") }
+        return Image(uiImage: UIGraphicsImageRenderer(size: size).image { _ in
+            original.draw(in: CGRect(origin: .zero, size: size))
+        })
+        #endif
+    }()
 }
 
 private struct MailBlockView: View {
