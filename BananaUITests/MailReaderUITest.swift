@@ -1,6 +1,24 @@
 import XCTest
 
 final class MailReaderUITest: MailUITestCase {
+    func testMessageAddressMenuAndLocalTimeAnnotation() {
+        launch(open: "newsletter", extra: ["--mail-reader-actions"])
+        let time = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "Banana, your local time")).firstMatch
+        XCTAssertTrue(time.waitForExistence(timeout: 10))
+        let address = "Noor+Work@plan.example"
+        let link = app.links[address]
+        let text = app.staticTexts[address]
+        let target = link.exists ? link : text
+        XCTAssertTrue(target.waitForExistence(timeout: 5))
+        snap("reader-local-time")
+        target.tap()
+        let copy = app.buttons["Copy address"].firstMatch
+        XCTAssertTrue(copy.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Compose"].exists)
+        copy.tap()
+        XCTAssertTrue(waitForToast(containing: "Address copied"))
+    }
+
     func testVerificationCodeStaysReachableWithLargeTextAndDarkAppearance() {
         launch(open: "newsletter", extra: ["--mail-verification-code", "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL", "-AppleInterfaceStyle", "Dark"])
         let copy = app.buttons["mail.verification.copy"].firstMatch

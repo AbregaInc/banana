@@ -167,6 +167,14 @@ final class MailFixtureSource: MailSource {
             }
             threads[id] = stored
         }
+        if args.contains("--mail-reader-actions"),
+           let id = threads.keys.first(where: { $0.thread == "newsletter" }), var stored = threads[id],
+           let first = stored.conversation.messages.indices.first {
+            stored.conversation.messages[first].date = Date(timeIntervalSince1970: 1_795_612_320)
+            let body = Self.text(from: ["I could call after 3pm CT on Mon, Dec 21.", "Noor+Work@plan.example"])
+            bodies[stored.conversation.messages[first].id] = .text(body, quoteStartsAt: nil, notices: [])
+            threads[id] = stored
+        }
         if args.contains("--mail-unknown-sender"),
            let id = threads.keys.first(where: { $0.thread == "newsletter" }), var stored = threads[id] {
             let unknown = MailPerson(name: nil, address: "", isMe: false, isKnown: false, fromTheirMail: false)
