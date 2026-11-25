@@ -2,7 +2,7 @@
 
 Bring work and personal appointments together with Apple Reminders, weather and the time you need to get there.
 
-[App Store](https://apps.apple.com/us/app/banana-daily-planner/id6792318022)[Download for Mac](https://bananatheapp.com/download/mac)
+[![Download on the App Store](https://bananatheapp.com/assets/img/download-on-the-app-store.svg)](https://apps.apple.com/us/app/banana-daily-planner/id6792318022)[Download for Mac](https://bananatheapp.com/download/mac)[Join TestFlight beta](https://testflight.apple.com/join/47yxmU8U)
 
 iPhone · iPad · Mac
 

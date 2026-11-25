@@ -45,7 +45,7 @@ def export_readers(out: Path, origin: str) -> None:
         desc = soup.find("meta", attrs={"name": "description"})["content"]
         group = next((label for prefix, label in [("/compare/", "Comparisons"), ("/guides/", "Guides"), ("/blog/", "Engineering")] if path.startswith(prefix)), "Product" if path in ("/", "/calendar/") else "Company and support")
         entries.setdefault(group, []).append(f"- [{title}]({origin}{md_path}): {desc}")
-        directory = footer(md_path, pages)
+        directory = footer(pages)
         html = re.sub(r"<!--directory-->.*?<!--/directory-->", lambda _: "<!--directory-->" + directory + "<!--/directory-->", html, flags=re.S)
         head = (f'<link rel="alternate" type="text/markdown" href="{md_path}">\n'
                 '<link rel="describedby" href="/llms.txt">\n<link rel="stylesheet" href="/directory.css">')
@@ -70,11 +70,11 @@ def export_readers(out: Path, origin: str) -> None:
         headers.write_text(base + "\n\n# Generated Markdown routes\n" + "\n".join(rules) + "\n")
 
 
-def footer(md_path: str, pages: dict) -> str:
+def footer(pages: dict) -> str:
     groups = {
         "Calendar": [("Calendar overview", "/calendar/"), ("Calendar guides", "/guides/"), ("Compare apps", "/compare/")],
         "Banana": [("About", "/about"), ("Engineering blog", "/blog/"), ("Support", "/support"), ("FAQ", "/#faq"), ("TestFlight", "https://testflight.apple.com/join/47yxmU8U")],
-        "Resources": [("Markdown page", md_path), ("AI reading index", "/llms.txt"), ("RSS", "/blog/feed.xml"), ("Privacy", "/privacy"), ("Terms", "/terms")],
+        "Resources": [("RSS", "/blog/feed.xml"), ("Privacy", "/privacy"), ("Terms", "/terms")],
     }
     for path, (file, _) in pages.items():
         if path.startswith("/compare/") and path != "/compare/":

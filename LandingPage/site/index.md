@@ -4,7 +4,7 @@ Your Google calendars, reminders and routines. One daily plan.
 
 Busy blocks help keep your enabled calendars in step, travel time included.
 
-[App Store](https://apps.apple.com/us/app/banana-daily-planner/id6792318022)[Download for Mac](https://bananatheapp.com/download/mac)
+[![Download on the App Store](https://bananatheapp.com/assets/img/download-on-the-app-store.svg)](https://apps.apple.com/us/app/banana-daily-planner/id6792318022)[Download for Mac](https://bananatheapp.com/download/mac)[Join TestFlight beta](https://testflight.apple.com/join/47yxmU8U)
 
 iPhone · iPad · Mac
 
