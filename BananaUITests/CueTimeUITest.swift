@@ -1,3 +1,4 @@
+import CoreImage
 import XCTest
 import Vision
 
@@ -12,13 +13,18 @@ final class CueTimeUITest: XCTestCase {
 
         let cue = try revealCalendarButton("Wind", in: app)
         let image = cue.screenshot()
-        let request = VNRecognizeTextRequest()
-        request.recognitionLevel = .accurate
-        request.recognitionLanguages = ["en-US"]
-        try VNImageRequestHandler(data: image.pngRepresentation).perform([request])
-        let recognized = (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }.joined(separator: " ")
-        let compact = recognized.lowercased().replacingOccurrences(of: ":00", with: "").filter { $0.isLetter || $0.isNumber }
-        XCTAssertTrue(compact.contains("9pm"), "Rendered moment must include its 9 PM time: \(recognized)")
+        let png = image.pngRepresentation
+        let recognized = try recognizedText(VNImageRequestHandler(data: png))
+        var preview = recognized
+        // Vision can read a small rendered 9 as 0 in the narrow element screenshot.
+        // Check the same pixels at a larger scale before calling the time missing.
+        if !containsNinePM(recognized), let ciImage = CIImage(data: png) {
+            let scaled = ciImage.transformed(by: CGAffineTransform(scaleX: 1.5, y: 1.5))
+            if let cgImage = CIContext().createCGImage(scaled, from: scaled.extent) {
+                preview = try recognizedText(VNImageRequestHandler(cgImage: cgImage))
+            }
+        }
+        XCTAssertTrue(containsNinePM(preview), "Rendered moment must include its 9 PM time: \(preview)")
         let attachment = XCTAttachment(screenshot: image)
         attachment.name = "Compact routine visibly includes its time"
         attachment.lifetime = .keepAlways
@@ -30,5 +36,18 @@ final class CueTimeUITest: XCTestCase {
         XCTAssertTrue(sheetTime.label.contains(":"), sheetTime.label)
         XCTAssertTrue(app.buttons["Skip this one"].exists || app.buttons["Restore"].exists)
         app.buttons["sheet.close"].tap()
+    }
+
+    private func recognizedText(_ handler: VNImageRequestHandler) throws -> String {
+        let request = VNRecognizeTextRequest()
+        request.recognitionLevel = .accurate
+        request.recognitionLanguages = ["en-US"]
+        try handler.perform([request])
+        return (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }.joined(separator: " ")
+    }
+
+    private func containsNinePM(_ recognized: String) -> Bool {
+        recognized.lowercased().replacingOccurrences(of: ":00", with: "")
+            .filter { $0.isLetter || $0.isNumber }.contains("9pm")
     }
 }
