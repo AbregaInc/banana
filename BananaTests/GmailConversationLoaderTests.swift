@@ -44,7 +44,7 @@ final class GmailConversationLoaderTests: XCTestCase {
                 GmailHeader(name: "Subject", value: "Subject"),
                 GmailHeader(name: "Authentication-Results", value:
                     "mx.google.com; dkim=pass header.i=@plan.example; "
-                    + "spf=pass smtp.mailfrom=bounce@news.plan.example; dmarc=pass header.from=plan.example"),
+                    + "spf=pass smtp.mailfrom=bounce@bounce.news.plan.example; dmarc=pass header.from=plan.example"),
             ]
         }
         func wrongAccount() { account = "other@example.com" }
@@ -120,7 +120,7 @@ final class GmailConversationLoaderTests: XCTestCase {
         try await stores.index.write { db in
             // Reproduce the earlier cache and its actual migration ledger.
             try db.execute(sql: "UPDATE message SET from_addr=NULL,from_name=NULL")
-            try db.execute(sql: "DELETE FROM grdb_migrations WHERE identifier='sender-domain-recovery-v2'")
+            try db.execute(sql: "DELETE FROM grdb_migrations WHERE identifier='sender-domain-recovery-v3'")
             let thread = try XCTUnwrap(Int64.fetchOne(db, sql: "SELECT thread_pk FROM message"))
             try MailIndexWriter.rebuildThread(thread, facts: MailMessageImporter.facts(threadPK: thread, in: db),
                                              myAddresses: [message.account], in: db)
@@ -144,17 +144,28 @@ final class GmailConversationLoaderTests: XCTestCase {
         XCTAssertEqual(reads, 1, "Cached recovery must work offline")
     }
 
-    func testGmailOrganizationalDMARCWithAnExactSPFPassReadsTheSender() throws {
+    func testGmailOrganizationalDMARCWithAlignedPassingIdentityReadsTheSender() throws {
         let from = ("From", "Newsroom <updates@news.plan.example>")
-        let signed = "mx.google.com; dkim=pass header.i=@plan.example; "
         let dmarc = "dmarc=pass header.from=plan.example"
-        func headers(_ spf: String, _ result: String = dmarc) -> MessageHeaders {
-            MessageHeaders([from, ("Authentication-Results", signed + spf + "; " + result)])
+        func headers(_ authentication: String, _ result: String = dmarc) -> MessageHeaders {
+            MessageHeaders([from, ("Authentication-Results", "mx.google.com; " + authentication + "; " + result)])
         }
         let valid = try XCTUnwrap(headers("spf=pass smtp.mailfrom=bounce@news.plan.example").sender)
         XCTAssertEqual(valid.address, "updates@news.plan.example")
         XCTAssertEqual(valid.name, "Newsroom")
-        XCTAssertNil(headers("spf=pass smtp.mailfrom=bounce@plan.example").sender)
+        XCTAssertEqual(headers("dkim=pass header.i=@plan.example").sender?.address, valid.address)
+        XCTAssertEqual(headers("spf=pass smtp.mailfrom=bounce@bounce.news.plan.example").sender?.address, valid.address)
+        XCTAssertEqual(headers("dkim=pass header.i=@signing.plan.example").sender?.address, valid.address)
+        XCTAssertNil(headers("dkim=pass header.i=@unrelated.example").sender)
+        XCTAssertNil(headers("dkim=pass header.i=@notplan.example").sender)
+        let conflicting = dmarc + "; dmarc=pass header.from=sub.plan.example"
+        let conflict = MessageHeaders([
+            ("From", "Newsroom <updates@news.sub.plan.example>"),
+            ("Authentication-Results", "mx.google.com; dkim=pass header.d=news.sub.plan.example; " + conflicting),
+        ])
+        XCTAssertNil(conflict.sender)
+        XCTAssertNil(headers("dkim=pass header.i=@bad!.plan.example").sender)
+        XCTAssertNil(headers("dkim=pass header.i=@news.plan.example", "dmarc=pass header.from=other.example").sender)
         XCTAssertNil(headers("spf=pass smtp.helo=news.plan.example").sender)
         XCTAssertNil(headers("spf=fail smtp.mailfrom=bounce@news.plan.example").sender)
         XCTAssertNil(headers("spf=pass smtp.mailfrom=bounce@news.plan.example",

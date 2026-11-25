@@ -10,6 +10,8 @@ import XCTest
 /// `.build/mail-render-out/<case>.txt` to read beside it.
 final class MailRenderCorpusTests: XCTestCase {
     private struct Expect: Decodable {
+        var formattedContains: [String]?
+        var prefersOriginal: Bool?
         var quoteStartsAt: Int?
         var contains: [String]?
         var absent: [String]?
@@ -61,6 +63,15 @@ final class MailRenderCorpusTests: XCTestCase {
 
         guard let data = try? Data(contentsOf: folder.appendingPathComponent("expect.json")) else { return }
         let expect = try JSONDecoder().decode(Expect.self, from: data)
+        if let markers = expect.formattedContains {
+            XCTAssertEqual(prepared.prefersOriginal, expect.prefersOriginal ?? true, "\(name): selects the expected reader")
+            let fragment = try MailOriginalDocument.prepare(html)
+            for marker in markers {
+                XCTAssertTrue(fragment.contains(marker), "\(name): formatted HTML retains \(marker)")
+            }
+            let page = MailOriginalDocument.page(fragment, embedded: true)
+            XCTAssertTrue(page.contains("img-src banana-mail-image:;"), "\(name): remote images require consent")
+        }
         if let start = expect.quoteStartsAt { XCTAssertEqual(prepared.quoteStartsAt, start, "\(name): folds quoted history") }
         for text in expect.contains ?? [] { XCTAssertTrue(shown.contains(text), "\(name): shows \(text.debugDescription)") }
         for text in expect.absent ?? [] { XCTAssertFalse(shown.contains(text), "\(name): hides \(text.debugDescription)") }

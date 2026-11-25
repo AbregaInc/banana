@@ -23,6 +23,10 @@ reported example. Name the invariant the bug violated, make the code hold it for
 show the reported case passing as one instance of it. When a general fix has a cost (behaviour
 changes for other users or data), say what changes and measure it; don't narrow the fix to dodge it.
 
+For Mail parser layout fixes, follow the [replay review workflow](tools/reports/mail-review/README.md#verify-every-parser-layout-change).
+Open and inspect before/after screenshots of the actual email bodies at the reported width and
+phone widths before calling a visual fix verified. Replay approved cases as regression controls.
+
 ## Build output: clean up as you go
 
 Each xcodebuild derived-data folder is 1.5–3.5 GB. One session left 34 GB and filled the disk

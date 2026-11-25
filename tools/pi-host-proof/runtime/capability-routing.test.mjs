@@ -198,7 +198,10 @@ test('explicit nutrient dates must be supplied by the person',async()=>{
 
 test('named birthdays and anniversaries are read from Calendar before inference', async () => {
   for (const [question, query] of [["What's my aunt's birthday?", 'aunt birthday'],
-    ['When is Noor’s anniversary?', 'Noor anniversary']]) {
+    ['When is Noor’s anniversary?', 'Noor anniversary'],
+    ['What’s my grandmas birthday', 'grandma birthday'],
+    ['When is my neighbors anniversary?', 'neighbor anniversary'],
+    ['When is Carlos’s birthday?', 'Carlos birthday']]) {
     const input = request(question, ['search_app', 'nutrition_view']);
     input.tools[0].parameters.properties.section = {const: 'plan'};
     const output = await routeGeneration(input, async () => assert.fail('A named lookup needs no model selection'));
@@ -207,15 +210,22 @@ test('named birthdays and anniversaries are read from Calendar before inference'
   }
 });
 
-test('compound, quoted, and unsupported birthday questions remain with normal routing', async () => {
-  for (const [question, scopedSearch] of [['When is my aunt’s birthday and can you send an email?', true],
-    ['What is “my aunt’s birthday”?', true], ['When is my aunt’s birthday?', false]]) {
-    const input = request(question, scopedSearch ? ['search_app', 'nutrition_view'] : ['nutrition_view']);
-    if (scopedSearch) input.tools[0].parameters.properties.section = {const: 'plan'};
+test('compound and quoted birthday questions remain with normal routing', async () => {
+  for (const question of ['When is my aunt’s birthday and can you send an email?', 'What is “my aunt’s birthday”?']) {
+    const input = request(question, ['search_app', 'nutrition_view']);
+    input.tools[0].parameters.properties.section = {const: 'plan'};
     const output = await routeGeneration(input, async (selection) => {
       assert.equal(selection.tools[0].name, 'select_capability');
       return pick('unavailable');
     });
     assert.equal(output.content[0].type, 'text');
+  }
+});
+
+test('an explicit calendar lookup cannot use another domain when scoped search is unavailable', async () => {
+  for (const tools of [[], ['nutrition_view'], ['search_app', 'nutrition_view']]) {
+    const input = request('When is my aunt’s birthday?', tools);
+    const output = await routeGeneration(input, async () => assert.fail('An unavailable calendar lookup must not re-route'));
+    assert.equal(output.content[0].text, 'Calendar search is unavailable in this conversation.');
   }
 });

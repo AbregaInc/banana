@@ -373,6 +373,24 @@ import GRDB
 
     // MARK: The Inbox's unread, for the shell's Mail badge
 
+    func testCachedInboxShowsProviderDraftAndKeepsChronologicalOrder() async throws {
+        let (stores, _, source, original) = try await actionSource()
+        try await arrive(stores, id: "reply-draft", thread: original.id.thread, labels: ["DRAFT"], date: 2000)
+        try await arrive(stores, id: "newer", thread: "newer", labels: ["INBOX"], date: 3000)
+        try await arrive(stores, id: "newest-unread", thread: "newest-unread", labels: ["INBOX", "UNREAD"], date: 4000)
+        try await arrive(stores, id: "older-unread", thread: "older-unread", labels: ["INBOX", "UNREAD"], date: 500)
+        let done = expectation(description: "Retained Inbox publishes without a provider fetch")
+        let scope = MailScope(place: .mailbox(.inbox))
+        let observation = source.observeList(scope, limit: 10) { snapshot in
+            XCTAssertEqual(snapshot.rows.map(\.id.thread), ["newest-unread", "newer", original.id.thread, "older-unread"])
+            XCTAssertEqual(snapshot.rows.map(\.reason), [nil, nil, .draft(firstLine: ""), nil])
+            XCTAssertEqual(snapshot.rows.map(\.isUnread), [true, false, false, true])
+            done.fulfill()
+        }
+        await fulfillment(of: [done], timeout: 5)
+        observation.cancel()
+    }
+
     private func arrive(_ stores: MailStores, id: String, thread: String, labels: [String], date: Int64) async throws {
         let wire = GmailMessage(id: id, threadId: thread, labelIds: labels, historyId: 2, internalDate: date,
             payload: GmailPart(headers: [GmailHeader(name: "Subject", value: "Arrival")]))

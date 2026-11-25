@@ -37,19 +37,27 @@ final class MailInviteLookup: ObservableObject {
     }
 
     static func find(uid: String, calendars: [String],
+                     cachedAfterFailure: @MainActor (String, Error) -> [GoogleEvent] = { _, _ in [] },
                      fetch: @MainActor (String) async throws -> [GoogleEvent]) async throws -> MailInviteEvent? {
         guard !uid.isEmpty else { return nil }
-        var failure: Error?
+        var failures: [(calendar: String, error: Error)] = []
         for calendar in calendars {
             try Task.checkCancellation()
             do {
                 if let event = MailInviteEvent.pick(try await fetch(calendar), calendarID: calendar) { return event }
             } catch {
                 if Task.isCancelled || error is CancellationError { throw CancellationError() }
-                failure = failure ?? error
+                failures.append((calendar, error))
             }
         }
-        if let failure { throw failure }
+        // Prefer a live match anywhere over a cached one. A successful empty response
+        // is authoritative for that calendar, so only failed reads can use its cache.
+        for (calendar, error) in failures {
+            try Task.checkCancellation()
+            let matches = cachedAfterFailure(calendar, error).filter { $0.iCalUID == uid }
+            if let event = MailInviteEvent.pick(matches, calendarID: calendar) { return event }
+        }
+        if let failure = failures.first { throw failure.error }
         return nil
     }
 }

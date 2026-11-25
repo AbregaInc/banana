@@ -20,6 +20,9 @@ enum MailIndexSchema {
         migrator.registerMigration("sender-domain-recovery-v2") { db in
             try db.execute(sql: "UPDATE message SET prep_state=0 WHERE fetch_state=2 AND prep_state=2 AND from_addr IS NULL")
         }
+        migrator.registerMigration("sender-domain-recovery-v3") { db in
+            try db.execute(sql: "UPDATE message SET prep_state=0 WHERE fetch_state=2 AND prep_state=2 AND from_addr IS NULL")
+        }
     }
 
     static let schema = """

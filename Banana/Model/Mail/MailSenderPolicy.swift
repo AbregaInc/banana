@@ -6,6 +6,19 @@ enum MailSenderPolicyTarget {
         return String(normalized[separator...])
     }
 
+    // Shared personal mailbox providers have unrelated customers on the same domain.
+    // Match the complete domain so an organization on its own custom domain retains both actions.
+    private static let personalDomains: Set<String> = [
+        "@gmail.com", "@googlemail.com", "@outlook.com", "@hotmail.com", "@live.com",
+        "@icloud.com", "@me.com", "@mac.com", "@yahoo.com", "@ymail.com", "@aol.com",
+        "@proton.me", "@protonmail.com",
+    ]
+
+    static func orderedBlockTargets(for address: String) -> [String] {
+        guard let domain = domainKey(for: address) else { return [] }
+        return personalDomains.contains(domain) ? [address, domain] : [domain, address]
+    }
+
     static func isValid(_ value: String) -> Bool {
         if value.hasPrefix("@") { return domainKey(for: "sender" + value) == value }
         return MailAddressRules.isValid(value)
