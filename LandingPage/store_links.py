@@ -59,13 +59,14 @@ def regions(url: str | None) -> dict[str, str]:
             "get": f'<h2>The beta</h2>\n    <p>Download <a href="{MAC}">Banana for Mac</a>, or join the <a href="{TESTFLIGHT}">iPhone and iPad TestFlight beta</a>. On Mac, update controls are in Settings → About → Updates. For feedback, write to us; TestFlight users can also send a screenshot through TestFlight.</p>',
         }
     direct = mac.replace("btn", "btn secondary")
+    beta = f'<a class="btn secondary" href="{TESTFLIGHT}">Join TestFlight beta</a>'
     badge = (f'<a class="app-store-badge" href="{url}">'
              f'<img src="{APP_STORE_BADGE}" alt="Download on the App Store" width="132" height="44"></a>')
     buttons = f'<div class="download-actions"><a class="btn" href="{url}">App Store</a>{direct}</div>'
     return {
         "schema": _schema(url),
         "header": f'<a class="btn small" href="{url}">App Store</a>',
-        "hero": f'<div class="download-actions">{badge}{direct}</div>\n    <p class="compatibility">iPhone · iPad · Mac</p>',
+        "hero": f'<div class="download-actions">{badge}{direct}{beta}</div>\n    <p class="compatibility">iPhone · iPad · Mac</p>',
         "end": buttons + f'\n    <p class="fine">iPhone and iPad: iOS 26.1+. Mac: Apple silicon, macOS 26+. Beta: <a href="{TESTFLIGHT}">TestFlight</a>. Calendar features need a Google account.</p>',
         "get": f'<h2>Getting Banana</h2>\n    <p>Get Banana on the <a href="{url}">App Store</a> for iPhone, iPad and Mac. The <a href="{MAC}">Mac download</a> and the <a href="{TESTFLIGHT}">iPhone and iPad TestFlight beta</a> also have the modules still to come. In the Mac download, update controls are in Settings → About → Updates. For feedback, write to us; TestFlight users can also send a screenshot through TestFlight.</p>',
     }
