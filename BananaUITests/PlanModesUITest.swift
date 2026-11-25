@@ -37,13 +37,21 @@ final class PlanModesUITest: XCTestCase {
         XCTAssertFalse(app.buttons["mobile.reminders.more"].exists)
 
         // Scroll the current shell's row to reach the later reminders.
-        let plants = reminders.buttons["Mark Water the plants done"]
+        let plants = reminders.buttons["Mark Water the plants done"].firstMatch
         let window = app.windows.firstMatch
         func plantsAreVisible() -> Bool {
-            guard let frame = try? plants.snapshot().frame else { return false }
+            guard let frame = try? plants.snapshot().frame, !frame.isEmpty else { return false }
             return reminders.frame.intersection(window.frame).contains(CGPoint(x: frame.midX, y: frame.midY))
         }
-        for _ in 0..<8 where !plantsAreVisible() { reminders.swipeLeft() }
+        // A full-velocity swipe can pass the reminder between visibility checks.
+        // Use short drags so each newly visible chip can be checked before moving on.
+        let viewport = reminders.frame.intersection(window.frame)
+        let origin = app.coordinate(withNormalizedOffset: .zero)
+        let start = origin.withOffset(.init(dx: viewport.minX + 0.72 * viewport.width, dy: viewport.midY))
+        let end = origin.withOffset(.init(dx: viewport.minX + 0.42 * viewport.width, dy: viewport.midY))
+        for _ in 0..<16 where !plantsAreVisible() {
+            start.press(forDuration: 0.08, thenDragTo: end, withVelocity: .slow, thenHoldForDuration: 0.12)
+        }
         XCTAssertTrue(plantsAreVisible(), "the day's untimed reminder is reachable")
         XCTAssertTrue(reminders.buttons["Mark Take vitamin D done"].exists)
         XCTAssertEqual(app.staticTexts.matching(NSPredicate(format: "label == %@", "Take vitamin D")).count, 1,
