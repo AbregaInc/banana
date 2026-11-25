@@ -21763,7 +21763,7 @@ Current native nutrition view: ` + JSON.stringify(active) + ". nutrition_view op
     return clean || query;
   }
   function namedCalendarLookup(value) {
-    const match = value.trim().match(/^(?:when is|what(?:['’]s| is)) +(?:(?:my|our) +)?([\p{L}][\p{L}\p{M}-]*(?: +[\p{L}][\p{L}\p{M}-]*){0,3})['’]s +(birthday|anniversary)[?.!]?$/iu);
+    const match = value.trim().match(/^(?:when is|what(?:['’]?s| is)) +(?:(?:my|our) +)?([\p{L}][\p{L}\p{M}-]*(?: +[\p{L}][\p{L}\p{M}-]*){0,3})['’]?s +(birthday|anniversary)[?.!]?$/iu);
     if (!match || /\b(?:and|or|not)\b/i.test(match[1])) return null;
     const query = `${match[1]} ${match[2]}`;
     return query.length <= 120 ? query : null;

@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mail replay</title>
+<style>
+  :root { color-scheme:light; font:16px/1.5 system-ui,sans-serif; color:#222c26; background:#f6f7f2; }
+  * { box-sizing:border-box; }
+  body { margin:0; }
+  main { max-width:1300px; margin:auto; padding:22px clamp(12px,3vw,36px); }
+  h1 { font:normal 34px/1.2 Georgia,serif; margin:0 0 14px; }
+  .tools { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:end; margin-bottom:14px; }
+  label { display:flex; flex-direction:column; font-size:14px; gap:3px; }
+  button,select,input,textarea { color:inherit; background:white; border:1px solid #b4c2b7; border-radius:6px; min-height:40px; font:inherit; padding:5px 10px; }
+  #groups,#emails { max-width:min(350px, calc(100vw - 28px)); }
+  button:disabled { opacity:.45; }
+  :focus-visible { outline:3px solid #37715b; outline-offset:3px; }
+  #count { margin:0; align-self:center; }
+  #group-members { margin:0 0 12px; }
+  #group-members summary { cursor:pointer; width:fit-content; }
+  #group-members label { margin-top:6px; width:fit-content; }
+  #flag[aria-pressed="true"] { color:#713e1a; border-color:#a97640; background:#fff4df; }
+  #flag-summary { margin:0 0 14px; overflow-wrap:anywhere; white-space:pre-wrap; }
+  #flag-status:not(:empty) { margin:0 0 14px; }
+  dialog { width:min(450px,calc(100% - 24px)); border:1px solid #bdc9be; border-radius:10px; color:inherit; }
+  dialog::backdrop { background:#1c2b2466; }
+  dialog h2 { padding:0; margin:0 0 12px; background:none; border:0; font-size:20px; }
+  form label + label { margin-top:12px; }
+  textarea { resize:vertical; }
+  .flag-actions { display:flex; flex-wrap:wrap; gap:8px; justify-content:flex-end; }
+  #save-flag { background:#264e3c; border-color:#264e3c; color:white; }
+  #flag-error:not(:empty) { color:#8c2f1f; }
+  .pair { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  section { min-width:0; border:1px solid #bdc9be; border-radius:8px; overflow:hidden; background:#fff; }
+  h2 { margin:0; padding:9px 12px; font-size:15px; background:#edf1eb; border-bottom:1px solid #bdc9be; }
+  iframe { display:block; width:100%; height:clamp(410px,72vh,780px); border:0; }
+  [hidden] { display:none !important; }
+  @media (max-width:700px) { .pair { grid-template-columns:minmax(0,1fr); } iframe { height:60vh; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Mail replay</h1>
+  <p id="loading" role="status">Loading emails…</p>
+  <div class="tools" id="tools" hidden>
+    <label id="filter-label">Show
+      <select id="filter"><option value="switched">Switched to native text</option><option value="all">All replayed emails</option><option value="flagged">Flagged only</option></select>
+    </label>
+    <label>Find an email <input type="search" id="search" placeholder="Subject or date"></label>
+    <label>Template <select id="groups"></select></label>
+    <button type="button" id="previous">Previous group</button>
+    <button type="button" id="next">Next group</button>
+    <label><span id="compare-label">Compare after with</span>
+      <select id="left-mode"><option value="before">Before</option><option value="plain">Sender’s plain-text part</option></select>
+    </label>
+    <button type="button" id="flag">Flag issue</button>
+    <p id="count" role="status"></p>
+  </div>
+  <details id="group-members" hidden>
+    <summary id="member-count"></summary>
+    <label>Email in group <select id="emails"></select></label>
+  </details>
+  <p id="flag-status" role="status"></p>
+  <p id="flag-summary" hidden></p>
+  <div class="pair" id="comparison" hidden>
+    <section aria-labelledby="left-title"><h2 id="left-title"></h2><iframe id="left" sandbox title="Before"></iframe></section>
+    <section aria-labelledby="right-title"><h2 id="right-title"></h2><iframe id="right" sandbox title="After"></iframe></section>
+  </div>
+</main>
+<dialog id="flag-dialog" aria-labelledby="flag-title">
+  <form id="flag-form">
+    <h2 id="flag-title">Flag issue</h2>
+    <label>Which preview?
+      <select id="flag-side"><option value="after">After</option><option value="before">Before</option><option value="plain">Sender’s plain text</option></select>
+    </label>
+    <label>Note (optional)<textarea id="flag-note" rows="4" maxlength="2000"></textarea></label>
+    <p id="flag-error" role="alert"></p>
+    <div class="flag-actions">
+      <button type="button" id="remove-flag" hidden>Remove flag</button>
+      <button type="button" id="cancel-flag">Cancel</button>
+      <button type="submit" id="save-flag">Save flag</button>
+    </div>
+  </form>
+</dialog>
+<script type="module">
+const $ = (id) => document.getElementById(id);
+const query = new URLSearchParams(location.search);
+const params = {filter: $("filter"), mode: $("left-mode"), groups: $("groups"), emails: $("emails")};
+const labels = {before:"Before", after:"After", plain:"Sender’s plain text"};
+const flagDialog = $("flag-dialog");
+let cases, groups, members = [], hasReported = false;
+let editing, displayed, saving = false;
+
+function update() {
+  const item = members.find(({id}) => id === params.emails.value);
+  if (!item) return;
+  if (displayed !== item.id) $("flag-status").textContent = "";
+  displayed = item.id;
+  const index = params.groups.selectedIndex;
+  const format = formatted => formatted ? "Formatted HTML" : "Native text";
+  const titles = {
+    before: `Before · ${format(item.before)}`,
+    reported: `Flagged rendering · ${format(item.reported)}`,
+    plain: item.plain ? "Sender’s plain-text part" : "Sender’s plain-text part unavailable",
+  };
+  const leftTitle = titles[params.mode.value];
+  const rightTitle = hasReported
+    ? (item.after ? "HTML reference" : "Corrected · Native text")
+    : `After · ${format(item.after)}`;
+  for (const [position, title, side] of [["left", leftTitle, params.mode.value], ["right", rightTitle, "after"]]) {
+    $(position + "-title").textContent = title;
+    $(position).title = title;
+    const url = `/body/${item.id}/${side}`;
+    if ($(position).getAttribute("src") !== url) $(position).setAttribute("src", url);
+  }
+  $("previous").disabled = index === 0;
+  $("next").disabled = index === groups.size - 1;
+  $("count").textContent = `${index + 1} of ${groups.size} groups`;
+  $("flag").textContent = item.issue ? "Edit flag" : "Flag issue";
+  $("flag").setAttribute("aria-pressed", String(Boolean(item.issue)));
+  $("flag-summary").hidden = !item.issue;
+  $("flag-summary").textContent = item.issue
+    ? [`Flagged in ${labels[item.issue.side]}`, item.issue.note].filter(Boolean).join("\n")
+    : "";
+  history.replaceState(null, "", "?" + new URLSearchParams({email:item.id,show:params.filter.value,compare:params.mode.value}));
+}
+
+function selectCases(selected) {
+  const search = $("search").value.trim().toLowerCase();
+  const shown = cases.filter(item => (params.filter.value === "all" ||
+    (params.filter.value === "flagged" ? item.issue : item.before && !item.after))
+    && [item.subject, item.groupTitle, item.date, "Email " + item.number].some(value => value?.toLowerCase().includes(search)));
+  groups = new Map();
+  for (const item of shown) {
+    if (!groups.has(item.group)) groups.set(item.group, []);
+    groups.get(item.group).push(item);
+  }
+  for (const id of ["comparison", "previous", "next", "flag"]) $(id).hidden = !shown.length;
+  params.groups.disabled = !shown.length;
+  params.groups.replaceChildren(...[...groups.entries()].map(([key, group]) => {
+    const [first] = group;
+    const title = first.groupTitle || first.subject || `Email ${first.number}`;
+    const flags = group.filter(item => item.issue).length;
+    return new Option(title + (group.length > 1 ? ` (${group.length} emails)` : "") +
+      (flags ? ` · ${flags} flagged` : ""), key);
+  }));
+  if (!shown.length) {
+    members = [];
+    $("group-members").hidden = true;
+    $("flag-summary").hidden = true;
+    $("count").textContent = "No matching emails.";
+    return;
+  }
+  const active = shown.find(({id}) => id === selected);
+  if (active) params.groups.value = active.group;
+  selectGroup(active?.id);
+}
+
+function selectGroup(selected) {
+  const previousGroup = members[0]?.group;
+  members = groups.get(params.groups.value) ?? [];
+  if (previousGroup !== members[0]?.group) $("group-members").open = false;
+  $("group-members").hidden = members.length <= 1;
+  $("member-count").textContent = `${members.length} emails in this group`;
+  params.emails.replaceChildren(...members.map(item => new Option(
+    [item.date, item.subject || `Email ${item.number}`].filter(Boolean).join(" · ") + (item.issue ? " · Flagged" : ""),
+    item.id
+  )));
+  if (members.some(({id}) => id === selected)) params.emails.value = selected;
+  update();
+}
+params.filter.addEventListener("change", () => selectCases(params.emails.value));
+$("search").addEventListener("input", () => selectCases(params.emails.value));
+params.groups.addEventListener("change", () => selectGroup());
+params.emails.addEventListener("change", update);
+params.mode.addEventListener("change", update);
+$("flag").addEventListener("click", () => {
+  editing = members.find(item => item.id === params.emails.value);
+  if (!editing) return;
+  $("flag-title").textContent = editing.issue ? "Edit flag" : "Flag issue";
+  $("flag-side").querySelector('[value="plain"]').disabled = !editing.plain;
+  $("flag-side").value = editing.issue?.side ?? "after";
+  $("flag-note").value = editing.issue?.note ?? "";
+  $("remove-flag").hidden = !editing.issue;
+  $("flag-error").textContent = "";
+  $("flag-status").textContent = "";
+  flagDialog.showModal();
+});
+$("cancel-flag").addEventListener("click", () => flagDialog.close());
+flagDialog.addEventListener("cancel", event => { if (saving) event.preventDefault(); });
+
+async function saveIssue(issue) {
+  if (saving) return;
+  saving = true;
+  $("flag-error").textContent = "";
+  const controls = [...$("flag-form").querySelectorAll("button")];
+  controls.forEach(control => control.disabled = true);
+  $("save-flag").textContent = issue ? "Saving…" : "Removing…";
+  try {
+    const response = await fetch("/api/archive/flag", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({id: editing.id, issue}),
+    });
+    const result = await response.json();
+    if (!response.ok) throw Error(result.error);
+    editing.issue = result.issue;
+    flagDialog.close();
+    selectCases(editing.id);
+    if ($("flag").hidden) params.filter.focus();
+    $("flag-status").textContent = issue ? "Flag saved." : "Flag removed.";
+  } catch (error) {
+    $("flag-error").textContent = error instanceof TypeError
+      ? "Couldn’t reach the viewer. Try again." : error.message;
+  } finally {
+    controls.forEach(control => control.disabled = false);
+    $("save-flag").textContent = "Save flag";
+    saving = false;
+  }
+}
+$("flag-form").addEventListener("submit", event => {
+  event.preventDefault();
+  saveIssue({side:$("flag-side").value, note:$("flag-note").value});
+});
+$("remove-flag").addEventListener("click", () => saveIssue(null));
+for (const [id, step] of [["previous", -1], ["next", 1]]) {
+  $(id).addEventListener("click", () => {
+    params.groups.selectedIndex += step;
+    selectGroup();
+  });
+}
+try {
+  const response = await fetch("/api/archive");
+  if (!response.ok) throw Error();
+  const archive = await response.json();
+  cases = archive.cases ?? archive;
+  hasReported = Boolean(archive.hasReported);
+  $("filter-label").hidden = Boolean(archive.flaggedOnly);
+  if (archive.flaggedOnly || query.get("show") === "flagged") params.filter.value = "flagged";
+  else if (query.get("show") === "all" || !cases.some(item => item.before && !item.after)) params.filter.value = "all";
+  if (hasReported) {
+    if (archive.flaggedOnly) params.mode.querySelector('[value="before"]').remove();
+    params.mode.prepend(new Option("Flagged rendering", "reported"));
+    $("compare-label").textContent = "Compare correction with";
+    params.mode.value = query.get("compare") === "before" && !archive.flaggedOnly ? "before" : "reported";
+  }
+  if (query.get("compare") === "plain") params.mode.value = "plain";
+  selectCases(query.get("email"));
+  $("loading").hidden = true;
+  $("tools").hidden = false;
+} catch {
+  $("loading").textContent = "The replay couldn’t load. Reload to try again.";
+}
+</script>
+</body>
+</html>

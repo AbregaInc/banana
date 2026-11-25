@@ -132,6 +132,26 @@ final class MealEditorUITest: XCTestCase {
                       "the prescribed schedule must stay unchanged")
     }
 
+    func testLastTakenRowCanScrollAboveTheBottomBar() throws {
+        if UIDevice.current.userInterfaceIdiom == .pad { throw XCTSkip("Requires the compact iPhone shell") }
+        let app = launch(["--ui-preview", "--tab", "nutrition", "--modules", "food", "--wellness", "--wellness-taken",
+                          "-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"])
+        let bar = app.otherElements["shell.bar"].firstMatch
+        guard bar.waitForExistence(timeout: 8) else {
+            XCTFail("Expected the real bottom bar on the compact iPhone shell")
+            return
+        }
+        XCTAssertTrue(app.descendants(matching: .any)["taken.day"].firstMatch.waitForExistence(timeout: 8))
+        let last = app.buttons.matching(identifier: "taken.edit")
+            .matching(NSPredicate(format: "label CONTAINS %@", "Magnesium")).firstMatch
+        for _ in 0..<6 {
+            if last.exists, last.frame.maxY <= bar.frame.minY { break }
+            app.swipeUp(velocity: .slow)
+        }
+        XCTAssertTrue(last.exists && last.isHittable)
+        XCTAssertLessThanOrEqual(last.frame.maxY, bar.frame.minY)
+    }
+
     /// The app must never answer a prescription clash by rescheduling the prescription.
     func testNoSuggestionEverProposesMovingThePrescription() {
         let app = launch(["--wellness", "--wellness-taken"])

@@ -4037,8 +4037,10 @@ enum MailAddressRules {
   when **all** of these hold: the message has exactly one `From` header; its value was not
   cut (5.6); it reads as **exactly one mailbox** — one address, no second, no group, nothing
   left over that could not be read; that address is one an address may be (next); and, when
-  Gmail's own header (10.6) carries a `dmarc=` result of any verdict, its `header.from` is
-  the domain of that address. Otherwise the sender is unreadable. **Never the first of
+  Gmail's own header (10.6) carries a `dmarc=` result, it agrees with that address. An exact
+  From domain agrees for any verdict. A Gmail pass naming the organizational domain agrees
+  when the From subdomain is under it and Gmail reports passing DKIM or SPF for a domain
+  within that same organization. Otherwise the sender is unreadable. **Never the first of
   several**: in every shape with more than one — two mailboxes, two `From` headers, a
   bracketed address followed by a bare one — the first is the one a forger chose to put
   there. (A `From` of two mailboxes with a `Sender` header is legal, and Gmail is believed to

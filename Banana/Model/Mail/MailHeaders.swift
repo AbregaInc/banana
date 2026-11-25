@@ -196,10 +196,7 @@ struct MessageHeaders: Equatable, Sendable {
     ///   that could not be read, and a list that is complete;
     /// - that address is one an address may be (`MailAddressRules.normalized`, which also
     ///   refuses the look-alike and the invisible); and
-    /// - when Gmail's own header (`MailAuthRules`) carries a `dmarc=` result, of any verdict,
-    ///   its `header.from` is the domain of that address. Gmail and Banana are two readers of
-    ///   one line; when they disagree about whose it is, what Gmail authenticated is not what
-    ///   the screen would show, and the honest answer is neither.
+    /// - any Gmail DMARC result agrees with that domain under `MailAuthRules.dmarcAgrees`.
     ///
     /// Nil is **the unreadable sender**, one state however it came about: no `From`, more than
     /// one, a group, an address that is not one, a value cut before its address, a `From` Gmail

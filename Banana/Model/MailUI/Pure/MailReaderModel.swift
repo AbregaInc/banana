@@ -4,9 +4,11 @@ import Combine
 
 /// Fold only the quoted run; a signature picture after it remains visible.
 enum MailQuoteFolding {
-    static func hiddenRange(in blocks: [MailTextBlock], from start: Int?, expanded: Bool) -> Range<Int>? {
-        guard !expanded, let start, start > 0, blocks.indices.contains(start),
-              case .quote = blocks[start].kind else { return nil }
+    static func hiddenRange(in blocks: [MailTextBlock], from start: Int?, expanded: Bool, entireTail: Bool = false) -> Range<Int>? {
+        guard !expanded, let start, start > 0, blocks.indices.contains(start) else { return nil }
+        // Local outgoing cards append the quote as a separate part with its original block styles.
+        if entireTail { return start..<blocks.count }
+        guard case .quote = blocks[start].kind else { return nil }
         var end = start
         while end < blocks.count {
             guard case .quote = blocks[end].kind else { break }

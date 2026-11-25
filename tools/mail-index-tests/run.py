@@ -19,14 +19,22 @@ parser.add_argument('--out', required=True, type=Path)
 parser.add_argument('--filter', help='Swift test name filter for focused correctness checks; not full-suite acceptance')
 parser.add_argument('--grdb-checkout', type=Path)
 parser.add_argument('--swiftsoup-checkout', type=Path)
+parser.add_argument('--archive-input', type=Path, action='append', help='Replay input.html fixtures and export native output and sanitized HTML locally')
 parser.add_argument('--scratch-path', type=Path, help='Reuse disposable compiler products; do not share with a concurrent run')
 args = parser.parse_args()
 out = args.out.resolve()
+if args.archive_input:
+    if not out.is_relative_to(root / 'private'):
+        parser.error('Keep archive replay outputs under private/')
+    if any(not directory.is_dir() for directory in args.archive_input):
+        parser.error('--archive-input must name a fixture directory')
+    args.filter = args.filter or 'ArchiveReplayTests'
 out.mkdir(parents=True, exist_ok=False)
 target = out / 'Tests'
 target.mkdir()
 sources = sorted((root / 'Banana/Model/Mail').glob('*.swift')) + [root / "Banana/Model/LiveFilter.swift"]
-sources += [root / 'BananaTests' / (name + '.swift') for name in ['MailSyncProgressTests', 'MailSyncProgressReaderTests', 'MailLegacyMigrationTests', 'MailDraftDriverTests', 'MailReadBackoffTests', 'MailAccessLifecycleTests', 'GmailMailboxSyncTests', 'MailSyncFillTests', 'MailSyncCheckpointTests', 'MailRemovalCoordinatorTests', 'GmailVerificationSyncTests', 'MailVerificationIndexTests', 'GmailReconcileSyncTests', 'MailReconcileIndexTests', 'GmailHistorySyncTests', 'MailHistoryIndexTests', 'MailRemovalRulesTests', 'MailHistoryRulesTests', 'GmailWireTests', 'MailIndexSchemaTests', 'MailIndexReaderTests', 'MailIndexWriterTests', 'MailMessageImporterTests', 'MailMIMETests', 'MailBlobStoreTests', 'MailHTMLPreparerTests', 'GmailPageLoaderTests', 'MailLiveSourceTests', 'MailLocalSearchTests', 'MailLocalSearchReference', 'MailGmailSearchTests', 'MailConversationReaderTests', 'GmailConversationLoaderTests', 'MailIntentStoreTests', 'OutboxRulesTests', 'GmailIntentDeliveryTests', 'MailActionCoordinatorTests', 'MailLabelCatalogTests']]
+sources += [root / 'Banana/Model/Mail/Testing/Hostile/MailHostileMessages.swift']
+sources += [root / 'BananaTests' / (name + '.swift') for name in ['MailSenderTests', 'MailAuthRulesTests', 'MailSyncProgressTests', 'MailSyncProgressReaderTests', 'MailLegacyMigrationTests', 'MailDraftDriverTests', 'MailReadBackoffTests', 'MailAccessLifecycleTests', 'GmailMailboxSyncTests', 'MailSyncFillTests', 'MailSyncCheckpointTests', 'MailRemovalCoordinatorTests', 'GmailVerificationSyncTests', 'MailVerificationIndexTests', 'GmailReconcileSyncTests', 'MailReconcileIndexTests', 'GmailHistorySyncTests', 'MailHistoryIndexTests', 'MailRemovalRulesTests', 'MailHistoryRulesTests', 'GmailWireTests', 'MailIndexSchemaTests', 'MailIndexReaderTests', 'MailIndexWriterTests', 'MailMessageImporterTests', 'MailMIMETests', 'MailBlobStoreTests', 'MailHTMLPreparerTests', 'GmailPageLoaderTests', 'MailLiveSourceTests', 'MailLocalSearchTests', 'MailLocalSearchReference', 'MailGmailSearchTests', 'MailConversationReaderTests', 'GmailConversationLoaderTests', 'MailIntentStoreTests', 'OutboxRulesTests', 'GmailIntentDeliveryTests', 'MailActionCoordinatorTests', 'MailLabelCatalogTests']]
 # Keep the standalone target's presentation and cost-budget dependencies aligned with
 # the native target. These helpers remain pure Foundation/system type projections.
 sources += [root / 'Banana/Model/MailUI/Pure' / name for name in [
@@ -34,6 +42,8 @@ sources += [root / 'Banana/Model/MailUI/Pure' / name for name in [
     'MailPlainText.swift',
     'MailToastText.swift', 'MailActions.swift']]
 sources += [root / 'BananaTests/CostBudget.swift']
+if args.archive_input:
+    sources += [root / 'tools/reports/mail-review/ArchiveReplayTests.swift']
 identities = {}
 for source in sources:
     destination = target / source.name
@@ -64,7 +74,7 @@ import PackageDescription
 let package = Package(name: "MailIndexChecks", platforms: [.macOS(.v14)],
     dependencies: [DEPENDENCY, SOUP_DEPENDENCY],
     targets: [.testTarget(name: "MailIndexChecks", dependencies: [.product(name: "GRDB", package: "GRDB.swift"), .product(name: "SwiftSoup", package: "SwiftSoup")],
-        path: "Tests", swiftSettings: [.swiftLanguageMode(.v5)])])
+        path: "Tests", swiftSettings: [.swiftLanguageMode(.v5), .define("MAIL_FIXTURES")])])
 '''.replace('SOUP_DEPENDENCY', soup_dependency).replace('DEPENDENCY', dependency))
 command = ['swift', 'test', '--package-path', str(out), '-c', 'release', '--jobs', os.environ.get('BUILD_JOBS') or str(os.cpu_count() or 4)]
 if args.scratch_path:
@@ -84,6 +94,9 @@ if args.filter:
     command += ['--filter', args.filter]
 with (out / 'test.log').open('w') as log:
     environment = dict(os.environ, MAIL_RECONCILE_STATEMENTS_OUTPUT=str(out / "reconcile-statements.json"), MAIL_REMOVAL_REVIEW_BENCHMARK_OUTPUT=str(out / 'removal-review-benchmark.json'), MAIL_VERIFICATION_BENCHMARK_OUTPUT=str(out / 'verification-benchmark.json'), MAIL_RECONCILE_BENCHMARK_OUTPUT=str(out / 'reconcile-benchmark.json'), MAIL_HISTORY_INDEX_BENCHMARK_OUTPUT=str(out / 'history-index-benchmark.json'), MAIL_HISTORY_BENCHMARK_OUTPUT=str(out / 'history-benchmark.json'), MAIL_IMPORT_BENCHMARK_OUTPUT=str(out / 'import-benchmark.json'), MAIL_ACTION_BENCHMARK_OUTPUT=str(out / 'action-benchmark.json'), MAIL_SEARCH_BENCHMARK_OUTPUT=str(out / 'search-benchmark.json'), MAIL_INDEX_BENCHMARK_OUTPUT=str(out / 'benchmark.json'), MAIL_MIME_BENCHMARK_OUTPUT=str(out / 'mime-benchmark.json'), MAIL_HTML_BENCHMARK_OUTPUT=str(out / 'html-benchmark.json'))
+    if args.archive_input:
+        environment['MAIL_ARCHIVE_INPUTS'] = json.dumps([str(directory.resolve()) for directory in args.archive_input])
+        environment['MAIL_ARCHIVE_OUTPUT'] = str(out / 'snapshots')
     process = subprocess.Popen(command, cwd=root, env=environment, stdout=log, stderr=subprocess.STDOUT)
     with HostMonitor(out / 'host.json', workload_pid=process.pid):
         exit_code = process.wait()

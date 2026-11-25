@@ -2014,6 +2014,21 @@ final class GoogleCalendarService: ObservableObject {
         }
     }
 
+    #if !BANANA_PUBLIC
+    /// Fixed categories for in-app reports. Provider text can contain private calendar details.
+    static func invitationLookupFailureReason(_ error: Error) -> String {
+        switch error as? GoogleCalendarError {
+        case .notConnected: return "calendar account disconnected"
+        case .permissionMissing: return "calendar permission missing"
+        case .malformedResponse: return "malformed response"
+        case .api(let status, _): return "HTTP \(status)"
+        default:
+            if let transport = error as? URLError { return "transport \(transport.code.rawValue)" }
+            return "calendar request failed"
+        }
+    }
+    #endif
+
     /// Events on one calendar carrying an iCalendar UID — how a block written through Apple
     /// Calendar is found again through the API. Read-only.
     func events(calendarID: String, iCalUID: String, accountEmail: String? = nil) async throws -> [GoogleEvent] {

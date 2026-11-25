@@ -10,11 +10,13 @@ struct MailTextView: View {
     var styled: [AttributedString]? = nil
     /// The prepared body's `quoteStartsAt`: quoted history waits behind one button.
     var foldFrom: Int? = nil
+    var foldEntireTail = false
     @State private var showsQuote = false
 
     var body: some View {
         let ready = styled?.count == text.blocks.count ? styled : nil
-        let hidden = MailQuoteFolding.hiddenRange(in: text.blocks, from: foldFrom, expanded: showsQuote)
+        let hidden = MailQuoteFolding.hiddenRange(in: text.blocks, from: foldFrom, expanded: showsQuote,
+                                                 entireTail: foldEntireTail)
         VStack(alignment: .leading, spacing: DS.Space.s) {
             ForEach(text.blocks.indices, id: \.self) { index in
                 if hidden?.lowerBound == index { showQuoteButton }

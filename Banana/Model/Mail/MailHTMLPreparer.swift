@@ -33,7 +33,7 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
 
 /// Runs on the preparation worker, before opening. Uses the pinned library's parser.
 enum MailHTMLPreparer {
-    static let version = 7
+    static let version = 12
     static let maximumBytes = 2 * 1024 * 1024
     static let maximumNodes = 50_000
     /// Tags counted before parsing (one pass over the bytes): the parser's work grows with them,
@@ -173,8 +173,8 @@ enum MailHTMLPreparer {
         return plainBody(clipped(plain ?? ""), shownAsText: false)
     }
 
-    /// Select layout only when simplifying would lose a table's relationships.
-    /// Fonts, colors, wrapper tables, signatures and quoted history are not evidence.
+    /// Use formatted layout when native blocks lose a visual relationship or omit a table image.
+    /// Fonts, colors, wrapper tables, and quoted history alone are not evidence.
     /// This uses the same visibility and table rules as native preparation.
     static func needsFormattedLayout(_ root: Element, needs: DocNeeds) -> Bool {
         var stack: [Element] = [root]
@@ -182,6 +182,14 @@ enum MailHTMLPreparer {
             let tag = element.tagNameNormal()
             let traits = look(of: element, tag: tag, needs: needs)
             if traits.contains(.hidden) || traits.contains(.quoteHeader) || traits.contains(.outlookReply) || tag == "blockquote" { continue }
+            if tag == "td", traits.contains(.backgroundImage) {
+                // Image-backed cards often hide the equivalent img element in this viewport.
+                return true
+            }
+            if tag == "tr", hasParallelHeadings(element, needs: needs),
+               plainPanelCells(element, needs: needs) == nil, headedRecords(element, needs: needs) == nil {
+                return true
+            }
             if tag == "table", hasOwnDataSemantics(element) {
                 // Reuse WebKit's existing formatted renderer for inline graphics the native
                 // text-only cells cannot represent. Tracking pixels never justify layout.
@@ -198,6 +206,149 @@ enum MailHTMLPreparer {
             stack.append(contentsOf: elements(element))
         }
         return false
+    }
+
+    private static let panelHeadings: Set<String> = ["h1", "h2", "h3", "h4", "h5", "h6"]
+
+    private static func hasPanelHeading(_ cell: Element, needs: DocNeeds) -> Bool {
+        cell.tagNameNormal() == "td" && !look(of: cell, tag: "td", needs: needs).contains(.hidden)
+            && elements(cell).contains {
+                let tag = $0.tagNameNormal()
+                return panelHeadings.contains(tag) && !look(of: $0, tag: tag, needs: needs).contains(.hidden)
+            }
+    }
+
+    private static func hasParallelHeadings(_ row: Element, needs: DocNeeds) -> Bool {
+        var headedCells = 0
+        for cell in elements(row) where hasPanelHeading(cell, needs: needs) {
+            headedCells += 1
+            if headedCells == 2 { return true }
+        }
+        return false
+    }
+
+    /// A panel must keep its label and value in the same cell. A heading-only row may
+    /// label cells in a later row or a separate part of the template.
+    private static func plainPanelCells(_ row: Element, needs: DocNeeds) -> [Element]? {
+        guard let cells = compactRowCells(row, needs: needs, allowingHeadings: true),
+              cells.allSatisfy({ hasPanelValue($0, needs: needs) }) else { return nil }
+        var container = row.parent()
+        while let current = container, current.tagNameNormal() != "table" { container = current.parent() }
+        guard let table = container, !hasOwnDataSemantics(table) else { return nil }
+        return cells
+    }
+
+    private static func hasPanelValue(_ cell: Element, needs: DocNeeds) -> Bool {
+        var hasHeading = false
+        for child in cell.getChildNodes() where hasPanelText(child, needs: needs) {
+            if hasHeading { return true }
+            if let heading = child as? Element, panelHeadings.contains(heading.tagNameNormal()) {
+                hasHeading = true
+            }
+        }
+        return false
+    }
+
+    private static func hasPanelText(_ node: Node, needs: DocNeeds) -> Bool {
+        var pending = [node]
+        while let next = pending.popLast() {
+            if let text = next as? TextNode {
+                if text.getWholeText().unicodeScalars.contains(where: { !isSpace($0.value) && !isInvisible($0.value) }) {
+                    return true
+                }
+            } else if let element = next as? Element,
+                      !look(of: element, tag: element.tagNameNormal(), needs: needs).contains(.hidden) {
+                pending.append(contentsOf: element.getChildNodes())
+            }
+        }
+        return false
+    }
+
+    private static func ownRows(_ table: Element, needs: DocNeeds) -> [Element]? {
+        var rows: [Element] = []
+        for child in elements(table) {
+            let children: [Element]
+            switch child.tagNameNormal() {
+            case "tr": children = [child]
+            case "thead", "tbody", "tfoot": children = elements(child)
+            default: continue
+            }
+            for row in children where row.tagNameNormal() == "tr" && !look(of: row, tag: "tr", needs: needs).contains(.hidden) {
+                guard rows.count < maximumTableRows * 2 else { return nil }
+                rows.append(row)
+            }
+        }
+        return rows
+    }
+
+    private struct HeadedRecords {
+        let labels: [Element]
+        let values: [[Element]]
+        let rows: [Element]
+        let followingTable: Element?
+    }
+
+    /// Heading cells identify their columns by position. Preserve the association only
+    /// where the body repeats that shape, including optional empty gutters.
+    private static func headedRecords(_ row: Element, needs: DocNeeds) -> HeadedRecords? {
+        var parent = row.parent()
+        while let current = parent, current.tagNameNormal() != "table" { parent = current.parent() }
+        guard let header = parent, !hasOwnDataSemantics(header) else { return nil }
+        guard let headers = ownRows(header, needs: needs), headers.first === row else { return nil }
+        let cells = elements(row)
+        func unspanned(_ cell: Element) -> Bool {
+            guard cell.tagNameNormal() == "td", !look(of: cell, tag: "td", needs: needs).contains(.hidden) else { return false }
+            return !needs.span || ["colspan", "rowspan"].allSatisfy { key in
+                (Int((try? cell.attr(key)) ?? "") ?? 1) == 1
+            }
+        }
+        func gutter(_ cell: Element) -> Bool {
+            elements(cell).isEmpty && !hasPanelText(cell, needs: needs)
+        }
+        guard (2...maximumTableColumns).contains(cells.count), cells.allSatisfy(unspanned) else { return nil }
+        let columns = cells.indices.filter { !gutter(cells[$0]) }
+        guard columns.count >= 2, columns.allSatisfy({ index in
+            let cell = cells[index]
+            let content = cell.getChildNodes().filter { hasPanelText($0, needs: needs) }
+            guard content.count == 1, let heading = content[0] as? Element else { return false }
+            return panelHeadings.contains(heading.tagNameNormal()) &&
+                elements(cell).allSatisfy { $0 === heading || look(of: $0, tag: $0.tagNameNormal(), needs: needs).contains(.hidden) }
+        }) else { return nil }
+
+        var followingTable: Element?
+        var body = Array(headers.dropFirst())
+        if body.isEmpty, let container = header.parent() {
+            let siblings = elements(container)
+            if let index = siblings.firstIndex(where: { $0 === header }), index + 1 < siblings.count {
+                let sibling = siblings[index + 1]
+                if sibling.tagNameNormal() == "table", !hasOwnDataSemantics(sibling),
+                   !look(of: sibling, tag: "table", needs: needs).contains(.hidden),
+                   elements(sibling).allSatisfy({ ["tr", "tbody", "thead", "tfoot", "colgroup"].contains($0.tagNameNormal()) }) {
+                    guard let siblingRows = ownRows(sibling, needs: needs) else { return nil }
+                    followingTable = sibling
+                    body = siblingRows
+                }
+            }
+        }
+        var values: [[Element]] = []
+        var consumedRows: [Element] = []
+        for candidate in body {
+            let children = elements(candidate)
+            if children.allSatisfy(gutter) { continue }
+            let matched = children.count == cells.count && children.allSatisfy(unspanned) &&
+                children.indices.allSatisfy { index in
+                    columns.contains(index) ? hasPanelText(children[index], needs: needs) : gutter(children[index])
+                }
+            guard matched else {
+                if followingTable != nil { return nil }
+                break
+            }
+            guard values.count < maximumTableRows else { return nil }
+            values.append(columns.map { children[$0] })
+            consumedRows.append(candidate)
+        }
+        guard !values.isEmpty else { return nil }
+        return HeadedRecords(labels: columns.map { cells[$0] }, values: values, rows: consumedRows, followingTable: followingTable)
     }
 
     private static func hasOwnDataSemantics(_ table: Element) -> Bool {
@@ -325,6 +476,8 @@ enum MailHTMLPreparer {
         static let k_opacity = Array("opacity".utf8)
         static let k_overflow = Array("overflow".utf8)
         static let k_right = Array("right".utf8)
+        static let k_background_image = Array("background-image".utf8)
+        static let k_url = Array("url(".utf8)
         static let k_style = Array("style".utf8)
         static let k_visibility = Array("visibility".utf8)
     }
@@ -391,6 +544,7 @@ enum MailHTMLPreparer {
         static let block = Look(rawValue: 8)
         static let quoteHeader = Look(rawValue: 16)
         static let outlookReply = Look(rawValue: 32)
+        static let backgroundImage = Look(rawValue: 64)
     }
 
     private static func contains(_ hay: [UInt8], _ needle: StaticString) -> Bool {
@@ -465,6 +619,8 @@ enum MailHTMLPreparer {
                 if value == Bytes.k_hidden { overflowHidden = true }
             case 9 where name == Bytes.k_font_size:
                 if value.first == 48, value.dropFirst().allSatisfy({ !($0 >= 49 && $0 <= 57) && $0 != 46 }) { look.insert(.zeroFont) }
+            case 16 where name == Bytes.k_background_image:
+                if value.starts(with: Bytes.k_url) { look.insert(.backgroundImage) }
             case 5 where name == Bytes.k_float:
                 if value == Bytes.k_left || value == Bytes.k_right { look.insert(.sideBySide) }
             default: break
@@ -656,7 +812,7 @@ enum MailHTMLPreparer {
 
     /// Short cells in a layout row still belong on one line (receipt labels and amounts).
     /// Rich/nested content keeps the normal walk; this never turns a layout table into a grid.
-    private static func compactRowCells(_ row: Element, needs: DocNeeds) -> [Element]? {
+    private static func compactRowCells(_ row: Element, needs: DocNeeds, allowingHeadings: Bool = false) -> [Element]? {
         let cells = elements(row).filter { ["td", "th"].contains($0.tagNameNormal()) }
         guard (2...maximumTableColumns).contains(cells.count) else { return nil }
         var kept: [Element] = []
@@ -677,6 +833,7 @@ enum MailHTMLPreparer {
                     // A one-cell nested table only wraps a label or amount. Rich grids keep
                     // their structure and are handled by the ordinary table walk.
                     if tag == "table" {
+                        guard !allowingHeadings else { return nil }
                         var rows = 0, columns = 0, visited = 0, descendants = element.getChildNodes()
                         while let child = descendants.popLast() {
                             visited += 1
@@ -691,7 +848,9 @@ enum MailHTMLPreparer {
                         }
                         guard rows == 1, columns == 1 else { return nil }
                     }
-                    guard (!layoutInCell.contains(tag) || tag == "table"), tag != "img", tag != "br", tag != "script", tag != "style" else { return nil }
+                    let allowedHeading = allowingHeadings && panelHeadings.contains(tag)
+                    guard (!layoutInCell.contains(tag) || tag == "table" || allowedHeading),
+                          tag != "img", tag != "br", tag != "script", tag != "style" else { return nil }
                     nodes.append(contentsOf: element.getChildNodes())
                 }
             }
@@ -886,6 +1045,8 @@ enum MailHTMLPreparer {
         var hasVisible = false
         var lists: [(ordered: Bool, count: Int)] = []
         var outlookQuote = false
+        var emittedRecords: Set<ObjectIdentifier> = []
+        var readingColumnLabel = false
         // A list item whose text sits in a div or p (Outlook, Apple Mail): the first block inside it is the item.
         var pendingItem: MailTextBlock.Kind?
         var counts = PictureCounts()
@@ -967,6 +1128,7 @@ enum MailHTMLPreparer {
                 return
             }
             guard let element = node as? Element else { return }
+            if emittedRecords.contains(ObjectIdentifier(element)) { return }
             if depth >= maximumDepth { flatText(element, style: style, link: link); return }
             let tag = element.tagNameNormal()
             let traits = look(of: element, tag: tag, needs: needs)
@@ -974,6 +1136,45 @@ enum MailHTMLPreparer {
             if tag == "table", quote == 0, !outlookQuote, !inCell, !pre, let found = try table(element, depth: depth) {
                 flush()
                 blocks.append(contentsOf: found)
+                return
+            }
+            if tag == "tr", quote == 0, !outlookQuote, !inCell, !pre, lists.isEmpty,
+               hasParallelHeadings(element, needs: needs), let record = headedRecords(element, needs: needs) {
+                flush()
+                for row in record.rows { emittedRecords.insert(ObjectIdentifier(row)) }
+                if let table = record.followingTable { emittedRecords.insert(ObjectIdentifier(table)) }
+                let labels = try record.labels.map { cell in
+                    try cellRuns(cell, depth: depth, style: style, link: link, columnLabel: true).map { run in
+                        var label = run
+                        label.style.insert(.bold)
+                        return label
+                    }
+                }
+                for row in record.values {
+                    for (label, cell) in zip(labels, row) {
+                        let values = try blocksInCell(cell, depth: depth, style: style, link: link, flat: false)
+                        if values.count == 1, values[0].kind == .paragraph {
+                            blocks.append(MailTextBlock(kind: .paragraph,
+                                                        runs: label + [MailTextRun(text: "\n", link: nil)] + values[0].runs))
+                        } else {
+                            blocks.append(MailTextBlock(kind: .heading(level: 3), runs: label))
+                            blocks.append(contentsOf: values)
+                        }
+                    }
+                }
+                return
+            }
+            if tag == "tr", quote == 0, !outlookQuote, !inCell, !pre, lists.isEmpty,
+               hasParallelHeadings(element, needs: needs), let cells = plainPanelCells(element, needs: needs) {
+                flush()
+                for cell in cells {
+                    let panel = try cellRuns(cell, depth: depth, style: style, link: link).map { line in
+                        line.text == "\n" ? MailTextRun(text: " ", link: nil) : line
+                    }
+                    if !panel.isEmpty {
+                        blocks.append(MailTextBlock(kind: .item(ordered: false, depth: 0, number: nil), runs: panel))
+                    }
+                }
                 return
             }
             if tag == "tr", quote == 0, !outlookQuote, !inCell, !pre, lists.isEmpty,
@@ -1064,6 +1265,16 @@ enum MailHTMLPreparer {
                    !href.unicodeScalars.contains(where: { $0.value < 32 || $0.value == 127 }) { nextLink = url }
                 else { nextLink = nil }
             }
+            // A visually hidden inline supplement adds words to a column label.
+            // Preserve that spoken label when the template has no separating space.
+            if readingColumnLabel, tag == "span", runs.last?.text.last?.isLetter == true,
+               let classes = try? element.attr("class"),
+               classes.lowercased().split(whereSeparator: \.isWhitespace).contains(where: {
+                   ["visuallyhidden", "visually-hidden", "sr-only", "screen-reader-text"].contains($0)
+               }),
+               (try? element.text())?.first?.isLetter == true {
+                append(" ", style: style, link: nil)
+            }
             if tag == "br" {
                 if let last = runs.last, last.text == "\n" { flush() } else if hasVisible { append("\n", style: style, link: nil) }
             }
@@ -1108,18 +1319,25 @@ enum MailHTMLPreparer {
             }
         }
 
-        /// The runs a cell's content makes, its lines joined by line breaks.
-        func cellRuns(_ cell: Element, depth: Int) throws -> [MailTextRun] {
-            let saved = (blocks, runs, hasVisible, kind, pendingItem, lists)
+        func blocksInCell(_ cell: Element, depth: Int, style: MailTextStyle, link: URL?, flat: Bool,
+                          columnLabel: Bool = false) throws -> [MailTextBlock] {
+            let saved = (blocks, runs, hasVisible, kind, pendingItem, lists, inCell, outlookQuote, readingColumnLabel)
             blocks = []; runs = []; hasVisible = false; kind = .paragraph; pendingItem = nil; lists = []
-            inCell = true
-            defer { (blocks, runs, hasVisible, kind, pendingItem, lists) = saved; inCell = false }
+            inCell = flat
+            readingColumnLabel = columnLabel
+            defer { (blocks, runs, hasVisible, kind, pendingItem, lists, inCell, outlookQuote, readingColumnLabel) = saved }
             for child in cell.getChildNodes() {
-                try walk(child, style: [], link: nil, quote: 0, pre: false, depth: depth + 1)
+                try walk(child, style: style, link: link, quote: 0, pre: false, depth: depth + 1)
             }
             flush()
+            return blocks
+        }
+
+        /// The runs a cell's content makes, its lines joined by line breaks.
+        func cellRuns(_ cell: Element, depth: Int, style: MailTextStyle = [], link: URL? = nil,
+                      columnLabel: Bool = false) throws -> [MailTextRun] {
             var out: [MailTextRun] = []
-            for block in blocks {
+            for block in try blocksInCell(cell, depth: depth, style: style, link: link, flat: true, columnLabel: columnLabel) {
                 if !out.isEmpty { out.append(MailTextRun(text: "\n", link: nil)) }
                 out.append(contentsOf: block.runs)
             }
@@ -1155,6 +1373,23 @@ enum MailHTMLPreparer {
                     let number = listMarker(text[0])?.number
                     return MailTextBlock(kind: .item(ordered: number != nil, depth: 0, number: number), runs: row[1].runs)
                 }
+            }
+            // A wide header above a single record describes fields, with no rows to compare.
+            // Keep labels next to their values at reading width. A trailing single-cell note
+            // belongs under the record rather than under an individual field.
+            if used.count >= 4, grid.count >= 2,
+               grid[0].allSatisfy(\.header), shown[0].allSatisfy({ !$0.isEmpty }),
+               grid.dropFirst().allSatisfy({ $0.allSatisfy { !$0.header } }),
+               shown[1].allSatisfy({ !$0.isEmpty }),
+               kept.prefix(2).allSatisfy({ shape.rows[$0].allSatisfy { $0.span == 1 } }),
+               shown.dropFirst(2).allSatisfy({ !$0[0].isEmpty && $0.dropFirst().allSatisfy(\.isEmpty) }) {
+                let fields = zip(grid[0], grid[1]).map { label, value in
+                    let bold = label.runs.map { run in
+                        MailTextRun(text: run.text, style: run.style.union(.bold), link: run.link)
+                    }
+                    return MailTextBlock(kind: .paragraph, runs: bold + [MailTextRun(text: "\n", link: nil)] + value.runs)
+                }
+                return fields + grid.dropFirst(2).map { MailTextBlock(kind: .paragraph, runs: $0[0].runs) }
             }
             var flat: [MailTextRun] = []
             for (index, row) in grid.enumerated() {

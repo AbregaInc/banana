@@ -42,7 +42,13 @@ enum MailOriginalDocument {
         let imagePolicy = sources.isEmpty ? "'none'" : sources.joined(separator: " ")
         let margin = embedded ? 0 : 16
         // Embedded messages size to content, including mail templates that demand a full viewport.
-        let intrinsic = embedded ? "<style>html:root,html:root body{height:auto!important;min-height:0!important}</style>" : ""
+        // A no-wrap link can set the minimum width of every enclosing table. Let
+        // inline links wrap in narrow readers while keeping inline-block buttons intact.
+        let intrinsic = embedded ? """
+        <style>html:root,html:root body{height:auto!important;min-height:0!important}
+        @media(max-width:360px){html:root body a:not([style*="inline-block" i]){white-space:normal!important;overflow-wrap:anywhere!important}}
+        </style>
+        """ : ""
         return """
         <!doctype html><html><head><meta charset="utf-8">
         <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'none'; style-src 'unsafe-inline'; img-src \(imagePolicy); font-src 'none'; connect-src 'none'; frame-src 'none'; form-action 'none'; base-uri 'none'">

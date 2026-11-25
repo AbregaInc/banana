@@ -198,7 +198,10 @@ test('explicit nutrient dates must be supplied by the person',async()=>{
 
 test('named birthdays and anniversaries are read from Calendar before inference', async () => {
   for (const [question, query] of [["What's my aunt's birthday?", 'aunt birthday'],
-    ['When is Noor’s anniversary?', 'Noor anniversary']]) {
+    ['When is Noor’s anniversary?', 'Noor anniversary'],
+    ['What’s my grandmas birthday', 'grandma birthday'],
+    ['When is my neighbors anniversary?', 'neighbor anniversary'],
+    ['When is Carlos’s birthday?', 'Carlos birthday']]) {
     const input = request(question, ['search_app', 'nutrition_view']);
     input.tools[0].parameters.properties.section = {const: 'plan'};
     const output = await routeGeneration(input, async () => assert.fail('A named lookup needs no model selection'));

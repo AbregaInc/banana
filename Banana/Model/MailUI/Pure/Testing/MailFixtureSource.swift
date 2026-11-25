@@ -196,6 +196,15 @@ final class MailFixtureSource: MailSource {
             bodies[id] = try? MailHTMLPreparer.prepare(plain: nil, html: html).body
             originalFragments[id] = try? MailOriginalDocument.prepare(html)
         }
+        if arguments.contains("--mail-summary-panels") {
+            let html = """
+            <table><tr><td><h2>Expected</h2><p>2 packages</p></td>
+            <td></td><td><h2>Delivered</h2><p>1 today</p></td></tr></table>
+            """
+            let id = MailMessageID(account: MailFixtureConversations.account, message: "receipt~1")
+            bodies[id] = try? MailHTMLPreparer.prepare(plain: nil, html: html).body
+            originalFragments[id] = try? MailOriginalDocument.prepare(html)
+        }
         #endif
         restoreSchedules()
         publishCounts()

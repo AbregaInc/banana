@@ -13,6 +13,15 @@ import XCTest
         }
     }
 
+    func testOutgoingQuoteFoldsItsEntireTailRegardlessOfBlockStyle() {
+        let blocks = [MailTextBlock(kind: .paragraph, runs: []),
+                      MailTextBlock(kind: .paragraph, runs: []),
+                      MailTextBlock(kind: .item(ordered: false, depth: 0, number: nil), runs: [])]
+        XCTAssertEqual(MailQuoteFolding.hiddenRange(in: blocks, from: 1, expanded: false, entireTail: true), 1..<3)
+        XCTAssertNil(MailQuoteFolding.hiddenRange(in: blocks, from: 1, expanded: true, entireTail: true))
+        XCTAssertNil(MailQuoteFolding.hiddenRange(in: blocks, from: 0, expanded: false, entireTail: true))
+    }
+
     private final class Source: MailSource {
         var value = MailBody.notOnDevice
         var onChange: (@MainActor (MailConversation?) -> Void)?

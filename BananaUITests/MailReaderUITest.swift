@@ -112,6 +112,16 @@ final class MailReaderUITest: MailUITestCase {
         XCTAssertTrue(spam.waitForExistence(timeout: 5))
         let block = app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@", "mail.sender.block", "Block sender")).firstMatch
         XCTAssertTrue(block.waitForExistence(timeout: 5))
+        let domain = app.buttons.matching(NSPredicate(format: "identifier == %@ OR label == %@",
+                                                     "mail.domain.block", "Block dispatch.example")).firstMatch
+        XCTAssertTrue(domain.waitForExistence(timeout: 5))
+        XCTAssertLessThan(domain.frame.minY, block.frame.minY)
+        domain.tap()
+        XCTAssertTrue(app.buttons["Block domain"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "addresses at dispatch.example")).firstMatch.exists)
+        let domainDismiss = app.otherElements["PopoverDismissRegion"]
+        if domainDismiss.exists { domainDismiss.tap() } else { app.buttons["Cancel"].firstMatch.tap() }
+        openDisposalMenu()
         block.tap()
         let confirm = app.buttons["Block sender"].firstMatch
         XCTAssertTrue(confirm.waitForExistence(timeout: 5))
@@ -144,6 +154,13 @@ final class MailReaderUITest: MailUITestCase {
         XCTAssertTrue(restore.exists)
         restore.tap()
         XCTAssertTrue(waitForToast(containing: "back in the inbox"))
+    }
+
+    func testSummaryPanelsReadAsNativeTextPairs() {
+        launch(open: "receipt", extra: ["--mail-summary-panels"])
+        XCTAssertTrue(app.staticTexts["Expected 2 packages"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Delivered 1 today"].exists)
+        XCTAssertFalse(app.webViews.firstMatch.exists)
     }
 
     func testComplexTableUsesFormattedBodyAndRetainsActionLink() {

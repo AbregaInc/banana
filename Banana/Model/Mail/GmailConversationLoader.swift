@@ -349,8 +349,16 @@ actor GmailConversationLoader {
             var change = MailStoreChange(conversations: [MailConversationID(account: account, thread: thread)])
             if let sender, let threadPK = try Int64.fetchOne(db, sql: "SELECT thread_pk FROM message WHERE msg_pk=? AND gmail_id=? AND from_addr IS NULL",
                                                             arguments: [rowID, id.message]) {
+                // Header recovery follows the importer's ownership rule. A matching From
+                // address alone cannot classify an incoming message as one the user sent.
+                let filedAsMine = try sender.key == account && (Bool.fetchOne(db, sql: """
+                    SELECT EXISTS (
+                        SELECT 1 FROM message_label ml JOIN label l ON l.label_pk=ml.label_pk
+                        WHERE ml.msg_pk=? AND l.gmail_id IN ('SENT','DRAFT')
+                    )
+                    """, arguments: [rowID]) == true)
                 try db.execute(sql: "UPDATE message SET from_addr=?,from_name=?,fts_dirty=1,flags=flags|? WHERE msg_pk=? AND from_addr IS NULL",
-                               arguments: [sender.key, name, sender.key == account ? MailMessageFlags.fromMe.rawValue : 0, rowID])
+                               arguments: [sender.key, name, filedAsMine ? MailMessageFlags.fromMe.rawValue : 0, rowID])
                 change.formUnion(try MailIndexWriter.rebuildThread(threadPK,
                     facts: MailMessageImporter.facts(threadPK: threadPK, in: db), myAddresses: [account], in: db))
             }

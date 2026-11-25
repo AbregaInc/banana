@@ -61,29 +61,34 @@ private struct MailUnsubscribeButton: View {
     @State private var result: MailUnsubscribeResult?
 
     var body: some View {
-        if case .asked = result {
-            Label("Asked \(host) to unsubscribe you", systemImage: "checkmark.circle")
-        } else {
-            Button { confirming = true } label: {
-                Label("Unsubscribe…", systemImage: "envelope.badge.minus")
-            }
-            .accessibilityIdentifier("mail.unsubscribe")
-            .disabled(sending)
-            .confirmationDialog("Unsubscribe from this mailing list?", isPresented: $confirming, titleVisibility: .visible) {
-                Button("Unsubscribe") {
-                    sending = true
-                    result = nil
-                    Task {
-                        result = await source.unsubscribe(conversation, expected: url)
-                        sending = false
-                    }
+        VStack(alignment: .trailing, spacing: DS.Space.xs) {
+            if case .asked = result {
+                Label("Asked \(host) to unsubscribe you", systemImage: "checkmark.circle")
+            } else {
+                Button { confirming = true } label: {
+                    Label("Unsubscribe…", systemImage: "envelope.badge.minus")
+                        .labelStyle(.iconOnly)
+                        .frame(minWidth: DS.Row.minHeight, minHeight: DS.Row.minHeight)
+                        .contentShape(Rectangle())
                 }
-            } message: {
-                Text("Banana will send the request to \(host).")
+                .accessibilityIdentifier("mail.unsubscribe")
+                .disabled(sending)
+                .confirmationDialog("Unsubscribe from this mailing list?", isPresented: $confirming, titleVisibility: .visible) {
+                    Button("Unsubscribe") {
+                        sending = true
+                        result = nil
+                        Task {
+                            result = await source.unsubscribe(conversation, expected: url)
+                            sending = false
+                        }
+                    }
+                } message: {
+                    Text("Banana will send the request to \(host).")
+                }
+                if sending { ProgressView("Sending request…") }
+                if result == .failed { Text("Couldn’t confirm the unsubscribe request.").foregroundStyle(.secondary) }
+                if result == .unavailable { Text("This unsubscribe request is unavailable.").foregroundStyle(.secondary) }
             }
-            if sending { ProgressView("Sending request…") }
-            if result == .failed { Text("Couldn’t confirm the unsubscribe request.").foregroundStyle(.secondary) }
-            if result == .unavailable { Text("This unsubscribe request is unavailable.").foregroundStyle(.secondary) }
         }
     }
 }
@@ -126,8 +131,20 @@ struct MailConversationContent: View {
                             Text(reader.title)
                                 .font(.title3.weight(.semibold))
                                 .accessibilityIdentifier(MailID.conversationTitle)
+                            Spacer(minLength: 0)
+                            if case .oneClick(let url) = reader.conversation?.unsubscribe, let host = url.host {
+                                MailUnsubscribeButton(source: session.source, conversation: reader.id, url: url, host: host)
+                                    .id(url)
+                            } else if case .openPage(let url) = reader.conversation?.unsubscribe {
+                                Link(destination: url) {
+                                    Label("Unsubscribe…", systemImage: "envelope.badge.minus")
+                                        .labelStyle(.iconOnly)
+                                        .frame(minWidth: DS.Row.minHeight, minHeight: DS.Row.minHeight)
+                                        .contentShape(Rectangle())
+                                }
+                                .accessibilityIdentifier("mail.unsubscribe")
+                            }
                             if titleMenu {
-                                Spacer(minLength: DS.Space.s)
                                 MailPaneMoreMenu(session: session)
                             }
                         }
@@ -138,15 +155,6 @@ struct MailConversationContent: View {
                         if let invite = reader.conversation?.invite, invite.method == .request {
                             MailInviteCard(account: reader.id.account, invite: invite,
                                            calendar: session.isSample ? .sample : .live)
-                        }
-                        if case .oneClick(let url) = reader.conversation?.unsubscribe, let host = url.host {
-                            MailUnsubscribeButton(source: session.source, conversation: reader.id, url: url, host: host)
-                                .id(url)
-                        } else if case .openPage(let url) = reader.conversation?.unsubscribe {
-                            Link(destination: url) {
-                                Label("Unsubscribe…", systemImage: "envelope.badge.minus")
-                            }
-                            .accessibilityIdentifier("mail.unsubscribe")
                         }
                         // A reply (or the draft left here) above the newest message, which it
                         // answers and which is read first.
@@ -323,6 +331,7 @@ private struct MailConversationHeader: View {
                     .frame(width: DS.Row.minHeight, height: DS.Row.minHeight)
                     .contentShape(Circle())
             }
+            .menuOrder(.fixed)
             .menuIndicator(.hidden)
             .glassEffect(.regular.interactive(), in: .circle)
             .accessibilityLabel("More")
@@ -507,7 +516,8 @@ struct MailMessageCard: View {
                         .environment(\.mailPictureContext, pictureContext)
                 }
             } else {
-                MailTextView(text: content, styled: styled, foldFrom: quoteStart)
+                MailTextView(text: content, styled: styled, foldFrom: quoteStart,
+                             foldEntireTail: MailOutgoingDraft.draftID(message.id) != nil)
                     .environment(\.mailPictureContext, pictureContext)
             }
         case .designed(_, _, _, let plain, _)?:
