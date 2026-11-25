@@ -3,7 +3,7 @@ import XCTest
 /// Covers the generic decode-and-quarantine loader (`Shared/SnapshotPersistence.swift`) against
 /// the two highest-value stores in the data-safety sweep — `ListenHistoryStore` (unbounded,
 /// GPS-tagged listen history) and `PodcastLibrary` (subscriptions + the catalog that
-/// `saveProgress()` derives from). Both stores themselves pull in `CloudBackup`'s CloudKit/
+/// `saveProgress()` derives from). Both stores themselves pull in CloudKit/
 /// `FitnessStore`/`ImageCache`/`TranscriptStore` dependency chain via their own `save()` methods,
 /// which would touch the owner's real Application Support directory on first singleton touch —
 /// so these exercise the pure model types (`ListenEvent.swift`, `Podcast.swift`) and the shared

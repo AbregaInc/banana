@@ -58,9 +58,7 @@ final class WellnessStore: ObservableObject {
 
     var onWorkoutPlansChanged: (() -> Void)?
 
-    /// Decoded + sorted/capped contents of `wellness.json`. Kept as a plain value so the exact
-    /// same decode rules can run either inside the background initial-load task or synchronously
-    /// from `load()` (used by `reloadFromDisk()`) without duplicating the sort/cap logic.
+    /// Decoded, sorted and capped contents of the on-disk snapshot.
     private struct DecodedSnapshot: Sendable {
         var meals: [MealEntry] = []
         var supplements: [SupplementSchedule] = []
@@ -75,19 +73,10 @@ final class WellnessStore: ObservableObject {
         return AppSupport.directory.appendingPathComponent("wellness.json")
     }()
 
-    /// True once the on-disk snapshot has been installed — either by the background initial
-    /// decode's merge, or by that decode detecting it was superseded by a synchronous `load()`
-    /// (a CloudBackup restore). Callers that must not see an empty history (e.g. Watch plan sync)
-    /// await `whenLoaded()` first instead of racing the decode.
+    /// Callers that need the loaded history await `whenLoaded()`.
     private var isLoaded = false
     private var loadWaiters: [CheckedContinuation<Void, Never>] = []
-    /// Bumped by every `load()` call, including the synchronous one `reloadFromDisk()` uses, so
-    /// the in-flight background decode can tell a restore already replaced its data and must not
-    /// re-merge the now-stale read on top of it.
-    private var loadGeneration = 0
-    /// A mutation applied in memory before the initial decode has merged has its `save()` call
-    /// deferred (see `save()`) so the merge can't clobber it; this flags that a flush is owed once
-    /// the merge (or its supersession) resolves.
+    /// A save requested before the background decode is flushed after the merge.
     private var needsFlushAfterLoad = false
     /// Set when `wellness.json` failed to decode AND could not even be quarantined (copied aside
     /// for safekeeping) — see `decodeAndSort`. In that situation there is no backup anywhere, so
@@ -105,13 +94,8 @@ final class WellnessStore: ObservableObject {
     }
 
     private init() {
-        // Decode off the main thread (was a synchronous Data(contentsOf:) + JSONDecoder + 5 sorts
-        // of up to 1,500 meals and 2,000 supplement logs before first paint). A mutation that
-        // arrives while this is in flight (e.g. a Watch workout completion via
-        // PhoneConnectivity.recordWorkoutCompletion) or a CloudBackup restore is handled by the
-        // merge/generation guards below instead of being lost or clobbered.
+        // A mutation arriving during the background decode is merged with the disk state.
         let url = fileURL
-        let capturedGeneration = loadGeneration
         let openedAt = Date()
         Task.detached(priority: .userInitiated) { [weak self] in
             MealRepeatPersistence.cleanAbandonedStages(beside: url, before: openedAt)
@@ -119,14 +103,6 @@ final class WellnessStore: ObservableObject {
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 if outcome.mustRefuseSaves { self.saveIsUnsafe = true }
-                guard self.loadGeneration == capturedGeneration else {
-                    // A synchronous load() (CloudBackup restore) already ran while this decode was
-                    // in flight; it is authoritative, and merging this now-stale read on top of it
-                    // would reintroduce rows the restore intentionally dropped.
-                    self.isLoaded = true
-                    self.resolveLoadWaiters()
-                    return
-                }
                 if let decoded = outcome.decoded { self.merge(decoded) }
                 self.isLoaded = true
                 self.refreshSupplementNotificationsOnce()
@@ -187,8 +163,7 @@ final class WellnessStore: ObservableObject {
         var mustRefuseSaves = false
     }
 
-    /// Same decode + sort + cap rules `load()` always used, factored out so the background task
-    /// and the synchronous restore path can never drift apart. Runs off the main actor.
+    /// Decode, sort and cap the stored entries off the main actor.
     ///
     /// Delegates the actual decode to `WellnessSnapshotLoader`, which tolerates one corrupt
     /// record inside an otherwise-valid file (dropped and counted, not fatal — see
@@ -268,7 +243,6 @@ final class WellnessStore: ObservableObject {
             try Task.checkCancellation()
             guard !saveIsUnsafe else { throw CocoaError(.fileWriteNoPermission) }
             let revision = saveRevision
-            let generation = loadGeneration
             var current = currentSnapshot()
             switch edit {
             case .add(let meal):
@@ -285,11 +259,10 @@ final class WellnessStore: ObservableObject {
             }.value
             defer { try? FileManager.default.removeItem(at: staged) }
             try Task.checkCancellation()
-            guard revision == saveRevision, generation == loadGeneration else { continue }
+            guard revision == saveRevision else { continue }
             try MealRepeatPersistence.commit(staged, replacing: url)
             saveRevision &+= 1
             meals = snapshot.meals
-            CloudBackup.shared.schedule()
             switch edit {
             case .add(let meal):
                 saved(.meal(meal.id))
@@ -328,7 +301,6 @@ final class WellnessStore: ObservableObject {
         try HealthFileProtection.write(JSONEncoder().encode(snapshot(meals: updated)), to: fileURL)
         saveRevision &+= 1
         meals = updated
-        CloudBackup.shared.schedule()
         saved(.meal(sanitized.id))
         Telemetry.shared.record(.feature(.mealLogged, Self.telemetryDetail(sanitized.source)))
         return sanitized
@@ -453,28 +425,7 @@ final class WellnessStore: ObservableObject {
         save()
     }
 
-    /// Meals, supplements and doses changed on another device (`CloudWellnessSync`). One save for
-    /// the whole batch, and never echoed back to the cloud. What it brought is told to the data
-    /// platform too: while the legacy sync applies it, that's a late arrival (`MoveOver`).
-    func applyCloudChanges(_ changes: WellnessCloudChanges) {
-        guard !changes.isEmpty else { return }
-        var changes = changes
-        // Once health and food have moved off iCloud here, a supplement's delete from an old build
-        // doesn't take its doses: on the data platform only a dose's own delete does (§3).
-        if !LegacyCloud.mayWrite(.health) { changes.cascadesDoses = false }
-        applySpaceChanges(changes)
-        let changed = changes.meals.map { WellnessCloudRecord.meal($0.id) }
-            + changes.supplements.map { WellnessCloudRecord.supplement($0.id) }
-            + changes.doses.map { WellnessCloudRecord.dose($0) }
-        for (type, ids) in Self.byType(changed) { MoveOver.changed(type: type, ids: ids) }
-        let gone = changes.deletedMeals.map { WellnessCloudRecord.meal($0) }
-            + changes.deletedSupplements.map { WellnessCloudRecord.supplement($0) }
-            + changes.deletedDoses.map { WellnessCloudRecord.dose(supplementID: $0.supplementID, day: $0.day) }
-        for (type, ids) in Self.byType(gone) { MoveOver.deleted(type: type, ids: ids) }
-    }
-
-    /// Another device's changes in one save: iCloud's (`applyCloudChanges`) or the data platform's
-    /// (`WellnessAdapter`, which never cascades a supplement's delete to its doses).
+    /// Apply a batch from Banana sync without cascading a supplement deletion to its doses.
     func applySpaceChanges(_ changes: WellnessCloudChanges) {
         guard !changes.isEmpty else { return }
         WellnessCloudMerge.apply(changes, meals: &meals, supplements: &supplements, logs: &supplementLogs)
@@ -485,19 +436,16 @@ final class WellnessStore: ObservableObject {
         save()
     }
 
-    // MARK: - Telling the syncs
+    // MARK: - Reporting sync changes
 
-    /// An item edited here: iCloud's sync as before (its mode decides whether it writes), and the
-    /// data platform (`MoveOver`).
+    /// Report a local edit to Banana sync.
     private func saved(_ record: WellnessCloudRecord) {
-        CloudWellnessSync.shared.saved(record)
         if SpaceSyncFlag.isOn, case .supplement(let id) = record { noteSupplementEdited(id) }
         let (type, id) = record.catalogRecord
         MoveOver.changed(type: type, ids: [id])
     }
 
     private func deleted(_ records: [WellnessCloudRecord]) {
-        CloudWellnessSync.shared.deleted(records)
         for (type, ids) in Self.byType(records) { MoveOver.deleted(type: type, ids: ids) }
     }
 
@@ -605,46 +553,6 @@ final class WellnessStore: ObservableObject {
         if !key.isEmpty { ControlChangeReporter.changed(.foodCorrection, key) }
     }
 
-    func reloadFromDisk() {
-        load()
-        // A restore replaces the file wholesale. Fetch everything again so what was logged on
-        // the other device since the backup comes back too.
-        CloudWellnessSync.shared.resyncAfterRestore()
-    }
-
-    /// Synchronous decode, used only by `reloadFromDisk()` (a CloudBackup restore, which must be
-    /// authoritative and complete before the restore's other side effects run). Bumps
-    /// `loadGeneration` so an in-flight background initial decode knows to defer to this result
-    /// instead of re-merging its now-stale read on top of it.
-    private func load() {
-        loadGeneration += 1
-        let outcome = Self.decodeAndSort(from: fileURL)
-        if outcome.mustRefuseSaves { saveIsUnsafe = true }
-        guard let decoded = outcome.decoded else { return }
-        // A mutation from before this store finished its very first load (e.g. a Watch workout
-        // completion arriving while the background initial decode is still in flight) sets
-        // `needsFlushAfterLoad` instead of writing to disk — see `save()`. A plain overwrite here
-        // would discard that in-memory-only mutation the instant the restore's decode replaces
-        // these arrays. Merge instead, so the restored snapshot and the pending mutation both
-        // survive, then flush the merged result so it's not lost again if this races the initial
-        // decode's own (now-superseded) merge.
-        let hadPendingMutation = needsFlushAfterLoad
-        isLoaded = true
-        if hadPendingMutation {
-            needsFlushAfterLoad = false
-            merge(decoded)
-            save()
-        } else {
-            meals = decoded.meals
-            supplements = decoded.supplements
-            supplementLogs = decoded.supplementLogs
-            workoutPlans = decoded.workoutPlans
-            workoutCompletions = decoded.workoutCompletions
-            foodCorrections = decoded.foodCorrections
-        }
-        resolveLoadWaiters()
-    }
-
     private func save() {
         saveRevision &+= 1
         // A mutation can land while the initial decode is still in flight (isLoaded == false).
@@ -661,7 +569,6 @@ final class WellnessStore: ObservableObject {
         let snapshot = currentSnapshot()
         guard let data = try? JSONEncoder().encode(snapshot) else { return }
         try? HealthFileProtection.write(data, to: fileURL)
-        CloudBackup.shared.schedule()
     }
 
 
@@ -917,10 +824,8 @@ extension WellnessStore: HealthFood.BatchSource {
 
 // What the data platform's meals, supplements and doses adapter needs of the store.
 extension WellnessStore: WellnessSyncPort {
-    /// iCloud's edit time where it runs; for a supplement, also the one kept here (a supplement
-    /// has no time of its own to seed from).
+    /// Supplements keep a separate edit time because their model has no timestamp.
     func editedAt(_ record: WellnessCloudRecord) -> Date? {
-        if let edited = CloudWellnessSync.shared.editedAt(record) { return edited }
         if case .supplement(let id) = record { return Self.supplementEdits[id.uuidString] }
         return nil
     }

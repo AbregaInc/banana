@@ -131,7 +131,7 @@ enum MealEstimateCatchUp {
             Task { @MainActor in MealBacklogProcessor.shared.suspending() }
         }
         // A background launch has no window: start what the app's window would have.
-        await MealBacklogWake.catchUp(reason: "charging")
+        await SpaceSyncLaunch.syncAndWait(reason: "meal estimates while charging")
         await WellnessStore.shared.whenLoaded()
         let processor = MealBacklogProcessor.shared
         processor.startIfNeeded(wellness: .shared)

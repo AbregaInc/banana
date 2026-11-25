@@ -140,7 +140,6 @@ final class WakeStore: ObservableObject {
         if let data = try? JSONEncoder().encode(raw) { defaults.set(data, forKey: key) }
         // Wake-source selection lives in UserDefaults, which the iCloud snapshot digests —
         // dirty the backup flag so the next on-background pass carries it.
-        CloudBackup.shared.schedule()
     }
 
     private func load() {

@@ -94,7 +94,7 @@ struct WellnessView: View {
         .navigationBarTitleDisplayMode(.inline)
         // Anything logged on the Mac since, before you read the day.
         .onAppear {
-            CloudWellnessSync.shared.refresh()
+            SpaceSyncLaunch.sync(reason: "food refresh")
             // `--wellness-taken` opens on Taken: the switch, which reads the shell, says so too.
             if shell.state.nutritionSection == nil, ProcessInfo.processInfo.arguments.contains("--wellness-taken") {
                 shell.state.nutritionSection = Section.supplements.rawValue

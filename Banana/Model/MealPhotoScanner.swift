@@ -40,7 +40,6 @@ final class MealPhotoScanner: NSObject, ObservableObject {
     /// iPhone has to look for itself; a rare safety net while a Mac keeps up and pushes bring its
     /// finds (`MealBacklogWake`).
     static let backgroundInterval: TimeInterval = 3_600
-    static let backgroundIntervalWithMac: TimeInterval = 4 * 3_600
     /// The most photos one pass classifies; the rest wait for the next. The first pass goes back two
     /// weeks, which can be a thousand photos — far more than a background window allows.
     static let foregroundCap = 300
@@ -341,9 +340,7 @@ final class MealPhotoScanner: NSObject, ObservableObject {
     func schedule() {
         guard Self.prefs.enabled, Self.currentAccess() == .full else { return }
         let request = BGAppRefreshTaskRequest(identifier: Self.taskID)
-        let macCovers = MealBacklogWake.pushReady && MealPhotoScanShare.macKeepingUp(
-            MealPhotoScanReports.shared.all, except: MealInboxStore.installID)
-        request.earliestBeginDate = Date().addingTimeInterval(macCovers ? Self.backgroundIntervalWithMac : Self.backgroundInterval)
+        request.earliestBeginDate = Date().addingTimeInterval(Self.backgroundInterval)
         do {
             try BGTaskScheduler.shared.submit(request)
             Log.sync.notice("meal photos: background scan scheduled")
@@ -358,7 +355,7 @@ final class MealPhotoScanner: NSObject, ObservableObject {
         schedule()
         let work = Task { @MainActor () -> Outcome in
             // First what other devices found — cheap, and it may be all there is to do.
-            await MealBacklogWake.catchUp(reason: "background task")
+            await SpaceSyncLaunch.syncAndWait(reason: "meal background task")
             // A Mac keeping up has looked already (its finds just arrived); in Low Power Mode or
             // hot, looking waits for the app to be open.
             let macCovers = MealPhotoScanShare.macKeepingUp(MealPhotoScanReports.shared.all,

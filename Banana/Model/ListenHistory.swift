@@ -36,14 +36,6 @@ final class ListenHistoryStore: ObservableObject {
         label: "com.boris.banana.listen-history",
         qos: .utility)
 
-    /// Barrier for snapshot backup: route appends and metadata writes are asynchronous, so reading
-    /// the backup payload immediately on background could otherwise capture the previous point.
-    nonisolated static func flushPendingWrites() async {
-        await withCheckedContinuation { continuation in
-            persistence.async { continuation.resume() }
-        }
-    }
-
     init() {
         // Decode off the main thread: this file holds every listen ever (unbounded by design —
         // it feeds the Listen Map) and its init sat in the first-frame path. A listen recorded
@@ -243,7 +235,6 @@ final class ListenHistoryStore: ObservableObject {
     }
 
     /// Re-read from disk (an iCloud restore rewrites the file underneath us).
-    func reloadFromDisk() { load() }
 
     private func save() {
         // Never write before the initial decode lands: `events` would hold ONLY the pre-load
@@ -267,38 +258,6 @@ final class ListenHistoryStore: ObservableObject {
             guard let data = try? JSONEncoder().encode(snapshot) else { return }
             try? data.write(to: url, options: .atomic)
         }
-        CloudBackup.shared.schedule()
-    }
-
-    /// Synchronous — used only by `reloadFromDisk()` (an iCloud restore, which must complete
-    /// before its other side effects run). Same decode-and-quarantine treatment as `init()`'s
-    /// background load, so a corrupt file encountered mid-session is preserved rather than risking
-    /// getting overwritten by the very next save() the same way a launch-time corruption would.
-    private func load() {
-        var decoded: [ListenEvent]
-        switch SnapshotLoader.load(from: fileURL, as: LossyArray<ListenEvent>.self) {
-        case .empty:
-            return
-        case let .loaded(lossy):
-            if lossy.droppedCount > 0 {
-                Self.log.error("listen_history.json: dropped \(lossy.droppedCount, privacy: .public) corrupt listen(s) on load; everything else loaded normally")
-            }
-            decoded = lossy.elements
-        case let .corrupt(error, quarantinedTo):
-            if let quarantinedTo {
-                Self.log.error("listen_history.json failed to decode (\(String(describing: error), privacy: .public)); original preserved at \(quarantinedTo.lastPathComponent, privacy: .public).")
-            } else {
-                saveIsUnsafe = true
-                Self.log.fault("listen_history.json failed to decode (\(String(describing: error), privacy: .public)) AND could not be quarantined — no backup exists. Refusing to save until this is resolved by hand.")
-            }
-            return
-        }
-        for index in decoded.indices {
-            decoded[index].routePointCount =
-                Self.routePointCount(at: routeURL(decoded[index].id)) ?? decoded[index].route.count
-            decoded[index].route = []
-        }
-        events = decoded
     }
 
     /// Load only the route sidecars a visible map needs. Metadata, dates, places, and first
@@ -362,7 +321,6 @@ final class ListenHistoryStore: ObservableObject {
                 try? data.write(to: url, options: .atomic)
             }
         }
-        CloudBackup.shared.schedule()
     }
 
     private func persistAllRoutes() {
@@ -653,6 +611,6 @@ extension ListenHistoryStore: ListenSyncSource {
         }
     }
 
-    func syncEditedAt(_ id: UUID) -> Date? { CloudControlsSync.editedAt(.listen, id: id.uuidString) }
+    func syncEditedAt(_ id: UUID) -> Date? { nil }
 }
 #endif

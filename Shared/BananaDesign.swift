@@ -178,7 +178,6 @@ enum DS {
             static let podcasts = Color.purple
             static let workouts = Color.green
             static let food = Color.orange
-            static let icloud = Color.cyan
             static let system = Color.gray
             /// Mail's settings tile: a manila envelope. A hue nothing else in the system uses.
             static let mail = Color.brown

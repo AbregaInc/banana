@@ -1794,7 +1794,6 @@ final class SmartScheduleStore: ObservableObject {
         if let data = try? JSONEncoder().encode(settings) {
             defaults.set(data, forKey: key)
         }
-        CloudBackup.shared.schedule()
         guard !applyingRemoteSettings else { return }
         settingsUpdatedAt = Date()
         defaults.set(settingsUpdatedAt, forKey: Self.settingsUpdatedAtKey)

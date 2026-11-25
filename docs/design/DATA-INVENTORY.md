@@ -146,7 +146,7 @@ Seams: `smart.onSettingsBroadcast` → `CloudSettingsSync.push(Data)`, and `onSn
 
 | Path | Data | Code | Health |
 |---|---|---|---|
-| `backup.plist`, `previous-backup.plist` | the full backup: podcasts, progress, routines, listens, exceptions, **wellness.json**, **Fitness/summaries.json**, routes, portable UserDefaults (`BackupRules.portable`) | `CloudBackup.swift:126-137/185-190`, phone only (`:213`) | **yes** |
+| `backup.plist`, `previous-backup.plist` | legacy snapshot: podcasts, progress, routines, listens, exceptions, **wellness.json**, **Fitness/summaries.json**, routes and preferences | `ICloudPurge` (cleanup only) | **yes** |
 | `Transcripts/<sha256(episode)>.lzfse` | `Transcript` (`TranscriptModels.swift:12`) | `Transcript.swift:140-178`; the higher `source.qualityRank` wins | |
 | `VoiceNotes/<uuid>.m4a`, `.json`, `.deleted` | note audio, older metadata, tombstones | `VoiceNoteStore.swift:899-960`, `apply` `:713` | |
 

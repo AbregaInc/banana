@@ -364,9 +364,6 @@ struct MacWeekView: View {
     @State private var eventSheet: CalendarEventSheet?
     @State private var newEventRequest: MacNewEventRequest?
     @State private var showingNewTask = false
-    /// The slot a right-click on empty grid means. macOS always hovers before it clicks, so the
-    /// last hover position is the click position — SwiftUI's contextMenu does not report one.
-    @State private var hoverSlot: (day: Date, date: Date)?
     /// Preset time for the New Reminder sheet, when opened from a grid slot.
     @State private var newTaskDue: Date?
     @State private var showingAlarms = false
@@ -374,15 +371,7 @@ struct MacWeekView: View {
     @State private var weekOffset = 0
     /// Not observed here: only the toolbar spinner reads it (`MacWeekLoadingSpinner`).
     @State private var loading = MacWeekLoading()
-    private static let nativeViewport: Bool = {
-        #if DEBUG
-        !ProcessInfo.processInfo.arguments.contains("--calendar-reference-mac")
-        #else
-        true
-        #endif
-    }()
     @State private var nativeInitialOffset: CGFloat?
-    @State private var gridScroll = ScrollPosition(idType: Int.self)
     @State private var didSetInitialScroll = false
     @AppStorage("macDayScrollOffset") private var persistedDayScrollOffset: Double = -1
     // Persistence bookkeeping is not presentation state: scrolling must not invalidate the grid.
@@ -427,40 +416,21 @@ struct MacWeekView: View {
                     allDayRow
                 }
                 Divider()
-                if Self.nativeViewport {
-                    GeometryReader { geometry in
-                        let viewportWidth = geometry.size.width
-                        TimelineView(.periodic(from: .now, by: 60)) { timeline in
-                            CalendarMacCollectionViewport(
-                                items: macViewportItems(width: geometry.size.width, now: timeline.date),
-                                contentSize: CGSize(width: geometry.size.width, height: gridHeight),
-                                background: AnyView(timeGrid(now: timeline.date, includesEvents: false)),
-                                initialOffset: nativeInitialOffset ?? openingScrollOffset(),
-                                activeID: draggingEventID,
-                                onOffset: { scrollBookkeeping.offset = $0.rounded() },
-                                onScrollEnd: { persistDayScrollPosition() },
-                                slotActions: { nativeSlotActions(at: $0, width: viewportWidth) })
-                        }
-                    }
-                    .accessibilityIdentifier("mac.week.timeGrid")
-                } else {
-                ScrollView(.vertical) {
+                GeometryReader { geometry in
+                    let viewportWidth = geometry.size.width
                     TimelineView(.periodic(from: .now, by: 60)) { timeline in
-                        timeGrid(now: timeline.date)
+                        CalendarMacCollectionViewport(
+                            items: macViewportItems(width: geometry.size.width, now: timeline.date),
+                            contentSize: CGSize(width: geometry.size.width, height: gridHeight),
+                            background: AnyView(timeGrid(now: timeline.date)),
+                            initialOffset: nativeInitialOffset ?? openingScrollOffset(),
+                            activeID: draggingEventID,
+                            onOffset: { scrollBookkeeping.offset = $0.rounded() },
+                            onScrollEnd: { persistDayScrollPosition() },
+                            slotActions: { nativeSlotActions(at: $0, width: viewportWidth) })
                     }
                 }
-                .scrollPosition($gridScroll)
-                .onScrollGeometryChange(for: CGFloat.self) {
-                    max(0, $0.contentOffset.y + $0.contentInsets.top)
-                } action: { _, offset in
-                    scrollBookkeeping.offset = offset.rounded()
-                }
-                .onScrollPhaseChange { _, phase in
-                    if phase == .idle { persistDayScrollPosition() }
-                }
-                .background(Color(.systemBackground))
                 .accessibilityIdentifier("mac.week.timeGrid")
-                }
                 #if DEBUG
                 if Self.observationAuditEnabled {
                     HStack {
@@ -478,7 +448,7 @@ struct MacWeekView: View {
                             .accessibilityIdentifier("calendar.audit.palette")
                         Text(String(RenderStats.lifetimeCount("MacWeekView")))
                             .accessibilityIdentifier("calendar.audit.renderCount")
-                        Text(CalendarSlotContextMenu.localObservation ? "local" : "parent")
+                        Text("native")
                             .accessibilityIdentifier("calendar.audit.hoverPolicy")
                         Text(CalendarEventDragFeedback.experimentalEnabled ? "local" : "parent")
                             .accessibilityIdentifier("calendar.audit.dragPolicy")
@@ -1176,7 +1146,7 @@ struct MacWeekView: View {
         ]
     }
 
-    private func timeGrid(now: Date, includesEvents: Bool = true) -> some View {
+    private func timeGrid(now: Date) -> some View {
         GeometryReader { geometry in
             let dayWidth = availableDayWidth(in: geometry.size.width)
             HStack(alignment: .top, spacing: 0) {
@@ -1186,12 +1156,12 @@ struct MacWeekView: View {
                     // Experimental: retain fixed column chrome across page changes. Events
                     // and overflow groups still use their own content IDs and are replaced.
                     ForEach(days.indices, id: \.self) { index in
-                        dayColumn(days[index], width: dayWidth, now: now, includesEvents: includesEvents)
+                        dayColumn(days[index], width: dayWidth)
                             .frame(width: dayWidth, height: gridHeight)
                     }
                 } else {
                     ForEach(days) { day in
-                        dayColumn(day, width: dayWidth, now: now, includesEvents: includesEvents)
+                        dayColumn(day, width: dayWidth)
                             .frame(width: dayWidth, height: gridHeight)
                     }
                 }
@@ -1283,10 +1253,7 @@ struct MacWeekView: View {
         if zone?.identifier != secondaryZone?.identifier { secondaryZone = zone }
     }
 
-    private func dayColumn(_ day: MacWeekDay, width: CGFloat, now: Date, includesEvents: Bool = true) -> some View {
-        // The native viewport already lays out events. Its background needs only the grid.
-        let layout: TimedLayout = includesEvents ? timedLayout(for: day) : (placements: [], overflow: [])
-        let placements = layout.placements
+    private func dayColumn(_ day: MacWeekDay, width: CGFloat) -> some View {
         // A day blocked all day (Busy all-day event): hatched in its calendar's colour, so a day
         // that can't be booked reads as one at a glance.
         let blockedBy = day.items.first(where: \.blocksWholeDay)
@@ -1301,46 +1268,8 @@ struct MacWeekView: View {
                     .onEnded { finishSelection(on: day.date, from: $0) }
             )
         return ZStack(alignment: .topLeading) {
-            Group {
-                if !includesEvents && Self.nativeViewport {
-                    // The AppKit background host resolves its contextual menu from the
-                    // current mouse-down location, without retained hover state.
-                    background
-                } else if CalendarSlotContextMenu.localObservation {
-                    background.modifier(CalendarSlotContextMenu(day: day.date, hourHeight: hourHeight,
-                        createEvent: { newEventRequest = MacNewEventRequest(start: $0, durationMinutes: 60) },
-                        createReminder: { newTaskDue = $0; showingNewTask = true }))
-                } else {
-                    // Preserve the original inline observation path as the matched control.
-                    background
-                        .onContinuousHover(coordinateSpace: .local) { phase in
-                            switch phase {
-                            case .active(let point):
-                                let snapped = BookingGrid.snappedStart(on: day.date, atY: point.y,
-                                    hourHeight: hourHeight, rounding: .nearest)
-                                if hoverSlot?.day != day.date || hoverSlot?.date != snapped {
-                                    hoverSlot = (day.date, snapped)
-                                }
-                            case .ended: break
-                            }
-                        }
-                        .contextMenu {
-                            if let slot = hoverSlot {
-                                Button {
-                                    newEventRequest = MacNewEventRequest(start: slot.date, durationMinutes: 60)
-                                } label: {
-                                    Label("New event at \(slot.date.formatted(.dateTime.hour().minute()))",
-                                          systemImage: "calendar.badge.plus")
-                                }
-                                Button { newTaskDue = slot.date; showingNewTask = true } label: {
-                                    Label("New reminder at \(slot.date.formatted(.dateTime.hour().minute()))",
-                                          systemImage: "checklist")
-                                }
-                            }
-                        }
-                }
-            }
-            .help("Click to create a one-hour event, drag to set its duration, or right-click for a reminder")
+            background
+                .help("Click to create a one-hour event, drag to set its duration, or right-click for a reminder")
 
             if CalendarHourLines.experimentalCanvasEnabled {
                 CalendarHourLines(hourHeight: hourHeight, hourColor: DS.Palette.gridHour,
@@ -1384,161 +1313,6 @@ struct MacWeekView: View {
 
             // Share availability: the times being offered, beneath the events that bound them.
             OfferedSlotsOverlay(day: day.date, width: width, hourHeight: hourHeight)
-
-            if includesEvents {
-            ForEach(placements) { placement in
-                let blockWidth = laneWidth(totalWidth: width, lanes: placement.laneCount) * CGFloat(placement.laneSpan) + 2 * CGFloat(placement.laneSpan - 1)
-                let visualEnd = visualEnd(for: placement, among: placements)
-                // The 15-minute minimum height must never reach into the next block in the same
-                // lane: a 20-minute travel leg drawn 22 pt tall used to cover the start of the
-                // meeting it leads to.
-                let nextInLane = placements
-                    .filter { $0.lane == placement.lane && $0.occurrence.start > placement.occurrence.start }
-                    .map { displayStart($0.occurrence) }
-                    .min()
-                let room = nextInLane.map {
-                    gridY(for: $0, on: day.date) - gridY(for: displayStart(placement.occurrence), on: day.date)
-                }
-                let visualHeight = min(blockHeight(for: placement.occurrence, on: day.date, endingAt: visualEnd),
-                                       max(12, room ?? .greatestFiniteMagnitude))
-                // Travel renders as a band occupying the minutes it actually takes, immediately
-                // before the event. On a time grid that is the honest form: a "leave by 8:40"
-                // caption tells you a time, but a band tells you the 25 minutes are SPENT — so a
-                // meeting booked over your commute reads as the overlap it is. The list rows on
-                // Today/Tomorrow/agenda keep the caption; there they have a line to spare.
-                if let outbound = outboundBand(forGrid: placement.occurrence) {
-                    // Clamped to the bottom of whatever is drawn before it, exactly as the return
-                    // band below already is. Two places a few hundred feet apart produce a leg
-                    // rounded up to the five-minute minimum, and unclamped that band was drawn
-                    // straight through the preceding event.
-                    let preferred = gridY(for: outbound.leaveBy, on: day.date)
-                    let travelY = travelBandTop(placement, among: placements,
-                                                on: day.date, preferred: preferred)
-                    let travelHeight = max(6, gridY(for: placement.occurrence.start, on: day.date) - travelY)
-                    TravelBand(minutes: outbound.minutes, height: travelHeight, detail: outbound.detail)
-                        .frame(width: blockWidth, height: travelHeight, alignment: .topLeading)
-                        .offset(
-                            x: laneX(totalWidth: width, lane: placement.lane, lanes: placement.laneCount),
-                            y: travelY
-                        )
-                }
-                // The return leg reads the same way, mirrored: a band starting right where the
-                // meeting's own drawn block ends (not its nominal end time — a short meeting's
-                // block can be stretched to the 22pt/15-minute minimum, and the band must start
-                // at its actual bottom edge or the two would overlap) and running the "Travel
-                // home" hold's own window.
-                if let ret = returnLeg(forGrid: placement.occurrence), (ret.end ?? ret.start) > Date() {
-                    let returnEnd = ret.end ?? ret.start
-                    let meetingBottom = gridY(for: displayStart(placement.occurrence), on: day.date) + visualHeight
-                    let bandTop = max(gridY(for: ret.start, on: day.date), meetingBottom)
-                    let bandHeight = max(6, gridY(for: returnEnd, on: day.date) - bandTop)
-                    TravelBand(
-                        minutes: Int(returnEnd.timeIntervalSince(ret.start) / 60),
-                        height: bandHeight,
-                        detail: ret.travel,
-                        isReturn: true
-                    )
-                        .frame(width: blockWidth, height: bandHeight, alignment: .topLeading)
-                        .offset(
-                            x: laneX(totalWidth: width, lane: placement.lane, lanes: placement.laneCount),
-                            y: bandTop
-                        )
-                }
-                let eventContent = occurrenceBlock(
-                    placement.occurrence,
-                    height: visualHeight,
-                    width: blockWidth,
-                    showsIcon: width >= DS.Event.iconMinColumnWidth
-                )
-                    .frame(
-                        width: blockWidth,
-                        height: visualHeight,
-                        alignment: .topLeading
-                    )
-                if CalendarEventDragFeedback.experimentalEnabled {
-                    eventContent
-                        .modifier(CalendarEventDragFeedback(
-                            enabled: placement.occurrence.behavior == .event && placement.occurrence.meeting != nil,
-                            columnWidth: width, showProgress: savingEventIDs.contains(placement.occurrence.id),
-                            finish: { finishMoveGesture(for: placement.occurrence, on: day.date,
-                                translation: $0, columnWidth: width) }))
-                        .offset(x: laneX(totalWidth: width, lane: placement.lane, lanes: placement.laneCount),
-                                y: gridY(for: displayStart(placement.occurrence), on: day.date))
-                        .animation(.snappy(duration: 0.18), value: optimisticStart[placement.occurrence.id])
-                } else {
-                    let isDragging = draggingEventID == placement.occurrence.id
-                    eventContent
-                    .opacity(isDragging ? 0.75 : 1)
-                    .shadow(color: .black.opacity(isDragging ? 0.25 : 0), radius: isDragging ? 6 : 0, y: 3)
-                    .zIndex(isDragging ? 1 : 0)
-                    .overlay(alignment: .topTrailing) {
-                        if savingEventIDs.contains(placement.occurrence.id) {
-                            ProgressView()
-                                .controlSize(.small)
-                                .padding(3)
-                        }
-                    }
-                    .offset(
-                        x: laneX(totalWidth: width, lane: placement.lane, lanes: placement.laneCount)
-                            + (isDragging ? CGFloat(dragDayShift) * width : 0),
-                        y: gridY(for: displayStart(placement.occurrence), on: day.date)
-                            + (isDragging ? dragOffsetY : 0)
-                    )
-                    .animation(.snappy(duration: 0.18), value: optimisticStart[placement.occurrence.id])
-                    .gesture(moveGesture(for: placement.occurrence, on: day.date, columnWidth: width))
-                }
-            }
-
-            }
-
-            // Anything the lane cap could not show, including staggered overlaps.
-            if includesEvents {
-            ForEach(layout.overflow) { cluster in
-                CalendarOverflowButton { dismiss in
-                    overflowList(cluster, dismiss: dismiss)
-                } label: {
-                    Text("+\(cluster.hidden)")
-                        .font(.system(size: 10, weight: .bold, design: .rounded))
-                        // Opaque, and lifted off the grid. Color.secondary is a SEMI-TRANSPARENT
-                        // label colour, so the chip took on whatever was behind it and read as
-                        // part of the block it was overlapping instead of a control.
-                        .foregroundStyle(Color(nsColor: .windowBackgroundColor))
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 2.5)
-                        .background(Color(nsColor: .labelColor), in: Capsule())
-                        .overlay {
-                            Capsule().stroke(Color(nsColor: .windowBackgroundColor).opacity(0.8),
-                                             lineWidth: 0.75)
-                        }
-                        .shadow(color: .black.opacity(0.28), radius: 2.5, y: 1)
-                }
-                .buttonStyle(.plain)
-                .help("\(cluster.hidden) more at this time — click to see all \(cluster.items.count)")
-                .offset(x: max(4, width - 34), y: gridY(for: cluster.start, on: day.date) + 2)
-            }
-
-            }
-
-            // The current time across the whole week, faint, so "now" can be read against any
-            // day — full strength only where it is actually today.
-            if includesEvents, !day.isToday, days.contains(where: \.isToday) {
-                Rectangle()
-                    .fill(DS.Palette.now.opacity(DS.Tint.strong))
-                    .frame(height: 1)
-                    .offset(y: gridY(for: now, on: Calendar.current.startOfDay(for: now)))
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
-            }
-            if includesEvents, day.isToday {
-                let markerY = gridY(for: now, on: day.date)
-                HStack(spacing: 0) {
-                    Circle().fill(DS.Palette.now).frame(width: 7, height: 7)
-                    Rectangle().fill(DS.Palette.now).frame(height: 1.5)
-                }
-                .offset(x: -3, y: markerY - 3.5)
-                .allowsHitTesting(false)
-                .accessibilityHidden(true)
-            }
         }
         .environment(\.blockedDayBase, blockedBy == nil ? nil : Color(.systemBackground))
         .clipped()
@@ -2117,12 +1891,6 @@ struct MacWeekView: View {
         didSetInitialScroll = true
         let targetOffset = openingScrollOffset()
         nativeInitialOffset = targetOffset
-        if !Self.nativeViewport {
-            Task { @MainActor in
-                await Task.yield()
-                gridScroll.scrollTo(y: targetOffset)
-            }
-        }
     }
 
     private func openingScrollOffset() -> CGFloat {
@@ -2764,7 +2532,6 @@ private struct MobileGridSelection: Identifiable {
 final class ScrollOffsetBox {
     var y: CGFloat = 0
     /// `y` when the current pinch began.
-    var pinchStart: CGFloat = 0
 }
 
 /// Where to scroll while pinching, so the time that was between the fingers stays between them.
@@ -3867,10 +3634,8 @@ struct WeekView: View {
     /// Where the 3-day grid is scrolled, for anchoring its pinch. A plain reference, so scrolling
     /// doesn't redraw the whole view every frame.
     @State private var mobileWeekScrollY = ScrollOffsetBox()
-    @State private var mobileWeekScroll = ScrollPosition(edge: .top)
     /// The time between the fingers when a 3-day pinch began (hours from the top) and the hour
     /// height it began at.
-    @State private var mobileWeekPinch: (hours: CGFloat, base: CGFloat)?
     private static let mobileHourHeights: ClosedRange<CGFloat> = 44...160
     @State private var mobileWeekLoading = false
     @State private var mobileSelectedDay = Date()
@@ -3894,8 +3659,6 @@ struct WeekView: View {
     /// Where the Day view was left. -1 until the first scroll: a fresh install opens at the
     /// current hour, not at midnight.
     @AppStorage("mobileDayScrollOffset") private var mobileDayScrollOffset: Double = -1
-    @State private var didSetMobileInitialScroll = false
-    @State private var didSetMobileInitialHorizontalScroll = false
     /// Only visible Smart Schedule fields advance this revision. Status, authorization, wake-plan,
     /// and error publications no longer invalidate the 24-hour calendar.
     @State private var mobileVisibleSmartRevision = 0
@@ -3935,28 +3698,6 @@ struct WeekView: View {
         var free: Int { Int(max(0, 16 - committed).rounded()) }
     }
     private typealias GridPlacement = CalendarLaneAllocator.Placement
-    private static let nativeWeekViewport: Bool = {
-        #if os(iOS)
-        #if DEBUG
-        !ProcessInfo.processInfo.arguments.contains("--calendar-reference-week")
-        #else
-        true
-        #endif
-        #else
-        false
-        #endif
-    }()
-    private static let nativeDayViewport: Bool = {
-        #if os(iOS)
-        #if DEBUG
-        !ProcessInfo.processInfo.arguments.contains("--calendar-reference-day")
-        #else
-        true
-        #endif
-        #else
-        false
-        #endif
-    }()
     private static let prepareMobileNeighbors: Bool = {
         #if DEBUG
         !ProcessInfo.processInfo.arguments.contains("--calendar-reference-neighbors")
@@ -4820,16 +4561,15 @@ struct WeekView: View {
                             mobileStoredHourHeight = Double(height)
                             mobileLiveHourHeight = nil
                         },
-                        nativeItems: Self.nativeDayViewport ? mobileNativeDayItems(
+                        nativeItems: mobileNativeDayItems(
                             currentDay, width: dayWidth, gutter: timeWidth, startHour: startHour,
-                            endHour: endHour, hourHeight: hourHeight) : nil,
+                            endHour: endHour, hourHeight: hourHeight),
                         preservesActiveGesture: draggingEventID != nil,
                         content: HStack(alignment: .top, spacing: 0) {
                             mobileTimeGutter(width: timeWidth, startHour: startHour,
                                              endHour: endHour, hourHeight: hourHeight)
                             mobileDayColumn(currentDay, width: dayWidth, startHour: startHour,
-                                            endHour: endHour, hourHeight: hourHeight,
-                                            includesEvents: !Self.nativeDayViewport)
+                                            endHour: endHour, hourHeight: hourHeight)
                         }
                         .frame(height: gridHeight, alignment: .top)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -4848,101 +4588,11 @@ struct WeekView: View {
                                 .background(Color(.systemBackground))
                         }
                     }
-                } else if Self.nativeWeekViewport {
+                } else {
                     mobileNativeWeekViewport(timeWidth: timeWidth, dayWidth: dayWidth,
                         hourHeight: hourHeight, gridHeight: gridHeight, visibleDays: visibleDays,
                         viewportHeight: max(1, geometry.size.height - 45), viewportWidth: measured)
-                } else {
-                    ScrollViewReader { scrollProxy in
-                        ScrollView(.vertical) {
-                            HStack(alignment: .top, spacing: 0) {
-                                mobileTimeGutter(width: timeWidth, startHour: startHour,
-                                                 endHour: endHour, hourHeight: hourHeight)
-                                ScrollView(.horizontal) {
-                                    HStack(alignment: .top, spacing: 0) {
-                                        ForEach(calendarDays) { day in
-                                            mobileDayColumn(day, width: dayWidth, startHour: startHour,
-                                                            endHour: endHour, hourHeight: hourHeight)
-                                                .id(day.id)
-                                        }
-                                    }
-                                    .scrollTargetLayout()
-                                }
-                                .scrollIndicators(.hidden)
-                                .scrollTargetBehavior(.viewAligned(limitBehavior: .alwaysByOne))
-                                .scrollPosition(id: $mobileVisibleDayID, anchor: .leading)
-                                .onScrollGeometryChange(for: CGFloat.self) {
-                                    $0.contentOffset.x + $0.contentInsets.leading
-                                } action: { _, offset in
-                                    // Only invalidates the small header subview (via its
-                                    // @ObservedObject), not WeekView's whole body.
-                                    if headerOffset.x != offset { headerOffset.x = offset }
-                                }
-                                .frame(width: max(1, geometry.size.width - timeWidth), height: gridHeight)
-                            }
-                            .frame(height: gridHeight, alignment: .top)
-                            // Anchored where the fingers are, as in Day: the time between them stays
-                            // between them as the hours grow or shrink. On the content, so the
-                            // pinch's location is unambiguously in the grid's own coordinates.
-                            .simultaneousGesture(
-                                MagnifyGesture()
-                                    .onChanged { value in
-                                        GridZoom.gate.pinchChanged()
-                                        let pinch = mobileWeekPinch
-                                            ?? (value.startLocation.y / hourHeight, hourHeight)
-                                        if mobileWeekPinch == nil {
-                                            mobileWeekPinch = pinch
-                                            mobileWeekScrollY.pinchStart = mobileWeekScrollY.y
-                                        }
-                                        // Where the fingers are on screen, kept for the whole pinch.
-                                        let fingers = pinch.hours * pinch.base - mobileWeekScrollY.pinchStart
-                                        let height = min(Self.mobileHourHeights.upperBound,
-                                                         max(Self.mobileHourHeights.lowerBound, pinch.base * value.magnification))
-                                        mobileLiveHourHeight = height
-                                        let target = MobileZoom.offset(
-                                            anchorHours: pinch.hours, hourHeight: height, fingersAt: fingers,
-                                            contentHeight: CGFloat(endHour - startHour) * height + 24,
-                                            viewportHeight: max(1, geometry.size.height - 45))
-                                        // After the grid has grown to the new height — scrolled in the
-                                        // same update, the offset was clamped to the old, shorter one.
-                                        DispatchQueue.main.async { mobileWeekScroll.scrollTo(y: target) }
-                                    }
-                                    .onEnded { _ in
-                                        GridZoom.gate.fingersLifted()
-                                        if let height = mobileLiveHourHeight { mobileStoredHourHeight = Double(height) }
-                                        mobileLiveHourHeight = nil
-                                        mobileWeekPinch = nil
-                                    }
-                            )
-                        }
-                        .scrollIndicators(.hidden)
-                        .background(Color(.systemBackground))
-                        .contentMargins(.bottom, 24, for: .scrollContent)
-                        .scrollPosition($mobileWeekScroll)
-                        .onScrollGeometryChange(for: CGFloat.self) { $0.contentOffset.y } action: { _, y in
-                            mobileWeekScrollY.y = y
-                        }
-                        // While pinching, the pinch places the grid; the scroll's own pan would
-                        // follow the first finger and drag it off.
-                        .scrollDisabled(mobileWeekPinch != nil)
-                        .frame(height: max(1, geometry.size.height - 45))
-                        .task {
-                            guard !didSetMobileInitialScroll else { return }
-                            didSetMobileInitialScroll = true
-                            await Task.yield()
-                            let hour = min(22, max(0, GridOpeningHour.current - 1))
-                            scrollProxy.scrollTo(hour, anchor: .top)
-                        }
-                    }
                 }
-            }
-            .task {
-                // The native grid applies its initial column at layout. The reference ScrollView
-                // still needs an explicit request after its targets have been registered.
-                guard !dayMode, !Self.nativeWeekViewport, !didSetMobileInitialHorizontalScroll else { return }
-                didSetMobileInitialHorizontalScroll = true
-                await Task.yield()
-                mobileVisibleDayID = openingWeekColumn(visibleDays: visibleDays)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -5129,7 +4779,7 @@ struct WeekView: View {
                 Color.clear.frame(width: timeWidth)
                 ForEach(days) { day in
                     mobileDayColumn(day, width: dayWidth, startHour: 0, endHour: 24,
-                                    hourHeight: hourHeight, includesEvents: false)
+                                    hourHeight: hourHeight)
                 }
             }.frame(width: timeWidth + CGFloat(days.count) * dayWidth, height: gridHeight, alignment: .topLeading)
         )
@@ -5142,8 +4792,7 @@ struct WeekView: View {
         width: CGFloat,
         startHour: Int,
         endHour: Int,
-        hourHeight: CGFloat,
-        includesEvents: Bool = true
+        hourHeight: CGFloat
     ) -> some View {
         let calendar = Calendar.current
         let clock = CalendarDayClockGeometry(day: day.date, calendar: calendar,
@@ -5155,10 +4804,6 @@ struct WeekView: View {
                 drawnAmongTheHours($0, on: day)
                     && $0.start < visibleEnd && $0.resolvedEnd > visibleStart
             })
-        if day.items.contains(where: { $0.pendingWriteID != nil }) {
-        }
-        let neighbors = includesEvents && Self.prepareMobileNeighbors
-            ? mobileNeighborPlan(placements, width: width, visibleStart: visibleStart, clock: clock) : nil
         // A day blocked all day (Busy all-day event), hatched as on the Mac.
         let blockedBy = day.items.first(where: \.blocksWholeDay)
         return ZStack(alignment: .topLeading) {
@@ -5170,44 +4815,6 @@ struct WeekView: View {
                     }
                 }
                 .contentShape(Rectangle())
-                .overlay {
-                    // Day mode runs its own UIKit scroll view and handles creating there; this is
-                    // the week grid's equivalent. A SwiftUI gesture here measured opening nothing
-                    // at all — see CalendarCreateGesture for what iOS 26 does to it.
-                    // Both modes take TAPS from here: the SwiftUI gesture this replaced sat inside
-                    // the week grid's nested scroll views and opened nothing. Only the week grid
-                    // takes drags from here; day mode recognises its own hold in UIKit already.
-                    CalendarCreateGesture(
-                            canBegin: { point in
-                                let instant = mobileGridDate(on: day.date, y: point.y,
-                                                             startHour: startHour,
-                                                             hourHeight: hourHeight)
-                                // Leave real events alone: a press on one of those is the start of
-                                // a move, not a request for a new event on top of it.
-                                return !day.items.contains {
-                                    drawnAmongTheHours($0, on: day)
-                                        && $0.start <= instant && $0.resolvedEnd > instant
-                                }
-                            },
-                            // No tap-to-create. A tap on a scrolling grid is how you stop it,
-                            // and every such tap opened a new event. Creating is a deliberate hold
-                            // (then drag for length) or the + button — the rule Cron is praised for.
-                            onTap: nil,
-                            onDragChanged: { origin, current in
-                                mobileSelectedDay = day.date
-                                updateMobileSelection(on: day.date, startY: origin.y,
-                                                      currentY: current.y, startHour: startHour,
-                                                      hourHeight: hourHeight)
-                            },
-                            onDragEnded: { origin, current in
-                                updateMobileSelection(on: day.date, startY: origin.y,
-                                                      currentY: current.y, startHour: startHour,
-                                                      hourHeight: hourHeight)
-                                finishMobileSelection(on: day.date)
-                            },
-                            onDragCancelled: { mobileDraftSelection = nil },
-                            handlesDrag: !dayMode && !Self.nativeWeekViewport)
-                }
             ForEach(startHour...endHour, id: \.self) { hour in
                 Rectangle()
                     .fill(Color(.separator).opacity(0.32))
@@ -5246,115 +4853,6 @@ struct WeekView: View {
                     )
                     .offset(x: 3, y: max(0, start))
                     .allowsHitTesting(false)
-            }
-            ForEach(includesEvents ? placements : []) { placement in
-                let occurrence = placement.occurrence
-                let neighbor = neighbors?[occurrence.id]
-                let visualEnd = neighbor?.visualEnd ?? mobileVisualEnd(for: placement, among: placements)
-                let span = mobileLaneSpan(placement, width: width)
-                let laneWidth = span.upperBound - span.lowerBound
-                let x = span.lowerBound
-                let start = clock.y(
-                    max(displayStart(occurrence), visibleStart))
-                let end = clock.y(
-                    min(visualEnd, visibleEnd))
-                // Its minutes, stretched to fit a title only where nothing is beneath it: a
-                // 15-minute blocker straight before a swim was stretched over the swim when
-                // zoomed out, while everything else stayed end to end.
-                let blockHeight = CalendarBlockHeight.height(
-                    natural: end - start,
-                    minimum: 24,
-                    roomBelow: (neighbor != nil ? neighbor!.nextTop : mobileTopOfNextBlock(
-                        below: placement, among: placements, width: width,
-                        visibleStart: visibleStart, clock: clock
-                    )).map { $0 - start - 1 })
-                // Same band as the Mac grid: on a calendar layout travel is time, so it occupies
-                // the minutes it takes rather than being a caption on the event.
-                if let outbound = outboundBand(for: occurrence) {
-                    // Prefer the reserved block and clamp against the previous event, for the same
-                    // two reasons as the Mac grid: the block is in the first-paint snapshot so it
-                    // draws immediately, and an unclamped short leg was drawn through whatever ran
-                    // before it.
-                    let preferred = clock.y(
-                        max(outbound.leaveBy, visibleStart))
-                    let travelTop = mobileTravelBandTop(
-                        placement, among: placements, clock: clock, preferred: preferred)
-                    let travelHeight = max(5, start - travelTop)
-                    if travelTop >= 0 {
-                        TravelBand(minutes: outbound.minutes, height: travelHeight, detail: outbound.detail)
-                            .frame(width: laneWidth, height: travelHeight)
-                            .offset(x: x, y: travelTop)
-                    }
-                }
-                // Mirrors the outbound band above, using the house glyph and blue tint so both
-                // directions of the commute read as one visual language. The band starts at the
-                // meeting's actual drawn bottom edge (not its nominal end time — a short meeting
-                // gets stretched to the 24pt minimum block height) so it never overlaps the
-                // meeting block or steals its lane.
-                if let ret = returnLeg(forGrid: occurrence), (ret.end ?? ret.start) > Date() {
-                    let returnEnd = ret.end ?? ret.start
-                    let meetingBottom = max(0, start) + max(24, end - start)
-                    let bandTop = max(
-                        clock.y(max(ret.start, visibleStart)),
-                        meetingBottom)
-                    let bandBottom = clock.y(
-                        min(returnEnd, visibleEnd))
-                    let bandHeight = max(5, bandBottom - bandTop)
-                    if bandTop < CGFloat(endHour - startHour) * hourHeight {
-                        TravelBand(
-                            minutes: Int(returnEnd.timeIntervalSince(ret.start) / 60),
-                            height: bandHeight,
-                            detail: ret.travel,
-                            isReturn: true
-                        )
-                            .frame(width: laneWidth, height: bandHeight)
-                            .offset(x: x, y: bandTop)
-                    }
-                }
-                let isDragging = draggingEventID == occurrence.id
-                gridBlock(occurrence, height: blockHeight, width: laneWidth)
-                    // Directly on the block, BEFORE the frame/offset/zIndex chain. Attached after
-                    // that chain the overlay silently never rendered — a border in this position
-                    // draws and the same overlay two modifiers later does not — so the badge is
-                    // kept adjacent to the thing it marks.
-                    .overlay(alignment: .topTrailing) {
-                        if let sync = occurrence.syncState {
-                            EventSyncBadge(state: sync)
-                        } else if savingEventIDs.contains(occurrence.id) {
-                            ProgressView().controlSize(.small).padding(3)
-                        }
-                    }
-                    .frame(width: laneWidth, height: blockHeight)
-                    .opacity(isDragging ? 0.75 : 1)
-                    .shadow(color: .black.opacity(isDragging ? 0.25 : 0), radius: isDragging ? 6 : 0, y: 3)
-                    .zIndex(isDragging ? 1 : 0)
-                    .offset(x: x + (isDragging ? CGFloat(dragDayShift) * width : 0),
-                            y: max(0, start) + (isDragging ? dragOffsetY : 0))
-                    // A failed write is the one block on the grid that is not a real event, so
-                    // tapping it offers the two things that can still be done with it rather than
-                    // opening a detail view for something no calendar holds.
-                    .onTapGesture {
-                        guard GridZoom.gate.allowsTap(), occurrence.syncState == .failed,
-                              let ticket = occurrence.pendingWriteID else { return }
-                        failedWriteToResolve = ticket
-                    }
-                    .animation(.snappy(duration: 0.18), value: optimisticStart[occurrence.id])
-                    // Explicit chronological order avoids a geometry-based accessibility sort
-                    // of hundreds of overlapping blocks and gives VoiceOver a stable sequence.
-                    .accessibilitySortPriority(-occurrence.start.timeIntervalSince(day.date))
-                    .gesture(mobileMoveGesture(for: occurrence, on: day.date,
-                                               columnWidth: width, hourHeight: hourHeight))
-            }
-
-            if day.isToday && includesEvents {
-                let nowY = clock.y(Date())
-                if nowY >= 0, nowY <= CGFloat(endHour - startHour) * hourHeight {
-                    HStack(spacing: 0) {
-                        Circle().fill(DS.Palette.accent).frame(width: 6, height: 6)
-                        Rectangle().fill(DS.Palette.accent).frame(height: 1)
-                    }
-                    .offset(y: nowY - 3)
-                }
             }
         }
         // A ZStack of offset grid lines has almost no intrinsic height. Explicitly make this a

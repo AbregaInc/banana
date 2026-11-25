@@ -9,8 +9,8 @@ extension ICloudPurge {
             cloudKit: LiveICloudPurgeCloudKit(), drive: LiveICloudPurgeDrive(),
             keyValues: NSUbiquitousKeyValueStore.default, keyValueCopies: .standard,
             container: AppCloud.containerID, legacyContainer: AppCloud.legacyContainerID,
-            // CloudKit ends the process for a container it isn't entitled to (`CloudSyncPoll.isAllowed`).
-            iCloudAllowed: CloudSyncPoll.isAllowed,
+            // CloudKit ends the process for a container it isn't entitled to without an entitlement.
+            iCloudAllowed: AppCloud.mayUseCloud(arguments: ProcessInfo.processInfo.arguments, entitled: AppCloud.hasContainerEntitlement),
             localDefaults: .standard, supportDirectory: AppSupport.directory,
             account: account, defaults: .standard,
             mode: { LegacyCloud.mode($0) }, turnOff: { LegacyCloud.set(.off, for: $0) },

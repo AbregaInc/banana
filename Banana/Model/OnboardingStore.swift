@@ -239,9 +239,7 @@ final class OnboardingStore: NSObject, ObservableObject {
         }
     }
 
-    /// A signed-in iCloud backup can prove this person already completed onboarding in the
-    /// predecessor app. Carry that fact across the bundle migration before presenting any
-    /// permission UI; permissions that did not transfer are handled individually by RootView.
+    /// An existing Banana account completed onboarding on another device.
     func completeForReturningUser() {
         guard !completed else { return }
         finish()

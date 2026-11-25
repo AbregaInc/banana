@@ -10,4 +10,4 @@ and interaction flags, whole/partial/outside column geometry, and deferred artwo
 construction. These are component correctness checks; they do not prove pixel
 parity, cell recycling, app scrolling speed or physical frame/input performance.
 Real-app Week checks use `ScaleStressUITests.testNativeWeekCalendarScroll` with no renderer opt-in flag and the unchanged stress workload.
-The DEBUG `--calendar-reference-week` flag preserves the comparison host.
+The old SwiftUI comparison is available in the pinned checkout described in the [regression testing guide](../../docs/performance/regression-testing.md).

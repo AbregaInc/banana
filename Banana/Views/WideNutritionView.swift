@@ -109,7 +109,6 @@ struct WideNutritionView: View {
                     EstimateLearningCard(meals: index.visible, key: .init(revision: wellness.mealRevision, hiddenIDs: index.hiddenIDs))
                 }
                 if bodyPage != .food { taken }
-                syncNote
             }
             .frame(maxWidth: 720, alignment: .leading)
             .padding(.horizontal, DS.Space.xl)
@@ -229,7 +228,6 @@ struct WideNutritionView: View {
             MacSupplementEditor(supplement: nil, onDelete: nil)
                 .environmentObject(wellness)
         }
-        .onAppear { CloudWellnessSync.shared.refresh() }
     }
 
     // MARK: - Day
@@ -559,18 +557,7 @@ struct WideNutritionView: View {
         RoundedRectangle(cornerRadius: DS.Radius.card, style: .continuous)
     }
 
-    // MARK: - Sync
 
-    /// Only when something is wrong: iCloud off, so nothing here reaches the iPhone.
-    @ViewBuilder private var syncNote: some View {
-        if !CloudWellnessSync.shared.isRunning {
-            Label("iCloud is off on this \(DeviceRole.current.name)", systemImage: "icloud.slash")
-                .font(.footnote)
-                .foregroundStyle(DS.Palette.warning)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, DS.Space.s)
-        }
-    }
 }
 
 /// Adding or changing a supplement or medication on the Mac. The phone's editor also scans a

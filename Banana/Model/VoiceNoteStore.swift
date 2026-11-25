@@ -700,7 +700,6 @@ final class VoiceNoteStore: ObservableObject {
         removeAudio(of: note)
         // A linked reminder may have been completed independently in Apple Reminders.
         // Removing its note must not turn that completed task back into outstanding work.
-        CloudFitnessSync.shared.deleteNote(id)
         SyncReport.deleted(VoiceNoteAdapter.type, [id.uuidString])
         let deletedAt = Date()
         Task.detached(priority: .utility) {
@@ -838,7 +837,6 @@ final class VoiceNoteStore: ObservableObject {
     private func upload(_ note: VoiceNote) {
         // Metadata and deletion state travel through the live CloudKit engine. iCloud Drive is
         // attachment-only, so a missing/parked recording can never hide or resurrect a note.
-        CloudFitnessSync.shared.upsert(note)
         // The data platform (docs/design/DATA-PLATFORM.md): the legacy paths' modes decide whether
         // iCloud still gets it.
         SyncReport.changed(VoiceNoteAdapter.type, [note.id.uuidString])
@@ -998,7 +996,7 @@ private enum VoiceNoteCloudFiles {
         guard !ProcessInfo.processInfo.arguments.contains("--stress-days") else { return nil }
         #endif
         guard AppCloud.mayUseCloud(arguments: ProcessInfo.processInfo.arguments, entitled: AppCloud.hasContainerEntitlement), LegacyCloud.mayRead(.personal), let container = FileManager.default.url(
-            forUbiquityContainerIdentifier: CloudBackup.containerID) else { return nil }
+            forUbiquityContainerIdentifier: AppCloud.containerID) else { return nil }
         let directory = container
             .appendingPathComponent("Documents", isDirectory: true)
             .appendingPathComponent("VoiceNotes", isDirectory: true)
