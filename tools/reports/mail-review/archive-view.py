@@ -25,7 +25,9 @@ body{margin:0;padding:16px;font:16px/1.5 system-ui,sans-serif;color:#21262b;back
 p,blockquote,pre,ul,ol{margin:0 0 .7em}blockquote{border-inline-start:2px solid #b8c2ca;padding-inline-start:.75em}
 h2,h3{font-size:1em;margin:0 0 .35em}pre{white-space:pre-wrap}
 li{margin-block:.35em}.action{color:#175380;text-decoration:underline}
-.data{overflow-x:auto;margin-block:.65em}td,th{text-align:start;padding:.25em .55em}
+.data{overflow-x:auto;margin-block:.65em}.data table{border-spacing:0;font-size:.9375em}
+.data td,.data th{text-align:start;vertical-align:top;padding:.25em .3em}
+.data td{min-inline-size:5.7em}.data th{overflow-wrap:normal}
 small{color:#55616a}code{font-family:monospace}
 """
 DATE_IN_SUBJECT = re.compile(

@@ -33,7 +33,7 @@ struct MailPreparedBody: Codable, Equatable, Sendable {
 
 /// Runs on the preparation worker, before opening. Uses the pinned library's parser.
 enum MailHTMLPreparer {
-    static let version = 12
+    static let version = 13
     static let maximumBytes = 2 * 1024 * 1024
     static let maximumNodes = 50_000
     /// Tags counted before parsing (one pass over the bytes): the parser's work grows with them,
@@ -191,13 +191,14 @@ enum MailHTMLPreparer {
                 return true
             }
             if tag == "table", hasOwnDataSemantics(element) {
-                // Reuse WebKit's existing formatted renderer for inline graphics the native
-                // text-only cells cannot represent. Tracking pixels never justify layout.
+                // Native cells already include an image's text alternative. Only a graphic
+                // without one needs the formatted renderer. Tracking pixels never justify layout.
                 if let images = try? element.select("img") {
                     for image in images {
                         if (try? image.attr("role")) == "presentation" || (try? image.attr("aria-hidden")) == "true" { continue }
                         var counts = PictureCounts()
-                        if picture(of: image, link: nil, counts: &counts, preserveSmall: true) != nil { return true }
+                        if let image = picture(of: image, link: nil, counts: &counts, preserveSmall: true),
+                           image.alt.isEmpty { return true }
                     }
                 }
                 // Native grids currently have no caption slot. Do not silently drop one.
@@ -353,6 +354,8 @@ enum MailHTMLPreparer {
 
     private static func hasOwnDataSemantics(_ table: Element) -> Bool {
         guard (try? table.attr("role")) != "presentation" else { return false }
+        var rowCount = 0
+        var hasHeader = false
         for child in elements(table) {
             let tag = child.tagNameNormal()
             if tag == "caption" { return true }
@@ -362,10 +365,16 @@ enum MailHTMLPreparer {
             case "thead", "tbody", "tfoot": rows = elements(child).filter { $0.tagNameNormal() == "tr" }
             default: continue
             }
+            rowCount += rows.count
+            // A row of headings by itself has no data relationships to preserve.
+            if rowCount > 1, hasHeader { return true }
             for row in rows {
                 for cell in elements(row) {
                     let tag = cell.tagNameNormal()
-                    if tag == "th" { return true }
+                    if tag == "th" {
+                        if rowCount > 1 { return true }
+                        hasHeader = true
+                    }
                     if tag == "td", let span = try? cell.attr("rowspan"), (Int(span) ?? 1) > 1 { return true }
                 }
             }

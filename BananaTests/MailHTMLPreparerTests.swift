@@ -64,11 +64,14 @@ final class MailHTMLPreparerTests: XCTestCase {
         prepared.text.blocks.lazy.compactMap { if case .table(let table) = $0.kind { return table }; return nil }.first
     }
 
-    func testMeaningfulStatusImageInADataCellKeepsItsLayoutAndTextAlternative() throws {
+    func testDataCellUsesNativeStatusTextWhenTheImageSuppliesIt() throws {
         let html = "<table><tr><th>Status</th><th>Job</th></tr><tr><td><img src='https://img.example/status.png' width='24' height='24' alt='Failed'></td><td>Build</td></tr><tr><td>Passed</td><td>Tests</td></tr></table>"
         let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
-        XCTAssertEqual(prepared.prefersOriginal, true)
-        XCTAssertTrue(text(prepared).contains("Failed"))
+        XCTAssertNotEqual(prepared.prefersOriginal, true)
+        let grid = try XCTUnwrap(table(prepared))
+        XCTAssertEqual(grid.rows[1][0].runs.map(\.text).joined(), "Failed")
+        let noAlternative = html.replacingOccurrences(of: " alt='Failed'", with: "")
+        XCTAssertEqual(try MailHTMLPreparer.prepare(plain: nil, html: noAlternative).prefersOriginal, true)
         let tracker = html.replacingOccurrences(of: "width='24' height='24'", with: "width='1' height='1'")
         let ignored = try MailHTMLPreparer.prepare(plain: nil, html: tracker)
         XCTAssertNotEqual(ignored.prefersOriginal, true)
@@ -89,6 +92,17 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertTrue(text(prepared).contains("Net cash\u{2003}\u{2003}$3,261\u{2003}\u{2003}$8,169"))
         XCTAssertEqual(blockTexts(prepared).first, "Key numbers")
         XCTAssertEqual(blockTexts(prepared).last, "After")
+    }
+
+    func testHeaderOnlyTableRemainsNativeWithoutInventingDataRows() throws {
+        let html = "<h2>Popular pages</h2><table style='width:640px'><thead><tr>"
+            + "<th>Page</th><th>Impressions</th><th>Clicks</th></tr></thead></table>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertFalse(prepared.prefersOriginal == true)
+        XCTAssertNil(table(prepared))
+        for word in ["Popular pages", "Page", "Impressions", "Clicks"] {
+            XCTAssertTrue(text(prepared).contains(word))
+        }
     }
 
     func testWideSingleRecordUsesLabelsAndKeepsTheTrailingNote() throws {
