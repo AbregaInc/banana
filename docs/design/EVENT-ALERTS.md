@@ -71,7 +71,7 @@ already does, so its own edits never ring as "someone else's".
    service's) and any pending local one. The Mac does it at once; an iPhone when iOS delivers
    the push. Clearing the 5-minute alert never touches the at-start one: different ids.
 6. **Accept / Decline** on an invitation alert replies through the device's own Google access
-   (`GoogleCalendarService.respondToInvite`), the Beta only for its test accounts.
+   (`GoogleCalendarService.respondToInvite`).
 
 ## What the service holds for this
 

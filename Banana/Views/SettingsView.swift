@@ -154,7 +154,6 @@ struct SettingsView: View {
     @State private var confirmDisableWriteBack = false
     @State private var confirmDisconnectAll = false
     @State private var accountPendingDisconnect: String?
-    @State private var betaTestAccounts = BetaTestAccounts.all
     /// Permissions whose Connect came back without a yes: their button becomes Open Settings.
     @State private var askedWithoutAnswer: Set<String> = []
     @Environment(\.openURL) private var openURL
@@ -655,7 +654,7 @@ struct SettingsView: View {
         // said on the first screen, where a signed-out person looks; the page says what to do.
         if !bananaAccount.isSignedIn, bananaAccount.lastError != nil { return (.attention, "Couldn\u{2019}t sign in") }
         if !googleCalendar.isConnected { return (.off, "Not connected") }
-        if !googleCalendar.accountsToSignInAgain.isEmpty { return (.attention, "Sign in again") }
+        if !googleCalendar.accountsToSignInAgain.isEmpty { return (.attention, "Reconnect needed") }
         if googleCalendar.isWorking { return (.working, "Syncing") }
         let calendars = googleCalendar.calendars.count
         return (.ok, "Live \u{00B7} \(calendars) calendar\(calendars == 1 ? "" : "s")")
@@ -1017,18 +1016,15 @@ struct SettingsView: View {
                                 HStack(spacing: DS.Space.xs + 2) {
                                     StatusDot(status: broken ? .attention : .ok)
                                     Text(broken
-                                         ? (owned.isEmpty && !needsReconnect ? "No calendars \u{2014} sign in again" : "Sign in again")
-                                         : "Live \u{00B7} \(owned.count) calendar\(owned.count == 1 ? "" : "s")"
-                                            + (AppVariant.current == .beta
-                                               ? (betaTestAccounts.contains(account.id) ? " \u{00B7} Test account" : " \u{00B7} Read only")
-                                               : ""))
+                                         ? (needsReconnect ? "Reconnect needed" : "No calendars")
+                                         : "Live \u{00B7} \(owned.count) calendar\(owned.count == 1 ? "" : "s")")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
                             }
                             Spacer(minLength: DS.Space.s)
                             if broken {
-                                Button("Sign in") { reconnect(account.email) }
+                                Button("Reconnect") { reconnect(account.email) }
                                     .buttonStyle(.secondary)
                             }
                             Menu {
@@ -1036,16 +1032,6 @@ struct SettingsView: View {
                                 // can start failing between syncs.
                                 Button { reconnect(account.email) } label: {
                                     Label("Reconnect", systemImage: "arrow.clockwise")
-                                }
-                                // Beta only: until an account is marked, Beta reads it and changes nothing.
-                                if AppVariant.current == .beta {
-                                    Toggle("Test account", isOn: Binding(
-                                        get: { betaTestAccounts.contains(account.id) },
-                                        set: {
-                                            BetaTestAccounts.set(account.id, isTest: $0)
-                                            betaTestAccounts = BetaTestAccounts.all
-                                        }))
-                                    .accessibilityIdentifier("settings.google.testAccount")
                                 }
                                 Button(role: .destructive) { accountPendingDisconnect = account.email } label: {
                                     Label("Disconnect", systemImage: "person.crop.circle.badge.minus")

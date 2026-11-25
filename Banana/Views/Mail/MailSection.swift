@@ -97,7 +97,7 @@ struct MailAccountsMenuItems: View {
                 if account.state != .connected {
                     Button("Allow Mail") { MailAccountActions.shared.allow(account.id, source: source) }
                 } else {
-                    Text(source.permitsAccountChanges(account.id) ? "Connected" : "Read only")
+                    Text("Connected")
                     if let text = MailConnectionBar.healthText(account.health) { Text(text) }
                 }
             }

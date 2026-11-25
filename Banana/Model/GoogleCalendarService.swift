@@ -309,12 +309,6 @@ final class GoogleCalendarService: ObservableObject {
         return accounts.first { $0.id == email.lowercased() }
     }
 
-    /// Whether this build may change anything in `email`'s account: always in Stable, and in
-    /// Beta only an account marked as a test account. `send` refuses the rest.
-    private func mayChange(account email: String) -> Bool {
-        AppVariant.current.mayCallGoogle(method: "POST", account: email, testAccounts: BetaTestAccounts.all)
-    }
-
     var writableCalendarInfos: [CalendarSourceInfo] {
         calendars
             .filter(\.isWritable)
@@ -325,7 +319,7 @@ final class GoogleCalendarService: ObservableObject {
     /// Every calendar busy blocks could be written to, with what write-back needs to decide
     /// whether it should be.
     var writeBackCandidates: [WriteBackDestinations.Calendar] {
-        calendars.filter { $0.isWritable && !$0.isDeleted && mayChange(account: $0.accountEmail) }.map {
+        calendars.filter { $0.isWritable && !$0.isDeleted }.map {
             WriteBackDestinations.Calendar(
                 infoID: Self.calendarInfoID($0.id),
                 titles: [$0.summaryOverride, $0.summary].compactMap { $0 }.filter { !$0.isEmpty },
@@ -456,7 +450,6 @@ final class GoogleCalendarService: ObservableObject {
             let link = BananaAccount.shared.account?.google.first { $0.email.lowercased() == email.lowercased() }
             scopes = GoogleReconnectPermissions.scopes(calendar: scopes,
                 mail: link?.permissionScopes?["mail"] ?? [], readable: link?.capabilities?.mailRead == true,
-                modifiable: link?.capabilities?.mailModify == true,
                 enabled: ModuleStore.shared.choice.includes(.email) && FeatureAccessStore.shared.allows("email"),
                 additional: MailScopes.senderPhotos)
             #endif
@@ -499,7 +492,7 @@ final class GoogleCalendarService: ObservableObject {
     }
 
     /// Asks Google to tell the Banana service when a calendar changes (`events.watch`), with this
-    /// device's own access. Changes nothing in the calendar, so Beta may do it for any account.
+    /// device's own access. The watch registration changes no events.
     func openWatch(calendarID: String, email: String, channelID: String, token: String,
                    address: String, ttlSeconds: Int) async throws -> (resourceID: String, expiration: Date) {
         guard let account = accounts.first(where: { $0.id == email.lowercased() }) else { throw GoogleCalendarError.notConnected }
@@ -2604,11 +2597,6 @@ final class GoogleCalendarService: ObservableObject {
     /// with a fresh one before giving up.
     private func send(url: URL, method: String, body: Data?,
                       account: GoogleAccountCredential?, ifMatch: String? = nil) async throws -> Data {
-        // Beta changes only accounts marked as test accounts (`AppVariant`).
-        guard AppVariant.current.mayCallGoogle(method: method, account: owner(of: url, account: account)?.id,
-                                               testAccounts: BetaTestAccounts.all) else {
-            throw GoogleCalendarError.betaReadOnly
-        }
         if let context = FeatureAccessStore.shared.calendarReadContext {
             guard let email = owner(of: url, account: account)?.id else { throw GoogleCalendarError.notConnected }
             if method == "GET" {
@@ -2819,8 +2807,6 @@ private enum GoogleCalendarError: LocalizedError {
     case changedElsewhere
     /// An invitation someone else organizes.
     case notYours
-    /// Beta, and the account isn't marked as a test account.
-    case betaReadOnly
     case api(status: Int, message: String?)
 
     var errorDescription: String? {
@@ -2828,7 +2814,7 @@ private enum GoogleCalendarError: LocalizedError {
         case .notConnected:
             return "Connect Google Calendar in Banana Settings and try again."
         case .permissionMissing:
-            return "Google Calendar permission wasn’t granted. Connect again and allow both calendar permissions."
+            return "Google Calendar permission wasn’t granted. Reconnect the account in Settings and allow both calendar permissions."
         case .noPresentationContext:
             return "Banana couldn’t open Google sign-in. Bring the app window forward and try again."
         case .malformedResponse:
@@ -2839,8 +2825,6 @@ private enum GoogleCalendarError: LocalizedError {
             return "Banana keeps this block up to date itself, so it can\u{2019}t be edited."
         case .notYours:
             return "Only the organizer can change this event\u{2019}s time."
-        case .betaReadOnly:
-            return "Banana Beta only changes test accounts. Mark this one in Settings \u{203A} Google Calendar."
         case .changedElsewhere:
             return "This event changed in Google Calendar since you opened it. Open it again to see the change, then make yours."
         case .api(let status, let message):

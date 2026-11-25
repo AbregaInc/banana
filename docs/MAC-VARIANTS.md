@@ -35,11 +35,12 @@ working on. Run the script from the corresponding checkout/worktree.
 
 ## What both apps still share
 
-Both read the real system: **calendars, reminders, Health, contacts**. Beta changes none of it
-unless it was marked as Beta's: a Google account marked "Test account", the "Banana Beta"
-reminders list. It saves nothing to Health, keeps its Google sign-ins in its own keychain item
-and announces its own nearby-devices service. Notifications
-come from each app under its own name.
+Both read the real system: **calendars, reminders, Health, contacts**. Both apps use
+Google’s calendar permissions. Use **Reconnect** in Settings › Accounts to renew Google access.
+Reminders go to the **Banana Beta** list. Beta saves nothing to Health, keeps separate Calendar
+sign-ins, and announces its own nearby-device service. Notifications come from each app under
+its own name. Gmail reads and writes use the Banana account’s Email access and Google’s Gmail
+modify grant on every device.
 
 ## Bundle identity and TestFlight
 
