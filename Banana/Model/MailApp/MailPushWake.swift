@@ -69,10 +69,17 @@ import UIKit
         init(_ completion: @escaping (UIBackgroundFetchResult) -> Void) { self.completion = completion }
 
         func start() {
-            assertion = AppBackgroundTask(named: "mail-push") { [weak self] in self?.finish(.failed) }
+            // iOS's own expiry is final: report and let go now.
+            assertion = AppBackgroundTask(named: "mail-push") { [weak self] in
+                self?.finish(.failed)
+                self?.release()
+            }
             worker = Task {
                 let ok = await MailPushWake.catchUp()
                 finish(ok ? .newData : .noData)
+                // The assertion covers the work until it has unwound, including after a
+                // timeout: suspending mid-write would hold the store's file lock.
+                release()
             }
             timeout = Task {
                 do { try await Task.sleep(for: .seconds(25)) } catch { return }
@@ -80,16 +87,20 @@ import UIKit
             }
         }
 
+        /// Calls the push's completion once and asks the work to stop.
         private func finish(_ result: UIBackgroundFetchResult) {
             guard let callback = completion else { return }
             completion = nil
             worker?.cancel()
-            worker = nil
             timeout?.cancel()
             timeout = nil
+            callback(result)
+        }
+
+        private func release() {
+            worker = nil
             assertion?.end()
             assertion = nil
-            callback(result)
         }
     }
     #endif
