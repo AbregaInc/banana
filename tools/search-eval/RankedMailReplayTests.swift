@@ -93,6 +93,44 @@ import XCTest
 }
 
 extension RankedMailReplayTests {
+    struct TopList: Encodable { let topic: Int, method: String, threads: [String] }
+
+    /// The first 50 conversations each method returns per topic, for comparison with another engine.
+    /// Writes Gmail thread IDs only. The file stays in the private work directory.
+    func testTopLists() async throws {
+        let env = ProcessInfo.processInfo.environment
+        guard let location = env["RANKED_MAIL_TOPLISTS"] else { return }
+        let root = URL(fileURLWithPath: try XCTUnwrap(env["RANKED_MAIL_FIXTURE"]))
+        let rules = LiveFilterParser.compile(
+            try Data(contentsOf: URL(fileURLWithPath: try XCTUnwrap(env["TREC_MAIL_RULES"]))))
+        let topics = try JSONDecoder().decode(
+            [Topic].self, from: Data(contentsOf: root.appendingPathComponent("tasks.json")))
+        let stores = try await openFixture(root)
+        let accounts = try await stores.index.read { Set(try String.fetchAll($0, sql: "SELECT email FROM account")) }
+        let index = MailRankedIndex(stores)
+        try await index.synchronize()
+        let deps = MailGmailSearch.Dependencies(
+            api: MailGmailSearchTests.Gmail(), token: { _ in throw GmailError.networkDisabled },
+            store: { _, _ in XCTFail("unexpected network write") }, accounts: { [] }, changed: {})
+        let methods = [
+            ("chronological", MailGmailSearch(stores: stores, dependencies: deps)),
+            ("ranked", MailGmailSearch(stores: stores, ranked: index, dependencies: deps)),
+        ]
+        var lists: [TopList] = []
+        for (slot, topic) in topics.enumerated() {
+            for (name, service) in methods {
+                let scope = MailScope(
+                    place: .search(LiveFilterParser.parse(topic.query, scope: "mail", rules: rules).searchExpression))
+                let page = try await service.snapshot(
+                    scope, limit: 50, fresh: true, allowedAccounts: accounts, through: 0
+                ) { MailRowMapper.row($0, labels: [], reason: nil, in: scope) }
+                lists.append(TopList(topic: slot, method: name, threads: page.rows.map(\.id.thread)))
+                service.keep([])
+            }
+        }
+        try JSONEncoder().encode(lists).write(to: URL(fileURLWithPath: location))
+    }
+
     /// Run in its own process against the already-built disposable Beta export.
     func testReopenAndOneMessageChange() async throws {
         let env = ProcessInfo.processInfo.environment
