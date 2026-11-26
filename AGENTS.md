@@ -177,7 +177,7 @@ change (11 Oct 2026). The owner waited a day for four fixes.
 
 ## Releases: preflight, then one script per channel
 
-- `tools/preflight.sh` must pass before any rollout: clean tree, xcodegen, the iOS Beta Release
+- `tools/preflight.sh` must pass before any app rollout (Beta, Stable, TestFlight): clean tree, xcodegen, the iOS Beta Release
   build, the Stable iOS archive with `tools/check-release.sh`, the Mac Beta direct archive and
   export, unit tests, and the Service tests when `Service/` changed since the last release tag.
   The rollout reuses its work: the iOS build is incremental and the archives are adopted when
@@ -188,6 +188,12 @@ change (11 Oct 2026). The owner waited a day for four fixes.
   rollouts; `tools/release/deploy-service.sh beta|prod` deploys the service (prod needs
   `--yes-prod`). Every one has `--dry-run`. Private values come from `~/.config/banana/`
   (`tools/release/README.md` lists them); never copy a rollout script per build.
+- A Service deploy does not need preflight: `deploy-service.sh` runs its own gates (pushed clean
+  commit, Service tests, additive migrations, smoke test). Production runs a curated baseline, not
+  `main`: read the revision from `https://api.bananatheapp.com/v1/source`, branch from it,
+  cherry-pick the Service change, and deploy that branch. Deploying a branch that does not
+  contain the live revision drops what production has (26 Nov 2026: the live revision carried
+  backports no feature branch had).
 - Stable, TestFlight and production deploys run only on the owner's word for that build.
 
 # Workspace preservation
