@@ -52,6 +52,16 @@ final class MailColdStartCostTests: XCTestCase {
                 SELECT 1,last_date,tie,thread_pk,CASE WHEN thread_pk%3=0 THEN 1 ELSE 0 END FROM thread
                 """)
         }
+        // `MAIL_COLD_START_SEARCH_LOG`: the search log a phone was found with, 1.4 GB that
+        // nothing had checkpointed.
+        if ProcessInfo.processInfo.environment["MAIL_COLD_START_SEARCH_LOG"] != nil {
+            let megabyte = Data(repeating: 7, count: 1_048_576)
+            try await stores.searchWriter.writeWithoutTransaction { try $0.execute(sql: "PRAGMA wal_autocheckpoint = 0") }
+            try await stores.searchWriter.write { try $0.execute(sql: "CREATE TABLE filler(x BLOB)") }
+            for _ in 0..<1400 {
+                try await stores.searchWriter.write { try $0.execute(sql: "INSERT INTO filler VALUES (?)", arguments: [megabyte]) }
+            }
+        }
         // The app's writer checkpoints whenever the log passes 8 MiB; this bulk insert went
         // around it, so do the same here, or every later open replays hundreds of megabytes.
         try await stores.index.writeWithoutTransaction { try $0.execute(sql: "PRAGMA wal_checkpoint(TRUNCATE)") }
@@ -64,7 +74,7 @@ final class MailColdStartCostTests: XCTestCase {
         // `TEST_RUNNER_MAIL_COLD_START_REUSE=1`, twice, and read the second process.
         let reuse = ProcessInfo.processInfo.environment["MAIL_COLD_START_REUSE"] != nil
         try XCTSkipUnless(reuse, "Set MAIL_COLD_START_REUSE to run the cold-start benchmark")
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent(reuse ? "mail-cold-reused-checkpointed" : "mail-cold-" + UUID().uuidString)
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(reuse ? (ProcessInfo.processInfo.environment["MAIL_COLD_START_SEARCH_LOG"] != nil ? "mail-cold-search-log" : "mail-cold-reused-checkpointed") : "mail-cold-" + UUID().uuidString)
         if !reuse { addTeardownBlock { try? FileManager.default.removeItem(at: root) } }
         if !FileManager.default.fileExists(atPath: root.path) { try await populate(root: root, count: 180_000) }
         print("REUSED_FIXTURE", reuse && FileManager.default.fileExists(atPath: root.appendingPathComponent(".built").path))

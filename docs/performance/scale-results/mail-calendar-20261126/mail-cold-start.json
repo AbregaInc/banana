@@ -181,5 +181,54 @@
       ]
     }
   },
-  "artifactsExcluded": "A first fixture without message rows hid both scans. A second fixture left its 361 MB bulk insert in the write-ahead log, which every fresh process replayed while opening index.sqlite (about 100 ms); the app writer checkpoints above 8 MiB, so the measured fixture is checkpointed."
+  "artifactsExcluded": "A first fixture without message rows hid both scans. A second fixture left its 361 MB bulk insert in the write-ahead log, which every fresh process replayed while opening index.sqlite (about 100 ms); the app writer checkpoints above 8 MiB, so the measured fixture is checkpointed.",
+  "uncheckpointedSearchLog": {
+    "found": "On the owner's iPhone the Beta's search.sqlite was 4 KB with a 1.48 GB write-ahead log (last main-file change 13 October). The blob log was 21.8 MB against an 8 MiB limit. Only the index and intent stores had a checkpointer; every writable store had SQLite's automatic checkpoint turned off.",
+    "reproduction": "Same benchmark with MAIL_COLD_START_SEARCH_LOG: 1.4 GB left in the search log, then fresh processes.",
+    "process2": {
+      "becomeVisible": [
+        0.68,
+        0.42,
+        0.44,
+        0.35,
+        0.36
+      ],
+      "firstInboxRows": [
+        12.91,
+        4.84,
+        4.81,
+        4.26,
+        4.54
+      ],
+      "makeSource": [
+        0.77,
+        0.02,
+        0.03,
+        0.01,
+        0.01
+      ],
+      "openStores": [
+        386.87,
+        385.36,
+        3.99,
+        3.52,
+        3.57
+      ],
+      "prepareActions": [
+        41.6,
+        12.13,
+        12.46,
+        13.1,
+        12.9
+      ],
+      "total": [
+        442.83,
+        402.78,
+        21.73,
+        21.24,
+        21.38
+      ]
+    },
+    "result": "Opening the stores took 386-426 ms in each fresh open with the 1.4 GB log and 4 ms with a normal one, on Mac storage. Once the search indexer wrote, the new automatic checkpoint emptied the log and later opens in the same process took 4 ms."
+  }
 }
