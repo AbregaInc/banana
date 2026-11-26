@@ -457,6 +457,90 @@ test("content the fill keeps inside its window is not dropped as unused", () => 
   assert.deepEqual(dropped, ["old"]);
 });
 
+async function textDone(t) {
+  await t.drain(async () => { const st = await t.status(); return st.fill.done !== null && st.counts.textTodo === 0; }, 2000);
+}
+
+test("attachment text is read once, sealed, published again and handed to the devices with the message", async () => {
+  const t = await mailbox({ count: 4, labels: () => ["INBOX"] });
+  const converted = [];
+  t.s.deps.ai = { async toMarkdown(doc) {
+    converted.push(doc.name);
+    return { name: doc.name, format: "markdown", data: `# ${doc.name}\n\n${await doc.blob.text()}` };
+  } };
+  t.gmail.messages.get("m2").attachments = [
+    { filename: "Lease Final.pdf", text: "monthly rent 2400 dollars" },
+    { filename: "photo.png", text: "not read" },
+    { filename: "invite.ics", text: "BEGIN:VCALENDAR SUMMARY:Board meeting", inline: true },
+  ];
+  t.gmail.messages.get("m3").attachments = [{ filename: "huge.pdf", text: "x", size: 20 * 1024 * 1024 }];
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await textDone(t);
+  assert.deepEqual(converted, ["Lease Final.pdf"], "a PDF is converted; images, text files and oversize files are not");
+  assert.equal(t.gmail.reads("attachment"), 1, "one read: the inline calendar file needs none");
+  const st = await t.status();
+  assert.equal(st.counts.textStored, 1);
+  // The devices learn it from the feed, and pull it with the message.
+  const entries = t.latest((await t.all(t.mac)).entries);
+  assert.equal(entries.get("m2").text, true);
+  for (const id of ["m1", "m3", "m4"]) assert.equal(entries.get(id).text, undefined, id);
+  const pull = await t.s.call("POST", "/v1/mail/content", { session: t.mac.session, body: { email: EMAIL, ids: ["m2", "m3"] } });
+  assert.equal(pull.status, 200, pull.text);
+  const byID = Object.fromEntries(pull.json.messages.map((m) => [m.id, m]));
+  assert.deepEqual(byID.m2.attachmentText.map((a) => a.name), ["Lease Final.pdf", "invite.ics"]);
+  assert.match(byID.m2.attachmentText[0].text, /monthly rent 2400/);
+  assert.match(byID.m2.attachmentText[1].text, /Board meeting/);
+  assert.equal(byID.m3.attachmentText, undefined);
+  // Sealed like the message.
+  const key = `mail/${await sha256Hex("sub-noor")}/${await sha256Hex("m2")}/a-${await sha256Hex("banana-attachment-text-v1")}`;
+  const object = await t.s.deps.blobs.get(key);
+  assert.ok(object);
+  assert.ok(!new TextDecoder().decode(new Uint8Array(await new Response(object.body).arrayBuffer())).includes("monthly rent"));
+  // Done is done: nothing is read again.
+  const reads = t.gmail.reads("attachment");
+  t.s.advance(7 * 60 * 60 * 1000);
+  await textDone(t);
+  assert.equal(t.gmail.reads("attachment"), reads);
+  assert.deepEqual(converted, ["Lease Final.pdf"]);
+});
+
+test("without Workers AI only text attachments are read, and a failing conversion is not retried forever", async () => {
+  const t = await mailbox({ count: 3, labels: () => ["INBOX"] });
+  t.gmail.messages.get("m1").attachments = [{ filename: "notes.txt", text: "gate code 4417" }, { filename: "plan.pdf", text: "pdf words" }];
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await textDone(t);
+  let pull = await t.s.call("POST", "/v1/mail/content", { session: t.mac.session, body: { email: EMAIL, ids: ["m1"] } });
+  assert.deepEqual(pull.json.messages[0].attachmentText.map((a) => a.name), ["notes.txt"]);
+  // A converter that keeps throwing: three tries, then the message is settled without text.
+  let calls = 0;
+  t.s.deps.ai = { async toMarkdown() { calls++; throw new Error("conversion failed"); } };
+  t.gmail.add("m9", ["INBOX", "UNREAD"]);
+  t.gmail.messages.get("m9").attachments = [{ filename: "broken.docx", text: "?" }];
+  t.s.advance(11_000);
+  await t.feed(t.phone, { fresh: true });   // new mail: its content is fetched, then its attachment
+  await textDone(t);
+  assert.ok(calls >= 1 && calls <= 3, String(calls));
+  pull = await t.s.call("POST", "/v1/mail/content", { session: t.mac.session, body: { email: EMAIL, ids: ["m9"] } });
+  assert.ok(pull.json.messages[0].message, pull.text);
+  assert.equal(pull.json.messages[0].attachmentText, undefined);
+});
+
+test("content stored before attachment text existed is queued to be looked at once", () => {
+  const db = new DatabaseSync(":memory:");
+  const port = sqlitePort(db);
+  box.migrate(port);
+  port.exec("DELETE FROM meta WHERE key = 'text_backfilled'");
+  for (const [id, cached] of [["a1", 100], ["a2", 0], ["a10", 50]]) port.exec("INSERT INTO msg (id, thread, known, cached, labels) VALUES (?, 't', 1, ?, '[]')", id, cached);
+  box.migrate(port);
+  assert.deepEqual(box.textNext(port), { id: "a10", parts: null, tries: 0 }, "newest first, parts unknown");
+  box.textDone(port, "a10", 2);
+  assert.equal(box.textNext(port).id, "a1");
+  box.textDone(port, "a1", 2);
+  assert.equal(box.textNext(port), null);
+  box.migrate(port);
+  assert.equal(box.textNext(port), null, "only once");
+});
+
 test("a device pulls many messages' content at once, from the store only, and only its own", async () => {
   const t = await mailbox({ count: 6, labels: () => ["INBOX"] });
   assert.equal((await t.feed(t.phone)).status, 200);

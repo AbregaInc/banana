@@ -61,6 +61,10 @@ new_sqlite_classes = ["DesktopRelayRoom"]
 binding = "BLOBS"
 bucket_name = "banana-blobs"
 
+# Workers AI: the mail text of PDF and Office attachments (toMarkdown; free for these formats).
+[ai]
+binding = "AI"
+
 # The change stream (§9), off until the pipeline exists (The author's yes):
 # [[pipelines]]
 # pipeline = "banana-changes"
@@ -178,6 +182,9 @@ new_sqlite_classes = ["DesktopRelayRoom"]
 [[env.beta.r2_buckets]]
 binding = "BLOBS"
 bucket_name = "banana-blobs-beta"
+
+[env.beta.ai]
+binding = "AI"
 
 # [[env.beta.pipelines]]
 # pipeline = "banana-changes-beta"
