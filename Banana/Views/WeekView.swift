@@ -3647,7 +3647,18 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         }
 
         private func finishScroll(_ scrollView: UIScrollView) {
-            guard !isUpdatingView, scrollView.panGestureRecognizer.state != .changed,
+            if isUpdatingView {
+                // Scrolling stopped inside a SwiftUI update. The pending root and the settled
+                // offset must still land: finish once the update returns, unless a new drag
+                // has started (its own end finishes it).
+                DispatchQueue.main.async { [weak self, weak scrollView] in
+                    guard let self, let scrollView, !self.isUpdatingView,
+                          !scrollView.isDragging, !scrollView.isDecelerating else { return }
+                    self.finishScroll(scrollView)
+                }
+                return
+            }
+            guard scrollView.panGestureRecognizer.state != .changed,
                   scrollView.panGestureRecognizer.state != .began else { return }
             let destination = settlingDay
             if let destination, let week, week.pagesBetweenDays {
