@@ -151,7 +151,7 @@ https://bananatheapp.com/privacy
 
 **6. Test access**
 
-Banana Beta for Mac (Apple silicon, macOS `<version>`+): `<notarized download link>`
+Banana Beta for Mac (Apple silicon, macOS 26 or later), notarized: https://bananatheapp.com/download/mac-beta
 
 Test Google account (Email is already enabled for it on our server; no phone verification and no
 payment needed):
@@ -193,6 +193,7 @@ each section. Captions are enough, but a short voice-over helps.
   - 1 with a PDF attachment, 1 newsletter, 1 receipt, 1 spammy one, and a few fillers.
 - **Clean slate.** Remove Banana at myaccount.google.com › Security › Third-party connections, so the
   full consent screen appears. Remove the account from Banana Beta.
+- **App.** Install Banana Beta 197 or later (it shows the "tick every box" sheet if a box is left unticked).
 - **Screen.** One Chrome profile with no bookmarks or extensions showing. Turn on Do Not Disturb.
   Arrange Banana Beta on the left half and Chrome on the right. Open tabs: Cloud Console Data Access,
   Gmail (test account), Google Contacts, Google Account › Third-party connections.
