@@ -80,14 +80,16 @@ fi
 if [[ $cmd == compare ]]; then
   base=${1:-}; new=${2:-}; [[ -f $base && -f $new ]] || die "compare BASE.json NEW.json"
   shift 2
-  floor_launch=40; floor_cpu=0.5; floor_mem=8; k=1.0
+  floor_launch=40; floor_cpu=0.5; floor_mem=8; k=1.0; only=""; compare_device=""
   while (( $# )); do case $1 in
     --floor-launch-ms) floor_launch=$2; shift 2;;
     --floor-cpu) floor_cpu=$2; shift 2;;
     --floor-mem-mb) floor_mem=$2; shift 2;;
     --k) k=$2; shift 2;;
+    --only) only=$2; shift 2;;
+    --device) compare_device=$2; shift 2;;
     *) die "unknown compare option $1";; esac; done
-  python3 - "$base" "$new" "$floor_launch" "$floor_cpu" "$floor_mem" "$k" <<'PY'
+  python3 - "$base" "$new" "$floor_launch" "$floor_cpu" "$floor_mem" "$k" "$only" "$compare_device" <<'PY'
 import json, sys
 base, new = json.load(open(sys.argv[1])), json.load(open(sys.argv[2]))
 fl, fc, fm, k = float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), float(sys.argv[6])
@@ -103,7 +105,13 @@ def rows(doc):
     for dev, d in doc.get("devices", {}).items():
         for route, r in d.get("routes", {}).items():
             la = r.get("launch", {}); anc = la.get(ANCHOR)
+            # This optional collector field is a failure count. A healthy run omits it.
+            stalls = la.get("_stalled_launches", {}).get("median", 0)
+            if la:
+                out[(dev, route, "launch_stalls")] = {"med": stalls, "spread": 0, "floor": 0, "anchor": None}
             for mark, m in la.items():
+                if mark == "_stalled_launches":
+                    continue
                 # *.loaded marks are async decode completions (measured run-to-run |delta| median 68 ms
                 # on the same binary); they get a 100 ms floor, every other mark the --floor-launch-ms.
                 out[(dev, route, "launch."+mark)] = {"med": m["median"], "spread": m["max"]-m["min"],
@@ -115,6 +123,22 @@ def rows(doc):
                     out[(dev, route, "idle."+key)] = {"med": float(idle[key]), "spread": 0.0, "floor": floor, "anchor": None}
     return out
 b, n = rows(base), rows(new)
+devices = [sys.argv[8]] if sys.argv[8] else new["meta"].get("selected_devices")
+if devices is not None:
+    if not devices or set(devices) - {"iphone", "ipad"}:
+        sys.exit("Invalid device selection")
+    b = {key: row for key, row in b.items() if key[0] in devices}
+    n = {key: row for key, row in n.items() if key[0] in devices}
+scope = sys.argv[7] or new["meta"].get("only", "")
+if scope:
+    requested = set(scope.split(","))
+    absent = requested - {route for _, route, _ in n}
+    if absent:
+        print(f"Missing requested routes in candidate: {sorted(absent)}", file=sys.stderr)
+        sys.exit(2)
+    b = {key: row for key, row in b.items() if key[1] in requested}
+    n = {key: row for key, row in n.items() if key[1] in requested}
+
 print(f"base: {base['meta'].get('label')} @ {base['meta'].get('commit')}  ({base['meta'].get('date')})")
 print(f"new : {new['meta'].get('label')} @ {new['meta'].get('commit')}  ({new['meta'].get('date')})")
 print(f"rule: regression if new-base > max(floor, k*max(spread_base, spread_new)), k={k}; launch marks normalised by {ANCHOR} where it moved > {fl:.0f} ms (host load); STORM/HIGH CPU > 0 fails\n")
@@ -124,24 +148,28 @@ for key in sorted(set(b) & set(n)):
     B, N = b[key], n[key]
     m0, m1, s0, s1 = B["med"], N["med"], B["spread"], N["spread"]
     tag = ""
-    if key[2].startswith("launch.") and B["anchor"] and N["anchor"] and abs(N["anchor"] - B["anchor"]) > fl:
+    if key[2] != "launch."+ANCHOR and key[2].startswith("launch.") and B["anchor"] and N["anchor"] and abs(N["anchor"] - B["anchor"]) > fl:
         m1 = m1 / N["anchor"] * B["anchor"]      # express the new mark at the base run's anchor
         normalised.add((key[0], key[1])); tag = " (normalised)"
     d = m1 - m0; noise = max(B["floor"], k * max(s0, s1))
     verdict = ""
-    if key[2] in ("idle.storms", "idle.high_cpu"):
+    if key[2] in ("launch_stalls", "idle.storms", "idle.high_cpu"):
         if m1 > 0: verdict = "FAIL (nonzero)"; regress += 1
     elif d > noise: verdict = "REGRESSION" + tag; regress += 1
     elif -d > noise: verdict = "improved" + tag; improve += 1
     if verdict:
         print(f"{key[0]:7} {key[1]:16} {key[2]:30} {m0:9.1f} {m1:9.1f} {d:+9.1f} {noise:8.1f}  {verdict}")
 only_new = sorted(set(n) - set(b)); only_base = sorted(set(b) - set(n))
+for dev, route, metric in only_new:
+    if metric in ("launch_stalls", "idle.storms", "idle.high_cpu") and n[(dev, route, metric)]["med"] > 0:
+        print(f"{dev}/{route}/{metric}: FAIL (nonzero on a newly measured route or metric)")
+        regress += 1
 if only_new: print(f"\n{len(only_new)} metric(s) only in new (new routes/marks): " + ", ".join(f"{k[0]}/{k[1]}/{k[2]}" for k in only_new[:12]) + (" …" if len(only_new) > 12 else ""))
 if only_base: print(f"{len(only_base)} metric(s) only in base: " + ", ".join(f"{k[0]}/{k[1]}/{k[2]}" for k in only_base[:12]) + (" …" if len(only_base) > 12 else ""))
 if normalised:
     print(f"\nhost-load shift on {len(normalised)} route(s) ({ANCHOR} moved > {fl:.0f} ms): their launch marks were compared normalised by {ANCHOR}")
 print(f"\n{regress} regression(s), {improve} improvement(s) beyond noise; metrics compared: {len(set(b)&set(n))}")
-sys.exit(1 if regress else 0)
+sys.exit(2 if only_base or not (set(b) & set(n)) else 1 if regress else 0)
 PY
   exit $?
 fi
@@ -323,7 +351,7 @@ if (( with_tests )); then
 fi
 
 # --- 4. aggregate -----------------------------------------------------------------------------
-python3 - "$run_dir" "$label" "$commit" "$build_seconds" "$app_bytes" "$exe_bytes" "$tests_seconds" "$tests_summary" "$runs" "$settle" "$idle" <<'PY'
+python3 - "$run_dir" "$label" "$commit" "$build_seconds" "$app_bytes" "$exe_bytes" "$tests_seconds" "$tests_summary" "$runs" "$settle" "$idle" "$only" "$use_iphone" "$use_ipad" <<'PY'
 import json, os, re, statistics, sys, datetime
 run_dir, label, commit, build_s, app_kb, exe_b, tests_s, tests_sum, runs, settle, idle = sys.argv[1:12]
 mark_re = re.compile(r"⏱ (\S+)\s+\+(\d+)ms")
@@ -333,7 +361,8 @@ doc = {"meta": {"label": label, "commit": commit, "date": datetime.datetime.now(
                 "build_seconds": None if build_s == "null" else int(build_s),
                 "app_kb": int(app_kb), "exe_bytes": int(exe_b),
                 "tests_seconds": None if tests_s == "null" else int(tests_s), "tests_summary": tests_sum,
-                "runs": int(runs), "settle_s": int(settle), "idle_s": int(idle),
+                "selected_devices": [name for name, enabled in zip(("iphone", "ipad"), sys.argv[13:15]) if enabled == "1"],
+                "only": sys.argv[12], "runs": int(runs), "settle_s": int(settle), "idle_s": int(idle),
                 "meta_txt": open(os.path.join(run_dir, "meta.txt")).read().strip()},
        "devices": {}}
 tsv = ["device\troute\tmetric\tvalue\tunit\tn\tmin\tmax"]

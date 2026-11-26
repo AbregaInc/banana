@@ -104,6 +104,8 @@ uptime; pgrep -x xcodebuild | wc -l                          # quiet machine, no
 tools/perf-gate.sh run --label <pkg> --only <pkg routes>,shell-plan,day
 tools/perf-gate.sh compare docs/design/mail-working/perf/results/20261006-004009-p0prime-run1.json .build/perf-results/<stamp>-<pkg>.json
 ```
+New results record the intended routes and devices. When comparing older partial results, pass the intended `--only` route list or `--device iphone|ipad` to compare. Compare returns 2 for missing reference metrics or no overlap. The startup anchor is compared in raw milliseconds even when later marks are normalized.
+
 Exit 0, or every flagged line explained in the package note with the load line beside it.
 
 ## P0′ (reference) run — 2026-10-06

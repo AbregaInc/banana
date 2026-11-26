@@ -3,9 +3,24 @@ import XCTest
 /// Runs the real screen with every store overloaded at the same time. No provider services run.
 final class ScaleStressUITests: XCTestCase {
     #if PHYSICAL_STRESS_UI_TESTS
+    private var requestedOrientation: UIDeviceOrientation?
+    private var originalOrientation: UIDeviceOrientation?
+
     override func setUpWithError() throws {
         try super.setUpWithError()
         try PhysicalSystemIdlePolicy.installIfRequested()
+        if let name = ProcessInfo.processInfo.environment["STRESS_DEVICE_ORIENTATION"] {
+            let modes: [String: UIDeviceOrientation] = ["portrait": .portrait, "landscape": .landscapeLeft]
+            requestedOrientation = try XCTUnwrap(modes[name], "Expected portrait or landscape")
+            originalOrientation = XCUIDevice.shared.orientation
+        }
+    }
+
+    override func tearDownWithError() throws {
+        if let originalOrientation, originalOrientation.isPortrait || originalOrientation.isLandscape {
+            XCUIDevice.shared.orientation = originalOrientation
+        }
+        try super.tearDownWithError()
     }
     #endif
 
@@ -33,6 +48,12 @@ final class ScaleStressUITests: XCTestCase {
         app.launchArguments = [route, "--stress-days", days, "--disable-icloud", "--mail-fresh",
                                "-onboardingCompleted", "YES"] + extra
         #if PHYSICAL_STRESS_UI_TESTS
+        if route == "--plan", ProcessInfo.processInfo.environment["STRESS_CALENDAR_PRESS"] == "race" {
+            app.launchArguments.append("--stress-calendar-press-race")
+        }
+        if route == "--mail", ProcessInfo.processInfo.environment["STRESS_READER_START"] == "immediate" {
+            app.launchArguments.append("--stress-start-reader-immediately")
+        }
         // Mail uses the same isolated fixture and provider-write guards as Calendar.
         if route == "--mail" { app.launchArguments += ["--stress-actionable-calendar"] }
         // Preserve the email/calendar-focused physical review workload. Individual
@@ -50,6 +71,13 @@ final class ScaleStressUITests: XCTestCase {
             app.launchArguments += ["--mail-sender-images"]
         }
         if route == "--plan" {
+            // Older comparison builds used an opt-in fast rate on both axes.
+            if ProcessInfo.processInfo.environment["STRESS_FAST_DAY_SNAP"] == "1" {
+                app.launchArguments += ["--calendar-fast-day-snap"]
+            }
+            if ProcessInfo.processInfo.environment["STRESS_REFERENCE_DAY_COAST"] == "1" {
+                app.launchArguments += ["--calendar-reference-day-deceleration"]
+            }
             if extra.contains("--calendar-prepared-artwork") {
                 app.launchArguments += ["--calendar-artwork-test-probe"]
             }
@@ -63,7 +91,15 @@ final class ScaleStressUITests: XCTestCase {
             app.launchArguments += ["-mobileWeekHourHeight", "56", "--stress-actionable-calendar"]
         }
         app.launch()
-        #if !PHYSICAL_STRESS_UI_TESTS
+        #if PHYSICAL_STRESS_UI_TESTS
+        if let requestedOrientation {
+            XCUIDevice.shared.orientation = requestedOrientation
+            XCTAssertTrue(waitUntil {
+                let size = app.windows.firstMatch.frame.size
+                return requestedOrientation.isPortrait ? size.height > size.width : size.width > size.height
+            })
+        }
+        #else
         if !waitUntil { app.windows.firstMatch.frame.height > app.windows.firstMatch.frame.width } {
             XCUIDevice.shared.orientation = .landscapeLeft
             XCTAssertTrue(waitUntil { app.windows.firstMatch.frame.width > app.windows.firstMatch.frame.height })
@@ -124,13 +160,16 @@ final class ScaleStressUITests: XCTestCase {
         field.tap(); field.typeText("Stress email 59999\n")
         XCTAssertTrue(target.waitForExistence(timeout: 10))
         target.tap()
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let expand = app.descendants(matching: .any)[MailID.expand].firstMatch
-            XCTAssertTrue(expand.waitForExistence(timeout: 5)); expand.tap()
-        }
-        XCTAssertTrue(app.descendants(matching: .any)[MailID.conversation].firstMatch.waitForExistence(timeout: 5))
+        openSelectedMailFullWidth(in: app)
         XCTAssertTrue(app.staticTexts["Stress email 59999"].firstMatch.exists)
         capture("mail-search-retained")
+    }
+
+    func testEmptyPowerControlPreparesTheSameFixtureWithoutMountingCalendar() {
+        let app = launch("--plan", extra: ["--stress-empty-scene"])
+        XCTAssertTrue(app.descendants(matching: .any)["stress.emptyScene"].firstMatch.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.segmentedControls.buttons["Day"].exists)
+        XCTAssertFalse(app.collectionViews.firstMatch.exists)
     }
 
     func testCalendarSearchEntryAndDismissal() {
@@ -149,6 +188,21 @@ final class ScaleStressUITests: XCTestCase {
         XCTAssertTrue(app.buttons["calendar.search.open"].waitForExistence(timeout: 5))
     }
 
+    private func openSelectedMailFullWidth(in app: XCUIApplication) {
+        let reader = app.descendants(matching: .any)[MailID.conversation].firstMatch
+        let expand = app.descendants(matching: .any)[MailID.expand].firstMatch
+        let more = app.buttons["mail.pane.more"]
+        // Window width and the pane preference determine how a row opens. A landscape
+        // phone can show the same reading pane as a tablet.
+        XCTAssertTrue(waitUntil { reader.exists || expand.isHittable || more.isHittable })
+        if !reader.exists {
+            if !expand.isHittable { more.tap() }
+            XCTAssertTrue(expand.waitForExistence(timeout: 5))
+            expand.tap()
+        }
+        XCTAssertTrue(reader.waitForExistence(timeout: 5))
+    }
+
     func testMailScrollAndOpen() {
         let app = launch("--mail")
         let rows = app.descendants(matching: .any).matching(
@@ -164,13 +218,147 @@ final class ScaleStressUITests: XCTestCase {
         }
         XCTAssertGreaterThan(rows.count, 0)
         rows.firstMatch.tap()
-        let expand = app.descendants(matching: .any)[MailID.expand].firstMatch
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            XCTAssertTrue(expand.waitForExistence(timeout: 5))
-            expand.tap()
-        }
-        XCTAssertTrue(app.descendants(matching: .any)[MailID.conversation].firstMatch.waitForExistence(timeout: 5))
+        openSelectedMailFullWidth(in: app)
         capture("mail")
+    }
+
+    func testLongMailBodyOpensAndScrollsBackToItsBeginning() throws {
+        try checkLongMailBody(withPresentationClock: false)
+    }
+
+    #if PHYSICAL_STRESS_UI_TESTS
+    func testLongMailBodyPresentationAfterARealRowTap() throws {
+        try checkLongMailBody(withPresentationClock: true)
+    }
+    func testPreparedMailBodyPresentationAfterADiskRead() throws {
+        try checkLongMailBody(withPresentationClock: true, diskBody: true)
+    }
+
+    func testMailBodyPresentationAfterRebuildingAnEvictedCopy() throws {
+        try checkLongMailBody(withPresentationClock: true, diskBody: true, originalOnly: true)
+    }
+
+    func testDiskBackedMailScrollPastOpeningParagraphs() throws {
+        let app = launch("--mail", extra: ["--stress-mail-long-body", "--stress-mail-disk-reader"])
+        let row = app.descendants(matching: .any)[MailID.row("long-reader")].firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 10))
+        row.tap()
+        openSelectedMailFullWidth(in: app)
+        let reader = app.descendants(matching: .any)[MailID.conversation].firstMatch
+        let first = reader.staticTexts["Section 1. The team reviewed the calendar and travel arrangements."].firstMatch
+        XCTAssertTrue(waitUntil { first.isHittable })
+        let openingY = first.frame.minY
+        let paragraphs = reader.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Section "))
+        func firstVisibleSection() -> Int? {
+            guard let paragraph = paragraphs.allElementsBoundByIndex.first(where: { $0.isHittable }) else { return nil }
+            return Int(paragraph.label.dropFirst("Section ".count).prefix(while: { $0.isNumber }))
+        }
+        for _ in 0..<18 {
+            if (firstVisibleSection() ?? 0) > 90 { break }
+            reader.swipeUp()
+        }
+        XCTAssertGreaterThan(try XCTUnwrap(firstVisibleSection()), 90)
+        let options = XCTMeasureOptions()
+        options.iterationCount = 5
+        var metrics: [XCTMetric] = [XCTCPUMetric(application: app), XCTMemoryMetric(application: app),
+                                    XCTOSSignpostMetric.scrollingAndDecelerationMetric]
+        if #available(iOS 26, macOS 26, *) { metrics.append(XCTHitchMetric(application: app)) }
+        measure(metrics: metrics, options: options) {
+            let start = firstVisibleSection() ?? 0
+            reader.swipeUp()
+            let forward = firstVisibleSection() ?? 0
+            XCTAssertGreaterThan(forward, start)
+            reader.swipeDown()
+            let returned = firstVisibleSection() ?? 0
+            XCTAssertGreaterThan(returned, 0)
+            XCTAssertLessThan(returned, forward)
+        }
+        for _ in 0..<32 where !first.isHittable { reader.swipeDown() }
+        XCTAssertTrue(first.isHittable)
+        reader.swipeDown()
+        XCTAssertTrue(waitUntil { abs(first.frame.minY - openingY) < 3 })
+    }
+    #endif
+
+    private func checkLongMailBody(withPresentationClock clocked: Bool, diskBody: Bool = false,
+                                   originalOnly: Bool = false) throws {
+        var flags = ["--stress-mail-long-body"]
+        if clocked { flags.append("--stress-mail-presentation-clock") }
+        if diskBody { flags.append("--stress-mail-disk-reader") }
+        if originalOnly { flags.append("--stress-mail-original-only") }
+        let app = launch("--mail", extra: flags)
+        let clock = app.descendants(matching: .any)["stress.mail.presentationClock"].firstMatch
+        func clockReading() -> [String: Any]? {
+            guard clock.exists, let raw = clock.value as? String else { return nil }
+            return (try? JSONSerialization.jsonObject(with: Data(raw.utf8))) as? [String: Any]
+        }
+        if clocked { XCTAssertTrue(waitUntil { clockReading()?["ready"] as? Bool == true }) }
+        let row = app.descendants(matching: .any)[MailID.row("long-reader")].firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 10))
+        let start = ProcessInfo.processInfo.systemUptime
+        row.tap()
+        openSelectedMailFullWidth(in: app)
+        let reader = app.descendants(matching: .any)[MailID.conversation].firstMatch
+        let paragraphs = reader.staticTexts.matching(NSPredicate(format: "label BEGINSWITH %@", "Section "))
+        let firstParagraph = "Section 1. The team reviewed the calendar and travel arrangements."
+        let first = reader.staticTexts[firstParagraph].firstMatch
+        XCTAssertTrue(waitUntil { first.isHittable }, "The first paragraph must be readable")
+        let opened = ProcessInfo.processInfo.systemUptime
+        let firstY = first.frame.minY
+        if clocked {
+            let reading = try XCTUnwrap(clockReading())
+            XCTAssertNotNil(reading["selected"])
+            let lift = try XCTUnwrap(reading["up"] as? Double)
+            if diskBody {
+                let reads = try XCTUnwrap(reading["diskReads"] as? [[String: Double]])
+                XCTAssertEqual(reads.count, 1)
+                let read = try XCTUnwrap(reads.first)
+                XCTAssertGreaterThan(try XCTUnwrap(read["began"]), lift)
+                XCTAssertEqual(read["blocks"], 1200)
+                XCTAssertEqual(read["preparedHit"], originalOnly ? 0 : 1)
+            }
+            try attachGeometry([reading], name: "Mail touch and recording clock")
+        }
+        for _ in 0..<3 { reader.swipeUp() }
+        XCTAssertFalse(first.isHittable)
+        let mid = try XCTUnwrap(paragraphs.allElementsBoundByIndex.first(where: { $0.isHittable }))
+        XCTAssertNotEqual(mid.label, firstParagraph)
+        for _ in 0..<10 where !first.isHittable { reader.swipeDown() }
+        XCTAssertTrue(first.isHittable)
+        reader.swipeDown()
+        XCTAssertTrue(waitUntil { abs(first.frame.minY - firstY) < 3 }, "Return to the same beginning")
+        let stats: [String: Any] = ["paragraphs": 1200, "openStart": start, "firstAccessible": opened,
+                                    "completed": ProcessInfo.processInfo.systemUptime, "returnedY": first.frame.minY,
+                                    "initialY": firstY]
+        let metrics = XCTAttachment(data: try JSONSerialization.data(withJSONObject: stats, options: [.sortedKeys]),
+                                    uniformTypeIdentifier: "public.json")
+        metrics.name = "Long mail reading geometry and timestamps"
+        metrics.lifetime = .keepAlways
+        add(metrics)
+    }
+
+    func testReadingFoldedHistoryKeepsTheReplyAndSignatureAccessible() {
+        let app = launch("--mail", extra: ["--stress-mail-long-body"])
+        let row = app.descendants(matching: .any)[MailID.row("quoted-reader")].firstMatch
+        XCTAssertTrue(row.waitForExistence(timeout: 10))
+        row.tap()
+        openSelectedMailFullWidth(in: app)
+        let reader = app.descendants(matching: .any)[MailID.conversation].firstMatch
+        let reply = reader.staticTexts["Here is the latest reply."].firstMatch
+        let signature = reader.staticTexts["Planning team signature"].firstMatch
+        let firstQuote = reader.staticTexts["Previous note 1."].firstMatch
+        let reveal = reader.buttons["mail.body.quote"].firstMatch
+        XCTAssertTrue(waitUntil { reply.isHittable && reveal.isHittable && signature.isHittable })
+        XCTAssertFalse(firstQuote.exists)
+        let replyY = reply.frame.minY
+        reveal.tap()
+        XCTAssertTrue(waitUntil { firstQuote.isHittable && !reveal.exists })
+        XCTAssertEqual(reply.frame.minY, replyY, accuracy: 2)
+        reader.swipeUp()
+        XCTAssertFalse(firstQuote.isHittable)
+        for _ in 0..<5 where !firstQuote.isHittable { reader.swipeDown() }
+        XCTAssertTrue(firstQuote.isHittable)
+        XCTAssertFalse(reveal.exists)
     }
 
     private static let stressRow = "mail.list.row.stress-"
@@ -229,11 +417,7 @@ final class ScaleStressUITests: XCTestCase {
         XCTAssertTrue(deep.exists, "Scrolling a search must load its later pages")
         guard deep.exists, let number = Int(deep.identifier.dropFirst(Self.stressRow.count)) else { return }
         deep.tap()
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let expand = app.descendants(matching: .any)[MailID.expand].firstMatch
-            XCTAssertTrue(expand.waitForExistence(timeout: 5)); expand.tap()
-        }
-        XCTAssertTrue(app.descendants(matching: .any)[MailID.conversation].firstMatch.waitForExistence(timeout: 5))
+        openSelectedMailFullWidth(in: app)
         XCTAssertTrue(app.staticTexts["Stress email \(number)"].firstMatch.exists)
     }
 
@@ -301,12 +485,7 @@ final class ScaleStressUITests: XCTestCase {
         XCTAssertTrue(target.exists && target.isHittable,
                       "Scrolling must load mail older than the initial 100 rows")
         target.tap()
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            let expand = app.descendants(matching: .any)[MailID.expand].firstMatch
-            XCTAssertTrue(expand.waitForExistence(timeout: 5))
-            expand.tap()
-        }
-        XCTAssertTrue(app.descendants(matching: .any)[MailID.conversation].firstMatch.waitForExistence(timeout: 5))
+        openSelectedMailFullWidth(in: app)
         XCTAssertTrue(app.staticTexts["Stress email 1800"].firstMatch.exists)
     }
 
@@ -393,13 +572,17 @@ final class ScaleStressUITests: XCTestCase {
     }
 
     #if PHYSICAL_STRESS_UI_TESTS
-    func testDefaultVariedWeekArtwork() { checkDefaultVariedArtwork(mode: "Week") }
-    func testDefaultVariedDayArtwork() { checkDefaultVariedArtwork(mode: "Day") }
+    func testDefaultVariedWeekArtwork() { checkVariedArtwork(mode: "Week", prepared: false) }
+    func testDefaultVariedDayArtwork() { checkVariedArtwork(mode: "Day", prepared: false) }
 
-    private func checkDefaultVariedArtwork(mode: String) {
+    func testPreparedVariedWeekArtwork() { checkVariedArtwork(mode: "Week", prepared: true) }
+    func testPreparedVariedDayArtwork() { checkVariedArtwork(mode: "Day", prepared: true) }
+
+    private func checkVariedArtwork(mode: String, prepared: Bool) {
+        let renderer = prepared ? "prepared" : "default"
         XCUIDevice.shared.orientation = .portrait
         let app = launch("--plan", extra: ["--stress-calendar-fixture", "varied-v1",
-                                          "-mobileDayScrollOffset", "560"])
+                                          "-mobileDayScrollOffset", "560"] + (prepared ? ["--calendar-prepared-artwork"] : []))
         let metadata = app.staticTexts["stress.ready"].value as? String ?? ""
         guard let data = metadata.data(using: .utf8),
               let fixture = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
@@ -411,12 +594,17 @@ final class ScaleStressUITests: XCTestCase {
         XCTAssertEqual(fixture["distinctDailyPatterns"] as? Int, variedCalendarDays)
         XCTAssertEqual(fixture["distinctWeeklyPatterns"] as? Int, variedCalendarDays / 7)
         let evidence = XCTAttachment(string: metadata)
-        evidence.name = "default-\(mode)-installed-workload"
+        evidence.name = "\(renderer)-\(mode)-installed-workload"
         evidence.lifetime = .keepAlways; add(evidence)
         app.segmentedControls.buttons[mode].tap()
         let viewport = app.collectionViews.firstMatch
         XCTAssertTrue(viewport.waitForExistence(timeout: 10))
-        let artwork = app.descendants(matching: .any).matching(NSPredicate(format: "identifier IN %@", ["calendar.preparedArtwork", "calendar.nativeArtwork.direct"]))
+        let preparedArtwork = viewport.descendants(matching: .any).matching(NSPredicate(format: "identifier IN %@",
+            ["calendar.preparedArtwork", "calendar.nativeArtwork.direct"]))
+        // The normal renderer makes the event itself an accessible button. Prepared images
+        // and direct canvases belong to the opt-in renderer and have their own readiness check.
+        let artwork = prepared ? preparedArtwork : viewport.buttons.matching(
+            NSPredicate(format: "label MATCHES %@", #".+ · [0-9]+-[0-9]+, .+"#))
         func visibleArtwork() -> XCUIElement? {
             let bounds = viewport.frame
             // Stop at the first visible event. Enumerating every remote AX frame
@@ -431,13 +619,14 @@ final class ScaleStressUITests: XCTestCase {
         }, object: app)
         let readiness = XCTWaiter.wait(for: [ready], timeout: 15)
         if readiness != .completed {
-            capture("default-varied-\(mode)-readiness-failure")
+            capture("\(renderer)-varied-\(mode)-readiness-failure")
             let hierarchy = XCTAttachment(string: app.debugDescription)
-            hierarchy.name = "default-\(mode)-readiness-failure-hierarchy"
+            hierarchy.name = "\(renderer)-\(mode)-readiness-failure-hierarchy"
             hierarchy.lifetime = .keepAlways; add(hierarchy)
         }
         XCTAssertEqual(readiness, .completed,
-                       "Default Beta must render populated events without renderer flags")
+                       "The selected renderer must show populated events")
+        if !prepared { XCTAssertFalse(preparedArtwork.firstMatch.exists) }
         viewport.swipeUp(); viewport.swipeDown()
         XCTAssertEqual(app.descendants(matching: .any)
             .matching(identifier: "calendar.preparedArtwork.failed").count, 0)
@@ -446,14 +635,14 @@ final class ScaleStressUITests: XCTestCase {
             XCTFail("Replacement artwork must remain visible after scrolling"); return
         }
         let title = String(event.label[..<suffix.upperBound])
-        capture("default-varied-\(mode)-artwork")
+        capture("\(renderer)-varied-\(mode)-artwork")
         let visible = event.frame.intersection(viewport.frame)
         event.coordinate(withNormalizedOffset: .zero)
             .withOffset(CGVector(dx: visible.midX - event.frame.minX,
                                  dy: visible.midY - event.frame.minY)).tap()
         XCTAssertTrue(app.buttons["eventDetail.edit"].waitForExistence(timeout: 5))
         XCTAssertTrue(app.staticTexts[title].exists, "The exact rendered event must open")
-        capture("default-varied-\(mode)-detail")
+        capture("\(renderer)-varied-\(mode)-detail")
         app.buttons["sheet.close"].tap()
     }
 
@@ -796,7 +985,7 @@ final class ScaleStressUITests: XCTestCase {
                                         "-mobileDayScrollOffset", "560"], mode: "Day")
     }
 
-    func testNativeDayPagingAndZoom() {
+    func testNativeDayPagingAndZoom() throws {
         let app = launch("--plan", extra: ["-mobileDayScrollOffset", "560", "--calendar-viewport-audit"])
         app.segmentedControls.buttons["Day"].tap()
         let viewport = app.collectionViews.firstMatch
@@ -836,14 +1025,414 @@ final class ScaleStressUITests: XCTestCase {
         }
         let heightBeforeZoom = contentHeight()
         XCTAssertGreaterThan(heightBeforeZoom, 0)
+        #if PHYSICAL_STRESS_UI_TESTS
+        let orientation = try XCTUnwrap(UIInterfaceOrientation(rawValue: XCUIDevice.shared.orientation.rawValue))
+        let delivered = expectation(description: "Delivered the two-finger spread")
+        var spreadError: Error?
+        PhysicalCalendarFlicks.spread(in: viewport.frame, screenSize: XCUIScreen.main.screenshot().image.size,
+                                      orientation: orientation) { error in
+            spreadError = error
+            delivered.fulfill()
+        }
+        wait(for: [delivered], timeout: 5)
+        if let spreadError { throw spreadError }
+        #else
         viewport.pinch(withScale: 1.5, velocity: 1)
+        #endif
         // Zoom can recycle the 11 AM ruler. Require the real content geometry to grow,
         // rather than querying an hour that is no longer in the visible native viewport.
         let zoomed = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
             contentHeight() > heightBeforeZoom * 1.25
         }, object: viewport)
-        XCTAssertEqual(XCTWaiter.wait(for: [zoomed], timeout: 3), .completed)
+        let zoomResult = XCTWaiter.wait(for: [zoomed], timeout: 3)
+        if zoomResult != .completed, let geometry = viewport.value as? String {
+            let diagnostic = XCTAttachment(string: geometry)
+            diagnostic.name = "Day pinch recognizer and resulting geometry"
+            diagnostic.lifetime = .keepAlways
+            add(diagnostic)
+        }
+        XCTAssertEqual(zoomResult, .completed)
         capture("native-day-paging-zoom")
+    }
+
+    func testVerticalCalendarFlingKeepsTheSelectedDate() throws {
+        let app = launch("--plan", extra: ["-mobileDayScrollOffset", "560", "--calendar-viewport-audit"])
+        app.segmentedControls.buttons["Day"].tap()
+        let grid = app.collectionViews.firstMatch
+        XCTAssertTrue(grid.waitForExistence(timeout: 10))
+        func sample() throws -> [String: Any] {
+            let raw = try XCTUnwrap(grid.value as? String)
+            return try XCTUnwrap(JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any])
+        }
+        let start = try sample()
+        let y = try XCTUnwrap(start["y"] as? Double)
+        XCTAssertGreaterThan(y, 40)
+        let from = grid.coordinate(withNormalizedOffset: CGVector(dx: 0.63, dy: 0.25))
+        let distance = min(90, grid.frame.height * 0.4)
+        from.press(forDuration: 0, thenDragTo: from.withOffset(CGVector(dx: 0, dy: distance)),
+                   withVelocity: .fast, thenHoldForDuration: 0)
+        let end = try sample()
+        XCTAssertLessThan(try XCTUnwrap(end["y"] as? Double), y - 20)
+        XCTAssertEqual(end["page"] as? String, start["page"] as? String)
+        XCTAssertEqual(try XCTUnwrap(end["x"] as? Double), try XCTUnwrap(start["x"] as? Double), accuracy: 1)
+        try attachGeometry([start, end], name: "Vertical day fling geometry")
+    }
+
+    func testDayZoomTracksTheDeliveredPinch() throws {
+        let app = launch("--plan", extra: ["-mobileDayScrollOffset", "560", "--calendar-viewport-audit"])
+        app.segmentedControls.buttons["Day"].tap()
+        let viewport = app.collectionViews.firstMatch
+        XCTAssertTrue(viewport.waitForExistence(timeout: 10))
+        func audit() -> [String: Any] {
+            guard let raw = viewport.value as? String,
+                  let values = try? JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any]
+            else { return [:] }
+            return values
+        }
+        var measurements = [audit()]
+        for scale: CGFloat in [1.5, 2.0] {
+            let before = try XCTUnwrap(measurements.last)
+            let height = try XCTUnwrap(before["contentHeight"] as? Double)
+            let starts = try XCTUnwrap(before["pinchStarts"] as? Int)
+            viewport.pinch(withScale: scale, velocity: 1)
+            XCTAssertTrue(waitUntil { (audit()["pinchStarts"] as? Int ?? 0) > starts })
+            let after = audit()
+            let delivered = try XCTUnwrap(after["pinchEndScale"] as? Double)
+            let actual = try XCTUnwrap(after["contentHeight"] as? Double)
+            XCTAssertGreaterThan(delivered, 1)
+            XCTAssertEqual(actual / 24, min(160, max(44, height * delivered / 24)), accuracy: 1,
+                           "Draw the hour height requested by the two fingers within the supported zoom range")
+            measurements.append(after)
+        }
+        let initial = try XCTUnwrap(measurements.first?["contentHeight"] as? Double)
+        let final = try XCTUnwrap(measurements.last?["contentHeight"] as? Double)
+        XCTAssertGreaterThan(final, initial * 1.25)
+        try attachGeometry(measurements, name: "Day delivered pinch scales and displayed hour heights")
+    }
+
+    func testDaySwipesKeepTheTimeInPortrait() throws {
+        try checkDaySwipes(orientation: .portrait)
+    }
+
+    func testDaySwipesKeepTheTimeInLandscape() throws {
+        try checkDaySwipes(orientation: .landscapeLeft)
+    }
+
+    /// UIKit's scrolling signposts cover the drag and deceleration. Check both destinations on
+    /// every iteration so a motionless or repeated page cannot produce a fast passing sample.
+    func testDaySwipeRoundTripHitches() throws {
+        let app = launch("--plan", extra: ["-mobileDayScrollOffset", "560", "--calendar-viewport-audit"])
+        app.segmentedControls.buttons["Day"].tap()
+        let grid = app.collectionViews.firstMatch
+        XCTAssertTrue(grid.waitForExistence(timeout: 10))
+        func page() -> String? {
+            guard let value = grid.value as? String,
+                  let state = try? JSONSerialization.jsonObject(with: Data(value.utf8)) as? [String: Any]
+            else { return nil }
+            return state["page"] as? String
+        }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.dateFormat = "yyyy-MM-dd"
+        let initial = try XCTUnwrap(page())
+        let date = try XCTUnwrap(formatter.date(from: initial))
+        let next = formatter.string(from: try XCTUnwrap(formatter.calendar.date(byAdding: .day, value: 1, to: date)))
+        let leading = grid.coordinate(withNormalizedOffset: CGVector(dx: 0.2, dy: 0.65))
+        let trailing = grid.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.65))
+        let options = XCTMeasureOptions()
+        options.iterationCount = 5
+        var metrics: [XCTMetric] = [XCTOSSignpostMetric.scrollingAndDecelerationMetric]
+        if #available(iOS 26, macOS 26, *) { metrics.append(XCTHitchMetric(application: app)) }
+        measure(metrics: metrics, options: options) {
+            trailing.press(forDuration: 0, thenDragTo: leading)
+            XCTAssertTrue(waitUntil { page() == next })
+            leading.press(forDuration: 0, thenDragTo: trailing)
+            XCTAssertTrue(waitUntil { page() == initial })
+        }
+    }
+
+    func testDaySwipesAcrossAllDayBandsInPortrait() throws {
+        try checkDaySwipes(orientation: .portrait, changingBands: true)
+    }
+
+    func testDaySwipesAcrossAllDayBandsInLandscape() throws {
+        try checkDaySwipes(orientation: .landscapeLeft, changingBands: true)
+    }
+
+    private func checkDaySwipes(orientation: UIDeviceOrientation, changingBands: Bool = false) throws {
+        let originalOrientation = XCUIDevice.shared.orientation
+        defer {
+            if originalOrientation.isPortrait || originalOrientation.isLandscape {
+                XCUIDevice.shared.orientation = originalOrientation
+            }
+        }
+        let app = launch("--plan", extra: ["-mobileDayScrollOffset", "560", "--calendar-viewport-audit"]
+                         + (changingBands ? ["--stress-calendar-day-bands"] : []))
+        XCUIDevice.shared.orientation = orientation
+        XCTAssertTrue(waitUntil {
+            let frame = app.windows.firstMatch.frame
+            return orientation.isPortrait ? frame.height > frame.width : frame.width > frame.height
+        })
+        app.segmentedControls.buttons["Day"].tap()
+        let viewport = app.collectionViews.firstMatch
+        XCTAssertTrue(viewport.waitForExistence(timeout: 10))
+        let windowSize = app.windows.firstMatch.frame.size
+        func state() -> [String: Any]? {
+            guard let value = viewport.value as? String,
+                  var state = (try? JSONSerialization.jsonObject(with: Data(value.utf8))) as? [String: Any]
+            else { return nil }
+            state["windowWidth"] = windowSize.width
+            state["windowHeight"] = windowSize.height
+            return state
+        }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.dateFormat = "yyyy-MM-dd"
+        let initial = try XCTUnwrap(state())
+        var date = try XCTUnwrap((initial["page"] as? String).flatMap(formatter.date(from:)))
+        let initialY = try XCTUnwrap(initial["y"] as? Double)
+        let height = try XCTUnwrap(initial["height"] as? Double)
+        let contentHeight = try XCTUnwrap(initial["contentHeight"] as? Double)
+        XCTAssertEqual(initialY, min(560, max(0, contentHeight - height)), accuracy: 2,
+                       "Open at the saved hour, clamped only by the final viewport")
+        let initialRulerY = try XCTUnwrap(initial["windowY"] as? Double) - initialY
+        func eventIDs(_ state: [String: Any]) -> [String] {
+            (state["visibleIDs"] as? [String] ?? []).filter { !$0.contains("calendar.currentTime") }.sorted()
+        }
+        let originalIDs = eventIDs(initial)
+        XCTAssertFalse(originalIDs.isEmpty)
+        var observations = [initial]
+        func attachObservations() {
+            do {
+                try attachGeometry(observations, name: "Day swipe geometry and redraw counts")
+            } catch { XCTFail("Could not save swipe geometry: \(error)") }
+        }
+        var daysFromStart = 0
+        for direction in [1, 1, -1, -1] {
+            daysFromStart += direction
+            date = try XCTUnwrap(formatter.calendar.date(byAdding: .day, value: direction, to: date))
+            let expected = formatter.string(from: date)
+            func point(_ x: CGFloat) -> XCUICoordinate {
+                viewport.coordinate(withNormalizedOffset: CGVector(dx: x, dy: 0.65))
+            }
+            point(direction > 0 ? 0.8 : 0.2).press(forDuration: 0, thenDragTo: point(direction > 0 ? 0.2 : 0.8))
+            let reachedExpectedDay = waitUntil { state()?["page"] as? String == expected }
+            if !reachedExpectedDay {
+                if let stalled = state() { observations.append(stalled) }
+                attachObservations()
+            }
+            XCTAssertTrue(reachedExpectedDay)
+            let landed = try XCTUnwrap(state())
+            observations.append(landed)
+            let landedY = try XCTUnwrap(landed["y"] as? Double)
+            let rulerY = try XCTUnwrap(landed["windowY"] as? Double) - landedY
+            let gutterX = try XCTUnwrap(landed["gutterX"] as? Double) - (try XCTUnwrap(landed["x"] as? Double))
+            // A changing band can resize the viewport. The hour's absolute screen
+            // position is the invariant; unchanged chrome also preserves its raw offset.
+            if (!changingBands && abs(landedY - initialY) > 2) || abs(rulerY - initialRulerY) > 2 || abs(gutterX) > 2 {
+                attachObservations()
+            }
+            if changingBands {
+                let title = "Calendar workshop \(daysFromStart)-1"
+                let chip = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", title)).firstMatch
+                XCTAssertEqual(chip.exists, daysFromStart != 0)
+            } else { XCTAssertEqual(landedY, initialY, accuracy: 2) }
+            XCTAssertEqual(rulerY, initialRulerY, accuracy: 2, "The same hour must stay at the same window position")
+            XCTAssertEqual(gutterX, 0, accuracy: 2, "The ruler must stay at the leading edge of the viewport")
+        }
+        attachObservations()
+        XCTAssertEqual(eventIDs(try XCTUnwrap(observations.last)), originalIDs)
+        // A short lateral drag can be abandoned over an event without opening it or changing day.
+        let middle = viewport.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.65))
+        middle.press(forDuration: 0, thenDragTo: middle.withOffset(CGVector(dx: 22, dy: 0)),
+                     withVelocity: .slow, thenHoldForDuration: 0.2)
+        let afterShortDrag = try XCTUnwrap(state())
+        try attachGeometry([initial, afterShortDrag], name: "Day cancelled swipe resting geometry")
+        XCTAssertEqual(afterShortDrag["page"] as? String, initial["page"] as? String)
+        XCTAssertEqual(try XCTUnwrap(afterShortDrag["x"] as? Double),
+                       try XCTUnwrap(initial["x"] as? Double), accuracy: 2)
+        XCTAssertEqual(try XCTUnwrap(afterShortDrag["y"] as? Double), initialY, accuracy: 2)
+        XCTAssertEqual(eventIDs(afterShortDrag), originalIDs)
+    }
+
+    private func attachGeometry(_ states: [[String: Any]], name: String) throws {
+        let data = try JSONSerialization.data(withJSONObject: states, options: [.sortedKeys])
+        let attachment = XCTAttachment(data: data, uniformTypeIdentifier: "public.json")
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+        #if PHYSICAL_STRESS_UI_TESTS
+        // The paired XCTest service can deliver a verdict without delivering attachment bytes.
+        // Mirror this fixture's numeric audit into the test runner's own temporary directory.
+        if let key = ProcessInfo.processInfo.environment["STRESS_GEOMETRY_RUN"], let run = UUID(uuidString: key) {
+            let directory = FileManager.default.temporaryDirectory.appendingPathComponent(run.uuidString)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+            let filename = self.name.replacingOccurrences(of: "/", with: "-") + "-" + name + "-" + UUID().uuidString + ".json"
+            try data.write(to: directory.appendingPathComponent(filename), options: .atomic)
+        }
+        #endif
+    }
+
+    #if PHYSICAL_STRESS_UI_TESTS
+    func testFirstVisibleDayMotionDuringARealFlick() throws {
+        let app = launch("--plan", extra: ["-mobileDayScrollOffset", "560", "--calendar-viewport-audit",
+                                          "--calendar-flick-trace", "--stress-calendar-presentation-clock"])
+        app.segmentedControls.buttons["Day"].tap()
+        let grid = app.collectionViews["calendar.nativeDay.viewport"]
+        let clock = app.descendants(matching: .any)["stress.calendar.presentationClock"].firstMatch
+        func read(_ element: XCUIElement) -> [String: Any]? {
+            guard element.exists, let raw = element.value as? String else { return nil }
+            return try? JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any]
+        }
+        XCTAssertTrue(waitUntil { read(clock)?["ready"] as? Bool == true && grid.exists })
+        let initial = try XCTUnwrap(read(grid))
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.dateFormat = "yyyy-MM-dd"
+        let firstPage = try XCTUnwrap(initial["page"] as? String)
+        let firstDate = try XCTUnwrap(formatter.date(from: firstPage))
+        let nextDate = try XCTUnwrap(formatter.calendar.date(byAdding: .day, value: 1, to: firstDate))
+        let nextPage = formatter.string(from: nextDate)
+        let initialY = try XCTUnwrap(initial["y"] as? Double)
+        let orientation = try XCTUnwrap(UIInterfaceOrientation(rawValue: XCUIDevice.shared.orientation.rawValue))
+        let screen = XCUIScreen.main.screenshot().image.size
+        for index in 0..<4 {
+            let before = try XCTUnwrap(read(grid))
+            let forward = index.isMultiple(of: 2)
+            let done = expectation(description: "Physical test driver delivered the drag")
+            var failure: Error?
+            PhysicalCalendarFlicks.send(in: grid.frame, screenSize: screen, orientation: orientation,
+                                        directions: [NSNumber(value: forward)]) { error in failure = error; done.fulfill() }
+            wait(for: [done], timeout: 5)
+            if let failure { throw failure }
+            XCTAssertTrue(waitUntil {
+                guard let after = read(grid), let page = after["page"] as? String,
+                      let old = before["page"] as? String, let drag = after["lastDayDrag"] as? [String: Double],
+                      let settled = drag["settled"], let released = drag["release"], settled >= released else { return false }
+                return page != old && page == (forward ? nextPage : firstPage)
+            })
+            let input = try XCTUnwrap(read(clock))
+            let contact = try XCTUnwrap(input["contact"] as? [[Double]])
+            XCTAssertGreaterThan(contact.count, 2)
+            XCTAssertNotNil(input["up"])
+            let after = try XCTUnwrap(read(grid))
+            XCTAssertEqual(try XCTUnwrap(after["y"] as? Double), initialY, accuracy: 2)
+            try attachGeometry([before, after, input], name: "Calendar input and recording clock " + String(index))
+        }
+    }
+
+    func testConsecutiveDayFlicksDuringTheCoast() throws {
+        let app = launch("--plan", extra: ["-mobileDayScrollOffset", "560", "--calendar-viewport-audit", "--calendar-flick-trace"])
+        app.segmentedControls.buttons["Day"].tap()
+        let viewport = app.collectionViews["calendar.nativeDay.viewport"]
+        XCTAssertTrue(viewport.waitForExistence(timeout: 10))
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.dateFormat = "yyyy-MM-dd"
+        func geometry() -> [String: Any]? {
+            guard viewport.exists, let raw = viewport.value as? String else { return nil }
+            return try? JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any]
+        }
+        let initial = try XCTUnwrap(geometry())
+        let firstDate = try XCTUnwrap((initial["page"] as? String).flatMap(formatter.date(from:)))
+        let y = try XCTUnwrap(initial["y"] as? Double)
+        let orientation = try XCTUnwrap(UIInterfaceOrientation(rawValue: XCUIDevice.shared.orientation.rawValue))
+        let screen = XCUIScreen.main.screenshot().image.size
+        let centeredX = try XCTUnwrap(initial["x"] as? Double)
+        // Uninterrupted forward, reverse, then a change of mind during the coast.
+        let chains = [[true, true], [false, false], [true, false],
+                      [true, true, true, true], [false, false, true, false], [false, false],
+                      Array(repeating: true, count: 8), Array(repeating: false, count: 8)]
+        var offset = 0
+        var trackedRecycles = 0
+        for directions in chains {
+            offset += directions.reduce(0) { $0 + ($1 ? 1 : -1) }
+            let previousRelease = ((geometry()?["lastDayDrag"] as? [String: Double])?["release"]) ?? 0
+            let done = expectation(description: "XCTest delivered the flick sequence")
+            var deliveryError: Error?
+            XCTAssertEqual(app.state, .runningForeground)
+            PhysicalCalendarFlicks.send(in: viewport.frame, screenSize: screen, orientation: orientation,
+                                       directions: directions.map { NSNumber(value: $0) }) { error in
+                deliveryError = error
+                done.fulfill()
+            }
+            wait(for: [done], timeout: 8)
+            if let deliveryError { throw deliveryError }
+            let expected = formatter.string(from: try XCTUnwrap(formatter.calendar.date(byAdding: .day, value: offset, to: firstDate)))
+            let reached = waitUntil {
+                guard let view = geometry(), view["page"] as? String == expected,
+                      let x = view["x"] as? Double, abs(x - centeredX) < 1,
+                      let drag = view["lastDayDrag"] as? [String: Double],
+                      let released = drag["release"], released > previousRelease,
+                      let settled = drag["settled"], settled >= released else { return false }
+                let phases = (view["dayGestureHistory"] as? [[String: Any]]) ?? []
+                return phases.isEmpty || phases.filter {
+                    $0["phase"] as? String == "released" && ($0["time"] as? Double ?? 0) > previousRelease
+                }.count >= directions.count
+            }
+            let after = try XCTUnwrap(geometry())
+            try attachGeometry([initial, after], name: "Consecutive day flicks approaching " + expected)
+            XCTAssertTrue(reached, "Every deliberate flick must count, including a reversal. Expected \(expected), displayed \(after["page"] ?? "unknown").")
+            let phases = try XCTUnwrap(after["dayGestureHistory"] as? [[String: Any]])
+            for index in phases.indices.dropFirst() {
+                let before = phases[index - 1], rebased = phases[index]
+                guard rebased["phase"] as? String == "page after", let shift = rebased["shift"] as? Double,
+                      (rebased["time"] as? Double ?? 0) > previousRelease,
+                      before["phase"] as? String == "page before" else { continue }
+                let newX = try XCTUnwrap(rebased["x"] as? Double)
+                XCTAssertEqual(newX + shift, try XCTUnwrap(before["x"] as? Double), accuracy: 1,
+                               "Reusing the columns must leave the visible date at the same position.")
+                guard index + 1 < phases.count else { continue }
+                let next = phases[index + 1]
+                guard next["phase"] as? String == "scroll after rebase" else { continue }
+                let finger = try XCTUnwrap(next["dx"] as? Double) - XCTUnwrap(rebased["dx"] as? Double)
+                let motion = try XCTUnwrap(next["x"] as? Double) - newX
+                // At an edge UIKit can resist the finger. In the interior it follows it directly.
+                XCTAssertLessThanOrEqual(abs(motion), abs(finger) + 2)
+                if min(newX, newX + motion) > 16, max(newX, newX + motion) < 2 * abs(shift) - 16 {
+                    XCTAssertEqual(motion, -finger, accuracy: 2)
+                }
+                trackedRecycles += 1
+            }
+            XCTAssertEqual(try XCTUnwrap(after["y"] as? Double), y, accuracy: 2)
+            if offset == 0 {
+                XCTAssertEqual(Set(try XCTUnwrap(initial["visibleIDs"] as? [String])),
+                               Set(try XCTUnwrap(after["visibleIDs"] as? [String])))
+            }
+        }
+        XCTAssertGreaterThan(trackedRecycles, 0, "The touches must interrupt at least one moving date.")
+    }
+    #endif
+
+    func testShortDayFlickMovesOneDateAndReturns() throws {
+        let app = launch("--plan", extra: ["-mobileDayScrollOffset", "560", "--calendar-viewport-audit"])
+        app.segmentedControls.buttons["Day"].tap()
+        let viewport = app.collectionViews.firstMatch
+        XCTAssertTrue(viewport.waitForExistence(timeout: 10))
+        func page() -> String? {
+            guard let raw = viewport.value as? String,
+                  let audit = try? JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any]
+            else { return nil }
+            return audit["page"] as? String
+        }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.dateFormat = "yyyy-MM-dd"
+        let initial = try XCTUnwrap(page())
+        let today = try XCTUnwrap(formatter.date(from: initial))
+        let tomorrow = try XCTUnwrap(formatter.calendar.date(byAdding: .day, value: 1, to: today))
+        let length = min(140, viewport.frame.width / 4)
+        for (delta, target) in [(-length, formatter.string(from: tomorrow)), (length, initial)] {
+            let start = viewport.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.65))
+            start.press(forDuration: 0, thenDragTo: start.withOffset(CGVector(dx: delta, dy: 0)),
+                        withVelocity: .fast, thenHoldForDuration: 0)
+            XCTAssertTrue(waitUntil { page() == target }, "A short, fast flick must page exactly once")
+        }
     }
 
     func testNativeDayCreateGesture() {
@@ -908,7 +1497,7 @@ final class ScaleStressUITests: XCTestCase {
         let empty = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in
             guard let value = viewport.value as? String, let data = value.data(using: .utf8),
                   let state = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return false }
-            return (state["descriptors"] as? Int) == 0
+            return (state["displayedColumnDescriptors"] as? Int ?? state["descriptors"] as? Int) == 0
         }, object: viewport)
         XCTAssertEqual(XCTWaiter.wait(for: [empty], timeout: 5), .completed)
     }
@@ -1034,6 +1623,44 @@ final class ScaleStressUITests: XCTestCase {
         capture("native-day-continuation-move")
     }
 
+    func testWeekEventAccessibilityFramesStayInsideTheirDay() throws {
+        let app = launch("--plan", extra: ["--calendar-viewport-audit"])
+        let week = app.segmentedControls.buttons["Week"]
+        XCTAssertTrue(week.waitForExistence(timeout: 10))
+        if !week.isSelected { week.tap() }
+        let grid = app.collectionViews.firstMatch
+        XCTAssertTrue(grid.waitForExistence(timeout: 10))
+        // Read the cell and its descendants in one snapshot. Index-based live queries
+        // can resolve to a different reusable cell between successive frame reads.
+        let tree = try grid.snapshot()
+        var checked = 0, clipped = 0
+        var widestSpill: CGFloat = 0
+        var violations: [String] = []
+        func visit(_ node: XCUIElementSnapshot, in cell: CGRect?) {
+            let bounds = node.elementType == .cell ? node.frame : cell
+            if node.elementType == .button, node.label.hasPrefix("Stress event"),
+               let bounds, !bounds.intersection(tree.frame).isEmpty {
+                let button = node.frame
+                let spill = max(bounds.minX - button.minX, button.maxX - bounds.maxX)
+                if spill > 1 {
+                    violations.append("\(node.label) cell=\(bounds) button=\(button)")
+                }
+                widestSpill = max(widestSpill, spill)
+                if bounds.width < 23.5 { clipped += 1 }
+                checked += 1
+            }
+            for child in node.children { visit(child, in: bounds) }
+        }
+        visit(tree, in: nil)
+        XCTAssertGreaterThan(checked, 0)
+        XCTAssertGreaterThan(clipped, 0, "Exercise an event clipped at the end of its day column")
+        let evidence = XCTAttachment(string: (["checked=\(checked) clipped=\(clipped) widestSpill=\(widestSpill)"] + violations).joined(separator: "\n"))
+        evidence.name = "Week visible event accessibility bounds"
+        evidence.lifetime = .keepAlways
+        add(evidence)
+        XCTAssertLessThanOrEqual(widestSpill, 1, "The exposed event must end at its visible cell boundary")
+    }
+
     func testNativeWeekMoveRecovery() {
         let app = launch("--plan", extra: ["--calendar-native-move-audit",
             "--calendar-recovery-fixture", UUID().uuidString])
@@ -1071,7 +1698,14 @@ final class ScaleStressUITests: XCTestCase {
         start.press(forDuration: 0.55, thenDragTo: start.withOffset(CGVector(dx: 0, dy: 56)),
                     withVelocity: .slow, thenHoldForDuration: 0.3)
         let failure = app.alerts["Couldn’t move that event"]
-        XCTAssertTrue(failure.waitForExistence(timeout: 5), "Week drag must commit through the provider boundary")
+        let didCommit = failure.waitForExistence(timeout: 5)
+        if !didCommit {
+            let evidence = XCTAttachment(string: "target=\(title) frame=\(original) viewport=\(viewport.frame)\n\(viewport.value ?? "missing")")
+            evidence.name = "Week event press and recognizer outcome"
+            evidence.lifetime = .keepAlways
+            add(evidence)
+        }
+        XCTAssertTrue(didCommit, "Week drag must commit through the provider boundary")
         failure.buttons["OK"].tap()
         XCTAssertEqual(event.frame.minY, original.minY, accuracy: 2)
         XCTAssertFalse(app.buttons["eventDetail.edit"].exists, "Moving must not also open detail")
@@ -1107,7 +1741,9 @@ final class ScaleStressUITests: XCTestCase {
 
     private func checkDayMoveFailure(native: Bool, swiftUIControl: Bool = false, beyondViewport: Bool = false,
                                      exclusive: Bool = false, parentFeedback: Bool = false, recovery: Bool = false) {
-        let app = launch("--plan", extra: ["-mobileDayScrollOffset", "560", "--calendar-native-move-audit",
+        // Start at noon. The synthetic 12:10 meeting and its drag destination must both
+        // fit on screen, including when the landscape grid shows only part of an hour.
+        let app = launch("--plan", extra: ["-mobileDayScrollOffset", "672", "--calendar-native-move-audit",
                                          "--calendar-move-render-probe"]
                          + (native ? [] : ["--calendar-reference-day"])
                          + (swiftUIControl ? ["--calendar-swiftui-day-move"] : [])
