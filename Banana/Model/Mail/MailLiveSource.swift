@@ -1717,9 +1717,11 @@ extension MailLiveSource {
 
     func loadRemovalStatus() async throws {
         let counts = try await stores.index.read { db -> ([String: Int], [String: Int]) in
+            // CROSS JOIN keeps SQLite starting from the few held rows. Left to choose, it walked
+            // every message on every start (19 ms at 540,000 messages in the Simulator).
             let rows = try Row.fetchAll(db, sql: """
-                SELECT a.email,h.kept,count(*) FROM held_removal h JOIN message m ON m.msg_pk=h.msg_pk
-                JOIN account a ON a.account_pk=m.account_pk GROUP BY a.email,h.kept
+                SELECT a.email,h.kept,count(*) FROM held_removal h CROSS JOIN message m ON m.msg_pk=h.msg_pk
+                CROSS JOIN account a ON a.account_pk=m.account_pk GROUP BY a.email,h.kept
                 """)
             var held: [String: Int] = [:], kept: [String: Int] = [:]
             for row in rows {
