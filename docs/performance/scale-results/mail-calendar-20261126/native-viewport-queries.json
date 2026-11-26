@@ -1,0 +1,5840 @@
+{
+  "scope": "Real NSCollectionViewLayoutAttributes on the host Mac and UICollectionViewLayoutAttributes on the stock arm64 iPad Simulator. Twenty-four moving viewports per measurement, 13 alternating pairs, 0\u20135,000 descriptors. Each lookup returns the identical objects in the original order, including an active offscreen item. Memory representation is unchanged. These are layout queries without a presented frame.",
+  "harnessSHA256": "ae9a8ce05c4b29f3e5b36ea38073f3bd3b483c0c4035858d0dca71a615df98d1",
+  "platforms": {
+    "mac": {
+      "binarySHA256": "d96da1cdc06c6e025e40dca6ee7378e5319dd6929fbb4fe8ce2c403635d612ed",
+      "samples": [
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.3882527127861977e-05,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 3.124781263371309e-05,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 8.672941476106644e-06,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.2155699854095777e-05,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.2155699854095777e-05,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 1.0419171303510666e-05,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.423215381801128e-05,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.2155699854095777e-05,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.0409470026691755e-05,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.672941476106644e-06,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.0419171303510666e-05,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.0419171303510666e-05,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.0409470026691755e-05,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 8.672941476106644e-06,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.0419171303510666e-05,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.0419171303510666e-05,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.0409470026691755e-05,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.936412925521533e-06,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.672941476106644e-06,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 1.5619055678447086e-05,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.0419171303510666e-05,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.672941476106644e-06,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.936412925521533e-06,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.0419171303510666e-05,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.936412925521533e-06,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.0409470026691755e-05,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.201661062737306e-05,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 2.4301698431372643e-05,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.909211277961731e-05,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.721649500230949e-05,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.375313917795818e-05,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.736528550585111e-05,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.909211277961731e-05,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.722619627912839e-05,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.375313917795818e-05,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.73555842290322e-05,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.736528550585111e-05,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.548966772854328e-05,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.201661062737306e-05,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.9101814056436222e-05,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.73555842290322e-05,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.375313917795818e-05,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.374343790113926e-05,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.909211277961731e-05,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.909211277961731e-05,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.547996645172437e-05,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.200690935055415e-05,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.9101814056436222e-05,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.909211277961731e-05,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.547996645172437e-05,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.201661062737306e-05,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 2.4311399708191555e-05,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00012847400891284147,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.902256816625595e-05,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.554951106508573e-05,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.0001336835945645968,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00012847400891284147,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.555921234190464e-05,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.382268379131953e-05,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00012846430763602257,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00012673748036225638,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 6.076879799365997e-05,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.382268379131953e-05,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00012673748036225638,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00012847400891284147,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.555921234190464e-05,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.728603961567084e-05,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00013193736473719278,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00013542012311518192,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.7295740892489753e-05,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.555921234190464e-05,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.0001319470660140117,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.0001302008361866077,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.728603961567084e-05,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.7295740892489753e-05,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.0001302105374634266,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.0001319470660140117,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.7295740892489753e-05,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0023177126422524452,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005520899624874195,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005347149757047495,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002298610828196009,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.00224826120150586,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005277785627792279,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005312419186035792,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0022725726012140512,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002269099544112881,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005312516198803982,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.000529515091329813,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0022725726012140512,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0022447978456815085,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005243055056780577,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005243055056780577,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0022326421458274126,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0022291593874494233,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005208324485768875,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005190959200263023,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0022326421458274126,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002236105501651764,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005156228629251322,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005312516198803982,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0022881916568924985,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002267363015562296,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.000529515091329813,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002300347356746594,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005451341470082601,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005347246769815683,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002234378674377998,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002241324788580338,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005277785627792279,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005381977340827385,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0022447881444046893,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002236105501651764,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.000529515091329813,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0020225706975907087,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0028993041875461736,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002807287576918801,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006770812130222718,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006006933593501648,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025503395590931177,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025434031461675963,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005989568307995796,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006024298879007498,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002531257147590319,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002527784090489149,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006059029450019201,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0005972203022489945,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025677145458757877,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025503492603699365,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006024298879007498,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009809019199262062,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0020659742100785175,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.002038189753269156,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009956604723508159,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.00997048725063602,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0020347263974448047,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0020798664384831986,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.00988888981131216,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009873261054356893,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0020190976404895387,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0020295168117930493,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.010019100348775586,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009696183648581306,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0017361113956818979,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0017413209813336532,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008409726433455944,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008348957635462284,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.001737847924232483,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0017326383385807276,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008343748049810529,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008243058497707048,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0016979077675690253,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.00170660011159877,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008486114287128052,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009006946735704938,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0018645854045947392,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.00897396239452064,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0018871505744755268,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0018802141615500052,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008989581450199088,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008996527564401427,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0018697949902464945,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0018697949902464945,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.00897047963614265,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008972225865970055,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0018871505744755268,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0018645854045947392,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009001737150053183,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.011223960124577085,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.001829864534859856,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0018107627208034198,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008668401278555393,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008701395321016511,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0017951339638481538,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0017881975509226322,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.00868403003551066,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008696176034087936,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0017951339638481538,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0017934071365743876,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008668401278555393,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.008664928221454224,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.001798607020949324,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02545659663155675,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.0050434027798473835,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004913192242383957,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025444440931702655,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025414929647619527,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.0049027827723572654,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004899309715256095,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02540972006196777,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025407983533417184,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004901036542529861,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004909728886559606,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025453123574455578,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02548784444419046,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004913192242383957,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004909728886559606,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02541666617617011,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025401037419214845,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.00490104624380668,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004907982656732202,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025668404608344037,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025435758288949728,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.005024310667067766,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004906255829458435,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025472225388512015,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025430558404574793,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004909728886559606,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025401047120491665,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.0048871540154019994,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004881944429750244,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025397574063390493,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025392364477738738,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004888890543952584,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004902773071080446,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025368053078030545,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02538368183498581,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.00490104624380668,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004885417486851414,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025376735720783472,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02541666617617011,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004878471372649074,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004875008016824722,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025354170550902683,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025651039322838187,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004897563485428691,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004890627072503169,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025387154892086983,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025401037419214845,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004890617371226351,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004883680958300829,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.0253524340223521,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.025388891420637567,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.004885417486851414,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.0846006926925232,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015423604054376483,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.01544965198263526,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08411980040060978,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08400694544737537,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015463534509763122,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015427077111477653,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08410937152802944,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08405902190133929,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.0154565980968376,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015447915454084674,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08431945267754297,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.0842031246672074,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015555551120390495,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.01547396338234345,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08696528190436463,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08711805761170884,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.016034716585030157,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.0159756940168639,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08654340247934063,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08358160266652703,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015074658828477064,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.01500173433062931,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08452777789595227,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08669618788796167,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.016086802740270894,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08445139004228015,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015307295446594557,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015232634420196215,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08425346459262073,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08406423148699105,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015310758802418908,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015335070202127099,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08959028248985608,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.084998260717839,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015432296398406228,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.014980895988022288,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08159547966594498,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08327951460766296,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.01574999381167193,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015373254427686334,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.0846892362460494,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08409896205800275,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015458334625388185,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.015461807682489356,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08366492693312466,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09364236029796302,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019989587599411607,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.01604860881343484,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08906770381145179,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.08549479146798451,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.01556423376314342,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4420260471912722,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.09029687498696148,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07565972434046368,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4607291678742816,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4819149326067418,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.1517447914617757,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.08219964608239631,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4512777765436719,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.43808506840529543,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07777951153305669,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07778645764725904,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4634548580118765,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4331041709519923,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.08096701155106227,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.2105624977654467,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4180972270357112,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4208628476286928,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07678645973404248,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07362499794301887,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4208715205701689,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4138802081191291,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.074494785318772,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07223958770434062,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4189236108989765,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.43141145336752135,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07297917424390714,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.41518402091848355,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07347222223567466,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.0727812487942477,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.418559027214845,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.42265624506399035,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07866145460866392,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07536805545290311,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.41158159729093313,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.44520832792234916,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07661979179829359,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.08447570144198835,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4223871510475874,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.43274999673788744,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.0751371553633362,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07521354321700831,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.42009027674794197,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4185173602309078,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07488020734551053,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07788021078643699,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.42624132280858856,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4267083325733741,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07540103979408741,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07578125223517418,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4291701382802178,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4317083318407337,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.07584895744609337,
+          "rects": 24,
+          "trial": 12
+        }
+      ]
+    },
+    "ios": {
+      "binarySHA256": "74f76119f6ff21afde5072e4d77a6fc3c5f4773d1f61fd2248a3cd3c46822030",
+      "samples": [
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.3892228404680887e-05,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 4.339381121098995e-05,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 7.986091077327728e-05,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 4.687656958897909e-05,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 1.0419171303510666e-05,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.672941476106644e-06,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.936412925521533e-06,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 5.209585651755333e-06,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 6.936412925521533e-06,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 6.936412925521533e-06,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 8.672941476106644e-06,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.936412925521533e-06,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 1.5619055678447086e-05,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.936412925521533e-06,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.946114202340444e-06,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": false,
+          "meanQueryMS": 8.682642752925554e-06,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 0,
+          "candidate": true,
+          "meanQueryMS": 6.936412925521533e-06,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 8.333396787444751e-05,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 2.7784456809361775e-05,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 2.2565169880787533e-05,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 9.200690935055415e-05,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 8.680702497561772e-05,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.909211277961731e-05,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 2.082864133020242e-05,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 8.507049642503262e-05,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 8.507049642503262e-05,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.909211277961731e-05,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 2.0838342607021332e-05,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 8.680702497561772e-05,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 8.507049642503262e-05,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 2.4311399708191555e-05,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.9101814056436222e-05,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 8.680702497561772e-05,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 8.680702497561772e-05,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.909211277961731e-05,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.909211277961731e-05,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 8.507049642503262e-05,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 8.680702497561772e-05,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.909211277961731e-05,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 1.909211277961731e-05,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 8.680702497561772e-05,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 8.507049642503262e-05,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 2.7774755532542866e-05,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00011110872340699036,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.554951106508573e-05,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.034962669014931e-05,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00011458178050816059,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.0001163183090587457,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.208615524073442e-05,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.034962669014931e-05,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00011110872340699036,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00011458178050816059,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.034962669014931e-05,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.034962669014931e-05,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.0001163183090587457,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00011458178050816059,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.208615524073442e-05,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.034962669014931e-05,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00011284525195757548,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00011458178050816059,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.034962669014931e-05,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.034962669014931e-05,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00011285495323439439,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00011458178050816059,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.03399254133304e-05,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.03399254133304e-05,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00011284525195757548,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": false,
+          "meanQueryMS": 0.00011458178050816059,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 1,
+          "candidate": true,
+          "meanQueryMS": 5.034962669014931e-05,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002552076087643703,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0007083387269328038,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006875003843257824,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025190917464594045,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002515628390635053,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006510429860403141,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006371507576356331,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025034726907809577,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025590319031228623,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006371507576356331,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006371507576356331,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002541666617617011,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002508682276432713,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006406238147368034,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006440968718379736,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025069457478821278,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002515628390635053,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006406238147368034,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006423603432873884,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002527784090489149,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002506936046605309,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006388969874630371,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006371507576356331,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002538193560515841,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025347205034146705,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006527795145908991,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002522564803560575,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006701350988199314,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006440968718379736,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002494790048028032,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025277743892123303,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006440968718379736,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006423603432873884,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025190917464594045,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002572924131527543,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006527795145908991,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006510429860403141,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025607587303966284,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002553822317471107,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006232682305077711,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006440968718379736,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.0025295206190397343,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002539930089066426,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006302046434332927,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006440968718379736,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002538193560515841,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002494790048028032,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006336874018112818,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006250047590583563,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002522564803560575,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": false,
+          "meanQueryMS": 0.002510409103706479,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 25,
+          "candidate": true,
+          "meanQueryMS": 0.0006232682305077711,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009659716549019018,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.002253470787157615,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.002222222974523902,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009682291420176625,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009656253193194667,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0022152865615983806,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0022447881444046893,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009725694932664434,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.0097413236896197,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0022621534299105406,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.002222222974523902,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009713548934087157,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.00956944616821905,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021684002907325826,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0022499977300564447,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009571182696769634,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.00941840698942542,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021909751618901887,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0022118038032203913,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009487848728895187,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009378476534038782,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.00214409859230121,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021597176479796567,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009385412946964303,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.00935069207722942,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021423620637506247,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009611113152156273,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021857558749616146,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0022274325601756573,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009607640095055103,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009484375671794018,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021788194620360932,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021788194620360932,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009468746914838752,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009625005380560955,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.002446176949888468,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021805462893098593,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009644097493340572,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009604167037953934,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.002177082933485508,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021857655762384334,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009375003476937612,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009317707736045122,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021128507796674967,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021111142511169114,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009284723394860825,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009298615623265505,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021163238367686668,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.002121533422420422,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009282986866310239,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": false,
+          "meanQueryMS": 0.009281250337759653,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 100,
+          "candidate": true,
+          "meanQueryMS": 0.0021145776069412627,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.027559028239920735,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.005989587710549434,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.005994797296201189,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.027630206507941086,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.027677083077530067,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.005977432010695338,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.00594444766951104,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02820312511175871,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02769096560465793,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006053819864367445,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006000006881852944,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02782638572777311,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02763715262214343,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.005932282268380125,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.005932291969656944,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.027746524816999834,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028003472834825516,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.00610937907670935,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006147563302268584,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02848611135656635,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028598956608523924,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006255208669851224,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006137144130965074,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02890451772448917,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028644096649562318,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.0060868042055517435,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028684027104948957,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006104169491057594,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.00611285213381052,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028479165242364008,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028522568754851818,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006064239035670956,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006090277262652914,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028498257355143625,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028315970363716286,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006083340849727392,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006090277262652914,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028571181852991383,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028612848836928606,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006109369375432531,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006111115605259935,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02824652862424652,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028237855682770412,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006119788546736042,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006135417303691308,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028045130117485922,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02843924448825419,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006078121562798818,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.006060765978569786,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.028456590371206403,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": false,
+          "meanQueryMS": 0.02815624854216973,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 300,
+          "candidate": true,
+          "meanQueryMS": 0.0060711754485964775,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.0952031211151431,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019840284949168563,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019876732646177214,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09496353838282327,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09493402709874015,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019800344792505104,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019861113590498764,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09442535035001735,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09489583317190409,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019840275247891743,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019703118596225977,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09440451200741033,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09494097321294248,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.01971528399735689,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019800344792505104,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.0948732680020233,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09484549324649076,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.01982117343383531,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019822919663662713,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09434027985359232,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.0947187557661285,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019803827550883096,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019786462265377242,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09471180965192616,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09494443656876683,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019598955987021327,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09388194303028286,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019022564326102536,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.018935767002403736,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09150173476276298,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.0924079892380784,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.01892013824544847,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.01892708435965081,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09481770878968139,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09482118184678257,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.01961979432962835,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019571171530211966,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09497395755412678,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09453818590069811,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019626740443830688,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019548616061607998,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.0944635442768534,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.0945173572593679,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.0195156317204237,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.0195694447029382,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09455382435893019,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09437673725187778,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.01963020379965504,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019564235117286444,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09294270421378314,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": false,
+          "meanQueryMS": 0.09454339548634987,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 1000,
+          "candidate": true,
+          "meanQueryMS": 0.019499993262191612,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.49156250315718353,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.1243923616129905,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.10505903628654778,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4783871506030361,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4974010322863857,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.09652429920000334,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.09664930015181501,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4721041671776523,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.5147013871464878,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.10676388046704233,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.10650174226611853,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.5551302068245908,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.7563142377572755,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.22489930658290783,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.17248090201367935,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.5919635392880688,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.6313611132403215,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.11371007227959733,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.16670485880846778,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.7910954785378029,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.5444045139787098,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.10209722677245736,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.10189931102407475,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.5225416680332273,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.49132813001051545,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": false,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.10641146218404174,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.47992708277888596,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.09829686799397071,
+          "rects": 24,
+          "trial": 0
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.09840972294720511,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4996944432302068,
+          "rects": 24,
+          "trial": 1
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4822690971195698,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.09899131449249883,
+          "rects": 24,
+          "trial": 2
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.09787499827022354,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4742500022985041,
+          "rects": 24,
+          "trial": 3
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.47130207531154156,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.09753298945724964,
+          "rects": 24,
+          "trial": 4
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.09781770252933104,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.47318228947309154,
+          "rects": 24,
+          "trial": 5
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.4805868084076792,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.09522048640064895,
+          "rects": 24,
+          "trial": 6
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.10627604206092656,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.47589236055500805,
+          "rects": 24,
+          "trial": 7
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.5215208317774037,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.10145312990061939,
+          "rects": 24,
+          "trial": 8
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.10210069012828171,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.532326385534058,
+          "rects": 24,
+          "trial": 9
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.49348437460139394,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.1078940889177223,
+          "rects": 24,
+          "trial": 10
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.10509722051210701,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.49393576531050104,
+          "rects": 24,
+          "trial": 11
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": false,
+          "meanQueryMS": 0.48660069781666,
+          "rects": 24,
+          "trial": 12
+        },
+        {
+          "active": true,
+          "attributes": 5000,
+          "candidate": true,
+          "meanQueryMS": 0.10232118074782193,
+          "rects": 24,
+          "trial": 12
+        }
+      ]
+    }
+  }
+}

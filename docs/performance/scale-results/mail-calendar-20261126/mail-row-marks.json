@@ -1,0 +1,365 @@
+{
+  "scope": "Release host process, production cursor-mark registry. 32 simultaneously held cells, equal ID sequences with cursor state and shared identity checks. Check surviving sampled objects after forward, hot lookups and reverse. Process peak bytes from getrusage includes the harness.",
+  "runs": [
+    {
+      "build": "original",
+      "binarySHA256": "0a9f41fd3464b71d4eac4a853a5b6e4238c8c6a3fea001443df254763469eb3d",
+      "samples": [
+        {
+          "count": 256,
+          "peakBytes": 6094848,
+          "phase": "forward",
+          "survivingSamples": 1,
+          "totalMS": 1.2613751459866762,
+          "weakSamples": 1
+        },
+        {
+          "count": 256,
+          "peakBytes": 6094848,
+          "phase": "visible-hits",
+          "survivingSamples": 1,
+          "totalMS": 0.11550006456673145,
+          "weakSamples": 1
+        },
+        {
+          "count": 256,
+          "peakBytes": 6094848,
+          "phase": "reverse",
+          "survivingSamples": 1,
+          "totalMS": 0.11158338747918606,
+          "weakSamples": 1
+        }
+      ]
+    },
+    {
+      "build": "candidate",
+      "binarySHA256": "731b8bda291f705c7d28678173e75197ca59fcea67fffb9f251211874fadcde4",
+      "samples": [
+        {
+          "count": 256,
+          "peakBytes": 6078464,
+          "phase": "forward",
+          "survivingSamples": 0,
+          "totalMS": 1.118500018492341,
+          "weakSamples": 1
+        },
+        {
+          "count": 256,
+          "peakBytes": 6078464,
+          "phase": "visible-hits",
+          "survivingSamples": 0,
+          "totalMS": 0.16512488946318626,
+          "weakSamples": 1
+        },
+        {
+          "count": 256,
+          "peakBytes": 6078464,
+          "phase": "reverse",
+          "survivingSamples": 0,
+          "totalMS": 0.2709999680519104,
+          "weakSamples": 1
+        }
+      ]
+    },
+    {
+      "build": "candidate",
+      "binarySHA256": "731b8bda291f705c7d28678173e75197ca59fcea67fffb9f251211874fadcde4",
+      "samples": [
+        {
+          "count": 256,
+          "peakBytes": 6078464,
+          "phase": "forward",
+          "survivingSamples": 0,
+          "totalMS": 1.0059168562293053,
+          "weakSamples": 1
+        },
+        {
+          "count": 256,
+          "peakBytes": 6078464,
+          "phase": "visible-hits",
+          "survivingSamples": 0,
+          "totalMS": 0.16445829533040524,
+          "weakSamples": 1
+        },
+        {
+          "count": 256,
+          "peakBytes": 6078464,
+          "phase": "reverse",
+          "survivingSamples": 0,
+          "totalMS": 0.27112499810755253,
+          "weakSamples": 1
+        }
+      ]
+    },
+    {
+      "build": "original",
+      "binarySHA256": "0a9f41fd3464b71d4eac4a853a5b6e4238c8c6a3fea001443df254763469eb3d",
+      "samples": [
+        {
+          "count": 256,
+          "peakBytes": 6094848,
+          "phase": "forward",
+          "survivingSamples": 1,
+          "totalMS": 0.7917918264865875,
+          "weakSamples": 1
+        },
+        {
+          "count": 256,
+          "peakBytes": 6094848,
+          "phase": "visible-hits",
+          "survivingSamples": 1,
+          "totalMS": 0.11408329010009766,
+          "weakSamples": 1
+        },
+        {
+          "count": 256,
+          "peakBytes": 6094848,
+          "phase": "reverse",
+          "survivingSamples": 1,
+          "totalMS": 0.10933331213891506,
+          "weakSamples": 1
+        }
+      ]
+    },
+    {
+      "build": "original",
+      "binarySHA256": "0a9f41fd3464b71d4eac4a853a5b6e4238c8c6a3fea001443df254763469eb3d",
+      "samples": [
+        {
+          "count": 2000,
+          "peakBytes": 6651904,
+          "phase": "forward",
+          "survivingSamples": 4,
+          "totalMS": 2.2130832076072693,
+          "weakSamples": 4
+        },
+        {
+          "count": 2000,
+          "peakBytes": 6651904,
+          "phase": "visible-hits",
+          "survivingSamples": 4,
+          "totalMS": 0.8597082924097776,
+          "weakSamples": 4
+        },
+        {
+          "count": 2000,
+          "peakBytes": 6651904,
+          "phase": "reverse",
+          "survivingSamples": 4,
+          "totalMS": 0.8549999911338091,
+          "weakSamples": 4
+        }
+      ]
+    },
+    {
+      "build": "candidate",
+      "binarySHA256": "731b8bda291f705c7d28678173e75197ca59fcea67fffb9f251211874fadcde4",
+      "samples": [
+        {
+          "count": 2000,
+          "peakBytes": 6094848,
+          "phase": "forward",
+          "survivingSamples": 0,
+          "totalMS": 3.0385833233594894,
+          "weakSamples": 4
+        },
+        {
+          "count": 2000,
+          "peakBytes": 6094848,
+          "phase": "visible-hits",
+          "survivingSamples": 0,
+          "totalMS": 1.2990001123398542,
+          "weakSamples": 4
+        },
+        {
+          "count": 2000,
+          "peakBytes": 6094848,
+          "phase": "reverse",
+          "survivingSamples": 0,
+          "totalMS": 2.26604170165956,
+          "weakSamples": 4
+        }
+      ]
+    },
+    {
+      "build": "candidate",
+      "binarySHA256": "731b8bda291f705c7d28678173e75197ca59fcea67fffb9f251211874fadcde4",
+      "samples": [
+        {
+          "count": 2000,
+          "peakBytes": 6094848,
+          "phase": "forward",
+          "survivingSamples": 0,
+          "totalMS": 3.062875010073185,
+          "weakSamples": 4
+        },
+        {
+          "count": 2000,
+          "peakBytes": 6094848,
+          "phase": "visible-hits",
+          "survivingSamples": 0,
+          "totalMS": 1.2857499532401562,
+          "weakSamples": 4
+        },
+        {
+          "count": 2000,
+          "peakBytes": 6094848,
+          "phase": "reverse",
+          "survivingSamples": 0,
+          "totalMS": 2.2742501460015774,
+          "weakSamples": 4
+        }
+      ]
+    },
+    {
+      "build": "original",
+      "binarySHA256": "0a9f41fd3464b71d4eac4a853a5b6e4238c8c6a3fea001443df254763469eb3d",
+      "samples": [
+        {
+          "count": 2000,
+          "peakBytes": 6651904,
+          "phase": "forward",
+          "survivingSamples": 4,
+          "totalMS": 2.1490834187716246,
+          "weakSamples": 4
+        },
+        {
+          "count": 2000,
+          "peakBytes": 6651904,
+          "phase": "visible-hits",
+          "survivingSamples": 4,
+          "totalMS": 0.8708331733942032,
+          "weakSamples": 4
+        },
+        {
+          "count": 2000,
+          "peakBytes": 6651904,
+          "phase": "reverse",
+          "survivingSamples": 4,
+          "totalMS": 0.8440832607448101,
+          "weakSamples": 4
+        }
+      ]
+    },
+    {
+      "build": "original",
+      "binarySHA256": "0a9f41fd3464b71d4eac4a853a5b6e4238c8c6a3fea001443df254763469eb3d",
+      "samples": [
+        {
+          "count": 180000,
+          "peakBytes": 44679168,
+          "phase": "forward",
+          "survivingSamples": 352,
+          "totalMS": 130.78816677443683,
+          "weakSamples": 352
+        },
+        {
+          "count": 180000,
+          "peakBytes": 44744704,
+          "phase": "visible-hits",
+          "survivingSamples": 352,
+          "totalMS": 82.20908348448575,
+          "weakSamples": 352
+        },
+        {
+          "count": 180000,
+          "peakBytes": 44744704,
+          "phase": "reverse",
+          "survivingSamples": 352,
+          "totalMS": 89.35504173859954,
+          "weakSamples": 352
+        }
+      ]
+    },
+    {
+      "build": "candidate",
+      "binarySHA256": "731b8bda291f705c7d28678173e75197ca59fcea67fffb9f251211874fadcde4",
+      "samples": [
+        {
+          "count": 180000,
+          "peakBytes": 6094848,
+          "phase": "forward",
+          "survivingSamples": 0,
+          "totalMS": 209.71654169261456,
+          "weakSamples": 352
+        },
+        {
+          "count": 180000,
+          "peakBytes": 6094848,
+          "phase": "visible-hits",
+          "survivingSamples": 0,
+          "totalMS": 120.31295825727284,
+          "weakSamples": 352
+        },
+        {
+          "count": 180000,
+          "peakBytes": 6094848,
+          "phase": "reverse",
+          "survivingSamples": 0,
+          "totalMS": 209.30300001055002,
+          "weakSamples": 352
+        }
+      ]
+    },
+    {
+      "build": "candidate",
+      "binarySHA256": "731b8bda291f705c7d28678173e75197ca59fcea67fffb9f251211874fadcde4",
+      "samples": [
+        {
+          "count": 180000,
+          "peakBytes": 6094848,
+          "phase": "forward",
+          "survivingSamples": 0,
+          "totalMS": 209.18962499126792,
+          "weakSamples": 352
+        },
+        {
+          "count": 180000,
+          "peakBytes": 6094848,
+          "phase": "visible-hits",
+          "survivingSamples": 0,
+          "totalMS": 113.77579183317721,
+          "weakSamples": 352
+        },
+        {
+          "count": 180000,
+          "peakBytes": 6094848,
+          "phase": "reverse",
+          "survivingSamples": 0,
+          "totalMS": 207.3344166856259,
+          "weakSamples": 352
+        }
+      ]
+    },
+    {
+      "build": "original",
+      "binarySHA256": "0a9f41fd3464b71d4eac4a853a5b6e4238c8c6a3fea001443df254763469eb3d",
+      "samples": [
+        {
+          "count": 180000,
+          "peakBytes": 44662784,
+          "phase": "forward",
+          "survivingSamples": 352,
+          "totalMS": 118.91537508927286,
+          "weakSamples": 352
+        },
+        {
+          "count": 180000,
+          "peakBytes": 44728320,
+          "phase": "visible-hits",
+          "survivingSamples": 352,
+          "totalMS": 80.54545824415982,
+          "weakSamples": 352
+        },
+        {
+          "count": 180000,
+          "peakBytes": 44728320,
+          "phase": "reverse",
+          "survivingSamples": 352,
+          "totalMS": 85.19574999809265,
+          "weakSamples": 352
+        }
+      ]
+    }
+  ]
+}

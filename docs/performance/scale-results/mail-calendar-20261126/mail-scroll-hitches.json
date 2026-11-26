@@ -1,0 +1,407 @@
+{
+  "scope": "Real Mail inbox on physical devices. Each sample flings forward four times, crossing pages on the full synthetic mailbox. The smaller configured 300-row window exercises more frequent window slides. Each XCTest verifies distinct visible rows after flinging. Aggregate UIKit signposts include scroll and deceleration; the two window sizes do not constitute a before/after product build.",
+  "runs": [
+    {
+      "device": "M1 iPad Pro",
+      "condition": "earlier physical stress review",
+      "test": "ScaleStressUITests/testMailScrollThroughPagesHitches()",
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            2.510874583,
+            2.49273075,
+            2.494348833,
+            2.526937,
+            2.534840833
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            101.55824279785156,
+            103.9021224975586,
+            107.0419692993164,
+            104.47431182861328,
+            114.40560913085938
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "device": "M1 iPad Pro",
+      "condition": "earlier physical stress review",
+      "test": "ScaleStressUITests/testMailScrollThroughSlidingWindowsHitches()",
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            2.5107198750000004,
+            2.511327833,
+            2.5112442500000003,
+            2.5096091250000003,
+            2.5275722920000003
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            101.56449127197266,
+            113.08758544921875,
+            110.30388641357422,
+            100.81250762939453,
+            110.77824401855469
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "condition": "phone-functional-mail-scroll-landscape",
+      "test": "ScaleStressUITests/testMailScrollThroughPagesHitches()",
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            2.4935447920000002,
+            2.4931222920000002,
+            2.4933048330000003,
+            2.493869084,
+            2.4936184580000003
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            85.01952362060547,
+            85.4350357055664,
+            85.42878723144531,
+            84.20650482177734,
+            85.01701354980469
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "condition": "phone-functional-mail-scroll-landscape",
+      "test": "ScaleStressUITests/testMailScrollThroughSlidingWindowsHitches()",
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            2.4937425,
+            2.4936735000000003,
+            2.4936557500000003,
+            2.493909833,
+            2.493841792
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            86.6167984008789,
+            86.61919403076172,
+            84.21370697021484,
+            85.4080581665039,
+            84.6084213256836
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "condition": "phone-functional-mail-scroll-portrait",
+      "test": "ScaleStressUITests/testMailScrollThroughPagesHitches()",
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            2.494053,
+            2.4600082910000003,
+            2.493834208,
+            2.493314083,
+            2.4938304170000003
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            86.60601043701172,
+            84.95906829833984,
+            87.01460266113281,
+            81.41773986816406,
+            86.6137466430664
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "condition": "phone-functional-mail-scroll-portrait",
+      "test": "ScaleStressUITests/testMailScrollThroughSlidingWindowsHitches()",
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            2.494128291,
+            2.4768400830000004,
+            2.4939567080000002,
+            2.493931041,
+            2.493290875
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            85.801513671875,
+            86.40040588378906,
+            86.60936737060547,
+            82.60051727294922,
+            86.63249969482422
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  ]
+}

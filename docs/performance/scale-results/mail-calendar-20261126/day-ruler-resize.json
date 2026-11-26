@@ -1,0 +1,817 @@
+{
+  "scope": "Windowed UIKit on the stock iPhone Simulator with the window kept hidden. Actual native Calendar collection and fixed 1,344-point day. Each run checks 18 header/footer changes, midnight and end-of-day clamping. Timings are 21 groups of 400 layout calls. The comparison omits only the ruler-repositioning call, keeping the rest of the collection identical. No visible frame or latency claim.",
+  "runs": [
+    {
+      "build": "comparison",
+      "binarySHA256": "3d466978bca8284e3bd8ca5c5c448e46997211fd5718dc6d26229e35c4bbe529",
+      "cases": [
+        {
+          "action": "addTop-0.0",
+          "viewportTop": 156.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "removeTop-0.0",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-0.0",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "removeBottom-0.0",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "addTop-18.0",
+          "viewportTop": 156.0,
+          "offset": 36.0,
+          "expected": 54.0,
+          "passed": false
+        },
+        {
+          "action": "removeTop-18.0",
+          "viewportTop": 120.0,
+          "offset": 18.0,
+          "expected": 18.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-18.0",
+          "viewportTop": 120.0,
+          "offset": 36.0,
+          "expected": 18.0,
+          "passed": false
+        },
+        {
+          "action": "removeBottom-18.0",
+          "viewportTop": 120.0,
+          "offset": 18.0,
+          "expected": 18.0,
+          "passed": true
+        },
+        {
+          "action": "addTop-560.0",
+          "viewportTop": 156.0,
+          "offset": 578.0,
+          "expected": 596.0,
+          "passed": false
+        },
+        {
+          "action": "removeTop-560.0",
+          "viewportTop": 120.0,
+          "offset": 560.0,
+          "expected": 560.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-560.0",
+          "viewportTop": 120.0,
+          "offset": 578.0,
+          "expected": 560.0,
+          "passed": false
+        },
+        {
+          "action": "removeBottom-560.0",
+          "viewportTop": 120.0,
+          "offset": 560.0,
+          "expected": 560.0,
+          "passed": true
+        },
+        {
+          "action": "addTop-744.0",
+          "viewportTop": 156.0,
+          "offset": 762.0,
+          "expected": 780.0,
+          "passed": false
+        },
+        {
+          "action": "removeTop-744.0",
+          "viewportTop": 120.0,
+          "offset": 726.0,
+          "expected": 744.0,
+          "passed": false
+        },
+        {
+          "action": "addBottom-744.0",
+          "viewportTop": 120.0,
+          "offset": 744.0,
+          "expected": 744.0,
+          "passed": true
+        },
+        {
+          "action": "removeBottom-744.0",
+          "viewportTop": 120.0,
+          "offset": 726.0,
+          "expected": 744.0,
+          "passed": false
+        },
+        {
+          "action": "clampNearMidnight",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "clampAtEnd",
+          "viewportTop": 120.0,
+          "offset": 726.0,
+          "expected": 744.0,
+          "passed": false
+        }
+      ],
+      "sampleMeansMS": {
+        "sameBounds": [
+          0.00423802062869072,
+          0.003861562581732869,
+          0.17862583335954696,
+          0.07494468765798956,
+          0.021266041439957917,
+          0.09536010446026921,
+          0.004074479220435023,
+          0.0037865625927224755,
+          0.0037951039848849177,
+          0.003785208100453019,
+          0.0037887500366196036,
+          0.003806666354648769,
+          0.0038020836655050516,
+          0.00377166667021811,
+          0.0038062495877966285,
+          0.003780937404371798,
+          0.07776583370286971,
+          0.0841471872990951,
+          0.006351353949867189,
+          0.01959260436706245,
+          0.03510979178827256
+        ],
+        "twoTopHeights": [
+          1.9098932290216908,
+          0.18220697878859937,
+          0.4286246874835342,
+          0.1795660419156775,
+          0.9570765623357147,
+          0.4732403124216944,
+          0.4220665624598041,
+          0.5898081249324605,
+          0.33491062466055155,
+          0.9596916666487232,
+          0.6080764584476128,
+          0.23630260431673378,
+          0.6133262498769909,
+          0.21259874978568405,
+          0.14461031241808087,
+          0.13274302065838128,
+          0.1419934374280274,
+          0.10127822926733643,
+          0.10301531292498112,
+          0.20647854136768728,
+          0.3049654164351523
+        ],
+        "twoBottomHeights": [
+          0.19087385386228561,
+          0.10676635371055454,
+          0.29704416694585234,
+          0.4895478126127273,
+          0.10302843758836389,
+          0.1370644790586084,
+          0.10199645825196058,
+          0.10283020848874003,
+          0.2840754168573767,
+          0.16859854164067656,
+          0.25672041636426,
+          0.33448750036768615,
+          0.10479656222742051,
+          0.10081166692543775,
+          0.341463228687644,
+          0.10632979159709066,
+          0.8422986458754167,
+          0.6048734375508502,
+          0.10220697906333953,
+          0.10209062485955656,
+          0.10184479178860784
+        ]
+      }
+    },
+    {
+      "build": "candidate",
+      "binarySHA256": "72219c05387eed6f336a321ccf0d9d859e7be63ba54b1c8f71365623506ed6ab",
+      "cases": [
+        {
+          "action": "addTop-0.0",
+          "viewportTop": 156.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "removeTop-0.0",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-0.0",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "removeBottom-0.0",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "addTop-18.0",
+          "viewportTop": 156.0,
+          "offset": 54.0,
+          "expected": 54.0,
+          "passed": true
+        },
+        {
+          "action": "removeTop-18.0",
+          "viewportTop": 120.0,
+          "offset": 18.0,
+          "expected": 18.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-18.0",
+          "viewportTop": 120.0,
+          "offset": 18.0,
+          "expected": 18.0,
+          "passed": true
+        },
+        {
+          "action": "removeBottom-18.0",
+          "viewportTop": 120.0,
+          "offset": 18.0,
+          "expected": 18.0,
+          "passed": true
+        },
+        {
+          "action": "addTop-560.0",
+          "viewportTop": 156.0,
+          "offset": 596.0,
+          "expected": 596.0,
+          "passed": true
+        },
+        {
+          "action": "removeTop-560.0",
+          "viewportTop": 120.0,
+          "offset": 560.0,
+          "expected": 560.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-560.0",
+          "viewportTop": 120.0,
+          "offset": 560.0,
+          "expected": 560.0,
+          "passed": true
+        },
+        {
+          "action": "removeBottom-560.0",
+          "viewportTop": 120.0,
+          "offset": 560.0,
+          "expected": 560.0,
+          "passed": true
+        },
+        {
+          "action": "addTop-744.0",
+          "viewportTop": 156.0,
+          "offset": 780.0,
+          "expected": 780.0,
+          "passed": true
+        },
+        {
+          "action": "removeTop-744.0",
+          "viewportTop": 120.0,
+          "offset": 744.0,
+          "expected": 744.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-744.0",
+          "viewportTop": 120.0,
+          "offset": 744.0,
+          "expected": 744.0,
+          "passed": true
+        },
+        {
+          "action": "removeBottom-744.0",
+          "viewportTop": 120.0,
+          "offset": 744.0,
+          "expected": 744.0,
+          "passed": true
+        },
+        {
+          "action": "clampNearMidnight",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "clampAtEnd",
+          "viewportTop": 120.0,
+          "offset": 744.0,
+          "expected": 744.0,
+          "passed": true
+        }
+      ],
+      "sampleMeansMS": {
+        "sameBounds": [
+          0.004033645964227617,
+          0.004032916622236371,
+          0.0042047916213050485,
+          0.003998228930868208,
+          0.004000000189989805,
+          0.004492291482165456,
+          0.00405072933062911,
+          0.004426978994160891,
+          0.00623249972704798,
+          0.0039981253212317824,
+          0.003948750090785325,
+          0.003922603791579604,
+          0.003911979147233069,
+          0.0039018748793751,
+          0.0041407294338569045,
+          0.0052313541527837515,
+          0.0040501041803509,
+          0.006839896086603403,
+          0.0038886454422026873,
+          0.003881145967170596,
+          0.0038988544838503003
+        ],
+        "twoTopHeights": [
+          0.14306718774605542,
+          0.17010916664730757,
+          0.14936854131519794,
+          0.15843197877984494,
+          0.14853458327706903,
+          0.14089364558458328,
+          0.14303812524303794,
+          0.15426510362885892,
+          0.13485822943039238,
+          0.1312111457809806,
+          0.13492614612914622,
+          0.13901364582125098,
+          0.13508968753740191,
+          0.13738802110310644,
+          0.13960239535663277,
+          0.1346557296346873,
+          0.13116052083205432,
+          0.13217177067417651,
+          0.13344833336304873,
+          0.1313375000609085,
+          0.13304499967489392
+        ],
+        "twoBottomHeights": [
+          0.13518947933334857,
+          0.13410437502898276,
+          0.1275298959808424,
+          0.1288048957940191,
+          0.1308256248012185,
+          0.13439520844258368,
+          0.1275404164334759,
+          0.13298156263772398,
+          0.13126895821187645,
+          0.13933281297795475,
+          0.12997739599086344,
+          0.13351520814467221,
+          0.12931958364788443,
+          0.13517312472686172,
+          0.13101416698191315,
+          0.13322187529411167,
+          0.13278843718580902,
+          0.1323677081381902,
+          0.1316468749428168,
+          0.1304567710030824,
+          0.1260393753182143
+        ]
+      }
+    },
+    {
+      "build": "candidate",
+      "binarySHA256": "72219c05387eed6f336a321ccf0d9d859e7be63ba54b1c8f71365623506ed6ab",
+      "cases": [
+        {
+          "action": "addTop-0.0",
+          "viewportTop": 156.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "removeTop-0.0",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-0.0",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "removeBottom-0.0",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "addTop-18.0",
+          "viewportTop": 156.0,
+          "offset": 54.0,
+          "expected": 54.0,
+          "passed": true
+        },
+        {
+          "action": "removeTop-18.0",
+          "viewportTop": 120.0,
+          "offset": 18.0,
+          "expected": 18.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-18.0",
+          "viewportTop": 120.0,
+          "offset": 18.0,
+          "expected": 18.0,
+          "passed": true
+        },
+        {
+          "action": "removeBottom-18.0",
+          "viewportTop": 120.0,
+          "offset": 18.0,
+          "expected": 18.0,
+          "passed": true
+        },
+        {
+          "action": "addTop-560.0",
+          "viewportTop": 156.0,
+          "offset": 596.0,
+          "expected": 596.0,
+          "passed": true
+        },
+        {
+          "action": "removeTop-560.0",
+          "viewportTop": 120.0,
+          "offset": 560.0,
+          "expected": 560.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-560.0",
+          "viewportTop": 120.0,
+          "offset": 560.0,
+          "expected": 560.0,
+          "passed": true
+        },
+        {
+          "action": "removeBottom-560.0",
+          "viewportTop": 120.0,
+          "offset": 560.0,
+          "expected": 560.0,
+          "passed": true
+        },
+        {
+          "action": "addTop-744.0",
+          "viewportTop": 156.0,
+          "offset": 780.0,
+          "expected": 780.0,
+          "passed": true
+        },
+        {
+          "action": "removeTop-744.0",
+          "viewportTop": 120.0,
+          "offset": 744.0,
+          "expected": 744.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-744.0",
+          "viewportTop": 120.0,
+          "offset": 744.0,
+          "expected": 744.0,
+          "passed": true
+        },
+        {
+          "action": "removeBottom-744.0",
+          "viewportTop": 120.0,
+          "offset": 744.0,
+          "expected": 744.0,
+          "passed": true
+        },
+        {
+          "action": "clampNearMidnight",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "clampAtEnd",
+          "viewportTop": 120.0,
+          "offset": 744.0,
+          "expected": 744.0,
+          "passed": true
+        }
+      ],
+      "sampleMeansMS": {
+        "sameBounds": [
+          0.004180624964646995,
+          0.0040179165080189705,
+          0.004014375153928995,
+          0.0040106254164129496,
+          0.004010417032986879,
+          0.004008958349004388,
+          0.004010417032986879,
+          0.004008958349004388,
+          0.004022499779239297,
+          0.003998021129518747,
+          0.00405395810957998,
+          0.004012812860310078,
+          0.003992291167378426,
+          0.004124999977648258,
+          0.004119895747862756,
+          0.0042760418727993965,
+          0.0037989584961906075,
+          0.0037754164077341557,
+          0.0037743750726804137,
+          0.004096250049769878,
+          0.0037629163125529885
+        ],
+        "twoTopHeights": [
+          0.12887979159131646,
+          0.16277562477625906,
+          0.13168031233362854,
+          0.1342008332721889,
+          0.12395187513902783,
+          0.12519822921603918,
+          0.1320267707342282,
+          0.13931614579632878,
+          0.12841458315961063,
+          0.13146729150321335,
+          0.12776927091181278,
+          0.13166531280148774,
+          0.12739427096676081,
+          0.13072552101220936,
+          0.12806031212676316,
+          0.13443895848467946,
+          0.13021270860917866,
+          0.14208312495611608,
+          0.13556906254962087,
+          0.13280374987516552,
+          0.1277744787512347
+        ],
+        "twoBottomHeights": [
+          0.12970354175195098,
+          0.12924322916660458,
+          0.13595052063465118,
+          0.1372706249821931,
+          0.13977479131426662,
+          0.1301762496586889,
+          0.13781979156192392,
+          0.13311208342202008,
+          0.13688749982975423,
+          0.13741260394454002,
+          0.12832875014282763,
+          0.13163958326913416,
+          0.13540614570956677,
+          0.13195802050177008,
+          0.1299988542450592,
+          0.12770104163791984,
+          0.12799614574760199,
+          0.13073562528006732,
+          0.13495802064426243,
+          0.13474499981384724,
+          0.14232510409783572
+        ]
+      }
+    },
+    {
+      "build": "comparison",
+      "binarySHA256": "3d466978bca8284e3bd8ca5c5c448e46997211fd5718dc6d26229e35c4bbe529",
+      "cases": [
+        {
+          "action": "addTop-0.0",
+          "viewportTop": 156.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "removeTop-0.0",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-0.0",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "removeBottom-0.0",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "addTop-18.0",
+          "viewportTop": 156.0,
+          "offset": 36.0,
+          "expected": 54.0,
+          "passed": false
+        },
+        {
+          "action": "removeTop-18.0",
+          "viewportTop": 120.0,
+          "offset": 18.0,
+          "expected": 18.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-18.0",
+          "viewportTop": 120.0,
+          "offset": 36.0,
+          "expected": 18.0,
+          "passed": false
+        },
+        {
+          "action": "removeBottom-18.0",
+          "viewportTop": 120.0,
+          "offset": 18.0,
+          "expected": 18.0,
+          "passed": true
+        },
+        {
+          "action": "addTop-560.0",
+          "viewportTop": 156.0,
+          "offset": 578.0,
+          "expected": 596.0,
+          "passed": false
+        },
+        {
+          "action": "removeTop-560.0",
+          "viewportTop": 120.0,
+          "offset": 560.0,
+          "expected": 560.0,
+          "passed": true
+        },
+        {
+          "action": "addBottom-560.0",
+          "viewportTop": 120.0,
+          "offset": 578.0,
+          "expected": 560.0,
+          "passed": false
+        },
+        {
+          "action": "removeBottom-560.0",
+          "viewportTop": 120.0,
+          "offset": 560.0,
+          "expected": 560.0,
+          "passed": true
+        },
+        {
+          "action": "addTop-744.0",
+          "viewportTop": 156.0,
+          "offset": 762.0,
+          "expected": 780.0,
+          "passed": false
+        },
+        {
+          "action": "removeTop-744.0",
+          "viewportTop": 120.0,
+          "offset": 726.0,
+          "expected": 744.0,
+          "passed": false
+        },
+        {
+          "action": "addBottom-744.0",
+          "viewportTop": 120.0,
+          "offset": 744.0,
+          "expected": 744.0,
+          "passed": true
+        },
+        {
+          "action": "removeBottom-744.0",
+          "viewportTop": 120.0,
+          "offset": 726.0,
+          "expected": 744.0,
+          "passed": false
+        },
+        {
+          "action": "clampNearMidnight",
+          "viewportTop": 120.0,
+          "offset": 0.0,
+          "expected": 0.0,
+          "passed": true
+        },
+        {
+          "action": "clampAtEnd",
+          "viewportTop": 120.0,
+          "offset": 726.0,
+          "expected": 744.0,
+          "passed": false
+        }
+      ],
+      "sampleMeansMS": {
+        "sameBounds": [
+          0.003898750292137265,
+          0.003895312547683716,
+          0.008777708280831575,
+          0.0038471876177936792,
+          0.0038412498543038964,
+          0.00385104154702276,
+          0.005127812619321048,
+          0.0038575002690777183,
+          0.004033437580801547,
+          0.004694791859947145,
+          0.0038767704972997308,
+          0.004290312645025551,
+          0.0042936456156894565,
+          0.0039012503111734986,
+          0.004215625231154263,
+          0.005826354026794434,
+          0.007168229203671217,
+          0.0038010417483747005,
+          0.0037956249434500933,
+          0.003793437499552965,
+          0.0037884374614804983
+        ],
+        "twoTopHeights": [
+          0.11344812519382685,
+          0.11834666656795889,
+          0.12849375023506582,
+          0.13594437506981194,
+          0.13660843775141984,
+          0.10986333363689482,
+          0.1318011461989954,
+          0.12701656203716993,
+          0.11589343775995076,
+          0.10145624983124435,
+          0.10077395825646818,
+          0.1555916666984558,
+          0.15793385391589254,
+          0.1097759377444163,
+          0.1482983329333365,
+          0.10884125018492341,
+          0.13670385407749563,
+          0.1118791667977348,
+          0.12729031208436936,
+          0.10731458372902125,
+          0.13373562542255968
+        ],
+        "twoBottomHeights": [
+          0.11563510459382087,
+          0.11086302110925317,
+          0.10146729124244303,
+          0.12260427116416395,
+          0.10107187554240227,
+          0.1268178125610575,
+          0.11103614582680166,
+          0.1055605208966881,
+          0.10156447940971702,
+          0.1095274998806417,
+          0.10026979143731296,
+          0.10059812513645738,
+          0.10097749996930361,
+          0.10063291643746197,
+          0.1000757294241339,
+          0.10088718729093671,
+          0.15905322914477438,
+          0.1566346874460578,
+          0.15551593736745417,
+          0.12179489596746862,
+          0.10264833341352642
+        ]
+      }
+    }
+  ]
+}

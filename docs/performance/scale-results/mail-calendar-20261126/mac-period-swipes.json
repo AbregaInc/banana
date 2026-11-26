@@ -1,0 +1,92 @@
+{
+  "scope": "Replay direction, phase, momentum phase, distance and timestamp from AppKit scroll events. Separate headless AppKit checks exercise the calendar viewport. Visible trackpad interaction still requires a Mac run.",
+  "binarySHA256": "4b376e7e14ff77430854474768b709bfbd5fb92e61028216ea93119cee8013ec",
+  "sequences": [
+    {
+      "after": [
+        1
+      ],
+      "before": [
+        1,
+        1
+      ],
+      "required": [
+        1
+      ],
+      "sequence": "horizontal then coast"
+    },
+    {
+      "after": [],
+      "before": [
+        1
+      ],
+      "required": [],
+      "sequence": "short drag then momentum"
+    },
+    {
+      "after": [
+        1
+      ],
+      "before": [
+        1,
+        1
+      ],
+      "required": [
+        1
+      ],
+      "sequence": "pause with fingers down"
+    },
+    {
+      "after": [
+        1,
+        -1
+      ],
+      "before": [
+        1,
+        -1
+      ],
+      "required": [
+        1,
+        -1
+      ],
+      "sequence": "two deliberate gestures"
+    },
+    {
+      "after": [],
+      "before": [
+        1
+      ],
+      "required": [],
+      "sequence": "vertical with lateral momentum"
+    },
+    {
+      "after": [],
+      "before": [
+        1
+      ],
+      "required": [],
+      "sequence": "cancelled"
+    },
+    {
+      "after": [
+        1,
+        1
+      ],
+      "before": [
+        1,
+        1
+      ],
+      "required": [
+        1,
+        1
+      ],
+      "sequence": "phaseless input"
+    }
+  ],
+  "nativeChecks": "267 AppKit layout, initial-mount and paging checks passed",
+  "nativeCheckSources": {
+    "Banana/Views/CalendarViewportEnvironment.swift": "a696342df7e92ad1c4566ca765e94fc0d070f40e7263185a9cdaa6bc906855ab",
+    "Banana/Views/CalendarMacCollectionView.swift": "3ffc11239de4f72ec8ad5daeb027a25872b98a3c61d18ed8cc53e25153d171dd",
+    "tools/calendar-mac-viewport-tests/main.swift": "178eab2057bb4a355c2fbb7f17b6917ce1b4b0892ee9377afddafe56294e78dd"
+  }
+}

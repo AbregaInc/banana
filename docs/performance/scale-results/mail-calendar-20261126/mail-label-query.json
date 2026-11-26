@@ -1,0 +1,6934 @@
+{
+  "scope": "Calls to both complete conversation readers against the same on-disk mailbox. Each result was compared for equality. Actual SQLite query plans and standalone lookup alternatives are retained below. Each thread and tested account uses the stated label counts.",
+  "binarySHA256": "7fee0d82f6f7045e3224a392af9ddbf1574bdd31789982f8b109d5a94f96f2be",
+  "databaseQueryComparisons": {
+    "samples": [
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 0,
+        "ms": 0.002542
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 0,
+        "ms": 0.085958
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 0,
+        "ms": 0.01075
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 0,
+        "ms": 0.009916
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 1,
+        "ms": 0.018917
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 1,
+        "ms": 0.005
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 1,
+        "ms": 0.005167
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 1,
+        "ms": 0.001875
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 2,
+        "ms": 0.001667
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 2,
+        "ms": 0.002458
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 2,
+        "ms": 0.0015
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 2,
+        "ms": 0.013666
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 3,
+        "ms": 0.002958
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 3,
+        "ms": 0.001625
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 3,
+        "ms": 0.011625
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 3,
+        "ms": 0.00225
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 4,
+        "ms": 0.001458
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 4,
+        "ms": 0.010542
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 4,
+        "ms": 0.002084
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 4,
+        "ms": 0.0025
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 5,
+        "ms": 0.010833
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 5,
+        "ms": 0.002167
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 5,
+        "ms": 0.00225
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 5,
+        "ms": 0.001375
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 6,
+        "ms": 0.001458
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 6,
+        "ms": 0.002625
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 6,
+        "ms": 0.001583
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 6,
+        "ms": 0.010167
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 7,
+        "ms": 0.002583
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 7,
+        "ms": 0.001625
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 7,
+        "ms": 0.012958
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 7,
+        "ms": 0.001708
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 8,
+        "ms": 0.001291
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 8,
+        "ms": 0.009875
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 8,
+        "ms": 0.001708
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 8,
+        "ms": 0.002166
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 9,
+        "ms": 0.009666
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 9,
+        "ms": 0.001958
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 9,
+        "ms": 0.002083
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 9,
+        "ms": 0.001333
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 10,
+        "ms": 0.001291
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 10,
+        "ms": 0.001875
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 10,
+        "ms": 0.00125
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 10,
+        "ms": 0.009584
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 11,
+        "ms": 0.002333
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 11,
+        "ms": 0.001291
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 11,
+        "ms": 0.009083
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 11,
+        "ms": 0.001667
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 12,
+        "ms": 0.00125
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 12,
+        "ms": 0.009542
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 12,
+        "ms": 0.001542
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 12,
+        "ms": 0.002
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 13,
+        "ms": 0.008917
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 13,
+        "ms": 0.001625
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 13,
+        "ms": 0.002
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 13,
+        "ms": 0.001375
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 14,
+        "ms": 0.001375
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 14,
+        "ms": 0.001833
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 14,
+        "ms": 0.00125
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 14,
+        "ms": 0.009875
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 15,
+        "ms": 0.002291
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 15,
+        "ms": 0.001916
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 15,
+        "ms": 0.009416
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 15,
+        "ms": 0.001709
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 16,
+        "ms": 0.00125
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 16,
+        "ms": 0.00925
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 16,
+        "ms": 0.001625
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 16,
+        "ms": 0.002
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 17,
+        "ms": 0.009083
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 17,
+        "ms": 0.001667
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 17,
+        "ms": 0.001917
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 17,
+        "ms": 0.00125
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 18,
+        "ms": 0.001292
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 18,
+        "ms": 0.002708
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 18,
+        "ms": 0.001333
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 18,
+        "ms": 0.009083
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "batch",
+        "trial": 19,
+        "ms": 0.002417
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "catalog",
+        "trial": 19,
+        "ms": 0.001417
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "json",
+        "trial": 19,
+        "ms": 0.009042
+      },
+      {
+        "catalogLabels": 0,
+        "activeLabels": 0,
+        "variant": "lookup",
+        "trial": 19,
+        "ms": 0.001625
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 0,
+        "ms": 0.021916
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 0,
+        "ms": 0.040584
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 0,
+        "ms": 0.011542
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 0,
+        "ms": 0.019333
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 1,
+        "ms": 0.012334
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 1,
+        "ms": 0.005167
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 1,
+        "ms": 0.010833
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 1,
+        "ms": 0.021792
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 2,
+        "ms": 0.004833
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 2,
+        "ms": 0.010458
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 2,
+        "ms": 0.021583
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 2,
+        "ms": 0.011125
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 3,
+        "ms": 0.009792
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 3,
+        "ms": 0.021542
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 3,
+        "ms": 0.011458
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 3,
+        "ms": 0.005125
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 4,
+        "ms": 0.021083
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 4,
+        "ms": 0.011
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 4,
+        "ms": 0.004833
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 4,
+        "ms": 0.01025
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 5,
+        "ms": 0.011417
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 5,
+        "ms": 0.004833
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 5,
+        "ms": 0.009792
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 5,
+        "ms": 0.0215
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 6,
+        "ms": 0.004666
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 6,
+        "ms": 0.009
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 6,
+        "ms": 0.021291
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 6,
+        "ms": 0.011041
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 7,
+        "ms": 0.009292
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 7,
+        "ms": 0.021542
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 7,
+        "ms": 0.010458
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 7,
+        "ms": 0.004917
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 8,
+        "ms": 0.021042
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 8,
+        "ms": 0.010958
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 8,
+        "ms": 0.004791
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 8,
+        "ms": 0.009708
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 9,
+        "ms": 0.01075
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 9,
+        "ms": 0.004792
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 9,
+        "ms": 0.009417
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 9,
+        "ms": 0.021459
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 10,
+        "ms": 0.004791
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 10,
+        "ms": 0.00975
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 10,
+        "ms": 0.021375
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 10,
+        "ms": 0.010917
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 11,
+        "ms": 0.009833
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 11,
+        "ms": 0.021417
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 11,
+        "ms": 0.010792
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 11,
+        "ms": 0.004834
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 12,
+        "ms": 0.021125
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 12,
+        "ms": 0.012458
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 12,
+        "ms": 0.00475
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 12,
+        "ms": 0.009792
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 13,
+        "ms": 0.010959
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 13,
+        "ms": 0.004875
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 13,
+        "ms": 0.009417
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 13,
+        "ms": 0.022291
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 14,
+        "ms": 0.00475
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 14,
+        "ms": 0.009375
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 14,
+        "ms": 0.022125
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 14,
+        "ms": 0.011583
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 15,
+        "ms": 0.009375
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 15,
+        "ms": 0.022208
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 15,
+        "ms": 0.011167
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 15,
+        "ms": 0.00525
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 16,
+        "ms": 0.022083
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 16,
+        "ms": 0.01075
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 16,
+        "ms": 0.00525
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 16,
+        "ms": 0.009666
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 17,
+        "ms": 0.011333
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 17,
+        "ms": 0.0065
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 17,
+        "ms": 0.010625
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 17,
+        "ms": 0.022458
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 18,
+        "ms": 0.004792
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 18,
+        "ms": 0.010792
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 18,
+        "ms": 0.022375
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 18,
+        "ms": 0.01175
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 19,
+        "ms": 0.009541
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 19,
+        "ms": 0.022333
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 19,
+        "ms": 0.01125
+      },
+      {
+        "catalogLabels": 50,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 19,
+        "ms": 0.005083
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 0,
+        "ms": 1.358334
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 0,
+        "ms": 0.104125
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 0,
+        "ms": 0.019625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 0,
+        "ms": 0.024959
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 1,
+        "ms": 0.015167
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 1,
+        "ms": 0.006375
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 1,
+        "ms": 0.013
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 1,
+        "ms": 1.289334
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 2,
+        "ms": 0.007083
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 2,
+        "ms": 0.01825
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 2,
+        "ms": 1.250875
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 2,
+        "ms": 0.033958
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 3,
+        "ms": 0.015958
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 3,
+        "ms": 1.258458
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 3,
+        "ms": 0.052333
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 3,
+        "ms": 0.010041
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 4,
+        "ms": 1.250792
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 4,
+        "ms": 0.047
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 4,
+        "ms": 0.009333
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 4,
+        "ms": 0.014458
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 5,
+        "ms": 0.014625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 5,
+        "ms": 0.005375
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 5,
+        "ms": 0.010167
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 5,
+        "ms": 1.236083
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 6,
+        "ms": 0.007416
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 6,
+        "ms": 0.023584
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 6,
+        "ms": 1.262542
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 6,
+        "ms": 0.064333
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 7,
+        "ms": 0.018834
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 7,
+        "ms": 1.145083
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 7,
+        "ms": 0.015167
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 7,
+        "ms": 0.006792
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 8,
+        "ms": 1.14075
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 8,
+        "ms": 0.01425
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 8,
+        "ms": 0.006
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 8,
+        "ms": 0.011333
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 9,
+        "ms": 0.012625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 9,
+        "ms": 0.0055
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 9,
+        "ms": 0.012375
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 9,
+        "ms": 1.139459
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 10,
+        "ms": 0.005916
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 10,
+        "ms": 0.012208
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 10,
+        "ms": 1.139083
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 10,
+        "ms": 0.012458
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 11,
+        "ms": 0.010209
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 11,
+        "ms": 1.138667
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 11,
+        "ms": 0.013625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 11,
+        "ms": 0.00525
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 12,
+        "ms": 1.138
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 12,
+        "ms": 0.012
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 12,
+        "ms": 0.005083
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 12,
+        "ms": 0.011666
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 13,
+        "ms": 0.012375
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 13,
+        "ms": 0.005
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 13,
+        "ms": 0.009583
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 13,
+        "ms": 1.176916
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 14,
+        "ms": 0.004916
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 14,
+        "ms": 0.011458
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 14,
+        "ms": 1.137875
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 14,
+        "ms": 0.013334
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 15,
+        "ms": 0.04025
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 15,
+        "ms": 1.3035
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 15,
+        "ms": 0.061084
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 15,
+        "ms": 0.012292
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 16,
+        "ms": 1.25675
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 16,
+        "ms": 0.049708
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 16,
+        "ms": 0.010208
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 16,
+        "ms": 0.01875
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 17,
+        "ms": 0.021333
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 17,
+        "ms": 0.008916
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 17,
+        "ms": 0.014291
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 17,
+        "ms": 1.241208
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 18,
+        "ms": 0.008083
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 18,
+        "ms": 0.038917
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 18,
+        "ms": 1.234292
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 18,
+        "ms": 0.037291
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "batch",
+        "trial": 19,
+        "ms": 0.017209
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "catalog",
+        "trial": 19,
+        "ms": 1.223917
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "json",
+        "trial": 19,
+        "ms": 0.025875
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 2,
+        "variant": "lookup",
+        "trial": 19,
+        "ms": 0.007166
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 0,
+        "ms": 1.200583
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 0,
+        "ms": 0.14675
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 0,
+        "ms": 0.097375
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 0,
+        "ms": 0.084334
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 1,
+        "ms": 0.056416
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 1,
+        "ms": 0.08275
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 1,
+        "ms": 0.0515
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 1,
+        "ms": 1.215458
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 2,
+        "ms": 0.089209
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 2,
+        "ms": 0.075042
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 2,
+        "ms": 1.203917
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 2,
+        "ms": 0.074834
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 3,
+        "ms": 0.054625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 3,
+        "ms": 1.212084
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 3,
+        "ms": 0.086834
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 3,
+        "ms": 0.088208
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 4,
+        "ms": 1.20875
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 4,
+        "ms": 0.080667
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 4,
+        "ms": 0.082084
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 4,
+        "ms": 0.055541
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 5,
+        "ms": 0.051792
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 5,
+        "ms": 0.081041
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 5,
+        "ms": 0.04875
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 5,
+        "ms": 1.215875
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 6,
+        "ms": 0.081833
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 6,
+        "ms": 0.052625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 6,
+        "ms": 1.19825
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 6,
+        "ms": 0.068083
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 7,
+        "ms": 0.062334
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 7,
+        "ms": 1.178583
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 7,
+        "ms": 0.057542
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 7,
+        "ms": 0.084166
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 8,
+        "ms": 1.171792
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 8,
+        "ms": 0.070416
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 8,
+        "ms": 0.085208
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 8,
+        "ms": 0.059541
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 9,
+        "ms": 0.05125
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 9,
+        "ms": 0.08
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 9,
+        "ms": 0.048459
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 9,
+        "ms": 1.172583
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 10,
+        "ms": 0.089625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 10,
+        "ms": 0.073917
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 10,
+        "ms": 1.203625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 10,
+        "ms": 0.094
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 11,
+        "ms": 0.058375
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 11,
+        "ms": 1.254167
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 11,
+        "ms": 0.104458
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 11,
+        "ms": 0.098334
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 12,
+        "ms": 1.248583
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 12,
+        "ms": 0.079542
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 12,
+        "ms": 0.084792
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 12,
+        "ms": 0.056625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 13,
+        "ms": 0.054333
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 13,
+        "ms": 0.08375
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 13,
+        "ms": 0.050375
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 13,
+        "ms": 1.263625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 14,
+        "ms": 0.088375
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 14,
+        "ms": 0.059417
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 14,
+        "ms": 1.288625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 14,
+        "ms": 0.0695
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 15,
+        "ms": 0.054125
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 15,
+        "ms": 1.248833
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 15,
+        "ms": 0.061125
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 15,
+        "ms": 0.084958
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 16,
+        "ms": 1.24325
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 16,
+        "ms": 0.060459
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 16,
+        "ms": 0.084791
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 16,
+        "ms": 0.053833
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 17,
+        "ms": 0.057875
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 17,
+        "ms": 0.084667
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 17,
+        "ms": 0.050208
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 17,
+        "ms": 1.25225
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 18,
+        "ms": 0.086042
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 18,
+        "ms": 0.0545
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 18,
+        "ms": 1.32425
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 18,
+        "ms": 0.112792
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "batch",
+        "trial": 19,
+        "ms": 0.065042
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "catalog",
+        "trial": 19,
+        "ms": 1.259334
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "json",
+        "trial": 19,
+        "ms": 0.0625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 50,
+        "variant": "lookup",
+        "trial": 19,
+        "ms": 0.086709
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 0,
+        "ms": 1.23675
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 0,
+        "ms": 1.193667
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 0,
+        "ms": 1.609667
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 0,
+        "ms": 0.968125
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 1,
+        "ms": 0.926667
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 1,
+        "ms": 1.564334
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 1,
+        "ms": 0.84525
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 1,
+        "ms": 1.250875
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 2,
+        "ms": 1.579666
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 2,
+        "ms": 0.879417
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 2,
+        "ms": 1.297791
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 2,
+        "ms": 0.93825
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 3,
+        "ms": 0.870584
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 3,
+        "ms": 1.305792
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 3,
+        "ms": 0.941125
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 3,
+        "ms": 1.620042
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 4,
+        "ms": 1.299916
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 4,
+        "ms": 0.936208
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 4,
+        "ms": 1.618792
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 4,
+        "ms": 0.884041
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 5,
+        "ms": 0.946833
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 5,
+        "ms": 1.490833
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 5,
+        "ms": 0.792167
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 5,
+        "ms": 1.191417
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 6,
+        "ms": 1.473625
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 6,
+        "ms": 0.783291
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 6,
+        "ms": 1.171417
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 6,
+        "ms": 0.874833
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 7,
+        "ms": 0.784583
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 7,
+        "ms": 1.328459
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 7,
+        "ms": 0.926375
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 7,
+        "ms": 1.670416
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 8,
+        "ms": 1.361875
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 8,
+        "ms": 0.954166
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 8,
+        "ms": 1.575834
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 8,
+        "ms": 0.8745
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 9,
+        "ms": 0.910083
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 9,
+        "ms": 1.590666
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 9,
+        "ms": 0.856958
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 9,
+        "ms": 1.292041
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 10,
+        "ms": 1.603708
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 10,
+        "ms": 0.881209
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 10,
+        "ms": 1.257
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 10,
+        "ms": 0.966041
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 11,
+        "ms": 0.855708
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 11,
+        "ms": 1.309417
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 11,
+        "ms": 0.975791
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 11,
+        "ms": 1.6855
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 12,
+        "ms": 1.40175
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 12,
+        "ms": 0.9835
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 12,
+        "ms": 1.615292
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 12,
+        "ms": 0.878834
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 13,
+        "ms": 0.968084
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 13,
+        "ms": 1.651125
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 13,
+        "ms": 0.892166
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 13,
+        "ms": 1.287833
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 14,
+        "ms": 1.687958
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 14,
+        "ms": 0.957375
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 14,
+        "ms": 1.3185
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 14,
+        "ms": 0.914917
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 15,
+        "ms": 0.871125
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 15,
+        "ms": 1.334583
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 15,
+        "ms": 0.920125
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 15,
+        "ms": 1.504834
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 16,
+        "ms": 1.227417
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 16,
+        "ms": 0.901958
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 16,
+        "ms": 1.566167
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 16,
+        "ms": 0.933
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 17,
+        "ms": 1.02175
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 17,
+        "ms": 1.656792
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 17,
+        "ms": 0.930708
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 17,
+        "ms": 1.461375
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 18,
+        "ms": 1.751458
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 18,
+        "ms": 0.940959
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 18,
+        "ms": 1.19325
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 18,
+        "ms": 0.883167
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "batch",
+        "trial": 19,
+        "ms": 0.82125
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "catalog",
+        "trial": 19,
+        "ms": 1.216917
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "json",
+        "trial": 19,
+        "ms": 0.918084
+      },
+      {
+        "catalogLabels": 3000,
+        "activeLabels": 1000,
+        "variant": "lookup",
+        "trial": 19,
+        "ms": 1.781875
+      }
+    ],
+    "plans": {
+      "catalog": [
+        "SEARCH label USING INDEX label_by_name (account_pk=?)"
+      ],
+      "json": [
+        "SEARCH label USING INDEX sqlite_autoindex_label_1 (account_pk=? AND gmail_id=?)",
+        "LIST SUBQUERY 1",
+        "SCAN json_each VIRTUAL TABLE INDEX 1:"
+      ],
+      "lookup": [
+        "SEARCH label USING INDEX sqlite_autoindex_label_1 (account_pk=? AND gmail_id=?)"
+      ]
+    },
+    "sqlite": "3.54.0"
+  },
+  "runs": [
+    {
+      "catalogCount": 0,
+      "usedCount": 0,
+      "samples": [
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 1.2775000650435686,
+          "optimized": false,
+          "thread": "single",
+          "trial": 0
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.4669167101383209,
+          "optimized": true,
+          "thread": "single",
+          "trial": 0
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.8000833913683891,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7411250844597816,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 3.0392915941774845,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 3.434500191360712,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.40291668847203255,
+          "optimized": true,
+          "thread": "single",
+          "trial": 1
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.3143749199807644,
+          "optimized": false,
+          "thread": "single",
+          "trial": 1
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7460832130163908,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.72245835326612,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.8065000660717487,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 3.0436248052865267,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.3611666616052389,
+          "optimized": false,
+          "thread": "single",
+          "trial": 2
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.5054583307355642,
+          "optimized": true,
+          "thread": "single",
+          "trial": 2
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.9644166566431522,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 1.0774999391287565,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 3.10270837508142,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.832875121384859,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.33683329820632935,
+          "optimized": true,
+          "thread": "single",
+          "trial": 3
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.2892084885388613,
+          "optimized": false,
+          "thread": "single",
+          "trial": 3
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7360416930168867,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7152915932238102,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.754458226263523,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 3.034041728824377,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.47520827502012253,
+          "optimized": false,
+          "thread": "single",
+          "trial": 4
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.36570848897099495,
+          "optimized": true,
+          "thread": "single",
+          "trial": 4
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7067499682307243,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7023750804364681,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.6932084001600742,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.7295835316181183,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.28591672889888287,
+          "optimized": true,
+          "thread": "single",
+          "trial": 5
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.37891650572419167,
+          "optimized": false,
+          "thread": "single",
+          "trial": 5
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7046249229460955,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7092501036822796,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.9792916029691696,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 3.0215000733733177,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.30487519688904285,
+          "optimized": false,
+          "thread": "single",
+          "trial": 6
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.2824582625180483,
+          "optimized": true,
+          "thread": "single",
+          "trial": 6
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.6869165226817131,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.676875002682209,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.7974583208560944,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.984666731208563,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.3526667132973671,
+          "optimized": true,
+          "thread": "single",
+          "trial": 7
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.30233338475227356,
+          "optimized": false,
+          "thread": "single",
+          "trial": 7
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7353334221988916,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.6941249594092369,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.763958415016532,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.7757082134485245,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.28304150328040123,
+          "optimized": false,
+          "thread": "single",
+          "trial": 8
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.2950832713395357,
+          "optimized": true,
+          "thread": "single",
+          "trial": 8
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7113334722816944,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.6890001241117716,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.6402082294225693,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.557541476562619,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.48616668209433556,
+          "optimized": true,
+          "thread": "single",
+          "trial": 9
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.2881251275539398,
+          "optimized": false,
+          "thread": "single",
+          "trial": 9
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7697083055973053,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.727000180631876,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.877000020816922,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.7149582747370005,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.2926667220890522,
+          "optimized": false,
+          "thread": "single",
+          "trial": 10
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.2958332188427448,
+          "optimized": true,
+          "thread": "single",
+          "trial": 10
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.857208389788866,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7770834490656853,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.836375031620264,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.8309582266956568,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.36566657945513725,
+          "optimized": true,
+          "thread": "single",
+          "trial": 11
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.2930834889411926,
+          "optimized": false,
+          "thread": "single",
+          "trial": 11
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7450415287166834,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.6973333656787872,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.6492082979530096,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.693749964237213,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.26029162108898163,
+          "optimized": false,
+          "thread": "single",
+          "trial": 12
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.25687506422400475,
+          "optimized": true,
+          "thread": "single",
+          "trial": 12
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.683958176523447,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.6719166412949562,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.801708411425352,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.8169583529233932,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.29324996285140514,
+          "optimized": true,
+          "thread": "single",
+          "trial": 13
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.2972499933093786,
+          "optimized": false,
+          "thread": "single",
+          "trial": 13
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.754291657358408,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.8309166878461838,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 3.286750055849552,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 3.132999874651432,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.32562483102083206,
+          "optimized": false,
+          "thread": "single",
+          "trial": 14
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.31779147684574127,
+          "optimized": true,
+          "thread": "single",
+          "trial": 14
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7133332546800375,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.726041616871953,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.8668749146163464,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.8469166718423367,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.38929167203605175,
+          "optimized": true,
+          "thread": "single",
+          "trial": 15
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.29037497006356716,
+          "optimized": false,
+          "thread": "single",
+          "trial": 15
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.8643749170005322,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.9388749022036791,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.7735831681638956,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 2.7426250744611025,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.2962083090096712,
+          "optimized": false,
+          "thread": "single",
+          "trial": 16
+        },
+        {
+          "activeLabels": 0,
+          "messages": 1,
+          "ms": 0.2967917826026678,
+          "optimized": true,
+          "thread": "single",
+          "trial": 16
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7505416870117188,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 0,
+          "messages": 12,
+          "ms": 0.7207500748336315,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 3.0411251354962587,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 0,
+          "messages": 64,
+          "ms": 3.1747918110340834,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 16
+        }
+      ]
+    },
+    {
+      "catalogCount": 3000,
+      "usedCount": 1000,
+      "samples": [
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 3.398624947294593,
+          "optimized": false,
+          "thread": "single",
+          "trial": 0
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.9764999635517597,
+          "optimized": true,
+          "thread": "single",
+          "trial": 0
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.2522084657102823,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.3216667361557484,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.756083410233259,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 6.1854582745581865,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 3.1009167432785034,
+          "optimized": true,
+          "thread": "single",
+          "trial": 1
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.9987499583512545,
+          "optimized": false,
+          "thread": "single",
+          "trial": 1
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.363541793078184,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.4227916039526463,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.482374923303723,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.175416590645909,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.9358332976698875,
+          "optimized": false,
+          "thread": "single",
+          "trial": 2
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.8844166081398726,
+          "optimized": true,
+          "thread": "single",
+          "trial": 2
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.283583326265216,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.134374972432852,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.487833172082901,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.172416567802429,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.7165417559444904,
+          "optimized": true,
+          "thread": "single",
+          "trial": 3
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.8487499803304672,
+          "optimized": false,
+          "thread": "single",
+          "trial": 3
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.3338333014398813,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.238250035792589,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.177416605874896,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.370916565880179,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.7469999622553587,
+          "optimized": false,
+          "thread": "single",
+          "trial": 4
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.6946666184812784,
+          "optimized": true,
+          "thread": "single",
+          "trial": 4
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.37349995970726,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.323999932035804,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.272874841466546,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.453541642054915,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.644249936565757,
+          "optimized": true,
+          "thread": "single",
+          "trial": 5
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.832625061273575,
+          "optimized": false,
+          "thread": "single",
+          "trial": 5
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.081499831750989,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.229500027373433,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.1438333466649055,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.438874941319227,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 3.054250031709671,
+          "optimized": false,
+          "thread": "single",
+          "trial": 6
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.9371667187660933,
+          "optimized": true,
+          "thread": "single",
+          "trial": 6
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.272624919191003,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.11150006018579,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.501416744664311,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.088291596621275,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.7490833308547735,
+          "optimized": true,
+          "thread": "single",
+          "trial": 7
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.9880416113883257,
+          "optimized": false,
+          "thread": "single",
+          "trial": 7
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.3695416059345007,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.206208348274231,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.2849166095256805,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.310708424076438,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.7453750371932983,
+          "optimized": false,
+          "thread": "single",
+          "trial": 8
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.7092916425317526,
+          "optimized": true,
+          "thread": "single",
+          "trial": 8
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.387375036254525,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.3093332313001156,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.204041721299291,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.435750121250749,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.6355416048318148,
+          "optimized": true,
+          "thread": "single",
+          "trial": 9
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.738458337262273,
+          "optimized": false,
+          "thread": "single",
+          "trial": 9
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.220833372324705,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.5423333756625652,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.25454175658524,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.372166633605957,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.882750006392598,
+          "optimized": false,
+          "thread": "single",
+          "trial": 10
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.6308749802410603,
+          "optimized": true,
+          "thread": "single",
+          "trial": 10
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.182333428412676,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.280916716903448,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.391416605561972,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.115416832268238,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.74645839817822,
+          "optimized": true,
+          "thread": "single",
+          "trial": 11
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.8510417323559523,
+          "optimized": false,
+          "thread": "single",
+          "trial": 11
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.0501249711960554,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.168500028550625,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.478458246216178,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.359875038266182,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.7752083260565996,
+          "optimized": false,
+          "thread": "single",
+          "trial": 12
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.7743333484977484,
+          "optimized": true,
+          "thread": "single",
+          "trial": 12
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.3168750815093517,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.0477498658001423,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.094083491712809,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.080666625872254,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.5747916661202908,
+          "optimized": true,
+          "thread": "single",
+          "trial": 13
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.6439998764544725,
+          "optimized": false,
+          "thread": "single",
+          "trial": 13
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.1927083618938923,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.2449583522975445,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.083958152681589,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.055083427578211,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.803125185891986,
+          "optimized": false,
+          "thread": "single",
+          "trial": 14
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.749541774392128,
+          "optimized": true,
+          "thread": "single",
+          "trial": 14
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.2296250574290752,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.020291682332754,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.226541543379426,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.064500030130148,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.6629583444446325,
+          "optimized": true,
+          "thread": "single",
+          "trial": 15
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.8274166397750378,
+          "optimized": false,
+          "thread": "single",
+          "trial": 15
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.195500001311302,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.4076666925102472,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.3667917381972075,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.260916659608483,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.9150417540222406,
+          "optimized": false,
+          "thread": "single",
+          "trial": 16
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 1,
+          "ms": 2.638750011101365,
+          "optimized": true,
+          "thread": "single",
+          "trial": 16
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.1619167421013117,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 12,
+          "ms": 3.105625044554472,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.626916652545333,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 1000,
+          "messages": 64,
+          "ms": 5.119916750118136,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 16
+        }
+      ]
+    },
+    {
+      "catalogCount": 3000,
+      "usedCount": 2,
+      "samples": [
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 2.579333260655403,
+          "optimized": false,
+          "thread": "single",
+          "trial": 0
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.5044999998062849,
+          "optimized": true,
+          "thread": "single",
+          "trial": 0
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.128083258867264,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7706249598413706,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.365874920040369,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.4436665009707212,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.35775010474026203,
+          "optimized": true,
+          "thread": "single",
+          "trial": 1
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.8307084683328867,
+          "optimized": false,
+          "thread": "single",
+          "trial": 1
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7863333448767662,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.072000177577138,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.862458350136876,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.306375049054623,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.8281666561961174,
+          "optimized": false,
+          "thread": "single",
+          "trial": 2
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.35541667602956295,
+          "optimized": true,
+          "thread": "single",
+          "trial": 2
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.021291758865118,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.736333429813385,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.132041707634926,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.088208381086588,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3697499632835388,
+          "optimized": true,
+          "thread": "single",
+          "trial": 3
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.8324584234505892,
+          "optimized": false,
+          "thread": "single",
+          "trial": 3
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.9730418678373098,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.0832500886172056,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.773958258330822,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.1744166519492865,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.8346668221056461,
+          "optimized": false,
+          "thread": "single",
+          "trial": 4
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.4779999144375324,
+          "optimized": true,
+          "thread": "single",
+          "trial": 4
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 1.9915415905416012,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7077916525304317,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.052875097841024,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.8980833012610674,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.48645841889083385,
+          "optimized": true,
+          "thread": "single",
+          "trial": 5
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.7992916982620955,
+          "optimized": false,
+          "thread": "single",
+          "trial": 5
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7863750215619802,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.220166614279151,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.893708413466811,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.145208280533552,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.8080417066812515,
+          "optimized": false,
+          "thread": "single",
+          "trial": 6
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.37687504664063454,
+          "optimized": true,
+          "thread": "single",
+          "trial": 6
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.3005418479442596,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7772084791213274,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.134208429604769,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.9263333417475224,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3234583418816328,
+          "optimized": true,
+          "thread": "single",
+          "trial": 7
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.605625031515956,
+          "optimized": false,
+          "thread": "single",
+          "trial": 7
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7103751413524151,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 1.9649164751172066,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.8481250628829002,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.12908336147666,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.9696250092238188,
+          "optimized": false,
+          "thread": "single",
+          "trial": 8
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3971667028963566,
+          "optimized": true,
+          "thread": "single",
+          "trial": 8
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.257375046610832,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 1.0226666927337646,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.324083216488361,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.916458295658231,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3112500999122858,
+          "optimized": true,
+          "thread": "single",
+          "trial": 9
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.7249584197998047,
+          "optimized": false,
+          "thread": "single",
+          "trial": 9
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.772333238273859,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.195958513766527,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.8648751322180033,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.097499884665012,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.9060834310948849,
+          "optimized": false,
+          "thread": "single",
+          "trial": 10
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.4610000178217888,
+          "optimized": true,
+          "thread": "single",
+          "trial": 10
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.234125044196844,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.946166692301631,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.259249893948436,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.8606667183339596,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.30841678380966187,
+          "optimized": true,
+          "thread": "single",
+          "trial": 11
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.6665833536535501,
+          "optimized": false,
+          "thread": "single",
+          "trial": 11
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.778749817982316,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.305250149220228,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.795875072479248,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.182250006124377,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.7089168541133404,
+          "optimized": false,
+          "thread": "single",
+          "trial": 12
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3619999624788761,
+          "optimized": true,
+          "thread": "single",
+          "trial": 12
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.211708342656493,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7955415640026331,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.2336247861385345,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.747416729107499,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.304666580632329,
+          "optimized": true,
+          "thread": "single",
+          "trial": 13
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.6250417102128267,
+          "optimized": false,
+          "thread": "single",
+          "trial": 13
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7596248760819435,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.1239998750388622,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.075916552916169,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.974958322942257,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.649041660130024,
+          "optimized": false,
+          "thread": "single",
+          "trial": 14
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3148750402033329,
+          "optimized": true,
+          "thread": "single",
+          "trial": 14
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.1697499323636293,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 1.00462487898767,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.468958359211683,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.792750019580126,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.297000166028738,
+          "optimized": true,
+          "thread": "single",
+          "trial": 15
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.6271250788122416,
+          "optimized": false,
+          "thread": "single",
+          "trial": 15
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7238332182168961,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 1.9860833417624235,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.069291589781642,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.085666732862592,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.6109165735542774,
+          "optimized": false,
+          "thread": "single",
+          "trial": 16
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.29587489552795887,
+          "optimized": true,
+          "thread": "single",
+          "trial": 16
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 2.0381249487400055,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7071248255670071,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 4.20899991877377,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.1343332957476377,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 16
+        }
+      ]
+    },
+    {
+      "catalogCount": 3000,
+      "usedCount": 50,
+      "samples": [
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 2.465583384037018,
+          "optimized": false,
+          "thread": "single",
+          "trial": 0
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.6252082530409098,
+          "optimized": true,
+          "thread": "single",
+          "trial": 0
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.3058748338371515,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.9480000007897615,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.288416588678956,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.252458292990923,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.45266677625477314,
+          "optimized": true,
+          "thread": "single",
+          "trial": 1
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.729374984279275,
+          "optimized": false,
+          "thread": "single",
+          "trial": 1
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.9149166289716959,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.150041749700904,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.2135415822267532,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.44879150018096,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.7687918152660131,
+          "optimized": false,
+          "thread": "single",
+          "trial": 2
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.5581665318459272,
+          "optimized": true,
+          "thread": "single",
+          "trial": 2
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.191083272919059,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.8893334306776524,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.497916670516133,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.268583444878459,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.48016663640737534,
+          "optimized": true,
+          "thread": "single",
+          "trial": 3
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.8891249783337116,
+          "optimized": false,
+          "thread": "single",
+          "trial": 3
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.9241667576134205,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.1286250557750463,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.2087082508951426,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.256250103935599,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.764749875292182,
+          "optimized": false,
+          "thread": "single",
+          "trial": 4
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.47924998216331005,
+          "optimized": true,
+          "thread": "single",
+          "trial": 4
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.185499994084239,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.895416596904397,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.232875071465969,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.122458467260003,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.595208490267396,
+          "optimized": true,
+          "thread": "single",
+          "trial": 5
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.8057082779705524,
+          "optimized": false,
+          "thread": "single",
+          "trial": 5
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 1.0193749330937862,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.354333410039544,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.343041753396392,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.41141682676971,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.7314583528786898,
+          "optimized": false,
+          "thread": "single",
+          "trial": 6
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.6380833219736814,
+          "optimized": true,
+          "thread": "single",
+          "trial": 6
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.1654998417943716,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.9478749707341194,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.430375061929226,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.1572082079946995,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.4722082521766424,
+          "optimized": true,
+          "thread": "single",
+          "trial": 7
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.724249916151166,
+          "optimized": false,
+          "thread": "single",
+          "trial": 7
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.9496666025370359,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.2104165982455015,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.0619166791439056,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.3460417073220015,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.7547083552926779,
+          "optimized": false,
+          "thread": "single",
+          "trial": 8
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.4579166416078806,
+          "optimized": true,
+          "thread": "single",
+          "trial": 8
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.288833260536194,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.9450833313167095,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.284708295017481,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 2.940958132967353,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.44683320447802544,
+          "optimized": true,
+          "thread": "single",
+          "trial": 9
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.738041639328003,
+          "optimized": false,
+          "thread": "single",
+          "trial": 9
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.9353749919682741,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.1503751631826162,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.232291666790843,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.824333358556032,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.8574998248368502,
+          "optimized": false,
+          "thread": "single",
+          "trial": 10
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.519041670486331,
+          "optimized": true,
+          "thread": "single",
+          "trial": 10
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.229541540145874,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.958999851718545,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.62270830757916,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.1822083983570337,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.46891672536730766,
+          "optimized": true,
+          "thread": "single",
+          "trial": 11
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.6700834967195988,
+          "optimized": false,
+          "thread": "single",
+          "trial": 11
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.8463333360850811,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.21829186193645,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.7047916557639837,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.230541875585914,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.717250095680356,
+          "optimized": false,
+          "thread": "single",
+          "trial": 12
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.44520851224660873,
+          "optimized": true,
+          "thread": "single",
+          "trial": 12
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.141583478078246,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.8730832487344742,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.5572498347610235,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 2.797916764393449,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.5933751817792654,
+          "optimized": true,
+          "thread": "single",
+          "trial": 13
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.7260415479540825,
+          "optimized": false,
+          "thread": "single",
+          "trial": 13
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.9767082519829273,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.1142500918358564,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.409500000998378,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.340833518654108,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.7374164890497923,
+          "optimized": false,
+          "thread": "single",
+          "trial": 14
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.43454160913825035,
+          "optimized": true,
+          "thread": "single",
+          "trial": 14
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.2366249468177557,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.856208149343729,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.43483330309391,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 2.9876248445361853,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.4372915718704462,
+          "optimized": true,
+          "thread": "single",
+          "trial": 15
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.71729177236557,
+          "optimized": false,
+          "thread": "single",
+          "trial": 15
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 1.017125090584159,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.2930416744202375,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.3614581916481256,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.276375053450465,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 1.7597915139049292,
+          "optimized": false,
+          "thread": "single",
+          "trial": 16
+        },
+        {
+          "activeLabels": 50,
+          "messages": 1,
+          "ms": 0.5702082999050617,
+          "optimized": true,
+          "thread": "single",
+          "trial": 16
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 2.242916729301214,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 50,
+          "messages": 12,
+          "ms": 0.9045833721756935,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 4.738291725516319,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 50,
+          "messages": 64,
+          "ms": 3.8357917219400406,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 16
+        }
+      ]
+    },
+    {
+      "catalogCount": 50,
+      "usedCount": 2,
+      "samples": [
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 1.1215000413358212,
+          "optimized": false,
+          "thread": "single",
+          "trial": 0
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.5192917305976152,
+          "optimized": true,
+          "thread": "single",
+          "trial": 0
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.8648750372231007,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7686249446123838,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.0490835197269917,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.9205414466559887,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 0
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.35716663114726543,
+          "optimized": true,
+          "thread": "single",
+          "trial": 1
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.33012498170137405,
+          "optimized": false,
+          "thread": "single",
+          "trial": 1
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.8261667098850012,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 1.0617501102387905,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.824000082910061,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.8136251494288445,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 1
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3348332829773426,
+          "optimized": false,
+          "thread": "single",
+          "trial": 2
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.33154175616800785,
+          "optimized": true,
+          "thread": "single",
+          "trial": 2
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7326249033212662,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.708624953404069,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.206416731700301,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.1870834063738585,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 2
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3964165225625038,
+          "optimized": true,
+          "thread": "single",
+          "trial": 3
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3704582341015339,
+          "optimized": false,
+          "thread": "single",
+          "trial": 3
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.8477498777210712,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.8452502079308033,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.9748750384896994,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.091083373874426,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 3
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.36941678263247013,
+          "optimized": false,
+          "thread": "single",
+          "trial": 4
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3393334336578846,
+          "optimized": true,
+          "thread": "single",
+          "trial": 4
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.8406667038798332,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 1.063458388671279,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.94775003567338,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.8387082275003195,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 4
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.34991675056517124,
+          "optimized": true,
+          "thread": "single",
+          "trial": 5
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3297501243650913,
+          "optimized": false,
+          "thread": "single",
+          "trial": 5
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.8960417471826077,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.8392082527279854,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.163333283737302,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.123791655525565,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 5
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.34737493842840195,
+          "optimized": false,
+          "thread": "single",
+          "trial": 6
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.322041567414999,
+          "optimized": true,
+          "thread": "single",
+          "trial": 6
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7834166754037142,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7275417447090149,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.749708481132984,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.7967498172074556,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 6
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.31299982219934464,
+          "optimized": true,
+          "thread": "single",
+          "trial": 7
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3292500041425228,
+          "optimized": false,
+          "thread": "single",
+          "trial": 7
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7609582971781492,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7654167711734772,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.9446666594594717,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.701666671782732,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 7
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3117916639894247,
+          "optimized": false,
+          "thread": "single",
+          "trial": 8
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.2899998798966408,
+          "optimized": true,
+          "thread": "single",
+          "trial": 8
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7371248211711645,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7123749237507582,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.79120821505785,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.0996249988675117,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 8
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3107499796897173,
+          "optimized": true,
+          "thread": "single",
+          "trial": 9
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.34654163755476475,
+          "optimized": false,
+          "thread": "single",
+          "trial": 9
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 1.0045000817626715,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7771665696054697,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.7836249209940434,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.7882084250450134,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 9
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3084999043494463,
+          "optimized": false,
+          "thread": "single",
+          "trial": 10
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.29645836912095547,
+          "optimized": true,
+          "thread": "single",
+          "trial": 10
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.768166733905673,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7147500291466713,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.128916723653674,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.7874999213963747,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 10
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.29787514358758926,
+          "optimized": true,
+          "thread": "single",
+          "trial": 11
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.31995843164622784,
+          "optimized": false,
+          "thread": "single",
+          "trial": 11
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7100834045559168,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7106666453182697,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.759083406999707,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.767750062048435,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 11
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.36037503741681576,
+          "optimized": false,
+          "thread": "single",
+          "trial": 12
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.2758332993835211,
+          "optimized": true,
+          "thread": "single",
+          "trial": 12
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7112501189112663,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.6824582815170288,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.7600417379289865,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.877499908208847,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 12
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3365832380950451,
+          "optimized": true,
+          "thread": "single",
+          "trial": 13
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.3072083927690983,
+          "optimized": false,
+          "thread": "single",
+          "trial": 13
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.8309166878461838,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.767500139772892,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.2484999392181635,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.1182500533759594,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 13
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.33266679383814335,
+          "optimized": false,
+          "thread": "single",
+          "trial": 14
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.36912504583597183,
+          "optimized": true,
+          "thread": "single",
+          "trial": 14
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.8254165295511484,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.757874920964241,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.7525415644049644,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.8055834118276834,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 14
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.33720838837325573,
+          "optimized": true,
+          "thread": "single",
+          "trial": 15
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.42266654781997204,
+          "optimized": false,
+          "thread": "single",
+          "trial": 15
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.8263334166258574,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.9305833373218775,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.843416528776288,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.7709167916327715,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 15
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.320750055834651,
+          "optimized": false,
+          "thread": "single",
+          "trial": 16
+        },
+        {
+          "activeLabels": 2,
+          "messages": 1,
+          "ms": 0.2932916395366192,
+          "optimized": true,
+          "thread": "single",
+          "trial": 16
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.755583168938756,
+          "optimized": false,
+          "thread": "small-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 2,
+          "messages": 12,
+          "ms": 0.7285834290087223,
+          "optimized": true,
+          "thread": "small-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 2.9649166390299797,
+          "optimized": false,
+          "thread": "long-thread",
+          "trial": 16
+        },
+        {
+          "activeLabels": 2,
+          "messages": 64,
+          "ms": 3.388708457350731,
+          "optimized": true,
+          "thread": "long-thread",
+          "trial": 16
+        }
+      ]
+    }
+  ]
+}

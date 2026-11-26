@@ -1,0 +1,237 @@
+{
+  "scope": "Matched release-optimized isolated app. The reference uses normal native deceleration for both axes. The candidate applies fast native deceleration only when a Day drag starts predominantly horizontally. Each orientation has four actual page turns. Native release-to-completion measures settling duration. Vertical travel is a separate fixed-distance fling at the saved hour. Functional passes include short fast and cancelled gestures.",
+  "runs": [
+    {
+      "device": "iPhone 14 Pro",
+      "build": "axis",
+      "appSHA256": "2cebe99680be6b31091c6ff98c3ca5c08aac6ae6d11336fee58d74046f15e839",
+      "testCondition": "11-1",
+      "deceleration": "normal",
+      "allPassed": true,
+      "metrics": {
+        "portrait": {
+          "roundTrip": true,
+          "releaseToSettledMS": [
+            1542.972,
+            1501.414,
+            1484.801,
+            1551.826
+          ],
+          "decelerationRate": [
+            0.998,
+            0.998,
+            0.998,
+            0.998
+          ],
+          "rulerShiftPoints": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "landscape": {
+          "roundTrip": true,
+          "releaseToSettledMS": [
+            2041.836,
+            2051.64,
+            2035.301,
+            2051.646
+          ],
+          "decelerationRate": [
+            0.998,
+            0.998,
+            0.998,
+            0.998
+          ],
+          "rulerShiftPoints": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "vertical": {
+          "startOffsetPoints": 560,
+          "endOffsetPoints": 102.66666666666667,
+          "verticalTravelPoints": -457.3333333333333,
+          "sameDate": true
+        }
+      }
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "axis",
+      "appSHA256": "2cebe99680be6b31091c6ff98c3ca5c08aac6ae6d11336fee58d74046f15e839",
+      "testCondition": "12-0",
+      "deceleration": "directional",
+      "allPassed": true,
+      "metrics": {
+        "portrait": {
+          "roundTrip": true,
+          "releaseToSettledMS": [
+            574.774,
+            575.73,
+            567.572,
+            567.501
+          ],
+          "decelerationRate": [
+            0.99,
+            0.99,
+            0.99,
+            0.99
+          ],
+          "rulerShiftPoints": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "landscape": {
+          "roundTrip": true,
+          "releaseToSettledMS": [
+            708.975,
+            717.27,
+            717.417,
+            718.134
+          ],
+          "decelerationRate": [
+            0.99,
+            0.99,
+            0.99,
+            0.99
+          ],
+          "rulerShiftPoints": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "vertical": {
+          "startOffsetPoints": 560,
+          "endOffsetPoints": 123,
+          "verticalTravelPoints": -437,
+          "sameDate": true
+        }
+      }
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "axis",
+      "appSHA256": "2cebe99680be6b31091c6ff98c3ca5c08aac6ae6d11336fee58d74046f15e839",
+      "testCondition": "13-0",
+      "deceleration": "directional",
+      "allPassed": true,
+      "metrics": {
+        "portrait": {
+          "roundTrip": true,
+          "releaseToSettledMS": [
+            574.568,
+            575.602,
+            584.048,
+            567.517
+          ],
+          "decelerationRate": [
+            0.99,
+            0.99,
+            0.99,
+            0.99
+          ],
+          "rulerShiftPoints": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "landscape": {
+          "roundTrip": true,
+          "releaseToSettledMS": [
+            708.838,
+            717.415,
+            717.288,
+            708.981
+          ],
+          "decelerationRate": [
+            0.99,
+            0.99,
+            0.99,
+            0.99
+          ],
+          "rulerShiftPoints": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "vertical": {
+          "startOffsetPoints": 560,
+          "endOffsetPoints": 123,
+          "verticalTravelPoints": -437,
+          "sameDate": true
+        }
+      }
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "axis",
+      "appSHA256": "2cebe99680be6b31091c6ff98c3ca5c08aac6ae6d11336fee58d74046f15e839",
+      "testCondition": "14-1",
+      "deceleration": "normal",
+      "allPassed": true,
+      "metrics": {
+        "portrait": {
+          "roundTrip": true,
+          "releaseToSettledMS": [
+            1450.312,
+            1493.659,
+            1543.294,
+            1501.539
+          ],
+          "decelerationRate": [
+            0.998,
+            0.998,
+            0.998,
+            0.998
+          ],
+          "rulerShiftPoints": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "landscape": {
+          "roundTrip": true,
+          "releaseToSettledMS": [
+            2043.242,
+            2051.578,
+            2052.03,
+            2043.836
+          ],
+          "decelerationRate": [
+            0.998,
+            0.998,
+            0.998,
+            0.998
+          ],
+          "rulerShiftPoints": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "vertical": {
+          "startOffsetPoints": 560,
+          "endOffsetPoints": 130,
+          "verticalTravelPoints": -430,
+          "sameDate": true
+        }
+      }
+    }
+  ]
+}

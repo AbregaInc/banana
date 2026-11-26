@@ -1,0 +1,259 @@
+{
+  "scope": "Four horizontal day drags on each physical device. Width, height and crop are expressed in recording points. Each recording includes the actual fixture UI and navigation. No private screen recording is included.",
+  "runs": [
+    {
+      "device": "iPhone 14 Pro",
+      "test": "testNativeDayPagingAndZoom",
+      "testResult": "Failed",
+      "failedAssertion": "Pinch did not increase reported content height by 25 percent before timeout",
+      "recordingSHA256": "193d0bc651a0035f64bb01c388875f8475eea5e61ade1ab80b96eb699bb8b7fe",
+      "isolatedAppSHA256": "787088885a6866c76178e012a285e100d9396d480496320e50c600843dac7b08",
+      "analysis": {
+        "scope": "Variable-rate XCTest recording with foreground fixture geometry. Input interval estimated from recorded event attachment timestamp minus its synthesized duration. Changes use average absolute gray difference >=1 in the event area; middle interval excludes 120 ms at each end. These are changed screen-recording samples, not presentation or input-latency metrics.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59.0,
+          258.3,
+          734.0,
+          114.7
+        ],
+        "frameCount": 127,
+        "durationSeconds": 23.795,
+        "swipes": [
+          {
+            "scheduledDurationMS": 880.8,
+            "scheduledDistancePoints": 440.4,
+            "intervals": {
+              "middleOfScheduledDrag": {
+                "samples": 0,
+                "distinctGridChanges": 0,
+                "secondsFromEstimatedGestureStart": [],
+                "largestMeanGrayDifference": 0
+              },
+              "releaseWindow": {
+                "samples": 6,
+                "distinctGridChanges": 6,
+                "secondsFromEstimatedGestureStart": [
+                  0.82,
+                  0.854,
+                  0.887,
+                  0.92,
+                  0.954,
+                  0.987
+                ],
+                "largestMeanGrayDifference": 19.559
+              }
+            }
+          },
+          {
+            "scheduledDurationMS": 880.8,
+            "scheduledDistancePoints": 440.4,
+            "intervals": {
+              "middleOfScheduledDrag": {
+                "samples": 0,
+                "distinctGridChanges": 0,
+                "secondsFromEstimatedGestureStart": [],
+                "largestMeanGrayDifference": 0
+              },
+              "releaseWindow": {
+                "samples": 6,
+                "distinctGridChanges": 6,
+                "secondsFromEstimatedGestureStart": [
+                  0.82,
+                  0.853,
+                  0.886,
+                  0.92,
+                  0.953,
+                  0.986
+                ],
+                "largestMeanGrayDifference": 14.745
+              }
+            }
+          },
+          {
+            "scheduledDurationMS": 880.8,
+            "scheduledDistancePoints": 440.4,
+            "intervals": {
+              "middleOfScheduledDrag": {
+                "samples": 0,
+                "distinctGridChanges": 0,
+                "secondsFromEstimatedGestureStart": [],
+                "largestMeanGrayDifference": 0
+              },
+              "releaseWindow": {
+                "samples": 7,
+                "distinctGridChanges": 7,
+                "secondsFromEstimatedGestureStart": [
+                  0.81,
+                  0.843,
+                  0.877,
+                  0.91,
+                  0.943,
+                  0.977,
+                  1.01
+                ],
+                "largestMeanGrayDifference": 15.023
+              }
+            }
+          },
+          {
+            "scheduledDurationMS": 880.8,
+            "scheduledDistancePoints": 440.4,
+            "intervals": {
+              "middleOfScheduledDrag": {
+                "samples": 0,
+                "distinctGridChanges": 0,
+                "secondsFromEstimatedGestureStart": [],
+                "largestMeanGrayDifference": 0
+              },
+              "releaseWindow": {
+                "samples": 7,
+                "distinctGridChanges": 7,
+                "secondsFromEstimatedGestureStart": [
+                  0.8,
+                  0.834,
+                  0.867,
+                  0.9,
+                  0.934,
+                  0.967,
+                  1.0
+                ],
+                "largestMeanGrayDifference": 19.528
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "device": "M1 iPad Pro (12.9-inch, fifth generation)",
+      "test": "testNativeDayPagingAndZoom",
+      "testResult": "Passed",
+      "failedAssertion": null,
+      "recordingSHA256": "da679f16dd939ef56902a069a51e106ba19bfa40dac6f0f96c7f1e559e96c828",
+      "isolatedAppSHA256": "787088885a6866c76178e012a285e100d9396d480496320e50c600843dac7b08",
+      "analysis": {
+        "scope": "Variable-rate XCTest recording with foreground fixture geometry. Input interval estimated from recorded event attachment timestamp minus its synthesized duration. Changes use average absolute gray difference >=1 in the event area; middle interval excludes 120 ms at each end. These are changed screen-recording samples, not presentation or input-latency metrics.",
+        "windowPoints": [
+          1366.0,
+          1024.0
+        ],
+        "frameCount": 112,
+        "durationSeconds": 26.421667,
+        "swipes": [
+          {
+            "scheduledDurationMS": 1228.8,
+            "scheduledDistancePoints": 614.4,
+            "intervals": {
+              "middleOfScheduledDrag": {
+                "samples": 0,
+                "distinctGridChanges": 0,
+                "secondsFromEstimatedGestureStart": [],
+                "largestMeanGrayDifference": 0
+              },
+              "releaseWindow": {
+                "samples": 9,
+                "distinctGridChanges": 6,
+                "secondsFromEstimatedGestureStart": [
+                  1.237,
+                  1.27,
+                  1.303,
+                  1.337,
+                  1.37,
+                  1.403
+                ],
+                "largestMeanGrayDifference": 17.681
+              }
+            }
+          },
+          {
+            "scheduledDurationMS": 1228.8,
+            "scheduledDistancePoints": 614.4,
+            "intervals": {
+              "middleOfScheduledDrag": {
+                "samples": 0,
+                "distinctGridChanges": 0,
+                "secondsFromEstimatedGestureStart": [],
+                "largestMeanGrayDifference": 0
+              },
+              "releaseWindow": {
+                "samples": 9,
+                "distinctGridChanges": 6,
+                "secondsFromEstimatedGestureStart": [
+                  1.235,
+                  1.268,
+                  1.301,
+                  1.335,
+                  1.368,
+                  1.401
+                ],
+                "largestMeanGrayDifference": 17.3
+              }
+            }
+          },
+          {
+            "scheduledDurationMS": 1228.8,
+            "scheduledDistancePoints": 614.4,
+            "intervals": {
+              "middleOfScheduledDrag": {
+                "samples": 0,
+                "distinctGridChanges": 0,
+                "secondsFromEstimatedGestureStart": [],
+                "largestMeanGrayDifference": 0
+              },
+              "releaseWindow": {
+                "samples": 9,
+                "distinctGridChanges": 6,
+                "secondsFromEstimatedGestureStart": [
+                  1.241,
+                  1.274,
+                  1.307,
+                  1.341,
+                  1.374,
+                  1.407
+                ],
+                "largestMeanGrayDifference": 16.591
+              }
+            }
+          },
+          {
+            "scheduledDurationMS": 1228.8,
+            "scheduledDistancePoints": 614.4,
+            "intervals": {
+              "middleOfScheduledDrag": {
+                "samples": 0,
+                "distinctGridChanges": 0,
+                "secondsFromEstimatedGestureStart": [],
+                "largestMeanGrayDifference": 0
+              },
+              "releaseWindow": {
+                "samples": 10,
+                "distinctGridChanges": 7,
+                "secondsFromEstimatedGestureStart": [
+                  1.224,
+                  1.257,
+                  1.291,
+                  1.324,
+                  1.357,
+                  1.391,
+                  1.424
+                ],
+                "largestMeanGrayDifference": 17.978
+              }
+            }
+          }
+        ],
+        "regionBasis": "Conservative central timeline crop in recording coordinates. It omits navigation, the time ruler and window edges.",
+        "analyzedRegionPoints": [
+          120.0,
+          300.0,
+          1100.0,
+          660.0
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,909 @@
+{
+  "scope": "Release host benchmark, production styled text per block. Complete characters, run boundaries and attributes compared to reference. Old/new alternate within the same process, including plain, layered, mixed and long blocks.",
+  "binarySHA256": "599fdbd9b53732f5c4b4f9d83ffe0000a381760793294ac0ac8362e3f29acb05",
+  "samples": [
+    {
+      "parityCases": 3841
+    },
+    {
+      "ms": 0.01933332532644272,
+      "optimized": false,
+      "trial": 0,
+      "workload": "single"
+    },
+    {
+      "ms": 0.04724995233118534,
+      "optimized": true,
+      "trial": 0,
+      "workload": "single"
+    },
+    {
+      "ms": 0.01983344554901123,
+      "optimized": true,
+      "trial": 1,
+      "workload": "single"
+    },
+    {
+      "ms": 0.019916798919439316,
+      "optimized": false,
+      "trial": 1,
+      "workload": "single"
+    },
+    {
+      "ms": 0.01733331009745598,
+      "optimized": false,
+      "trial": 2,
+      "workload": "single"
+    },
+    {
+      "ms": 0.017083249986171722,
+      "optimized": true,
+      "trial": 2,
+      "workload": "single"
+    },
+    {
+      "ms": 0.01620827242732048,
+      "optimized": true,
+      "trial": 3,
+      "workload": "single"
+    },
+    {
+      "ms": 0.01750001683831215,
+      "optimized": false,
+      "trial": 3,
+      "workload": "single"
+    },
+    {
+      "ms": 0.01712515950202942,
+      "optimized": false,
+      "trial": 4,
+      "workload": "single"
+    },
+    {
+      "ms": 0.01612515188753605,
+      "optimized": true,
+      "trial": 4,
+      "workload": "single"
+    },
+    {
+      "ms": 0.016250181943178177,
+      "optimized": true,
+      "trial": 5,
+      "workload": "single"
+    },
+    {
+      "ms": 0.016708392649888992,
+      "optimized": false,
+      "trial": 5,
+      "workload": "single"
+    },
+    {
+      "ms": 0.017041806131601334,
+      "optimized": false,
+      "trial": 6,
+      "workload": "single"
+    },
+    {
+      "ms": 0.01570815220475197,
+      "optimized": true,
+      "trial": 6,
+      "workload": "single"
+    },
+    {
+      "ms": 0.015708385035395622,
+      "optimized": true,
+      "trial": 7,
+      "workload": "single"
+    },
+    {
+      "ms": 0.01700012944638729,
+      "optimized": false,
+      "trial": 7,
+      "workload": "single"
+    },
+    {
+      "ms": 0.01683342270553112,
+      "optimized": false,
+      "trial": 8,
+      "workload": "single"
+    },
+    {
+      "ms": 0.015083234757184982,
+      "optimized": true,
+      "trial": 8,
+      "workload": "single"
+    },
+    {
+      "ms": 0.01600012183189392,
+      "optimized": true,
+      "trial": 9,
+      "workload": "single"
+    },
+    {
+      "ms": 0.017291633412241936,
+      "optimized": false,
+      "trial": 9,
+      "workload": "single"
+    },
+    {
+      "ms": 0.016791513189673424,
+      "optimized": false,
+      "trial": 10,
+      "workload": "single"
+    },
+    {
+      "ms": 0.015416648238897324,
+      "optimized": true,
+      "trial": 10,
+      "workload": "single"
+    },
+    {
+      "ms": 0.015708385035395622,
+      "optimized": true,
+      "trial": 11,
+      "workload": "single"
+    },
+    {
+      "ms": 0.016916776075959206,
+      "optimized": false,
+      "trial": 11,
+      "workload": "single"
+    },
+    {
+      "ms": 0.016416655853390694,
+      "optimized": false,
+      "trial": 12,
+      "workload": "single"
+    },
+    {
+      "ms": 0.01566670835018158,
+      "optimized": true,
+      "trial": 12,
+      "workload": "single"
+    },
+    {
+      "ms": 0.016041798517107964,
+      "optimized": true,
+      "trial": 13,
+      "workload": "single"
+    },
+    {
+      "ms": 0.016625039279460907,
+      "optimized": false,
+      "trial": 13,
+      "workload": "single"
+    },
+    {
+      "ms": 0.016708392649888992,
+      "optimized": false,
+      "trial": 14,
+      "workload": "single"
+    },
+    {
+      "ms": 0.015249941498041153,
+      "optimized": true,
+      "trial": 14,
+      "workload": "single"
+    },
+    {
+      "ms": 3.1355000101029873,
+      "optimized": false,
+      "trial": 0,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.6535832546651363,
+      "optimized": true,
+      "trial": 0,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.620166702196002,
+      "optimized": true,
+      "trial": 1,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.079500049352646,
+      "optimized": false,
+      "trial": 1,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.0702499207109213,
+      "optimized": false,
+      "trial": 2,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.617874950170517,
+      "optimized": true,
+      "trial": 2,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.6192917246371508,
+      "optimized": true,
+      "trial": 3,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.0676249880343676,
+      "optimized": false,
+      "trial": 3,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.06658330373466,
+      "optimized": false,
+      "trial": 4,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.619541784748435,
+      "optimized": true,
+      "trial": 4,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.638874877244234,
+      "optimized": true,
+      "trial": 5,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.0503333546221256,
+      "optimized": false,
+      "trial": 5,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.090416546911001,
+      "optimized": false,
+      "trial": 6,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.6129165887832642,
+      "optimized": true,
+      "trial": 6,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.632458297535777,
+      "optimized": true,
+      "trial": 7,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.053708467632532,
+      "optimized": false,
+      "trial": 7,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.1254165805876255,
+      "optimized": false,
+      "trial": 8,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.6210000030696392,
+      "optimized": true,
+      "trial": 8,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.6116667538881302,
+      "optimized": true,
+      "trial": 9,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.1024583149701357,
+      "optimized": false,
+      "trial": 9,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.0616666190326214,
+      "optimized": false,
+      "trial": 10,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.611375017091632,
+      "optimized": true,
+      "trial": 10,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.6105000395327806,
+      "optimized": true,
+      "trial": 11,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.0560833401978016,
+      "optimized": false,
+      "trial": 11,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.072666469961405,
+      "optimized": false,
+      "trial": 12,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.6175832133740187,
+      "optimized": true,
+      "trial": 12,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.6469999682158232,
+      "optimized": true,
+      "trial": 13,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.149791620671749,
+      "optimized": false,
+      "trial": 13,
+      "workload": "plain"
+    },
+    {
+      "ms": 3.0486667528748512,
+      "optimized": false,
+      "trial": 14,
+      "workload": "plain"
+    },
+    {
+      "ms": 1.6147084534168243,
+      "optimized": true,
+      "trial": 14,
+      "workload": "plain"
+    },
+    {
+      "ms": 18.3789583388716,
+      "optimized": false,
+      "trial": 0,
+      "workload": "html"
+    },
+    {
+      "ms": 16.39929157681763,
+      "optimized": true,
+      "trial": 0,
+      "workload": "html"
+    },
+    {
+      "ms": 16.431083204224706,
+      "optimized": true,
+      "trial": 1,
+      "workload": "html"
+    },
+    {
+      "ms": 18.0590832605958,
+      "optimized": false,
+      "trial": 1,
+      "workload": "html"
+    },
+    {
+      "ms": 17.840916756540537,
+      "optimized": false,
+      "trial": 2,
+      "workload": "html"
+    },
+    {
+      "ms": 16.573625151067972,
+      "optimized": true,
+      "trial": 2,
+      "workload": "html"
+    },
+    {
+      "ms": 16.308583319187164,
+      "optimized": true,
+      "trial": 3,
+      "workload": "html"
+    },
+    {
+      "ms": 17.860500141978264,
+      "optimized": false,
+      "trial": 3,
+      "workload": "html"
+    },
+    {
+      "ms": 17.995833419263363,
+      "optimized": false,
+      "trial": 4,
+      "workload": "html"
+    },
+    {
+      "ms": 16.173375071957707,
+      "optimized": true,
+      "trial": 4,
+      "workload": "html"
+    },
+    {
+      "ms": 16.43499988131225,
+      "optimized": true,
+      "trial": 5,
+      "workload": "html"
+    },
+    {
+      "ms": 18.028500024229288,
+      "optimized": false,
+      "trial": 5,
+      "workload": "html"
+    },
+    {
+      "ms": 17.96587510034442,
+      "optimized": false,
+      "trial": 6,
+      "workload": "html"
+    },
+    {
+      "ms": 16.33116672746837,
+      "optimized": true,
+      "trial": 6,
+      "workload": "html"
+    },
+    {
+      "ms": 16.29404164850712,
+      "optimized": true,
+      "trial": 7,
+      "workload": "html"
+    },
+    {
+      "ms": 17.832291778177023,
+      "optimized": false,
+      "trial": 7,
+      "workload": "html"
+    },
+    {
+      "ms": 18.038666807115078,
+      "optimized": false,
+      "trial": 8,
+      "workload": "html"
+    },
+    {
+      "ms": 16.29062509164214,
+      "optimized": true,
+      "trial": 8,
+      "workload": "html"
+    },
+    {
+      "ms": 16.32204162888229,
+      "optimized": true,
+      "trial": 9,
+      "workload": "html"
+    },
+    {
+      "ms": 17.500750022009015,
+      "optimized": false,
+      "trial": 9,
+      "workload": "html"
+    },
+    {
+      "ms": 18.467250047251582,
+      "optimized": false,
+      "trial": 10,
+      "workload": "html"
+    },
+    {
+      "ms": 16.369124874472618,
+      "optimized": true,
+      "trial": 10,
+      "workload": "html"
+    },
+    {
+      "ms": 16.32708334363997,
+      "optimized": true,
+      "trial": 11,
+      "workload": "html"
+    },
+    {
+      "ms": 17.982083139941096,
+      "optimized": false,
+      "trial": 11,
+      "workload": "html"
+    },
+    {
+      "ms": 17.934874864295125,
+      "optimized": false,
+      "trial": 12,
+      "workload": "html"
+    },
+    {
+      "ms": 16.25104178674519,
+      "optimized": true,
+      "trial": 12,
+      "workload": "html"
+    },
+    {
+      "ms": 16.252083238214254,
+      "optimized": true,
+      "trial": 13,
+      "workload": "html"
+    },
+    {
+      "ms": 17.94358342885971,
+      "optimized": false,
+      "trial": 13,
+      "workload": "html"
+    },
+    {
+      "ms": 17.933583352714777,
+      "optimized": false,
+      "trial": 14,
+      "workload": "html"
+    },
+    {
+      "ms": 16.35854155756533,
+      "optimized": true,
+      "trial": 14,
+      "workload": "html"
+    },
+    {
+      "ms": 7.858458207920194,
+      "optimized": false,
+      "trial": 0,
+      "workload": "layered"
+    },
+    {
+      "ms": 5.026583326980472,
+      "optimized": true,
+      "trial": 0,
+      "workload": "layered"
+    },
+    {
+      "ms": 4.959416808560491,
+      "optimized": true,
+      "trial": 1,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.7027499210089445,
+      "optimized": false,
+      "trial": 1,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.693208288401365,
+      "optimized": false,
+      "trial": 2,
+      "workload": "layered"
+    },
+    {
+      "ms": 4.767083330079913,
+      "optimized": true,
+      "trial": 2,
+      "workload": "layered"
+    },
+    {
+      "ms": 4.8905001021921635,
+      "optimized": true,
+      "trial": 3,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.689333520829678,
+      "optimized": false,
+      "trial": 3,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.706999778747559,
+      "optimized": false,
+      "trial": 4,
+      "workload": "layered"
+    },
+    {
+      "ms": 4.957916680723429,
+      "optimized": true,
+      "trial": 4,
+      "workload": "layered"
+    },
+    {
+      "ms": 4.959250101819634,
+      "optimized": true,
+      "trial": 5,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.392083294689655,
+      "optimized": false,
+      "trial": 5,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.360458141192794,
+      "optimized": false,
+      "trial": 6,
+      "workload": "layered"
+    },
+    {
+      "ms": 5.000541685149074,
+      "optimized": true,
+      "trial": 6,
+      "workload": "layered"
+    },
+    {
+      "ms": 4.960916703566909,
+      "optimized": true,
+      "trial": 7,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.4789999052882195,
+      "optimized": false,
+      "trial": 7,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.759750122204423,
+      "optimized": false,
+      "trial": 8,
+      "workload": "layered"
+    },
+    {
+      "ms": 4.967916756868362,
+      "optimized": true,
+      "trial": 8,
+      "workload": "layered"
+    },
+    {
+      "ms": 4.968333290889859,
+      "optimized": true,
+      "trial": 9,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.688875077292323,
+      "optimized": false,
+      "trial": 9,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.607208332046866,
+      "optimized": false,
+      "trial": 10,
+      "workload": "layered"
+    },
+    {
+      "ms": 4.985666600987315,
+      "optimized": true,
+      "trial": 10,
+      "workload": "layered"
+    },
+    {
+      "ms": 4.950708476826549,
+      "optimized": true,
+      "trial": 11,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.744124857708812,
+      "optimized": false,
+      "trial": 11,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.6847500167787075,
+      "optimized": false,
+      "trial": 12,
+      "workload": "layered"
+    },
+    {
+      "ms": 4.688208224251866,
+      "optimized": true,
+      "trial": 12,
+      "workload": "layered"
+    },
+    {
+      "ms": 5.022083409130573,
+      "optimized": true,
+      "trial": 13,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.9402083065360785,
+      "optimized": false,
+      "trial": 13,
+      "workload": "layered"
+    },
+    {
+      "ms": 7.757249986752868,
+      "optimized": false,
+      "trial": 14,
+      "workload": "layered"
+    },
+    {
+      "ms": 4.9518749583512545,
+      "optimized": true,
+      "trial": 14,
+      "workload": "layered"
+    },
+    {
+      "ms": 8.278916589915752,
+      "optimized": false,
+      "trial": 0,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.227125043049455,
+      "optimized": true,
+      "trial": 0,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.256708271801472,
+      "optimized": true,
+      "trial": 1,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.239750051870942,
+      "optimized": false,
+      "trial": 1,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.102500112727284,
+      "optimized": false,
+      "trial": 2,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.25262488797307,
+      "optimized": true,
+      "trial": 2,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.307625073939562,
+      "optimized": true,
+      "trial": 3,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.275749860331416,
+      "optimized": false,
+      "trial": 3,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.30933335237205,
+      "optimized": false,
+      "trial": 4,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.273916551843286,
+      "optimized": true,
+      "trial": 4,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.311416720971465,
+      "optimized": true,
+      "trial": 5,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.294041734188795,
+      "optimized": false,
+      "trial": 5,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.304958464577794,
+      "optimized": false,
+      "trial": 6,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.26558331027627,
+      "optimized": true,
+      "trial": 6,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.262541610747576,
+      "optimized": true,
+      "trial": 7,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.27512494288385,
+      "optimized": false,
+      "trial": 7,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.262083167210221,
+      "optimized": false,
+      "trial": 8,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.250833256170154,
+      "optimized": true,
+      "trial": 8,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.258749963715672,
+      "optimized": true,
+      "trial": 9,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.252333384007215,
+      "optimized": false,
+      "trial": 9,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.263124851509929,
+      "optimized": false,
+      "trial": 10,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.283541770651937,
+      "optimized": true,
+      "trial": 10,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.263791678473353,
+      "optimized": true,
+      "trial": 11,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.258041692897677,
+      "optimized": false,
+      "trial": 11,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.262124843895435,
+      "optimized": false,
+      "trial": 12,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.256874978542328,
+      "optimized": true,
+      "trial": 12,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.320125052705407,
+      "optimized": true,
+      "trial": 13,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.255374850705266,
+      "optimized": false,
+      "trial": 13,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.248583413660526,
+      "optimized": false,
+      "trial": 14,
+      "workload": "long-block"
+    },
+    {
+      "ms": 8.276875130832195,
+      "optimized": true,
+      "trial": 14,
+      "workload": "long-block"
+    }
+  ]
+}

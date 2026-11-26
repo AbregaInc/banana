@@ -1,0 +1,970 @@
+{
+  "scope": "Stock reference iPhone Simulator, arm64 Release with DEBUG fixtures, iOS 27; two launches per build and route; same 30-day data. Calendar quiet probes use the one-day candidate fixture.",
+  "order": [
+    "candidate mail, notes",
+    "historical notes, mail",
+    "historical mail, notes",
+    "candidate notes, mail",
+    "candidate calendar twice"
+  ],
+  "method": "0.05 s external proc_pid_rusage v4 samples until 100 ticks complete, then 0.25 s. Root milestones use the nearest kernel sample within 120 ms of the app journal time. Catalog milestone is the first sample at or above 1 MiB across the synthetic podcast catalog files. Both reports are recorded on first filesystem observation. Host monitor sampled as in the reference gate.",
+  "binarySHA256": {
+    "candidate": "e71fe2d39dfd45bb4edb785f3abd27f207d49d66b2a8941424ef3f4eaabb42e9",
+    "historical": "d76ca0b3a3d27a92847edc6e2beb0d80bc5228c43409d3ddf8606588fc31fc3c"
+  },
+  "runs": [
+    {
+      "case": "candidate-0-mail",
+      "route": "mail",
+      "days": 30,
+      "peakRSSMiB": 483.52,
+      "highestSampledRSS": {
+        "seconds": 5.371,
+        "rssMiB": 482.7,
+        "footprintMiB": 166.6
+      },
+      "phases": {
+        "catalogPopulating": {
+          "processSeconds": 4.771,
+          "rssMiB": 479.78,
+          "footprintMiB": 166.46,
+          "peakFootprintMiB": 166.61
+        },
+        "componentReport": {
+          "processSeconds": 8.39,
+          "rssMiB": 440.16,
+          "footprintMiB": 161.36,
+          "peakFootprintMiB": 172.42
+        },
+        "redrawReport": {
+          "processSeconds": 23.874,
+          "rssMiB": 440.09,
+          "footprintMiB": 161.0,
+          "peakFootprintMiB": 172.42
+        },
+        "end": {
+          "processSeconds": 25.939,
+          "rssMiB": 440.06,
+          "footprintMiB": 160.96,
+          "peakFootprintMiB": 172.42
+        },
+        "app.init.body": {
+          "processSeconds": 2.027,
+          "rssMiB": 197.17,
+          "footprintMiB": 10.25,
+          "peakFootprintMiB": 10.25
+        },
+        "app.init.done": {
+          "processSeconds": 2.192,
+          "rssMiB": 225.58,
+          "footprintMiB": 12.35,
+          "peakFootprintMiB": 12.35
+        },
+        "root.appear": {
+          "processSeconds": 2.55,
+          "rssMiB": 301.27,
+          "footprintMiB": 27.17,
+          "peakFootprintMiB": 27.17
+        }
+      },
+      "quiet": {
+        "seconds": 2.065,
+        "cpuSeconds": 0.00168,
+        "interruptWakeups": 21,
+        "diskBytesWritten": 0
+      },
+      "checksums": {
+        "mail.firstPage": 350,
+        "mail.readMutation": 350,
+        "calendar.visibleWeek": 4900,
+        "calendar.day": 700,
+        "notes.search": 700,
+        "notes.browse": 700,
+        "podcasts.nextAcrossCatalog": 2100,
+        "podcasts.downloadCandidates": 6300
+      },
+      "absoluteTimingPassed": true,
+      "redrawPassed": true,
+      "hostMonitorClean": true
+    },
+    {
+      "case": "candidate-0-notes",
+      "route": "notes",
+      "days": 30,
+      "peakRSSMiB": 464.97,
+      "highestSampledRSS": {
+        "seconds": 7.703,
+        "rssMiB": 460.03,
+        "footprintMiB": 176.13
+      },
+      "phases": {
+        "catalogPopulating": {
+          "processSeconds": 3.551,
+          "rssMiB": 357.48,
+          "footprintMiB": 41.25,
+          "peakFootprintMiB": 46.11
+        },
+        "componentReport": {
+          "processSeconds": 7.936,
+          "rssMiB": 455.38,
+          "footprintMiB": 167.11,
+          "peakFootprintMiB": 181.97
+        },
+        "redrawReport": {
+          "processSeconds": 23.433,
+          "rssMiB": 455.39,
+          "footprintMiB": 166.38,
+          "peakFootprintMiB": 181.97
+        },
+        "end": {
+          "processSeconds": 25.484,
+          "rssMiB": 455.39,
+          "footprintMiB": 166.38,
+          "peakFootprintMiB": 181.97
+        },
+        "app.init.body": {
+          "processSeconds": 1.865,
+          "rssMiB": 210.78,
+          "footprintMiB": 11.19,
+          "peakFootprintMiB": 11.19
+        },
+        "app.init.done": {
+          "processSeconds": 1.976,
+          "rssMiB": 228.94,
+          "footprintMiB": 13.08,
+          "peakFootprintMiB": 13.08
+        },
+        "root.appear": {
+          "processSeconds": 2.371,
+          "rssMiB": 317.17,
+          "footprintMiB": 25.64,
+          "peakFootprintMiB": 25.64
+        }
+      },
+      "quiet": {
+        "seconds": 2.051,
+        "cpuSeconds": 0.00187,
+        "interruptWakeups": 21,
+        "diskBytesWritten": 0
+      },
+      "checksums": {
+        "mail.firstPage": 350,
+        "mail.readMutation": 350,
+        "calendar.visibleWeek": 4900,
+        "calendar.day": 700,
+        "notes.search": 700,
+        "notes.browse": 700,
+        "podcasts.nextAcrossCatalog": 2100,
+        "podcasts.downloadCandidates": 6300
+      },
+      "absoluteTimingPassed": true,
+      "redrawPassed": true,
+      "hostMonitorClean": true
+    },
+    {
+      "case": "candidate-3-mail",
+      "route": "mail",
+      "days": 30,
+      "peakRSSMiB": 482.66,
+      "highestSampledRSS": {
+        "seconds": 5.115,
+        "rssMiB": 481.67,
+        "footprintMiB": 165.6
+      },
+      "phases": {
+        "catalogPopulating": {
+          "processSeconds": 4.321,
+          "rssMiB": 477.33,
+          "footprintMiB": 164.69,
+          "peakFootprintMiB": 165.35
+        },
+        "componentReport": {
+          "processSeconds": 7.788,
+          "rssMiB": 439.69,
+          "footprintMiB": 161.22,
+          "peakFootprintMiB": 172.28
+        },
+        "redrawReport": {
+          "processSeconds": 23.208,
+          "rssMiB": 439.72,
+          "footprintMiB": 161.03,
+          "peakFootprintMiB": 172.28
+        },
+        "end": {
+          "processSeconds": 25.285,
+          "rssMiB": 439.72,
+          "footprintMiB": 161.03,
+          "peakFootprintMiB": 172.28
+        },
+        "app.init.body": {
+          "processSeconds": 1.835,
+          "rssMiB": 210.8,
+          "footprintMiB": 11.17,
+          "peakFootprintMiB": 11.17
+        },
+        "app.init.done": {
+          "processSeconds": 1.939,
+          "rssMiB": 228.56,
+          "footprintMiB": 12.99,
+          "peakFootprintMiB": 12.99
+        },
+        "root.appear": {
+          "processSeconds": 2.16,
+          "rssMiB": 286.0,
+          "footprintMiB": 21.47,
+          "peakFootprintMiB": 21.47
+        }
+      },
+      "quiet": {
+        "seconds": 2.077,
+        "cpuSeconds": 0.0016,
+        "interruptWakeups": 21,
+        "diskBytesWritten": 0
+      },
+      "checksums": {
+        "mail.firstPage": 350,
+        "mail.readMutation": 350,
+        "calendar.visibleWeek": 4900,
+        "calendar.day": 700,
+        "notes.search": 700,
+        "notes.browse": 700,
+        "podcasts.nextAcrossCatalog": 2100,
+        "podcasts.downloadCandidates": 6300
+      },
+      "absoluteTimingPassed": true,
+      "redrawPassed": true,
+      "hostMonitorClean": true
+    },
+    {
+      "case": "candidate-3-notes",
+      "route": "notes",
+      "days": 30,
+      "peakRSSMiB": 466.36,
+      "highestSampledRSS": {
+        "seconds": 8.039,
+        "rssMiB": 461.38,
+        "footprintMiB": 176.6
+      },
+      "phases": {
+        "catalogPopulating": {
+          "processSeconds": 3.733,
+          "rssMiB": 364.48,
+          "footprintMiB": 45.25,
+          "peakFootprintMiB": 46.06
+        },
+        "componentReport": {
+          "processSeconds": 8.267,
+          "rssMiB": 456.58,
+          "footprintMiB": 167.44,
+          "peakFootprintMiB": 182.33
+        },
+        "redrawReport": {
+          "processSeconds": 23.71,
+          "rssMiB": 455.5,
+          "footprintMiB": 166.66,
+          "peakFootprintMiB": 182.33
+        },
+        "end": {
+          "processSeconds": 25.765,
+          "rssMiB": 455.5,
+          "footprintMiB": 166.66,
+          "peakFootprintMiB": 182.33
+        },
+        "app.init.body": {
+          "processSeconds": 1.918,
+          "rssMiB": 202.72,
+          "footprintMiB": 10.61,
+          "peakFootprintMiB": 10.63
+        },
+        "app.init.done": {
+          "processSeconds": 2.035,
+          "rssMiB": 225.33,
+          "footprintMiB": 12.28,
+          "peakFootprintMiB": 12.28
+        },
+        "root.appear": {
+          "processSeconds": 2.491,
+          "rssMiB": 319.45,
+          "footprintMiB": 26.24,
+          "peakFootprintMiB": 26.25
+        }
+      },
+      "quiet": {
+        "seconds": 2.055,
+        "cpuSeconds": 0.00155,
+        "interruptWakeups": 21,
+        "diskBytesWritten": 0
+      },
+      "checksums": {
+        "mail.firstPage": 350,
+        "mail.readMutation": 350,
+        "calendar.visibleWeek": 4900,
+        "calendar.day": 700,
+        "notes.search": 700,
+        "notes.browse": 700,
+        "podcasts.nextAcrossCatalog": 2100,
+        "podcasts.downloadCandidates": 6300
+      },
+      "absoluteTimingPassed": true,
+      "redrawPassed": true,
+      "hostMonitorClean": true
+    },
+    {
+      "case": "candidate-quiet-0",
+      "route": "plan",
+      "days": 1,
+      "peakRSSMiB": 382.86,
+      "highestSampledRSS": {
+        "seconds": 3.131,
+        "rssMiB": 385.17,
+        "footprintMiB": 50.66
+      },
+      "phases": {
+        "catalogPopulating": {
+          "processSeconds": 2.971,
+          "rssMiB": 374.7,
+          "footprintMiB": 48.94,
+          "peakFootprintMiB": 49.72
+        },
+        "componentReport": {
+          "processSeconds": 3.131,
+          "rssMiB": 385.17,
+          "footprintMiB": 50.66,
+          "peakFootprintMiB": 53.31
+        },
+        "redrawReport": {
+          "processSeconds": 18.656,
+          "rssMiB": 341.98,
+          "footprintMiB": 50.67,
+          "peakFootprintMiB": 53.31
+        },
+        "end": {
+          "processSeconds": 86.806,
+          "rssMiB": 342.11,
+          "footprintMiB": 50.6,
+          "peakFootprintMiB": 53.31
+        },
+        "app.init.body": {
+          "processSeconds": 1.808,
+          "rssMiB": 204.8,
+          "footprintMiB": 10.75,
+          "peakFootprintMiB": 10.75
+        },
+        "app.init.done": {
+          "processSeconds": 1.92,
+          "rssMiB": 225.39,
+          "footprintMiB": 12.24,
+          "peakFootprintMiB": 12.24
+        },
+        "root.appear": {
+          "processSeconds": 2.307,
+          "rssMiB": 306.7,
+          "footprintMiB": 24.66,
+          "peakFootprintMiB": 24.66
+        }
+      },
+      "quiet": {
+        "seconds": 68.15,
+        "cpuSeconds": 0.07879,
+        "interruptWakeups": 686,
+        "diskBytesWritten": 4096
+      },
+      "checksums": {
+        "mail.firstPage": 350,
+        "mail.readMutation": 350,
+        "calendar.visibleWeek": 700,
+        "calendar.day": 700,
+        "notes.search": 329,
+        "notes.browse": 700,
+        "podcasts.nextAcrossCatalog": 70,
+        "podcasts.downloadCandidates": 210
+      },
+      "absoluteTimingPassed": true,
+      "redrawPassed": true,
+      "hostMonitorClean": true
+    },
+    {
+      "case": "candidate-quiet-1",
+      "route": "plan",
+      "days": 1,
+      "peakRSSMiB": 383.12,
+      "highestSampledRSS": {
+        "seconds": 3.132,
+        "rssMiB": 385.58,
+        "footprintMiB": 51.02
+      },
+      "phases": {
+        "catalogPopulating": {
+          "processSeconds": 2.96,
+          "rssMiB": 374.69,
+          "footprintMiB": 48.46,
+          "peakFootprintMiB": 49.83
+        },
+        "componentReport": {
+          "processSeconds": 3.132,
+          "rssMiB": 385.58,
+          "footprintMiB": 51.02,
+          "peakFootprintMiB": 53.6
+        },
+        "redrawReport": {
+          "processSeconds": 18.61,
+          "rssMiB": 342.25,
+          "footprintMiB": 50.8,
+          "peakFootprintMiB": 53.6
+        },
+        "end": {
+          "processSeconds": 86.744,
+          "rssMiB": 342.36,
+          "footprintMiB": 50.72,
+          "peakFootprintMiB": 53.6
+        },
+        "app.init.body": {
+          "processSeconds": 1.815,
+          "rssMiB": 209.77,
+          "footprintMiB": 11.02,
+          "peakFootprintMiB": 11.11
+        },
+        "app.init.done": {
+          "processSeconds": 1.931,
+          "rssMiB": 228.56,
+          "footprintMiB": 13.02,
+          "peakFootprintMiB": 13.02
+        },
+        "root.appear": {
+          "processSeconds": 2.262,
+          "rssMiB": 294.72,
+          "footprintMiB": 23.36,
+          "peakFootprintMiB": 23.38
+        }
+      },
+      "quiet": {
+        "seconds": 68.133,
+        "cpuSeconds": 0.06549,
+        "interruptWakeups": 684,
+        "diskBytesWritten": 4096
+      },
+      "checksums": {
+        "mail.firstPage": 350,
+        "mail.readMutation": 350,
+        "calendar.visibleWeek": 700,
+        "calendar.day": 700,
+        "notes.search": 329,
+        "notes.browse": 700,
+        "podcasts.nextAcrossCatalog": 70,
+        "podcasts.downloadCandidates": 210
+      },
+      "absoluteTimingPassed": true,
+      "redrawPassed": true,
+      "hostMonitorClean": true
+    },
+    {
+      "case": "historical-1-mail",
+      "route": "mail",
+      "days": 30,
+      "peakRSSMiB": 470.33,
+      "highestSampledRSS": {
+        "seconds": 4.929,
+        "rssMiB": 469.36,
+        "footprintMiB": 149.89
+      },
+      "phases": {
+        "catalogPopulating": {
+          "processSeconds": 4.269,
+          "rssMiB": 466.83,
+          "footprintMiB": 148.61,
+          "peakFootprintMiB": 163.28
+        },
+        "componentReport": {
+          "processSeconds": 8.092,
+          "rssMiB": 425.8,
+          "footprintMiB": 144.11,
+          "peakFootprintMiB": 163.28
+        },
+        "redrawReport": {
+          "processSeconds": 23.524,
+          "rssMiB": 425.83,
+          "footprintMiB": 143.83,
+          "peakFootprintMiB": 163.28
+        },
+        "end": {
+          "processSeconds": 25.578,
+          "rssMiB": 425.83,
+          "footprintMiB": 143.83,
+          "peakFootprintMiB": 163.28
+        },
+        "app.init.body": {
+          "processSeconds": 1.795,
+          "rssMiB": 202.22,
+          "footprintMiB": 10.03,
+          "peakFootprintMiB": 10.05
+        },
+        "app.init.done": {
+          "processSeconds": 1.9,
+          "rssMiB": 221.62,
+          "footprintMiB": 11.99,
+          "peakFootprintMiB": 11.99
+        },
+        "root.appear": {
+          "processSeconds": 3.067,
+          "rssMiB": 427.33,
+          "footprintMiB": 133.52,
+          "peakFootprintMiB": 163.28
+        }
+      },
+      "quiet": {
+        "seconds": 2.054,
+        "cpuSeconds": 0.00128,
+        "interruptWakeups": 21,
+        "diskBytesWritten": 0
+      },
+      "checksums": {
+        "mail.firstPage": 350,
+        "mail.readMutation": 350,
+        "calendar.visibleWeek": 4900,
+        "calendar.day": 700,
+        "notes.search": 700,
+        "notes.browse": 700,
+        "podcasts.nextAcrossCatalog": 2100,
+        "podcasts.downloadCandidates": 6300
+      },
+      "absoluteTimingPassed": true,
+      "redrawPassed": true,
+      "hostMonitorClean": true
+    },
+    {
+      "case": "historical-1-notes",
+      "route": "notes",
+      "days": 30,
+      "peakRSSMiB": 475.84,
+      "highestSampledRSS": {
+        "seconds": 7.654,
+        "rssMiB": 461.52,
+        "footprintMiB": 176.69
+      },
+      "phases": {
+        "catalogPopulating": {
+          "processSeconds": 3.661,
+          "rssMiB": 366.62,
+          "footprintMiB": 44.55,
+          "peakFootprintMiB": 45.85
+        },
+        "componentReport": {
+          "processSeconds": 8.279,
+          "rssMiB": 451.42,
+          "footprintMiB": 150.35,
+          "peakFootprintMiB": 191.11
+        },
+        "redrawReport": {
+          "processSeconds": 23.891,
+          "rssMiB": 451.94,
+          "footprintMiB": 150.24,
+          "peakFootprintMiB": 191.11
+        },
+        "end": {
+          "processSeconds": 25.942,
+          "rssMiB": 451.94,
+          "footprintMiB": 150.24,
+          "peakFootprintMiB": 191.11
+        },
+        "app.init.body": {
+          "processSeconds": 1.845,
+          "rssMiB": 185.09,
+          "footprintMiB": 8.8,
+          "peakFootprintMiB": 8.81
+        },
+        "app.init.done": {
+          "processSeconds": 1.962,
+          "rssMiB": 218.09,
+          "footprintMiB": 11.22,
+          "peakFootprintMiB": 11.22
+        },
+        "root.appear": {
+          "processSeconds": 2.406,
+          "rssMiB": 319.11,
+          "footprintMiB": 27.3,
+          "peakFootprintMiB": 27.3
+        }
+      },
+      "quiet": {
+        "seconds": 2.051,
+        "cpuSeconds": 0.00157,
+        "interruptWakeups": 20,
+        "diskBytesWritten": 0
+      },
+      "checksums": {
+        "mail.firstPage": 350,
+        "mail.readMutation": 350,
+        "calendar.visibleWeek": 4900,
+        "calendar.day": 700,
+        "notes.search": 700,
+        "notes.browse": 700,
+        "podcasts.nextAcrossCatalog": 2100,
+        "podcasts.downloadCandidates": 6300
+      },
+      "absoluteTimingPassed": true,
+      "redrawPassed": true,
+      "hostMonitorClean": true
+    },
+    {
+      "case": "historical-2-mail",
+      "route": "mail",
+      "days": 30,
+      "peakRSSMiB": 470.12,
+      "highestSampledRSS": {
+        "seconds": 4.866,
+        "rssMiB": 469.17,
+        "footprintMiB": 148.83
+      },
+      "phases": {
+        "catalogPopulating": {
+          "processSeconds": 4.308,
+          "rssMiB": 466.38,
+          "footprintMiB": 149.41,
+          "peakFootprintMiB": 161.25
+        },
+        "componentReport": {
+          "processSeconds": 8.248,
+          "rssMiB": 425.75,
+          "footprintMiB": 144.03,
+          "peakFootprintMiB": 161.25
+        },
+        "redrawReport": {
+          "processSeconds": 23.781,
+          "rssMiB": 425.77,
+          "footprintMiB": 143.83,
+          "peakFootprintMiB": 161.25
+        },
+        "end": {
+          "processSeconds": 25.831,
+          "rssMiB": 425.77,
+          "footprintMiB": 143.83,
+          "peakFootprintMiB": 161.25
+        },
+        "app.init.body": {
+          "processSeconds": 1.907,
+          "rssMiB": 202.5,
+          "footprintMiB": 10.06,
+          "peakFootprintMiB": 10.06
+        },
+        "app.init.done": {
+          "processSeconds": 1.968,
+          "rssMiB": 218.02,
+          "footprintMiB": 11.21,
+          "peakFootprintMiB": 11.21
+        },
+        "root.appear": {
+          "processSeconds": 3.166,
+          "rssMiB": 422.91,
+          "footprintMiB": 133.35,
+          "peakFootprintMiB": 161.25
+        }
+      },
+      "quiet": {
+        "seconds": 2.05,
+        "cpuSeconds": 0.00147,
+        "interruptWakeups": 21,
+        "diskBytesWritten": 0
+      },
+      "checksums": {
+        "mail.firstPage": 350,
+        "mail.readMutation": 350,
+        "calendar.visibleWeek": 4900,
+        "calendar.day": 700,
+        "notes.search": 700,
+        "notes.browse": 700,
+        "podcasts.nextAcrossCatalog": 2100,
+        "podcasts.downloadCandidates": 6300
+      },
+      "absoluteTimingPassed": true,
+      "redrawPassed": true,
+      "hostMonitorClean": true
+    },
+    {
+      "case": "historical-2-notes",
+      "route": "notes",
+      "days": 30,
+      "peakRSSMiB": 475.59,
+      "highestSampledRSS": {
+        "seconds": 7.339,
+        "rssMiB": 464.09,
+        "footprintMiB": 179.85
+      },
+      "phases": {
+        "catalogPopulating": {
+          "processSeconds": 3.57,
+          "rssMiB": 365.84,
+          "footprintMiB": 45.99,
+          "peakFootprintMiB": 45.99
+        },
+        "componentReport": {
+          "processSeconds": 8.129,
+          "rssMiB": 452.84,
+          "footprintMiB": 150.75,
+          "peakFootprintMiB": 191.36
+        },
+        "redrawReport": {
+          "processSeconds": 23.528,
+          "rssMiB": 451.73,
+          "footprintMiB": 150.52,
+          "peakFootprintMiB": 191.36
+        },
+        "end": {
+          "processSeconds": 25.589,
+          "rssMiB": 451.73,
+          "footprintMiB": 150.52,
+          "peakFootprintMiB": 191.36
+        },
+        "app.init.body": {
+          "processSeconds": 1.779,
+          "rssMiB": 198.33,
+          "footprintMiB": 9.94,
+          "peakFootprintMiB": 10.06
+        },
+        "app.init.done": {
+          "processSeconds": 1.892,
+          "rssMiB": 221.42,
+          "footprintMiB": 11.97,
+          "peakFootprintMiB": 11.97
+        },
+        "root.appear": {
+          "processSeconds": 2.276,
+          "rssMiB": 311.52,
+          "footprintMiB": 23.8,
+          "peakFootprintMiB": 23.8
+        }
+      },
+      "quiet": {
+        "seconds": 2.061,
+        "cpuSeconds": 0.00163,
+        "interruptWakeups": 20,
+        "diskBytesWritten": 0
+      },
+      "checksums": {
+        "mail.firstPage": 350,
+        "mail.readMutation": 350,
+        "calendar.visibleWeek": 4900,
+        "calendar.day": 700,
+        "notes.search": 700,
+        "notes.browse": 700,
+        "podcasts.nextAcrossCatalog": 2100,
+        "podcasts.downloadCandidates": 6300
+      },
+      "absoluteTimingPassed": true,
+      "redrawPassed": true,
+      "hostMonitorClean": true
+    }
+  ],
+  "quietSystemControl": [
+    {
+      "route": "calendar",
+      "seconds": 22.005,
+      "interruptWakeups": 226,
+      "cpuSeconds": 0.02044,
+      "diskBytesWritten": 0
+    },
+    {
+      "route": "settings",
+      "seconds": 22.01,
+      "interruptWakeups": 75,
+      "cpuSeconds": 0.45233,
+      "diskBytesWritten": 0
+    },
+    {
+      "route": "settings",
+      "seconds": 22.01,
+      "interruptWakeups": 106,
+      "cpuSeconds": 0.70774,
+      "diskBytesWritten": 53248
+    },
+    {
+      "route": "calendar",
+      "seconds": 22.008,
+      "interruptWakeups": 225,
+      "cpuSeconds": 0.01761,
+      "diskBytesWritten": 0
+    }
+  ],
+  "quietSystemControlMethod": "Two Calendar and two Settings launches in ABBA order. After a six-second settle, read process counters only at the start and end of approximately 22 seconds. Calendar used --stress-measure with no synthetic playback ticks.",
+  "heapSnapshot": {
+    "historical": {
+      "fixtureConversationDictionary": {
+        "objects": 1,
+        "allocatedBytes": 53510144
+      },
+      "bodyDictionary": {
+        "objects": 1,
+        "allocatedBytes": 14712832
+      },
+      "textBlockArrays": {
+        "objects": 60000,
+        "allocatedBytes": 4800000
+      },
+      "typeStrideBytes": {
+        "MailBody": 80,
+        "MailTextBlock": 40,
+        "MailPictures": 40,
+        "MailMessage": 248,
+        "MailRow": 192,
+        "MailConversation": 184,
+        "Stored": 376
+      }
+    },
+    "candidate": {
+      "fixtureConversationDictionary": {
+        "objects": 1,
+        "allocatedBytes": 56655872
+      },
+      "bodyDictionary": {
+        "objects": 1,
+        "allocatedBytes": 19955712
+      },
+      "textBlockArrays": {
+        "objects": 60000,
+        "allocatedBytes": 9600000
+      },
+      "typeStrideBytes": {
+        "MailBody": 120,
+        "MailTextBlock": 104,
+        "MailPictures": 88,
+        "MailMessage": 256,
+        "MailRow": 208,
+        "MailConversation": 184,
+        "Stored": 400
+      }
+    }
+  },
+  "bodyRepresentationProbe": [
+    {
+      "representation": "inline",
+      "richPercent": 0,
+      "bodies": 60000,
+      "checksum": 588890,
+      "physicalFootprintMiB": 34.641082763671875,
+      "constructionMS": 29.148291796445847,
+      "validationMS": 12.94987485744059,
+      "bodyStride": 120,
+      "blockStride": 104
+    },
+    {
+      "representation": "indirect",
+      "richPercent": 0,
+      "bodies": 60000,
+      "checksum": 588890,
+      "physicalFootprintMiB": 19.062957763671875,
+      "constructionMS": 37.1160835493356,
+      "validationMS": 13.091249857097864,
+      "bodyStride": 32,
+      "blockStride": 40
+    },
+    {
+      "representation": "indirect",
+      "richPercent": 0,
+      "bodies": 60000,
+      "checksum": 588890,
+      "physicalFootprintMiB": 19.047332763671875,
+      "constructionMS": 17.165999859571457,
+      "validationMS": 7.911583408713341,
+      "bodyStride": 32,
+      "blockStride": 40
+    },
+    {
+      "representation": "inline",
+      "richPercent": 0,
+      "bodies": 60000,
+      "checksum": 588890,
+      "physicalFootprintMiB": 34.641082763671875,
+      "constructionMS": 18.155041616410017,
+      "validationMS": 9.971874998882413,
+      "bodyStride": 120,
+      "blockStride": 104
+    },
+    {
+      "representation": "inline",
+      "richPercent": 10,
+      "bodies": 60000,
+      "checksum": 659770,
+      "physicalFootprintMiB": 34.187957763671875,
+      "constructionMS": 17.89912488311529,
+      "validationMS": 10.369708528742194,
+      "bodyStride": 120,
+      "blockStride": 104
+    },
+    {
+      "representation": "indirect",
+      "richPercent": 10,
+      "bodies": 60000,
+      "checksum": 659770,
+      "physicalFootprintMiB": 20.156707763671875,
+      "constructionMS": 15.915875090286136,
+      "validationMS": 8.556624874472618,
+      "bodyStride": 32,
+      "blockStride": 40
+    },
+    {
+      "representation": "indirect",
+      "richPercent": 10,
+      "bodies": 60000,
+      "checksum": 659770,
+      "physicalFootprintMiB": 20.156707763671875,
+      "constructionMS": 15.639499993994832,
+      "validationMS": 8.216916816309094,
+      "bodyStride": 32,
+      "blockStride": 40
+    },
+    {
+      "representation": "inline",
+      "richPercent": 10,
+      "bodies": 60000,
+      "checksum": 659770,
+      "physicalFootprintMiB": 34.203582763671875,
+      "constructionMS": 17.870083451271057,
+      "validationMS": 10.221750009804964,
+      "bodyStride": 120,
+      "blockStride": 104
+    },
+    {
+      "representation": "inline",
+      "richPercent": 100,
+      "bodies": 60000,
+      "checksum": 1297780,
+      "physicalFootprintMiB": 30.031707763671875,
+      "constructionMS": 20.796166732907295,
+      "validationMS": 13.072749832645059,
+      "bodyStride": 120,
+      "blockStride": 104
+    },
+    {
+      "representation": "indirect",
+      "richPercent": 100,
+      "bodies": 60000,
+      "checksum": 1297780,
+      "physicalFootprintMiB": 30.12548065185547,
+      "constructionMS": 20.893791457638144,
+      "validationMS": 13.975250069051981,
+      "bodyStride": 32,
+      "blockStride": 40
+    },
+    {
+      "representation": "indirect",
+      "richPercent": 100,
+      "bodies": 60000,
+      "checksum": 1297780,
+      "physicalFootprintMiB": 30.109832763671875,
+      "constructionMS": 21.241166861727834,
+      "validationMS": 12.702541658654809,
+      "bodyStride": 32,
+      "blockStride": 40
+    },
+    {
+      "representation": "inline",
+      "richPercent": 100,
+      "bodies": 60000,
+      "checksum": 1297780,
+      "physicalFootprintMiB": 30.016082763671875,
+      "constructionMS": 20.98829159513116,
+      "validationMS": 13.156875036656857,
+      "bodyStride": 120,
+      "blockStride": 104
+    }
+  ]
+}

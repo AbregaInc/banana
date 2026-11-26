@@ -1,0 +1,299 @@
+{
+  "device-smoke": {
+    "cases": [
+      {
+        "name": "testMailScrollAndOpen",
+        "status": "passed",
+        "suiteDurationSeconds": 37.792
+      },
+      {
+        "name": "testNativeDayPagingAndZoom",
+        "status": "passed",
+        "suiteDurationSeconds": 29.48
+      },
+      {
+        "name": "testNativeWeekEdgePullPagesAndReturnsWithoutChangingTheTime",
+        "status": "passed",
+        "suiteDurationSeconds": 21.115
+      },
+      {
+        "name": "testNativeWeekRotation",
+        "status": "passed",
+        "suiteDurationSeconds": 20.658
+      }
+    ],
+    "metrics": [
+      {
+        "test": "testMailScrollAndOpen",
+        "name": "Absolute Memory Physical (stressreview)",
+        "unit": "kB",
+        "samples": [
+          446661.88,
+          445056.248,
+          444646.648
+        ]
+      },
+      {
+        "test": "testMailScrollAndOpen",
+        "name": "Duration (Scroll_DraggingAndDeceleration)",
+        "unit": "s",
+        "samples": [
+          2.401585,
+          2.426691,
+          2.419379
+        ]
+      },
+      {
+        "test": "testMailScrollAndOpen",
+        "name": "Clock Monotonic Time",
+        "unit": "s",
+        "samples": [
+          5.243633,
+          5.389809,
+          5.38173
+        ]
+      },
+      {
+        "test": "testMailScrollAndOpen",
+        "name": "Number of Hitches (Scroll_DraggingAndDeceleration)",
+        "unit": "hitches",
+        "samples": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "test": "testMailScrollAndOpen",
+        "name": "Memory Physical (stressreview)",
+        "unit": "kB",
+        "samples": [
+          65.536,
+          -1605.632,
+          -409.6
+        ]
+      },
+      {
+        "test": "testMailScrollAndOpen",
+        "name": "Hitch Time Ratio (Scroll_DraggingAndDeceleration)",
+        "unit": "ms per s",
+        "samples": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "test": "testMailScrollAndOpen",
+        "name": "Frame Count (Scroll_DraggingAndDeceleration)",
+        "unit": "frames",
+        "samples": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "test": "testMailScrollAndOpen",
+        "name": "Frame Rate (Scroll_DraggingAndDeceleration)",
+        "unit": "fps",
+        "samples": [
+          105.763481,
+          107.553871,
+          110.358894
+        ]
+      },
+      {
+        "test": "testMailScrollAndOpen",
+        "name": "Hitches Total Duration (Scroll_DraggingAndDeceleration)",
+        "unit": "ms",
+        "samples": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "test": "testMailScrollAndOpen",
+        "name": "Memory Peak Physical (stressreview)",
+        "unit": "kB",
+        "samples": [
+          446858.488,
+          446661.88,
+          445302.008
+        ]
+      }
+    ],
+    "testExecutionSucceeded": true
+  },
+  "device-mail-scroll": {
+    "cases": [
+      {
+        "name": "testMailScrollThroughPagesHitches",
+        "status": "passed",
+        "suiteDurationSeconds": 91.17
+      },
+      {
+        "name": "testMailScrollThroughSlidingWindowsHitches",
+        "status": "passed",
+        "suiteDurationSeconds": 90.958
+      }
+    ],
+    "metrics": [
+      {
+        "test": "testMailScrollThroughPagesHitches",
+        "name": "Hitches Total Duration (Scroll_DraggingAndDeceleration)",
+        "unit": "ms",
+        "samples": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "test": "testMailScrollThroughPagesHitches",
+        "name": "Duration (Scroll_DraggingAndDeceleration)",
+        "unit": "s",
+        "samples": [
+          2.510875,
+          2.492731,
+          2.494349,
+          2.526937,
+          2.534841
+        ]
+      },
+      {
+        "test": "testMailScrollThroughPagesHitches",
+        "name": "Hitch Time Ratio (Scroll_DraggingAndDeceleration)",
+        "unit": "ms per s",
+        "samples": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "test": "testMailScrollThroughPagesHitches",
+        "name": "Frame Count (Scroll_DraggingAndDeceleration)",
+        "unit": "frames",
+        "samples": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "test": "testMailScrollThroughPagesHitches",
+        "name": "Frame Rate (Scroll_DraggingAndDeceleration)",
+        "unit": "fps",
+        "samples": [
+          101.558243,
+          103.902122,
+          107.041969,
+          104.474312,
+          114.405609
+        ]
+      },
+      {
+        "test": "testMailScrollThroughPagesHitches",
+        "name": "Number of Hitches (Scroll_DraggingAndDeceleration)",
+        "unit": "hitches",
+        "samples": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "test": "testMailScrollThroughSlidingWindowsHitches",
+        "name": "Hitches Total Duration (Scroll_DraggingAndDeceleration)",
+        "unit": "ms",
+        "samples": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "test": "testMailScrollThroughSlidingWindowsHitches",
+        "name": "Duration (Scroll_DraggingAndDeceleration)",
+        "unit": "s",
+        "samples": [
+          2.51072,
+          2.511328,
+          2.511244,
+          2.509609,
+          2.527572
+        ]
+      },
+      {
+        "test": "testMailScrollThroughSlidingWindowsHitches",
+        "name": "Hitch Time Ratio (Scroll_DraggingAndDeceleration)",
+        "unit": "ms per s",
+        "samples": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "test": "testMailScrollThroughSlidingWindowsHitches",
+        "name": "Frame Count (Scroll_DraggingAndDeceleration)",
+        "unit": "frames",
+        "samples": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "test": "testMailScrollThroughSlidingWindowsHitches",
+        "name": "Frame Rate (Scroll_DraggingAndDeceleration)",
+        "unit": "fps",
+        "samples": [
+          101.564491,
+          113.087585,
+          110.303886,
+          100.812508,
+          110.778244
+        ]
+      },
+      {
+        "test": "testMailScrollThroughSlidingWindowsHitches",
+        "name": "Number of Hitches (Scroll_DraggingAndDeceleration)",
+        "unit": "hitches",
+        "samples": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      }
+    ],
+    "testExecutionSucceeded": true
+  },
+  "hardware": "M1 iPad Pro 12.9-inch (5th generation)",
+  "fixtureBinarySHA256": "787088885a6866c76178e012a285e100d9396d480496320e50c600843dac7b08",
+  "conditions": {
+    "AmountDataAvailable": 44204638208,
+    "BatteryCurrentCapacity": 56,
+    "ExternalConnected": true,
+    "BatteryIsCharging": true
+  },
+  "limitations": "XCTest recorded a zero frame count alongside nonzero frame rates on these device scroll metrics. Keep the values and do not use them to certify frame pacing or touch-to-display response."
+}

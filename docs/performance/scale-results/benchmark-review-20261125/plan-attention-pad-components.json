@@ -1,0 +1,1360 @@
+{
+  "scope": "Supplemental component workloads only; iPad Air 13-inch Simulator, stock iOS 27.0, competing developer workload. Reference environment is iPhone.",
+  "cases": {
+    "scale-1d": {
+      "days": 1,
+      "emails": 2000,
+      "episodes": 10000,
+      "events": 100,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.0005417969077825546,
+          "name": "mail.firstPage",
+          "p95MS": 1.8028751946985722,
+          "samplesMS": [
+            1.8028751946985722,
+            0.0019166618585586548,
+            0.0006249174475669861,
+            0.0005415640771389008,
+            0.0005417969077825546,
+            0.0005417969077825546,
+            0.0005415640771389008
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.0130415428429842,
+          "name": "mail.readMutation",
+          "p95MS": 0.47895824536681175,
+          "samplesMS": [
+            0.47895824536681175,
+            0.018249964341521263,
+            0.013291602954268456,
+            0.0130415428429842,
+            0.012333504855632782,
+            0.012250151485204697,
+            0.012458302080631256
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 0.04391674883663654,
+          "name": "calendar.visibleWeek",
+          "p95MS": 1.7406668048352003,
+          "samplesMS": [
+            1.7406668048352003,
+            0.06904150359332561,
+            0.0444166362285614,
+            0.04254165105521679,
+            0.04391674883663654,
+            0.04337495192885399,
+            0.042791711166501045
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.0022917520254850388,
+          "name": "calendar.day",
+          "p95MS": 0.018666498363018036,
+          "samplesMS": [
+            0.018666498363018036,
+            0.002500135451555252,
+            0.00237487256526947,
+            0.0022917520254850388,
+            0.0022498425096273422,
+            0.0022083986550569534,
+            0.0022498425096273422
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 329,
+          "medianMS": 1.1875417549163103,
+          "name": "notes.search",
+          "p95MS": 1.4374582096934319,
+          "samplesMS": [
+            1.4374582096934319,
+            1.1875417549163103,
+            1.172166783362627,
+            1.1801249347627163,
+            1.1789584532380104,
+            1.2260000221431255,
+            1.2661251239478588
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 0.5680001340806484,
+          "name": "notes.browse",
+          "p95MS": 0.6071249954402447,
+          "samplesMS": [
+            0.6071249954402447,
+            0.5829583387821913,
+            0.5837499629706144,
+            0.5680001340806484,
+            0.5610832013189793,
+            0.5644999910145998,
+            0.54574990645051
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 70,
+          "medianMS": 0.5150416400283575,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 2.4679999332875013,
+          "samplesMS": [
+            2.4679999332875013,
+            0.5180833395570517,
+            0.5105833988636732,
+            0.5099584814161062,
+            0.5150416400283575,
+            0.513250008225441,
+            0.5317083559930325
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 210,
+          "medianMS": 0.6648749113082886,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 0.7713749073445797,
+          "samplesMS": [
+            0.6648749113082886,
+            0.6322083063423634,
+            0.645083375275135,
+            0.7713749073445797,
+            0.7602083496749401,
+            0.6860417779535055,
+            0.6535833235830069
+          ]
+        }
+      ],
+      "notes": 1000,
+      "passed": true,
+      "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+      "podcasts": 10,
+      "residentMB": 365.84375,
+      "schemaVersion": 1,
+      "label": "scale-1d",
+      "commit": "f987bd34ef93eb00776f815bb86738bde1146a04",
+      "binarySHA256": "1906e77a5da21eb56992bad62504140aaed5835e215d75a92ddcd86847c9c73c",
+      "hostLoad": [
+        17.3193359375,
+        81.06884765625,
+        86.73193359375
+      ],
+      "dirty": true,
+      "readySeconds": 4.392,
+      "requestedCalendarNeighborPolicy": "prepared",
+      "memoryBudgetMB": 900.0,
+      "memoryPassed": true,
+      "hostMonitor": {
+        "clean": false,
+        "samples": 8,
+        "competingDeveloperWorkload": true
+      },
+      "checksumsMatchReference": true
+    },
+    "scale-7d": {
+      "days": 7,
+      "emails": 14000,
+      "episodes": 70000,
+      "events": 700,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.0005417969077825546,
+          "name": "mail.firstPage",
+          "p95MS": 4.791583400219679,
+          "samplesMS": [
+            4.791583400219679,
+            0.0018749851733446121,
+            0.0005832407623529434,
+            0.0005415640771389008,
+            0.0005415640771389008,
+            0.0005415640771389008,
+            0.0005417969077825546
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.013166805729269981,
+          "name": "mail.readMutation",
+          "p95MS": 0.12458348646759987,
+          "samplesMS": [
+            0.12458348646759987,
+            0.017625046893954277,
+            0.013458309695124626,
+            0.013166805729269981,
+            0.012541888281702995,
+            0.012375181540846825,
+            0.012833159416913986
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.29504159465432167,
+          "name": "calendar.visibleWeek",
+          "p95MS": 2.260874956846237,
+          "samplesMS": [
+            2.260874956846237,
+            0.32120849937200546,
+            0.2950001507997513,
+            0.2842918038368225,
+            0.29504159465432167,
+            0.2954583615064621,
+            0.29112515039741993
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.0024167820811271667,
+          "name": "calendar.day",
+          "p95MS": 0.022500054910779,
+          "samplesMS": [
+            0.022500054910779,
+            0.002874992787837982,
+            0.0024167820811271667,
+            0.002416549250483513,
+            0.0024167820811271667,
+            0.0023331958800554276,
+            0.0022917520254850388
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 5.200208397582173,
+          "name": "notes.search",
+          "p95MS": 5.3761666640639305,
+          "samplesMS": [
+            5.189791554585099,
+            5.2790415938943624,
+            5.200208397582173,
+            5.3761666640639305,
+            5.036083282902837,
+            5.168208386749029,
+            5.207041511312127
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 0.7761665619909763,
+          "name": "notes.browse",
+          "p95MS": 0.8464166894555092,
+          "samplesMS": [
+            0.8464166894555092,
+            0.7734999526292086,
+            0.7747083436697721,
+            0.779750058427453,
+            0.7761665619909763,
+            0.8044166024774313,
+            0.7552083116024733
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 490,
+          "medianMS": 3.5985831636935472,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 6.045208545401692,
+          "samplesMS": [
+            6.045208545401692,
+            3.73112503439188,
+            3.640624927356839,
+            3.558833384886384,
+            3.5501248203217983,
+            3.5985831636935472,
+            3.535708412528038
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 1470,
+          "medianMS": 4.4501665979623795,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 4.665750078856945,
+          "samplesMS": [
+            4.665750078856945,
+            4.366125212982297,
+            4.4501665979623795,
+            4.413750022649765,
+            4.482083255425096,
+            4.494041670113802,
+            4.427916603162885
+          ]
+        }
+      ],
+      "notes": 7000,
+      "passed": true,
+      "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+      "podcasts": 70,
+      "residentMB": 365.171875,
+      "schemaVersion": 1,
+      "label": "scale-7d",
+      "commit": "f987bd34ef93eb00776f815bb86738bde1146a04",
+      "binarySHA256": "1906e77a5da21eb56992bad62504140aaed5835e215d75a92ddcd86847c9c73c",
+      "hostLoad": [
+        24.1591796875,
+        80.42578125,
+        86.43701171875
+      ],
+      "dirty": true,
+      "readySeconds": 5.338,
+      "requestedCalendarNeighborPolicy": "prepared",
+      "memoryBudgetMB": 900.0,
+      "memoryPassed": true,
+      "hostMonitor": {
+        "clean": false,
+        "samples": 8,
+        "competingDeveloperWorkload": true
+      },
+      "checksumsMatchReference": true
+    },
+    "scale-30d": {
+      "days": 30,
+      "emails": 60000,
+      "episodes": 300000,
+      "events": 3000,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.0005834735929965973,
+          "name": "mail.firstPage",
+          "p95MS": 15.241833170875907,
+          "samplesMS": [
+            15.241833170875907,
+            0.0017916318029165268,
+            0.0006249174475669861,
+            0.0005832407623529434,
+            0.0005415640771389008,
+            0.0005834735929965973,
+            0.0005415640771389008
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.012916512787342072,
+          "name": "mail.readMutation",
+          "p95MS": 0.1093749888241291,
+          "samplesMS": [
+            0.1093749888241291,
+            0.017416663467884064,
+            0.013416633009910583,
+            0.012916512787342072,
+            0.012250151485204697,
+            0.012125121429562569,
+            0.01283339224755764
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.30037504620850086,
+          "name": "calendar.visibleWeek",
+          "p95MS": 4.030333133414388,
+          "samplesMS": [
+            4.030333133414388,
+            0.3248751163482666,
+            0.30070822685956955,
+            0.299875158816576,
+            0.30037504620850086,
+            0.295999925583601,
+            0.29562506824731827
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.0024167820811271667,
+          "name": "calendar.day",
+          "p95MS": 0.01970818266272545,
+          "samplesMS": [
+            0.01970818266272545,
+            0.002791639417409897,
+            0.0024167820811271667,
+            0.0024582259356975555,
+            0.002416549250483513,
+            0.002375105395913124,
+            0.002291519194841385
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 16.58049994148314,
+          "name": "notes.search",
+          "p95MS": 16.950791468843818,
+          "samplesMS": [
+            16.950791468843818,
+            16.473541501909494,
+            16.433250159025192,
+            16.818291507661343,
+            16.58049994148314,
+            16.37687487527728,
+            16.843250021338463
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 1.1088750325143337,
+          "name": "notes.browse",
+          "p95MS": 1.465791603550315,
+          "samplesMS": [
+            1.465791603550315,
+            1.124874921515584,
+            1.107583288103342,
+            1.1088750325143337,
+            1.1229999363422394,
+            1.0943750385195017,
+            1.1041667312383652
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 2100,
+          "medianMS": 14.979166677221656,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 18.720875028520823,
+          "samplesMS": [
+            18.720875028520823,
+            15.131291700527072,
+            15.033041825518012,
+            14.979166677221656,
+            14.74974979646504,
+            14.973458368331194,
+            14.914416475221515
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 19.474041648209095,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 19.66400002129376,
+          "samplesMS": [
+            19.487666664645076,
+            19.60824988782406,
+            19.221208291128278,
+            19.474041648209095,
+            19.272416830062866,
+            19.66400002129376,
+            19.246041774749756
+          ]
+        }
+      ],
+      "notes": 30000,
+      "passed": true,
+      "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+      "podcasts": 300,
+      "residentMB": 490.796875,
+      "schemaVersion": 1,
+      "label": "scale-30d",
+      "commit": "f987bd34ef93eb00776f815bb86738bde1146a04",
+      "binarySHA256": "1906e77a5da21eb56992bad62504140aaed5835e215d75a92ddcd86847c9c73c",
+      "hostLoad": [
+        23.34521484375,
+        79.32275390625,
+        86.01220703125
+      ],
+      "dirty": true,
+      "readySeconds": 10.496,
+      "requestedCalendarNeighborPolicy": "prepared",
+      "memoryBudgetMB": 900.0,
+      "memoryPassed": true,
+      "hostMonitor": {
+        "clean": false,
+        "samples": 13,
+        "competingDeveloperWorkload": true
+      },
+      "checksumsMatchReference": true
+    },
+    "scale-90d": {
+      "days": 90,
+      "emails": 180000,
+      "episodes": 900000,
+      "events": 9000,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.0006249174475669861,
+          "name": "mail.firstPage",
+          "p95MS": 37.291416665539145,
+          "samplesMS": [
+            37.291416665539145,
+            0.00200001522898674,
+            0.0006249174475669861,
+            0.0005832407623529434,
+            0.00062515027821064,
+            0.0005834735929965973,
+            0.0005832407623529434
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.014374963939189911,
+          "name": "mail.readMutation",
+          "p95MS": 0.1032915897667408,
+          "samplesMS": [
+            0.1032915897667408,
+            0.01783343032002449,
+            0.018791528418660164,
+            0.014374963939189911,
+            0.012708362191915512,
+            0.01237494871020317,
+            0.013124896213412285
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.2986248582601547,
+          "name": "calendar.visibleWeek",
+          "p95MS": 9.008124936372042,
+          "samplesMS": [
+            9.008124936372042,
+            0.3357084933668375,
+            0.3005415201187134,
+            0.2986248582601547,
+            0.29512494802474976,
+            0.29304157942533493,
+            0.2897917293012142
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.0024167820811271667,
+          "name": "calendar.day",
+          "p95MS": 0.02187490463256836,
+          "samplesMS": [
+            0.02187490463256836,
+            0.002624932676553726,
+            0.0024584587663412094,
+            0.0024167820811271667,
+            0.00237487256526947,
+            0.002375105395913124,
+            0.002291519194841385
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 46.67429160326719,
+          "name": "notes.search",
+          "p95MS": 47.905791783705354,
+          "samplesMS": [
+            47.65291651710868,
+            46.41495831310749,
+            46.67429160326719,
+            45.760124921798706,
+            46.09858337789774,
+            47.905791783705354,
+            47.84312495030463
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 3.7456247955560684,
+          "name": "notes.browse",
+          "p95MS": 4.055083496496081,
+          "samplesMS": [
+            3.779625054448843,
+            3.593041794374585,
+            3.7456247955560684,
+            4.055083496496081,
+            3.8013749290257692,
+            3.660124959424138,
+            3.6125415936112404
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 50.392791628837585,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 55.29370834119618,
+          "samplesMS": [
+            55.29370834119618,
+            53.30441682599485,
+            52.18616663478315,
+            49.03529165312648,
+            50.392791628837585,
+            50.03087501972914,
+            48.91829169355333
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 18900,
+          "medianMS": 65.0381667073816,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 67.62599991634488,
+          "samplesMS": [
+            63.28045832924545,
+            65.0381667073816,
+            63.83433332666755,
+            65.83070824854076,
+            64.69708331860602,
+            67.62599991634488,
+            67.2460834030062
+          ]
+        }
+      ],
+      "notes": 90000,
+      "passed": true,
+      "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+      "podcasts": 900,
+      "residentMB": 722.59375,
+      "schemaVersion": 1,
+      "label": "scale-90d",
+      "commit": "f987bd34ef93eb00776f815bb86738bde1146a04",
+      "binarySHA256": "1906e77a5da21eb56992bad62504140aaed5835e215d75a92ddcd86847c9c73c",
+      "hostLoad": [
+        29.0244140625,
+        77.9150390625,
+        85.39697265625
+      ],
+      "dirty": true,
+      "readySeconds": 22.608,
+      "requestedCalendarNeighborPolicy": "prepared",
+      "memoryBudgetMB": 900.0,
+      "memoryPassed": true,
+      "hostMonitor": {
+        "clean": false,
+        "samples": 24,
+        "competingDeveloperWorkload": true
+      },
+      "checksumsMatchReference": true
+    },
+    "redraw-notes": {
+      "days": 30,
+      "emails": 60000,
+      "episodes": 300000,
+      "events": 3000,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.0005832407623529434,
+          "name": "mail.firstPage",
+          "p95MS": 15.631374903023243,
+          "samplesMS": [
+            15.631374903023243,
+            0.0018333084881305695,
+            0.0005832407623529434,
+            0.0005832407623529434,
+            0.0005417969077825546,
+            0.00062515027821064,
+            0.0005415640771389008
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.012833159416913986,
+          "name": "mail.readMutation",
+          "p95MS": 0.12091663666069508,
+          "samplesMS": [
+            0.12091663666069508,
+            0.01804158091545105,
+            0.013250159099698067,
+            0.012833159416913986,
+            0.012458302080631256,
+            0.012499978765845299,
+            0.012625008821487427
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.3117916639894247,
+          "name": "calendar.visibleWeek",
+          "p95MS": 4.083125153556466,
+          "samplesMS": [
+            4.083125153556466,
+            0.3349585458636284,
+            0.33079180866479874,
+            0.3117916639894247,
+            0.2936250530183315,
+            0.2964166924357414,
+            0.2879167441278696
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.0024167820811271667,
+          "name": "calendar.day",
+          "p95MS": 0.021249987185001373,
+          "samplesMS": [
+            0.021249987185001373,
+            0.002791639417409897,
+            0.002499902620911598,
+            0.0023334287106990814,
+            0.0023331958800554276,
+            0.0024167820811271667,
+            0.0022498425096273422
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 16.365416813641787,
+          "name": "notes.search",
+          "p95MS": 16.80608349852264,
+          "samplesMS": [
+            16.80608349852264,
+            16.487666871398687,
+            16.365416813641787,
+            16.309166559949517,
+            16.20879163965583,
+            16.174208372831345,
+            16.579374903813004
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 1.0539584327489138,
+          "name": "notes.browse",
+          "p95MS": 1.4096249360591173,
+          "samplesMS": [
+            1.4096249360591173,
+            1.0985417757183313,
+            1.0378332808613777,
+            0.9973333217203617,
+            0.9952918626368046,
+            1.0539584327489138,
+            1.1193333193659782
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 2100,
+          "medianMS": 14.868166530504823,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 17.834916710853577,
+          "samplesMS": [
+            17.834916710853577,
+            15.044708270579576,
+            14.868166530504823,
+            15.142125077545643,
+            14.63970821350813,
+            14.730708207935095,
+            14.55025002360344
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 19.66070826165378,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 20.219750003889203,
+          "samplesMS": [
+            19.56945820711553,
+            19.75054177455604,
+            20.219750003889203,
+            19.500874914228916,
+            19.74799996241927,
+            19.066708395257592,
+            19.66070826165378
+          ]
+        }
+      ],
+      "notes": 30000,
+      "passed": true,
+      "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+      "podcasts": 300,
+      "residentMB": 489.765625,
+      "schemaVersion": 1,
+      "idle": {
+        "budgetRendersPerSecond": 2,
+        "clockTicks": 100,
+        "observedRoot": true,
+        "passed": true,
+        "rendersPerSecond": {
+          "badges\u21bb": 0,
+          "fitness\u21bb": 0,
+          "library\u21bb": 0,
+          "Notes.appear": 0,
+          "Notes.loadPage": 0,
+          "NotesView": 0,
+          "occurrences\u21bb": 0,
+          "RootView": 0
+        },
+        "seconds": 10.398302749963477
+      },
+      "label": "redraw-notes",
+      "commit": "f987bd34ef93eb00776f815bb86738bde1146a04",
+      "binarySHA256": "1906e77a5da21eb56992bad62504140aaed5835e215d75a92ddcd86847c9c73c",
+      "hostLoad": [
+        34.34716796875,
+        75.4560546875,
+        84.30615234375
+      ],
+      "dirty": true,
+      "readySeconds": 25.529,
+      "requestedCalendarNeighborPolicy": "prepared",
+      "memoryBudgetMB": 900.0,
+      "memoryPassed": true,
+      "hostMonitor": {
+        "clean": false,
+        "samples": 27,
+        "competingDeveloperWorkload": true
+      },
+      "checksumsMatchReference": true
+    },
+    "redraw-library": {
+      "days": 30,
+      "emails": 60000,
+      "episodes": 300000,
+      "events": 3000,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.0005832407623529434,
+          "name": "mail.firstPage",
+          "p95MS": 15.19091660156846,
+          "samplesMS": [
+            15.19091660156846,
+            0.0016249250620603561,
+            0.0005832407623529434,
+            0.0005415640771389008,
+            0.0005834735929965973,
+            0.0005417969077825546,
+            0.0004998873919248581
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.013166805729269981,
+          "name": "mail.readMutation",
+          "p95MS": 0.11445838026702404,
+          "samplesMS": [
+            0.11445838026702404,
+            0.01858314499258995,
+            0.013499986380338669,
+            0.013166805729269981,
+            0.012083211913704872,
+            0.01183338463306427,
+            0.012166565284132957
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.29820832423865795,
+          "name": "calendar.visibleWeek",
+          "p95MS": 4.939458332955837,
+          "samplesMS": [
+            4.939458332955837,
+            0.3202916122972965,
+            0.3076666034758091,
+            0.29462482780218124,
+            0.29820832423865795,
+            0.2855833154171705,
+            0.28708321042358875
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.002291519194841385,
+          "name": "calendar.day",
+          "p95MS": 0.9467084892094135,
+          "samplesMS": [
+            0.9467084892094135,
+            0.008083414286375046,
+            0.002291519194841385,
+            0.002250075340270996,
+            0.0022498425096273422,
+            0.0022917520254850388,
+            0.002291519194841385
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 16.47016662172973,
+          "name": "notes.search",
+          "p95MS": 18.12158338725567,
+          "samplesMS": [
+            18.12158338725567,
+            16.47016662172973,
+            16.86004176735878,
+            16.602874966338277,
+            15.88879176415503,
+            15.821708366274834,
+            15.913791488856077
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 1.0494166053831577,
+          "name": "notes.browse",
+          "p95MS": 1.3374167028814554,
+          "samplesMS": [
+            1.3374167028814554,
+            1.0494166053831577,
+            1.029333332553506,
+            1.0257083922624588,
+            1.113416627049446,
+            1.0363333858549595,
+            1.0749581269919872
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 2100,
+          "medianMS": 15.813958365470171,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 20.470291608944535,
+          "samplesMS": [
+            20.470291608944535,
+            16.08716673217714,
+            15.63283335417509,
+            15.813958365470171,
+            15.375124989077449,
+            15.047708293423057,
+            15.84270829334855
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 20.366375101730227,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 20.661583403125405,
+          "samplesMS": [
+            20.661583403125405,
+            19.934541545808315,
+            20.49779170192778,
+            20.341499941423535,
+            20.565291633829474,
+            19.76170833222568,
+            20.366375101730227
+          ]
+        }
+      ],
+      "notes": 30000,
+      "passed": true,
+      "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+      "podcasts": 300,
+      "residentMB": 494.359375,
+      "schemaVersion": 1,
+      "idle": {
+        "budgetRendersPerSecond": 2,
+        "clockTicks": 100,
+        "observedRoot": true,
+        "passed": true,
+        "rendersPerSecond": {
+          "badges\u21bb": 0,
+          "downloads\u21bb": 0,
+          "fitness\u21bb": 0,
+          "library\u21bb": 0,
+          "occurrences\u21bb": 0,
+          "PodcastsView": 0,
+          "RootView": 0
+        },
+        "seconds": 10.362937500001863
+      },
+      "label": "redraw-library",
+      "commit": "f987bd34ef93eb00776f815bb86738bde1146a04",
+      "binarySHA256": "1906e77a5da21eb56992bad62504140aaed5835e215d75a92ddcd86847c9c73c",
+      "hostLoad": [
+        26.50830078125,
+        69.5771484375,
+        81.86474609375
+      ],
+      "dirty": true,
+      "readySeconds": 25.579,
+      "requestedCalendarNeighborPolicy": "prepared",
+      "memoryBudgetMB": 900.0,
+      "memoryPassed": true,
+      "hostMonitor": {
+        "clean": false,
+        "samples": 27,
+        "competingDeveloperWorkload": true
+      },
+      "checksumsMatchReference": true
+    },
+    "redraw-plan": {
+      "days": 30,
+      "emails": 60000,
+      "episodes": 300000,
+      "events": 3000,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.0005834735929965973,
+          "name": "mail.firstPage",
+          "p95MS": 15.107749961316586,
+          "samplesMS": [
+            15.107749961316586,
+            0.00162515789270401,
+            0.0005834735929965973,
+            0.0005834735929965973,
+            0.0005832407623529434,
+            0.0005415640771389008,
+            0.0005417969077825546
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.01366669312119484,
+          "name": "mail.readMutation",
+          "p95MS": 0.12458348646759987,
+          "samplesMS": [
+            0.12458348646759987,
+            0.018958235159516335,
+            0.014083227142691612,
+            0.01366669312119484,
+            0.012791715562343597,
+            0.012458302080631256,
+            0.013083219528198242
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.3072500694543123,
+          "name": "calendar.visibleWeek",
+          "p95MS": 2.6313751004636288,
+          "samplesMS": [
+            2.6313751004636288,
+            0.3072500694543123,
+            0.2968751359730959,
+            0.309833325445652,
+            0.309208407998085,
+            0.2854582853615284,
+            0.2954583615064621
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.00237487256526947,
+          "name": "calendar.day",
+          "p95MS": 0.02100015990436077,
+          "samplesMS": [
+            0.02100015990436077,
+            0.002624932676553726,
+            0.00237487256526947,
+            0.002375105395913124,
+            0.002291519194841385,
+            0.0023334287106990814,
+            0.0023331958800554276
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 16.452708281576633,
+          "name": "notes.search",
+          "p95MS": 16.986000118777156,
+          "samplesMS": [
+            16.986000118777156,
+            16.09729160554707,
+            16.04279177263379,
+            16.452708281576633,
+            15.912708127871156,
+            16.646125121042132,
+            16.891249921172857
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 1.1124999728053808,
+          "name": "notes.browse",
+          "p95MS": 1.5016666147857904,
+          "samplesMS": [
+            1.5016666147857904,
+            1.1430417653173208,
+            1.1046251747757196,
+            1.1187084019184113,
+            1.069874968379736,
+            1.1124999728053808,
+            1.0953748133033514
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 2100,
+          "medianMS": 14.42070840857923,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 18.154083285480738,
+          "samplesMS": [
+            18.154083285480738,
+            14.694916782900691,
+            14.42070840857923,
+            14.185291482135653,
+            14.348583295941353,
+            14.50779172591865,
+            14.308791607618332
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 18.726916750892997,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 18.831458408385515,
+          "samplesMS": [
+            18.726916750892997,
+            18.831458408385515,
+            18.740041879937053,
+            18.21683323942125,
+            18.746625166386366,
+            18.5528751462698,
+            18.6554582323879
+          ]
+        }
+      ],
+      "notes": 30000,
+      "passed": true,
+      "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+      "podcasts": 300,
+      "residentMB": 525.609375,
+      "schemaVersion": 1,
+      "idle": {
+        "budgetRendersPerSecond": 2,
+        "clockTicks": 100,
+        "observedRoot": true,
+        "passed": true,
+        "rendersPerSecond": {
+          "badges\u21bb": 0,
+          "Calendar.appear": 0,
+          "Calendar.prepareDays": 0,
+          "fitness\u21bb": 0,
+          "library\u21bb": 0,
+          "occurrences\u21bb": 0,
+          "PlannerTab": 0,
+          "RootView": 0,
+          "weather\u21bb": 0,
+          "WeekView": 0
+        },
+        "seconds": 10.385097875026986
+      },
+      "label": "redraw-plan",
+      "commit": "f987bd34ef93eb00776f815bb86738bde1146a04",
+      "binarySHA256": "1906e77a5da21eb56992bad62504140aaed5835e215d75a92ddcd86847c9c73c",
+      "hostLoad": [
+        30.09912109375,
+        67.08984375,
+        80.6181640625
+      ],
+      "dirty": true,
+      "readySeconds": 26.481,
+      "requestedCalendarNeighborPolicy": "prepared",
+      "memoryBudgetMB": 900.0,
+      "memoryPassed": true,
+      "hostMonitor": {
+        "clean": false,
+        "samples": 27,
+        "competingDeveloperWorkload": true
+      },
+      "checksumsMatchReference": true
+    },
+    "redraw-mail": {
+      "days": 30,
+      "emails": 60000,
+      "episodes": 300000,
+      "events": 3000,
+      "metrics": [
+        {
+          "budgetMS": 50,
+          "checksum": 350,
+          "medianMS": 0.0005834735929965973,
+          "name": "mail.firstPage",
+          "p95MS": 15.84924990311265,
+          "samplesMS": [
+            15.84924990311265,
+            0.0013748649507761002,
+            0.0005832407623529434,
+            0.0005832407623529434,
+            0.0005834735929965973,
+            0.0005834735929965973,
+            0.0005832407623529434
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 350,
+          "medianMS": 0.9112916886806488,
+          "name": "mail.readMutation",
+          "p95MS": 1.8437083344906569,
+          "samplesMS": [
+            1.8437083344906569,
+            1.1291250120848417,
+            0.805750023573637,
+            0.9112916886806488,
+            0.9740833193063736,
+            0.7687082979828119,
+            0.7700833957642317
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 4900,
+          "medianMS": 0.3598332405090332,
+          "name": "calendar.visibleWeek",
+          "p95MS": 4.297958454117179,
+          "samplesMS": [
+            4.297958454117179,
+            0.3655415493994951,
+            0.30437507666647434,
+            0.4052084404975176,
+            0.3598332405090332,
+            0.30745845288038254,
+            0.3069166559726
+          ]
+        },
+        {
+          "budgetMS": 8,
+          "checksum": 700,
+          "medianMS": 0.002375105395913124,
+          "name": "calendar.day",
+          "p95MS": 0.051458366215229034,
+          "samplesMS": [
+            0.051458366215229034,
+            0.003250082954764366,
+            0.002375105395913124,
+            0.00262516550719738,
+            0.00237487256526947,
+            0.0023334287106990814,
+            0.0023331958800554276
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 700,
+          "medianMS": 17.244666581973433,
+          "name": "notes.search",
+          "p95MS": 18.390708370134234,
+          "samplesMS": [
+            18.390708370134234,
+            17.62262498959899,
+            16.974666621536016,
+            16.928500030189753,
+            17.244666581973433,
+            16.95183338597417,
+            17.30254152789712
+          ]
+        },
+        {
+          "budgetMS": 16,
+          "checksum": 700,
+          "medianMS": 1.1906248982995749,
+          "name": "notes.browse",
+          "p95MS": 1.4374165330082178,
+          "samplesMS": [
+            1.4374165330082178,
+            1.061958260834217,
+            1.2251250445842743,
+            1.1906248982995749,
+            1.1626668274402618,
+            1.261750003322959,
+            1.0939582716673613
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 2100,
+          "medianMS": 15.49879158847034,
+          "name": "podcasts.nextAcrossCatalog",
+          "p95MS": 18.287958344444633,
+          "samplesMS": [
+            18.287958344444633,
+            15.49879158847034,
+            15.035874908789992,
+            15.422583324834704,
+            16.17983332835138,
+            15.75862499885261,
+            14.924458228051662
+          ]
+        },
+        {
+          "budgetMS": 100,
+          "checksum": 6300,
+          "medianMS": 19.330000039190054,
+          "name": "podcasts.downloadCandidates",
+          "p95MS": 20.043291617184877,
+          "samplesMS": [
+            19.141624914482236,
+            20.043291617184877,
+            19.217416644096375,
+            19.705000100657344,
+            19.155958434566855,
+            19.536458421498537,
+            19.330000039190054
+          ]
+        }
+      ],
+      "notes": 30000,
+      "passed": true,
+      "platform": "iOS Simulator; disk-paged notes and podcasts; model operations; mail fixture source",
+      "podcasts": 300,
+      "residentMB": 511.453125,
+      "schemaVersion": 1,
+      "idle": {
+        "budgetRendersPerSecond": 2,
+        "clockTicks": 100,
+        "observedRoot": true,
+        "passed": true,
+        "rendersPerSecond": {
+          "badges\u21bb": 0,
+          "fitness\u21bb": 0,
+          "library\u21bb": 0,
+          "MailSection": 0,
+          "occurrences\u21bb": 0,
+          "RootView": 0
+        },
+        "seconds": 10.369248249800876
+      },
+      "label": "redraw-mail",
+      "commit": "f987bd34ef93eb00776f815bb86738bde1146a04",
+      "binarySHA256": "1906e77a5da21eb56992bad62504140aaed5835e215d75a92ddcd86847c9c73c",
+      "hostLoad": [
+        21.32373046875,
+        61.462890625,
+        78.11181640625
+      ],
+      "dirty": true,
+      "readySeconds": 25.482,
+      "requestedCalendarNeighborPolicy": "prepared",
+      "memoryBudgetMB": 900.0,
+      "memoryPassed": true,
+      "hostMonitor": {
+        "clean": false,
+        "samples": 25,
+        "competingDeveloperWorkload": true
+      },
+      "checksumsMatchReference": true
+    }
+  }
+}

@@ -1,0 +1,1645 @@
+{
+  "variant": "Initial enumerated occurrence index",
+  "device": "iPad Air 13-inch Simulator",
+  "profile": "stock",
+  "configuration": "Release + DEBUG audit fixture, arm64",
+  "hostClean": false,
+  "hostSamples": 6,
+  "args": [
+    "--plan",
+    "--stress-days",
+    "1",
+    "--stress-event-days",
+    "365",
+    "--stress-plan-attention",
+    "--disable-icloud",
+    "--mail-fresh",
+    "-onboardingCompleted",
+    "YES",
+    "-planMode",
+    "week"
+  ],
+  "binarySHA256": "859f2bd1ab9b3429d4931e39e3c1daa676cd6dafb39ac3b6bef9fc65e5d95171",
+  "samples": [
+    {
+      "cpuMS": 0.01,
+      "events": 0,
+      "checksum": 1,
+      "trial": 0,
+      "indexPayloadBytes": 48,
+      "wallMS": 0.001250067725777626,
+      "phase": "original"
+    },
+    {
+      "cpuMS": 0.004,
+      "events": 0,
+      "checksum": 1,
+      "trial": 0,
+      "indexPayloadBytes": 48,
+      "wallMS": 0.0023334287106990814,
+      "phase": "cold"
+    },
+    {
+      "indexPayloadBytes": 48,
+      "events": 0,
+      "checksum": 1,
+      "phase": "warm",
+      "wallMS": 0.0004584435373544693,
+      "cpuMS": 0.001,
+      "trial": 0
+    },
+    {
+      "indexPayloadBytes": 48,
+      "events": 0,
+      "checksum": 1,
+      "phase": "doseOriginal",
+      "wallMS": 0.1358331646770239,
+      "cpuMS": 0.136,
+      "trial": 0
+    },
+    {
+      "wallMS": 0.001250067725777626,
+      "cpuMS": 0.002,
+      "checksum": 1,
+      "phase": "doseIndexed",
+      "trial": 0,
+      "indexPayloadBytes": 48,
+      "events": 0
+    },
+    {
+      "wallMS": 0.0007501803338527679,
+      "cpuMS": 0.001,
+      "checksum": 1,
+      "phase": "doseIndexed",
+      "trial": 1,
+      "indexPayloadBytes": 48,
+      "events": 0
+    },
+    {
+      "wallMS": 0.0007082708179950714,
+      "phase": "doseOriginal",
+      "cpuMS": 0.001,
+      "events": 0,
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "trial": 1
+    },
+    {
+      "wallMS": 0.0004584435373544693,
+      "phase": "warm",
+      "cpuMS": 0.001,
+      "events": 0,
+      "checksum": 2,
+      "indexPayloadBytes": 48,
+      "trial": 1
+    },
+    {
+      "wallMS": 0.0025834888219833374,
+      "phase": "cold",
+      "cpuMS": 0.004,
+      "events": 0,
+      "checksum": 2,
+      "indexPayloadBytes": 48,
+      "trial": 1
+    },
+    {
+      "wallMS": 0.001250067725777626,
+      "phase": "original",
+      "cpuMS": 0.001,
+      "events": 0,
+      "checksum": 2,
+      "indexPayloadBytes": 48,
+      "trial": 1
+    },
+    {
+      "wallMS": 0.0011667143553495407,
+      "phase": "original",
+      "cpuMS": 0.002,
+      "events": 0,
+      "checksum": 2,
+      "indexPayloadBytes": 48,
+      "trial": 2
+    },
+    {
+      "wallMS": 0.0022917520254850388,
+      "phase": "cold",
+      "cpuMS": 0.002,
+      "events": 0,
+      "checksum": 2,
+      "indexPayloadBytes": 48,
+      "trial": 2
+    },
+    {
+      "wallMS": 0.00029173679649829865,
+      "phase": "warm",
+      "cpuMS": 0.001,
+      "events": 0,
+      "checksum": 2,
+      "indexPayloadBytes": 48,
+      "trial": 2
+    },
+    {
+      "wallMS": 0.0006665941327810287,
+      "phase": "doseOriginal",
+      "cpuMS": 0,
+      "events": 0,
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "trial": 2
+    },
+    {
+      "wallMS": 0.0005832407623529434,
+      "phase": "doseIndexed",
+      "cpuMS": 0,
+      "events": 0,
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "trial": 2
+    },
+    {
+      "wallMS": 0.0005832407623529434,
+      "phase": "doseIndexed",
+      "cpuMS": 0.001,
+      "events": 0,
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "trial": 3
+    },
+    {
+      "wallMS": 0.0005832407623529434,
+      "phase": "doseOriginal",
+      "cpuMS": 0,
+      "events": 0,
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "trial": 3
+    },
+    {
+      "wallMS": 0.0005417969077825546,
+      "phase": "warm",
+      "cpuMS": 0.001,
+      "events": 0,
+      "checksum": 3,
+      "indexPayloadBytes": 48,
+      "trial": 3
+    },
+    {
+      "wallMS": 0.0024582259356975555,
+      "phase": "cold",
+      "cpuMS": 0.003,
+      "events": 0,
+      "checksum": 3,
+      "indexPayloadBytes": 48,
+      "trial": 3
+    },
+    {
+      "wallMS": 0.0015415716916322708,
+      "phase": "original",
+      "cpuMS": 0.002,
+      "events": 0,
+      "checksum": 3,
+      "indexPayloadBytes": 48,
+      "trial": 3
+    },
+    {
+      "trial": 4,
+      "checksum": 1,
+      "wallMS": 0.0009583309292793274,
+      "indexPayloadBytes": 48,
+      "events": 0,
+      "phase": "original",
+      "cpuMS": 0.002
+    },
+    {
+      "trial": 4,
+      "checksum": 1,
+      "wallMS": 0.0020833685994148254,
+      "indexPayloadBytes": 48,
+      "events": 0,
+      "phase": "cold",
+      "cpuMS": 0.002
+    },
+    {
+      "trial": 4,
+      "checksum": 1,
+      "wallMS": 0.0003334134817123413,
+      "indexPayloadBytes": 48,
+      "events": 0,
+      "phase": "warm",
+      "cpuMS": 0.001
+    },
+    {
+      "trial": 4,
+      "checksum": 1,
+      "wallMS": 0.0006249174475669861,
+      "indexPayloadBytes": 48,
+      "events": 0,
+      "phase": "doseOriginal",
+      "cpuMS": 0
+    },
+    {
+      "wallMS": 0.0005832407623529434,
+      "checksum": 1,
+      "phase": "doseIndexed",
+      "trial": 4,
+      "events": 0,
+      "cpuMS": 0,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0005834735929965973,
+      "checksum": 1,
+      "phase": "doseIndexed",
+      "trial": 5,
+      "events": 0,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0005415640771389008,
+      "checksum": 1,
+      "phase": "doseOriginal",
+      "trial": 5,
+      "events": 0,
+      "cpuMS": 0,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0002498272806406021,
+      "checksum": 1,
+      "phase": "warm",
+      "trial": 5,
+      "events": 0,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0021248124539852142,
+      "checksum": 1,
+      "phase": "cold",
+      "trial": 5,
+      "events": 0,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.00100000761449337,
+      "checksum": 1,
+      "phase": "original",
+      "trial": 5,
+      "events": 0,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0011667143553495407,
+      "checksum": 2,
+      "phase": "original",
+      "trial": 6,
+      "events": 0,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.002125045284628868,
+      "checksum": 2,
+      "phase": "cold",
+      "trial": 6,
+      "events": 0,
+      "cpuMS": 0.003,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.00029173679649829865,
+      "checksum": 2,
+      "phase": "warm",
+      "trial": 6,
+      "events": 0,
+      "cpuMS": 0,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0006665941327810287,
+      "checksum": 1,
+      "phase": "doseOriginal",
+      "trial": 6,
+      "events": 0,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0005832407623529434,
+      "checksum": 1,
+      "phase": "doseIndexed",
+      "trial": 6,
+      "events": 0,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0006249174475669861,
+      "checksum": 1,
+      "phase": "doseIndexed",
+      "trial": 7,
+      "events": 0,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0006668269634246826,
+      "checksum": 1,
+      "phase": "doseOriginal",
+      "trial": 7,
+      "events": 0,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.00029173679649829865,
+      "checksum": 2,
+      "phase": "warm",
+      "trial": 7,
+      "events": 0,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0021667219698429108,
+      "checksum": 2,
+      "phase": "cold",
+      "trial": 7,
+      "events": 0,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.001250067725777626,
+      "checksum": 2,
+      "phase": "original",
+      "trial": 7,
+      "events": 0,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0014582183212041855,
+      "checksum": 3,
+      "phase": "original",
+      "trial": 8,
+      "events": 0,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.00237487256526947,
+      "checksum": 3,
+      "phase": "cold",
+      "trial": 8,
+      "events": 0,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.000500120222568512,
+      "checksum": 3,
+      "phase": "warm",
+      "trial": 8,
+      "events": 0,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0006668269634246826,
+      "checksum": 1,
+      "phase": "doseOriginal",
+      "trial": 8,
+      "events": 0,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48
+    },
+    {
+      "wallMS": 0.0005415640771389008,
+      "checksum": 1,
+      "phase": "doseIndexed",
+      "trial": 8,
+      "events": 0,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "original",
+      "trial": 0,
+      "checksum": 1,
+      "wallMS": 0.002125045284628868,
+      "cpuMS": 0.003
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "cold",
+      "trial": 0,
+      "checksum": 1,
+      "wallMS": 0.02766679972410202,
+      "cpuMS": 0.028
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "warm",
+      "trial": 0,
+      "checksum": 1,
+      "wallMS": 0.00020838342607021332,
+      "cpuMS": 0.001
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "doseOriginal",
+      "trial": 0,
+      "checksum": 1,
+      "wallMS": 0.0010416842997074127,
+      "cpuMS": 0.001
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "doseIndexed",
+      "trial": 0,
+      "checksum": 1,
+      "wallMS": 0.0005417969077825546,
+      "cpuMS": 0.002
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "doseIndexed",
+      "trial": 1,
+      "checksum": 1,
+      "wallMS": 0.0005834735929965973,
+      "cpuMS": 0.001
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "doseOriginal",
+      "trial": 1,
+      "checksum": 1,
+      "wallMS": 0.0007499475032091141,
+      "cpuMS": 0.001
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "warm",
+      "trial": 1,
+      "checksum": 2,
+      "wallMS": 0.0003334134817123413,
+      "cpuMS": 0
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "cold",
+      "trial": 1,
+      "checksum": 2,
+      "wallMS": 0.027625123038887978,
+      "cpuMS": 0.028
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "original",
+      "trial": 1,
+      "checksum": 2,
+      "wallMS": 0.0024582259356975555,
+      "cpuMS": 0.003
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "original",
+      "trial": 2,
+      "checksum": 2,
+      "wallMS": 0.0022498425096273422,
+      "cpuMS": 0.004
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "cold",
+      "trial": 2,
+      "checksum": 2,
+      "wallMS": 0.027624890208244324,
+      "cpuMS": 0.028
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "warm",
+      "trial": 2,
+      "checksum": 2,
+      "wallMS": 0.00029173679649829865,
+      "cpuMS": 0.001
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "doseOriginal",
+      "trial": 2,
+      "checksum": 1,
+      "wallMS": 0.0007085036486387253,
+      "cpuMS": 0.001
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "doseIndexed",
+      "trial": 2,
+      "checksum": 1,
+      "wallMS": 0.0005415640771389008,
+      "cpuMS": 0.001
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "doseIndexed",
+      "trial": 3,
+      "checksum": 1,
+      "wallMS": 0.0005832407623529434,
+      "cpuMS": 0.001
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "doseOriginal",
+      "trial": 3,
+      "checksum": 1,
+      "wallMS": 0.0007085036486387253,
+      "cpuMS": 0.001
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "warm",
+      "trial": 3,
+      "checksum": 3,
+      "wallMS": 0.0005415640771389008,
+      "cpuMS": 0.002
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "cold",
+      "trial": 3,
+      "checksum": 3,
+      "wallMS": 0.027958303689956665,
+      "cpuMS": 0.028
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "original",
+      "trial": 3,
+      "checksum": 3,
+      "wallMS": 0.002749962732195854,
+      "cpuMS": 0.004
+    },
+    {
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "phase": "original",
+      "trial": 4,
+      "checksum": 1,
+      "wallMS": 0.0020833685994148254,
+      "cpuMS": 0.002
+    },
+    {
+      "phase": "cold",
+      "trial": 4,
+      "checksum": 1,
+      "cpuMS": 0.029,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.028125010430812836
+    },
+    {
+      "phase": "warm",
+      "trial": 4,
+      "checksum": 1,
+      "cpuMS": 0,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.0002498272806406021
+    },
+    {
+      "phase": "doseOriginal",
+      "trial": 4,
+      "checksum": 1,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.0009583309292793274
+    },
+    {
+      "phase": "doseIndexed",
+      "trial": 4,
+      "checksum": 1,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.0006249174475669861
+    },
+    {
+      "phase": "doseIndexed",
+      "trial": 5,
+      "checksum": 1,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.0005832407623529434
+    },
+    {
+      "phase": "doseOriginal",
+      "trial": 5,
+      "checksum": 1,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.00062515027821064
+    },
+    {
+      "phase": "warm",
+      "trial": 5,
+      "checksum": 1,
+      "cpuMS": 0,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.000250060111284256
+    },
+    {
+      "phase": "cold",
+      "trial": 5,
+      "checksum": 1,
+      "cpuMS": 0.029,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.028250040486454964
+    },
+    {
+      "phase": "original",
+      "trial": 5,
+      "checksum": 1,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.0022083986550569534
+    },
+    {
+      "phase": "original",
+      "trial": 6,
+      "checksum": 2,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.0023331958800554276
+    },
+    {
+      "phase": "cold",
+      "trial": 6,
+      "checksum": 2,
+      "cpuMS": 0.029,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.02833339385688305
+    },
+    {
+      "phase": "warm",
+      "trial": 6,
+      "checksum": 2,
+      "cpuMS": 0,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.00029173679649829865
+    },
+    {
+      "phase": "doseOriginal",
+      "trial": 6,
+      "checksum": 1,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.0007918570190668106
+    },
+    {
+      "phase": "doseIndexed",
+      "trial": 6,
+      "checksum": 1,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.0005832407623529434
+    },
+    {
+      "phase": "doseIndexed",
+      "trial": 7,
+      "checksum": 1,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.0006249174475669861
+    },
+    {
+      "phase": "doseOriginal",
+      "trial": 7,
+      "checksum": 1,
+      "cpuMS": 0.001,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.0006665941327810287
+    },
+    {
+      "phase": "warm",
+      "trial": 7,
+      "checksum": 2,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.0002915039658546448
+    },
+    {
+      "phase": "cold",
+      "trial": 7,
+      "checksum": 2,
+      "cpuMS": 0.028,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.02841651439666748
+    },
+    {
+      "phase": "original",
+      "trial": 7,
+      "checksum": 2,
+      "cpuMS": 0.004,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.0024167820811271667
+    },
+    {
+      "phase": "original",
+      "trial": 8,
+      "checksum": 3,
+      "cpuMS": 0.002,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.00262516550719738
+    },
+    {
+      "phase": "cold",
+      "trial": 8,
+      "checksum": 3,
+      "cpuMS": 0.028,
+      "indexPayloadBytes": 48,
+      "events": 100,
+      "wallMS": 0.02816668711602688
+    },
+    {
+      "cpuMS": 0.001,
+      "phase": "warm",
+      "trial": 8,
+      "wallMS": 0.0005417969077825546,
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "checksum": 3
+    },
+    {
+      "cpuMS": 0.001,
+      "phase": "doseOriginal",
+      "trial": 8,
+      "wallMS": 0.0007916241884231567,
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 0.001,
+      "phase": "doseIndexed",
+      "trial": 8,
+      "wallMS": 0.0005834735929965973,
+      "events": 100,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 0.11,
+      "phase": "original",
+      "trial": 0,
+      "wallMS": 0.10012486018240452,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 2.391,
+      "phase": "cold",
+      "trial": 0,
+      "wallMS": 2.3907499853521585,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 0.001,
+      "phase": "warm",
+      "trial": 0,
+      "wallMS": 0.0004584435373544693,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 0.073,
+      "phase": "doseOriginal",
+      "trial": 0,
+      "wallMS": 0.07241661660373211,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 0.001,
+      "phase": "doseIndexed",
+      "trial": 0,
+      "wallMS": 0.00100000761449337,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 0.001,
+      "phase": "doseIndexed",
+      "trial": 1,
+      "wallMS": 0.0007082708179950714,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 0.014,
+      "phase": "doseOriginal",
+      "trial": 1,
+      "wallMS": 0.012791482731699944,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 0.001,
+      "phase": "warm",
+      "trial": 1,
+      "wallMS": 0.00037509016692638397,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 2
+    },
+    {
+      "cpuMS": 2.391,
+      "phase": "cold",
+      "trial": 1,
+      "wallMS": 2.3900417145341635,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 2
+    },
+    {
+      "cpuMS": 0.331,
+      "phase": "original",
+      "trial": 1,
+      "wallMS": 0.32979180105030537,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 2
+    },
+    {
+      "cpuMS": 0.103,
+      "phase": "original",
+      "trial": 2,
+      "wallMS": 0.10195840150117874,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 2
+    },
+    {
+      "cpuMS": 2.426,
+      "phase": "cold",
+      "trial": 2,
+      "wallMS": 2.4298750795423985,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 2
+    },
+    {
+      "cpuMS": 0.001,
+      "phase": "warm",
+      "trial": 2,
+      "wallMS": 0.0004584435373544693,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 2
+    },
+    {
+      "cpuMS": 0.05,
+      "phase": "doseOriginal",
+      "trial": 2,
+      "wallMS": 0.04874984733760357,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 0.002,
+      "phase": "doseIndexed",
+      "trial": 2,
+      "wallMS": 0.0011664815247058868,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 0.001,
+      "phase": "doseIndexed",
+      "trial": 3,
+      "wallMS": 0.0007501803338527679,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 0.014,
+      "phase": "doseOriginal",
+      "trial": 3,
+      "wallMS": 0.013083219528198242,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 1
+    },
+    {
+      "cpuMS": 0.001,
+      "phase": "warm",
+      "trial": 3,
+      "wallMS": 0.00062515027821064,
+      "events": 9000,
+      "indexPayloadBytes": 48,
+      "checksum": 3
+    },
+    {
+      "phase": "cold",
+      "indexPayloadBytes": 48,
+      "wallMS": 2.440916607156396,
+      "checksum": 3,
+      "trial": 3,
+      "events": 9000,
+      "cpuMS": 2.434
+    },
+    {
+      "phase": "original",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.40466664358973503,
+      "checksum": 3,
+      "trial": 3,
+      "events": 9000,
+      "cpuMS": 0.405
+    },
+    {
+      "phase": "original",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.09912485256791115,
+      "checksum": 1,
+      "trial": 4,
+      "events": 9000,
+      "cpuMS": 0.1
+    },
+    {
+      "phase": "cold",
+      "indexPayloadBytes": 48,
+      "wallMS": 2.406124956905842,
+      "checksum": 1,
+      "trial": 4,
+      "events": 9000,
+      "cpuMS": 2.407
+    },
+    {
+      "phase": "warm",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.0003334134817123413,
+      "checksum": 1,
+      "trial": 4,
+      "events": 9000,
+      "cpuMS": 0.001
+    },
+    {
+      "phase": "doseOriginal",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.04458334296941757,
+      "checksum": 1,
+      "trial": 4,
+      "events": 9000,
+      "cpuMS": 0.045
+    },
+    {
+      "phase": "doseIndexed",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.0008752103894948959,
+      "checksum": 1,
+      "trial": 4,
+      "events": 9000,
+      "cpuMS": 0.001
+    },
+    {
+      "phase": "doseIndexed",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.0007499475032091141,
+      "checksum": 1,
+      "trial": 5,
+      "events": 9000,
+      "cpuMS": 0.002
+    },
+    {
+      "phase": "doseOriginal",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.01283339224755764,
+      "checksum": 1,
+      "trial": 5,
+      "events": 9000,
+      "cpuMS": 0.013
+    },
+    {
+      "phase": "warm",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.000250060111284256,
+      "checksum": 1,
+      "trial": 5,
+      "events": 9000,
+      "cpuMS": 0
+    },
+    {
+      "phase": "cold",
+      "indexPayloadBytes": 48,
+      "wallMS": 2.419916680082679,
+      "checksum": 1,
+      "trial": 5,
+      "events": 9000,
+      "cpuMS": 2.473
+    },
+    {
+      "phase": "original",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.23716664873063564,
+      "checksum": 1,
+      "trial": 5,
+      "events": 9000,
+      "cpuMS": 0.238
+    },
+    {
+      "phase": "original",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.099958386272192,
+      "checksum": 2,
+      "trial": 6,
+      "events": 9000,
+      "cpuMS": 0.1
+    },
+    {
+      "phase": "cold",
+      "indexPayloadBytes": 48,
+      "wallMS": 2.425833372399211,
+      "checksum": 2,
+      "trial": 6,
+      "events": 9000,
+      "cpuMS": 2.42
+    },
+    {
+      "phase": "warm",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.0005417969077825546,
+      "checksum": 2,
+      "trial": 6,
+      "events": 9000,
+      "cpuMS": 0.002
+    },
+    {
+      "phase": "doseOriginal",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.0452499371021986,
+      "checksum": 1,
+      "trial": 6,
+      "events": 9000,
+      "cpuMS": 0.046
+    },
+    {
+      "phase": "doseIndexed",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.0009166542440652847,
+      "checksum": 1,
+      "trial": 6,
+      "events": 9000,
+      "cpuMS": 0.001
+    },
+    {
+      "phase": "doseIndexed",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.0007085036486387253,
+      "checksum": 1,
+      "trial": 7,
+      "events": 9000,
+      "cpuMS": 0.002
+    },
+    {
+      "phase": "doseOriginal",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.014333287253975868,
+      "checksum": 1,
+      "trial": 7,
+      "events": 9000,
+      "cpuMS": 0.015
+    },
+    {
+      "phase": "warm",
+      "indexPayloadBytes": 48,
+      "wallMS": 0.0003334134817123413,
+      "checksum": 2,
+      "trial": 7,
+      "events": 9000,
+      "cpuMS": 0.002
+    },
+    {
+      "phase": "cold",
+      "indexPayloadBytes": 48,
+      "wallMS": 2.379541750997305,
+      "checksum": 2,
+      "trial": 7,
+      "events": 9000,
+      "cpuMS": 2.379
+    },
+    {
+      "wallMS": 0.3777917008846998,
+      "phase": "original",
+      "trial": 7,
+      "indexPayloadBytes": 48,
+      "events": 9000,
+      "cpuMS": 0.378,
+      "checksum": 2
+    },
+    {
+      "wallMS": 0.1007916871458292,
+      "phase": "original",
+      "trial": 8,
+      "indexPayloadBytes": 48,
+      "events": 9000,
+      "cpuMS": 0.102,
+      "checksum": 3
+    },
+    {
+      "wallMS": 2.386833308264613,
+      "phase": "cold",
+      "trial": 8,
+      "indexPayloadBytes": 48,
+      "events": 9000,
+      "cpuMS": 2.387,
+      "checksum": 3
+    },
+    {
+      "wallMS": 0.0005417969077825546,
+      "phase": "warm",
+      "trial": 8,
+      "indexPayloadBytes": 48,
+      "events": 9000,
+      "cpuMS": 0.001,
+      "checksum": 3
+    },
+    {
+      "wallMS": 0.034499913454055786,
+      "phase": "doseOriginal",
+      "trial": 8,
+      "indexPayloadBytes": 48,
+      "events": 9000,
+      "cpuMS": 0.035,
+      "checksum": 1
+    },
+    {
+      "wallMS": 0.0007499475032091141,
+      "phase": "doseIndexed",
+      "trial": 8,
+      "indexPayloadBytes": 48,
+      "events": 9000,
+      "cpuMS": 0.001,
+      "checksum": 1
+    },
+    {
+      "wallMS": 0.6614583544433117,
+      "phase": "original",
+      "trial": 0,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 0.673,
+      "checksum": 1
+    },
+    {
+      "wallMS": 9.82191669754684,
+      "phase": "cold",
+      "trial": 0,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 9.809,
+      "checksum": 1
+    },
+    {
+      "wallMS": 0.0005415640771389008,
+      "phase": "warm",
+      "trial": 0,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 0.001,
+      "checksum": 1
+    },
+    {
+      "wallMS": 0.21795835345983505,
+      "phase": "doseOriginal",
+      "trial": 0,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 0.218,
+      "checksum": 1
+    },
+    {
+      "wallMS": 0.001125037670135498,
+      "phase": "doseIndexed",
+      "trial": 0,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 0.001,
+      "checksum": 1
+    },
+    {
+      "wallMS": 0.0017916318029165268,
+      "phase": "doseIndexed",
+      "trial": 1,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 0.004,
+      "checksum": 1
+    },
+    {
+      "wallMS": 0.06162491627037525,
+      "phase": "doseOriginal",
+      "trial": 1,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 0.061,
+      "checksum": 1
+    },
+    {
+      "wallMS": 0.0007916241884231567,
+      "phase": "warm",
+      "trial": 1,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 0.001,
+      "checksum": 2
+    },
+    {
+      "wallMS": 9.897916810587049,
+      "phase": "cold",
+      "trial": 1,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 9.882,
+      "checksum": 2
+    },
+    {
+      "wallMS": 1.8658749759197235,
+      "phase": "original",
+      "trial": 1,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 1.857,
+      "checksum": 2
+    },
+    {
+      "wallMS": 0.6562916096299887,
+      "phase": "original",
+      "trial": 2,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 0.659,
+      "checksum": 2
+    },
+    {
+      "wallMS": 9.71866655163467,
+      "phase": "cold",
+      "trial": 2,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 9.711,
+      "checksum": 2
+    },
+    {
+      "wallMS": 0.0007082708179950714,
+      "phase": "warm",
+      "trial": 2,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 0.001,
+      "checksum": 2
+    },
+    {
+      "wallMS": 0.24316669441759586,
+      "phase": "doseOriginal",
+      "trial": 2,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 0.244,
+      "checksum": 1
+    },
+    {
+      "wallMS": 0.0010833609849214554,
+      "phase": "doseIndexed",
+      "trial": 2,
+      "indexPayloadBytes": 48,
+      "events": 36500,
+      "cpuMS": 0.001,
+      "checksum": 1
+    },
+    {
+      "wallMS": 0.0014582183212041855,
+      "trial": 3,
+      "phase": "doseIndexed",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.003,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.06150011904537678,
+      "trial": 3,
+      "phase": "doseOriginal",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.062,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.0006665941327810287,
+      "trial": 3,
+      "phase": "warm",
+      "checksum": 3,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.002,
+      "events": 36500
+    },
+    {
+      "wallMS": 9.717041626572609,
+      "trial": 3,
+      "phase": "cold",
+      "checksum": 3,
+      "indexPayloadBytes": 48,
+      "cpuMS": 9.713,
+      "events": 36500
+    },
+    {
+      "wallMS": 1.85887492261827,
+      "trial": 3,
+      "phase": "original",
+      "checksum": 3,
+      "indexPayloadBytes": 48,
+      "cpuMS": 1.86,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.7699583657085896,
+      "trial": 4,
+      "phase": "original",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.772,
+      "events": 36500
+    },
+    {
+      "wallMS": 9.858583332970738,
+      "trial": 4,
+      "phase": "cold",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 9.853,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.0007918570190668106,
+      "trial": 4,
+      "phase": "warm",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.002,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.21912483498454094,
+      "trial": 4,
+      "phase": "doseOriginal",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.219,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.00100000761449337,
+      "trial": 4,
+      "phase": "doseIndexed",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.001,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.0020833685994148254,
+      "trial": 5,
+      "phase": "doseIndexed",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.004,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.06595836021006107,
+      "trial": 5,
+      "phase": "doseOriginal",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.066,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.00037509016692638397,
+      "trial": 5,
+      "phase": "warm",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.001,
+      "events": 36500
+    },
+    {
+      "wallMS": 9.757541818544269,
+      "trial": 5,
+      "phase": "cold",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 9.748,
+      "events": 36500
+    },
+    {
+      "wallMS": 1.7690416425466537,
+      "trial": 5,
+      "phase": "original",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 1.807,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.7709998171776533,
+      "trial": 6,
+      "phase": "original",
+      "checksum": 2,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.774,
+      "events": 36500
+    },
+    {
+      "wallMS": 9.743750095367432,
+      "trial": 6,
+      "phase": "cold",
+      "checksum": 2,
+      "indexPayloadBytes": 48,
+      "cpuMS": 9.739,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.0006665941327810287,
+      "trial": 6,
+      "phase": "warm",
+      "checksum": 2,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.002,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.22062496282160282,
+      "trial": 6,
+      "phase": "doseOriginal",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.221,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.0010833609849214554,
+      "trial": 6,
+      "phase": "doseIndexed",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.003,
+      "events": 36500
+    },
+    {
+      "wallMS": 0.00845850445330143,
+      "trial": 7,
+      "phase": "doseIndexed",
+      "checksum": 1,
+      "indexPayloadBytes": 48,
+      "cpuMS": 0.014,
+      "events": 36500
+    },
+    {
+      "indexPayloadBytes": 48,
+      "trial": 7,
+      "wallMS": 0.065250089392066,
+      "checksum": 1,
+      "cpuMS": 0.067,
+      "phase": "doseOriginal",
+      "events": 36500
+    },
+    {
+      "indexPayloadBytes": 48,
+      "trial": 7,
+      "wallMS": 0.00100000761449337,
+      "checksum": 2,
+      "cpuMS": 0.001,
+      "phase": "warm",
+      "events": 36500
+    },
+    {
+      "indexPayloadBytes": 48,
+      "trial": 7,
+      "wallMS": 9.77183342911303,
+      "checksum": 2,
+      "cpuMS": 9.763,
+      "phase": "cold",
+      "events": 36500
+    },
+    {
+      "indexPayloadBytes": 48,
+      "trial": 7,
+      "wallMS": 1.8864583689719439,
+      "checksum": 2,
+      "cpuMS": 1.887,
+      "phase": "original",
+      "events": 36500
+    },
+    {
+      "indexPayloadBytes": 48,
+      "trial": 8,
+      "wallMS": 0.5958748515695333,
+      "checksum": 3,
+      "cpuMS": 0.597,
+      "phase": "original",
+      "events": 36500
+    },
+    {
+      "indexPayloadBytes": 48,
+      "trial": 8,
+      "wallMS": 10.24508336558938,
+      "checksum": 3,
+      "cpuMS": 10.228,
+      "phase": "cold",
+      "events": 36500
+    },
+    {
+      "indexPayloadBytes": 48,
+      "trial": 8,
+      "wallMS": 0.0008752103894948959,
+      "checksum": 3,
+      "cpuMS": 0.002,
+      "phase": "warm",
+      "events": 36500
+    },
+    {
+      "indexPayloadBytes": 48,
+      "trial": 8,
+      "wallMS": 0.21783332340419292,
+      "checksum": 1,
+      "cpuMS": 0.218,
+      "phase": "doseOriginal",
+      "events": 36500
+    },
+    {
+      "indexPayloadBytes": 48,
+      "trial": 8,
+      "wallMS": 0.0010416842997074127,
+      "checksum": 1,
+      "cpuMS": 0.001,
+      "phase": "doseIndexed",
+      "events": 36500
+    }
+  ]
+}

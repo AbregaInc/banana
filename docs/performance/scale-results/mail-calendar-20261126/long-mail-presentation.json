@@ -1,0 +1,341 @@
+{
+  "scope": "Real 1,200-paragraph Mail fixture in the shipping reader UI. Three forward swipes and returning to the same paragraph and screen location are asserted. Recording timestamps are given relative to the archived XCTest tap and the estimated start of the row-tap command. The archive timestamp can follow the first recorded response, so neither clock establishes input-delivery latency. OCR must identify paragraph one and at least one other numbered paragraph in the same recorded frame, distinguishing the reader from an Inbox snippet. Native variable-rate recordings yield observations at sampled instants, not a display frame guarantee. XCTest accessibility upper bounds include row selection, navigation and queries. Process counters include sampling brackets and the cost of automation.",
+  "runs": [
+    {
+      "build": "mail-eager",
+      "condition": "phone-functional-mailpages2",
+      "appSHA256": "0ace3940a8153001ea0d60e9203d465fd6676faaa0c0ccf04b8e29e2784dea5f",
+      "movieSHA256": "721ba11af61b76eb4eeea7700f81f98cd5dcfd9b2b61a63459f2fec713b55d49",
+      "paragraphs": 1200,
+      "initialY": 224,
+      "returnedY": 224,
+      "accessibilityUpperBoundMS": 1847.750624991022,
+      "firstBodyRelativeToArchiveMS": 74.67,
+      "firstBodyFromTestRequestMS": 218.51,
+      "recordingSamples": [
+        {
+          "relativeToArchivedTapEndMS": -225.33,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -192.0,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -158.67,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -125.33,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -92.0,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -58.67,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -25.33,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": 8.0,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": 74.67,
+          "hasFirstAndLaterParagraphs": true
+        }
+      ],
+      "selectionThroughAccessibilityQuery": {
+        "elapsedSeconds": 2.5031111240386963,
+        "cpuSeconds": 0.484136625,
+        "startFootprintMiB": 422.13,
+        "endFootprintMiB": 577.35
+      },
+      "wholeReadingSequence": {
+        "elapsedSeconds": 42.51844811439514,
+        "cpuSeconds": 28.066797792,
+        "startFootprintMiB": 422.13,
+        "endFootprintMiB": 577.94
+      }
+    },
+    {
+      "build": "mail-eager",
+      "condition": "phone-functional-mailpages4",
+      "appSHA256": "0ace3940a8153001ea0d60e9203d465fd6676faaa0c0ccf04b8e29e2784dea5f",
+      "movieSHA256": "05e8b6dc6e4eaa6bac0313ac6744eefdce16f098a45ce9a3e6c8dfb48bd2d7e8",
+      "paragraphs": 1200,
+      "initialY": 224,
+      "returnedY": 224,
+      "accessibilityUpperBoundMS": 2095.76129168272,
+      "firstBodyRelativeToArchiveMS": 171.67,
+      "firstBodyFromTestRequestMS": 589.58,
+      "recordingSamples": [
+        {
+          "relativeToArchivedTapEndMS": -211.67,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -178.33,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -145.0,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -111.67,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -78.33,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -45.0,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -11.67,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": 21.67,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": 171.67,
+          "hasFirstAndLaterParagraphs": true
+        }
+      ],
+      "selectionThroughAccessibilityQuery": {
+        "elapsedSeconds": 2.546823024749756,
+        "cpuSeconds": 0.644491625,
+        "startFootprintMiB": 422.53,
+        "endFootprintMiB": 581.46
+      },
+      "wholeReadingSequence": {
+        "elapsedSeconds": 41.527539014816284,
+        "cpuSeconds": 27.513862459,
+        "startFootprintMiB": 422.53,
+        "endFootprintMiB": 578.5
+      }
+    },
+    {
+      "build": "mail-lazy",
+      "condition": "phone-functional-mailpages2",
+      "appSHA256": "7a4e58eb90f74c1a3cb6b67376dfc2afaa3da15c919628c19953d2207184b4ca",
+      "movieSHA256": "41699285e5e7b94d8b7e572c9c42994375666e100297fca32f05b52a3fcf8374",
+      "paragraphs": 1200,
+      "initialY": 224,
+      "returnedY": 224,
+      "accessibilityUpperBoundMS": 1554.6224999707192,
+      "firstBodyRelativeToArchiveMS": -76.33,
+      "firstBodyFromTestRequestMS": 289.93,
+      "recordingSamples": [
+        {
+          "relativeToArchivedTapEndMS": -243.0,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -209.67,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -176.33,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -143.0,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -109.67,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -76.33,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": -43.0,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": -9.67,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": 1408.67,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": 1442.0,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": 1475.33,
+          "hasFirstAndLaterParagraphs": true
+        }
+      ],
+      "selectionThroughAccessibilityQuery": {
+        "elapsedSeconds": 2.0060489177703857,
+        "cpuSeconds": 0.218869959,
+        "startFootprintMiB": 426.22,
+        "endFootprintMiB": 419.25
+      },
+      "wholeReadingSequence": {
+        "elapsedSeconds": 25.987950086593628,
+        "cpuSeconds": 5.389209251,
+        "startFootprintMiB": 426.22,
+        "endFootprintMiB": 427.96
+      }
+    },
+    {
+      "build": "mail-lazy",
+      "condition": "phone-functional-mailpages3",
+      "appSHA256": "7a4e58eb90f74c1a3cb6b67376dfc2afaa3da15c919628c19953d2207184b4ca",
+      "movieSHA256": "ad1e8344580d8d65378437c901fe2af227cbaac361cd7d842723bac3d0c20226",
+      "paragraphs": 1200,
+      "initialY": 224,
+      "returnedY": 224,
+      "accessibilityUpperBoundMS": 1557.1992917684838,
+      "firstBodyRelativeToArchiveMS": -76.33,
+      "firstBodyFromTestRequestMS": 304.22,
+      "recordingSamples": [
+        {
+          "relativeToArchivedTapEndMS": -243.0,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -209.67,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -176.33,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -143.0,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -109.67,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -76.33,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": -43.0,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": -9.67,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": 1375.33,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": 1408.67,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": 1442.0,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": 1475.33,
+          "hasFirstAndLaterParagraphs": false
+        }
+      ],
+      "selectionThroughAccessibilityQuery": null,
+      "wholeReadingSequence": null
+    },
+    {
+      "build": "mail-lazy",
+      "condition": "phone-functional-mailpages5",
+      "appSHA256": "7a4e58eb90f74c1a3cb6b67376dfc2afaa3da15c919628c19953d2207184b4ca",
+      "movieSHA256": "4c21ff3c148f0a89cbc9dbc2b0635b2ec5a6dc8fe9d39513e98c0ee52eed6dcb",
+      "paragraphs": 1200,
+      "initialY": 224,
+      "returnedY": 224,
+      "accessibilityUpperBoundMS": 1548.857583431527,
+      "firstBodyRelativeToArchiveMS": -82.33,
+      "firstBodyFromTestRequestMS": 285.62,
+      "recordingSamples": [
+        {
+          "relativeToArchivedTapEndMS": -249.0,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -215.67,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -182.33,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -149.0,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -115.67,
+          "hasFirstAndLaterParagraphs": false
+        },
+        {
+          "relativeToArchivedTapEndMS": -82.33,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": -49.0,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": -15.67,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": 17.67,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": 1352.67,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": 1386.0,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": 1419.33,
+          "hasFirstAndLaterParagraphs": true
+        },
+        {
+          "relativeToArchivedTapEndMS": 1452.67,
+          "hasFirstAndLaterParagraphs": false
+        }
+      ],
+      "selectionThroughAccessibilityQuery": {
+        "elapsedSeconds": 2.0092039108276367,
+        "cpuSeconds": 0.217907792,
+        "startFootprintMiB": 422.16,
+        "endFootprintMiB": 421.47
+      },
+      "wholeReadingSequence": {
+        "elapsedSeconds": 26.02698802947998,
+        "cpuSeconds": 5.428824792,
+        "startFootprintMiB": 422.16,
+        "endFootprintMiB": 425.19
+      }
+    }
+  ]
+}
