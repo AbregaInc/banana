@@ -323,7 +323,7 @@ final class MailStoresTests: MailStoreTestCase {
         // blobs.sqlite — one writer, two readers, 2 MB each, incremental auto-vacuum (2).
         check(try await writer(of: stores.blobs),
               common.merging(["synchronous": 1, "fullfsync": 0, "cache_size": -2048,
-                              "wal_autocheckpoint": 0, "auto_vacuum": 2,
+                              "wal_autocheckpoint": 2048, "auto_vacuum": 2,
                               "journal_size_limit": Self.eightMiB, "checkpoint_fullfsync": 1]) { $1 },
               "blobs writer")
         for (n, reader) in try await readers(of: stores.blobs).enumerated() {
@@ -335,7 +335,7 @@ final class MailStoresTests: MailStoreTestCase {
         // open: its own and the two attached (read back by name, below).
         check(try await stores.searchWriter.writeWithoutTransaction { try Self.readBack($0) },
               common.merging(["synchronous": 1, "fullfsync": 0, "cache_size": -4096,
-                              "wal_autocheckpoint": 0,
+                              "wal_autocheckpoint": 2048,
                               "journal_size_limit": Self.eightMiB, "checkpoint_fullfsync": 1]) { $1 },
               "search writer")
         check(try await stores.searchReader.read { try Self.readBack($0) },
@@ -349,6 +349,34 @@ final class MailStoresTests: MailStoreTestCase {
               common.merging(["synchronous": 2, "fullfsync": 1, "cache_size": -1024,
                               "wal_autocheckpoint": 0, "journal_size_limit": Self.eightMiB]) { $1 },
               "intent")
+    }
+
+    /// The search and blob stores have no `MailLogCheckpointer`: SQLite checkpoints them at the
+    /// same limit, and a log an older version left long is emptied once Mail has started.
+    func testSearchLogStaysNearTheLimitAndAnOversizedLogIsEmptied() async throws {
+        let stores = try await openStores()
+        let log = stores.directories.searchDatabase.path + "-wal"
+        func logBytes() -> Int64 {
+            ((try? FileManager.default.attributesOfItem(atPath: log)[.size]) as? NSNumber)?.int64Value ?? 0
+        }
+        let megabyte = Data(repeating: 7, count: 1_048_576)
+        try await stores.searchWriter.write { try $0.execute(sql: "CREATE TABLE filler(x BLOB)") }
+        // An older version: nothing checkpointed the log.
+        try await stores.searchWriter.writeWithoutTransaction { try $0.execute(sql: "PRAGMA wal_autocheckpoint = 0") }
+        for _ in 0..<20 {
+            try await stores.searchWriter.write { try $0.execute(sql: "INSERT INTO filler VALUES (?)", arguments: [megabyte]) }
+        }
+        XCTAssertGreaterThan(logBytes(), 16 * 1_048_576)
+        try await offMain { stores.checkpointOversizedLogs() }
+        XCTAssertEqual(logBytes(), 0, "The oversized log is emptied")
+        // This version: SQLite checkpoints after a commit once the log passes 8 MiB.
+        try await stores.searchWriter.writeWithoutTransaction { try $0.execute(sql: "PRAGMA wal_autocheckpoint = 2048") }
+        var largest: Int64 = 0
+        for _ in 0..<30 {
+            try await stores.searchWriter.write { try $0.execute(sql: "INSERT INTO filler VALUES (?)", arguments: [megabyte]) }
+            largest = max(largest, logBytes())
+        }
+        XCTAssertLessThanOrEqual(largest, 10 * 1_048_576, "The log stays near its limit")
     }
 
     func testTheReadersOfAPoolStillHaveTheirPragmasAfterTheMemoryIsReleased() async throws {

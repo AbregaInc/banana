@@ -93,6 +93,8 @@ import Combine
                         }
                     }
                 session = MailSession.installLive(source)
+                // A log an older version let grow is emptied once, after Mail is up.
+                Task.detached(priority: .utility) { stores.checkpointOversizedLogs() }
             } catch {
                 // Preserve all files and credentials. Log no SQL, account, subject or payload.
                 let reason = (error as? MailStoreError).map(String.init(describing:))
