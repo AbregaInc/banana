@@ -559,6 +559,7 @@ private struct MailReaderAddressActions: ViewModifier {
     func body(content: Content) -> some View {
         content
             .environment(\.openURL, OpenURLAction { url in
+                guard let url = MailBodyHTML.safeLink(url) else { return .discarded }
                 guard let address = MailAttributedText.mailbox(for: url) else {
                     openURL(url)
                     return .handled

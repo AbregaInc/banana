@@ -5,7 +5,7 @@ import XCTest
 /// (`FitnessIndexSnapshot`/`FitnessIndexLoader`/`FitnessSessionSummary`, all in
 /// `Shared/FitnessModels.swift`) and the shared `SnapshotLoader`/`LossyArray` directly, entirely
 /// against throwaway temp files — never `FitnessStore` itself, which would pull in
-/// `CloudFitnessSync`/`CloudBackup`/`AppSupport`'s real Application Support directory on first
+/// `CloudFitnessSync`/`AppSupport`'s real Application Support directory on first
 /// singleton touch (see `SnapshotPersistenceTests`'s doc comment for the same reasoning applied to
 /// `ListenHistoryStore`/`PodcastLibrary`). Never touches the real `summaries.json`.
 final class FitnessIndexPersistenceTests: XCTestCase {

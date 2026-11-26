@@ -123,7 +123,7 @@ and the original 100/day target separately.
 
 `compare-viewports.py run` captures, for each of Day and Week, four `profile-scroll.py` traces
 in reference/native/native/reference order (`--viewport reference` selects the pre-virtualization
-host through `--calendar-reference-day` / `--calendar-reference-week`; the reference host is a
+host through the historical checkout described in the [regression testing guide](../../docs/performance/regression-testing.md). That reference host is a
 SwiftUI `ScrollView`, so the test scrolls `scrollViews.firstMatch` there). `summarize` prints a
 table from each run's `analysis.json`. The first such run is
 `docs/performance/scale-results/calendar-viewport-device-20261029/`.

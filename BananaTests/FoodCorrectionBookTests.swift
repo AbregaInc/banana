@@ -2,10 +2,8 @@ import XCTest
 
 /// `FoodCorrectionBook` is the pure promotion/tolerance logic behind "the app remembers, but only
 /// after the second matching correction" (see `WellnessStore.lookupLearned`/`recordEdit`, which
-/// are thin wrappers around this). It's tested directly here — not through `WellnessStore` — since
-/// that store's `save()` unconditionally reaches `CloudBackup.shared`, which pulls in
-/// `FitnessStore`/`ListenHistoryStore`'s CloudKit-backed dependency chain; `WellnessStore.swift`
-/// is deliberately not part of the BananaTests target (see project.yml's comment by this file).
+/// are thin wrappers around this). The model tests exercise it without the store's persistence
+/// and sync dependencies.
 final class FoodCorrectionBookTests: XCTestCase {
     private func macros(_ calories: Double) -> NutritionMacros {
         .init(calories: calories, proteinGrams: 10, carbohydrateGrams: 5, fatGrams: 2)

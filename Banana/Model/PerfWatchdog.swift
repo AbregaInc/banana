@@ -188,7 +188,6 @@ enum PerfWatchdog {
         #if BANANA_MODULE_PODCASTS
         s.append(WakeCoordinator.shared.player.objectWillChange.sink { _ in RenderStats.note("player↻") })
         #endif
-        s.append(CloudBackup.shared.objectWillChange.sink { _ in RenderStats.note("backup↻") })
         // What the Nutrition and shell views observe, none of which had a sink: a storm through
         // one of them was logged as the view, not the store publishing into it. All four exist by
         // now — `ActionBadges.start()` has just run, and building it touched WellnessStore,
@@ -250,14 +249,10 @@ enum PerfWatchdog {
         // The two that nothing builds before first use, so `start()` could not name them without
         // building them. By here the iOS shell holds ShellNavigation (RootView observes it from
         // its first render; the Mac never builds it until a section that uses it opens, so it is
-        // left alone there), and SyncProgress exists once the meal engine has started, which is
-        // what first reports into it — a build with no iCloud never has, and has nothing to count.
+        // left alone there).
         #if os(iOS)
         sinks.append(ShellNavigation.shared.objectWillChange.sink { _ in RenderStats.note("shell↻") })
         #endif
-        if CloudControlsSync.meals.isRunning {
-            sinks.append(SyncProgress.shared.objectWillChange.sink { _ in RenderStats.note("sync↻") })
-        }
     }
 
     @MainActor

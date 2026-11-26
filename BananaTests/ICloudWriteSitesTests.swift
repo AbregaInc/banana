@@ -34,7 +34,6 @@ final class ICloudWriteSitesTests: XCTestCase {
     /// Code that holds a ubiquity container's URL: the whole file (nil), or the block opened by
     /// this line and closed by the next `}` at the start of a line.
     private static let ubiquityScopes: [String: String?] = [
-        "Banana/Model/CloudBackup.swift": nil,
         "Banana/Model/Transcript.swift": "private enum TranscriptCloudFiles {",
         "Banana/Model/VoiceNoteStore.swift": "private enum VoiceNoteCloudFiles {",
         "Banana/Model/Sync/ICloudPurge+Live.swift": nil,

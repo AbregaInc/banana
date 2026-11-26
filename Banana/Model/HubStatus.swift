@@ -36,8 +36,6 @@ struct HubStatus: Codable, Equatable, Sendable {
     /// way to it.
     var watchVersion: String?
     var watchEpisodesPending: Int?
-    /// The phone's last iCloud backup.
-    var lastBackup: Date?
     /// The one-off alarms the phone has armed, of the synced list — so an alarm added on the iPad
     /// or the Mac can say whether it will actually ring yet.
     var armedAlarms: [UUID]?
@@ -55,7 +53,6 @@ struct HubStatus: Codable, Equatable, Sendable {
         notificationsAllowed = try? c.decodeIfPresent(Bool.self, forKey: .notificationsAllowed)
         watchVersion = try? c.decodeIfPresent(String.self, forKey: .watchVersion)
         watchEpisodesPending = try? c.decodeIfPresent(Int.self, forKey: .watchEpisodesPending)
-        lastBackup = try? c.decodeIfPresent(Date.self, forKey: .lastBackup)
         armedAlarms = try? c.decodeIfPresent([UUID].self, forKey: .armedAlarms)
     }
 }
@@ -64,21 +61,18 @@ struct HubStatus: Codable, Equatable, Sendable {
 /// the Mac. Each is the moment it was asked; the phone does it once for each new moment.
 struct HubRequests: Codable, Equatable, Sendable {
     var watchResync: Date?
-    var backUpNow: Date?
 
-    enum Kind: CaseIterable, Sendable { case watchResync, backUpNow }
+    enum Kind: CaseIterable, Sendable { case watchResync }
 
     subscript(kind: Kind) -> Date? {
         get {
             switch kind {
             case .watchResync: watchResync
-            case .backUpNow: backUpNow
             }
         }
         set {
             switch kind {
             case .watchResync: watchResync = newValue
-            case .backUpNow: backUpNow = newValue
             }
         }
     }
@@ -285,10 +279,6 @@ struct PhoneStatusText {
         guard let version = status.watchVersion else { return "Not reported yet" }
         let pending = status.watchEpisodesPending ?? 0
         return pending > 0 ? "\(version) \u{00B7} \(pending) to send" : "Banana \(version)"
-    }
-
-    var backupLine: String {
-        ago(status.lastBackup).map { "Backed up \($0)" } ?? "Not reported yet"
     }
 
     /// Under a one-off alarm on the iPad or the Mac: whether the phone has it armed.

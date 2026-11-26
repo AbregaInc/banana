@@ -63,7 +63,7 @@ final class PodcastCatalog: @unchecked Sendable {
         return "\(values.contentModificationDate?.timeIntervalSince1970 ?? 0):\(values.fileSize ?? 0)"
     }
 
-    /// Original JSON stays untouched. A replaced JSON (including an older cloud backup restore)
+    /// Original JSON stays untouched. A replaced JSON
     /// is imported transactionally. A failed decode/import never replaces a working catalog.
     func load(legacyURL: URL, forceImport: Bool = false) throws -> [Podcast] {
         let stamp = try Self.stamp(legacyURL)
@@ -240,19 +240,6 @@ final class PodcastCatalog: @unchecked Sendable {
         return try database.read {
             try String.fetchAll($0, sql: "SELECT id FROM episodes WHERE snapshot = ? ORDER BY date \(direction), ordinal \(direction)", arguments: [snapshot])
         }
-    }
-
-    /// The backup remains the portable pre-SQLite format. Decode one feed at a time instead of
-    /// materializing all episode objects together. Any read failure fails the entire backup.
-    func backupJSON(legacyURL: URL) throws -> Data {
-        let podcasts = try load(legacyURL: legacyURL)
-        var data = Data("[".utf8)
-        for (index, podcast) in podcasts.enumerated() {
-            if index > 0 { data.append(0x2c) }
-            try autoreleasepool { data.append(try JSONEncoder().encode(podcast)) }
-        }
-        data.append(0x5d)
-        return data
     }
 
 

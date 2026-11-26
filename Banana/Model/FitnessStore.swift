@@ -167,12 +167,6 @@ final class FitnessStore: ObservableObject {
         }
     }
 
-    func flushPendingWrites() async {
-        await withCheckedContinuation { continuation in
-            Self.persistenceQueue.async { continuation.resume() }
-        }
-    }
-
     /// Cloud sync must not seed from an empty observable array while the on-disk workout index is
     /// still decoding. An empty initial seed looks valid but silently omits the whole history.
     func whenLoaded() async {
@@ -236,7 +230,6 @@ final class FitnessStore: ObservableObject {
                 self.removeLeakedPreviewFixture()
                 self.migrateLegacyIfNeeded()
                 self.markEditsMadeBeforeTheMark()
-                CloudFitnessSync.shared.seedLocalSummaries(self.summaries)
                 self.isLoaded = true
                 for waiter in self.loadWaiters { waiter.resume() }
                 self.loadWaiters.removeAll()
@@ -285,7 +278,6 @@ final class FitnessStore: ObservableObject {
         guard let inserted = install(session, stagedSamplesURL: stagedSamplesURL) else { return false }
         let persisted = await persistIndexNow()
         guard persisted else { return false }
-        CloudBackup.shared.schedule()
         if inserted, let summary = summaries.first(where: { $0.id == session.id }) {
             sendEverywhere(summary)
         }
@@ -438,7 +430,6 @@ final class FitnessStore: ObservableObject {
         try? FileManager.default.removeItem(at: backupSummaryURL(id))
         summaries.removeAll { $0.id == id }
         saveIndex()
-        CloudFitnessSync.shared.delete(id)
         MoveOver.deleted(type: Self.spaceType, ids: [id.uuidString])
     }
 
@@ -449,7 +440,6 @@ final class FitnessStore: ObservableObject {
     /// A workout changed here: iCloud's sync as before (its mode decides whether it writes), and
     /// the data platform (`MoveOver`).
     private func sendEverywhere(_ summary: FitnessSessionSummary) {
-        CloudFitnessSync.shared.upsert(summary)
         MoveOver.changed(type: Self.spaceType, ids: [summary.id.uuidString])
     }
 
@@ -1031,7 +1021,6 @@ final class FitnessStore: ObservableObject {
         }
         // summaries.json is part of the iCloud snapshot payload — mark it dirty so the next
         // on-background pass includes a workout ingested since the last one.
-        CloudBackup.shared.schedule()
     }
 
     private func persistIndexNow() async -> Bool {
@@ -1057,11 +1046,7 @@ final class FitnessStore: ObservableObject {
         }
     }
 
-    /// Synchronous decode. Not currently called anywhere (`FitnessStore`, unlike `WellnessStore`/
-    /// `ListenHistoryStore`/`ExceptionStore`, has no `reloadFromDisk()` restore path — CloudKit
-    /// sync is the only source of truth for a live app after the initial async load in `init()`)
-    /// — kept correct, not removed, so a future restore path can't silently reintroduce the exact
-    /// bug the rest of this file fixes. Same decode-and-quarantine treatment as `init()`.
+    /// Synchronous decode with the same decode-and-quarantine treatment as `init()`.
     private func load() {
         switch FitnessIndexLoader.load(from: indexURL) {
         case .empty:

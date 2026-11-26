@@ -145,12 +145,7 @@ struct BananaApp: App {
                 PlaybackDiagnostics.shared.log("🧠 cloud model", "took the app down last time; on-device only on iOS \(CloudModelGuard.osBuild)")
             }
             // Every store's edits go to the sync from the first one.
-            ControlChangeReporter.connectToCloud()
-            #if BANANA_MODULE_FOOD
-            // The meal backlog's own zone. Its stores need no window, so it starts here, at launch
-            // — a push or a background task can then fetch it on its own (`MealBacklogWake`).
-            MealBacklogWake.startSync()
-            #endif
+            ControlChangeReporter.connectToSpace()
             #if BANANA_MODULE_WORKOUTS || BANANA_MODULE_PODCASTS || BANANA_MODULE_NOTES
             PhoneConnectivity.shared.fitnessStore = FitnessStore.shared
             PhoneConnectivity.shared.activate()
@@ -268,9 +263,6 @@ struct BananaApp: App {
 
         #if DEBUG && os(iOS)
         TimelineVerification.runIfRequested()   // --verify-timeline: L1–L4 assumption checks
-        #if BANANA_MODULE_PODCASTS
-        TranscribeVerification.runIfRequested()   // --verify-transcribe: where does on-device ASR stall?
-        #endif
         CPUVerification.runIfRequested()          // --verify-cpu: what does a second of playback cost?
         #if BANANA_MODULE_PODCASTS
         PlaybackVerification.runIfRequested()     // --verify-stall: does playback survive a dead stream?
@@ -983,6 +975,7 @@ struct BananaApp: App {
         }
         #endif
         // A day-plan request now uses the same graph the Plan screen reads.
+        // Start sync without waiting for the calendar and route lookups.
         Task { await occ.recomputeIfStale(reason: "Pi app launch") }
     }
     #endif
@@ -1117,27 +1110,13 @@ struct BananaApp: App {
         NetworkMonitor.shared.onWiFiAvailable = { [weak downloads] in downloads?.startWaitingForWiFi() }
         #endif
 
-        // Fast settings sync, three tiers: LAN peer channel (instant, co-located, no iCloud
-        // needed), CloudKit push (seconds, anywhere, entitled builds), KVS (legacy fallback).
-        let smartStore = smart
         #if BANANA_MODULE_PODCASTS
-        smart.onSettingsBroadcast = { [weak downloads] data in
-            downloads?.broadcastPeerSettings(data)
-            CloudSettingsSync.shared.push(data)
-        }
-        #else
-        smart.onSettingsBroadcast = { data in CloudSettingsSync.shared.push(data) }
+        smart.onSettingsBroadcast = { [weak downloads] in downloads?.broadcastPeerSettings($0) }
+        downloads.onPeerSettings = { [weak smart] in smart?.adoptSettingsSnapshot($0) }
         #endif
-        #if BANANA_MODULE_PODCASTS
-        downloads.onPeerSettings = { [weak smartStore] in smartStore?.adoptSettingsSnapshot($0) }
-        #endif
-        CloudSettingsSync.shared.onSnapshot = { [weak smartStore] in smartStore?.adoptSettingsSnapshot($0) }
-        CloudSettingsSync.shared.startIfPossible()
         smart.primePeerSettings()
         // Busy blocks on/off and their calendar: the same synced choice on every device.
         CalendarWriteBack.shared.bindToSyncedSettings(smart)
-        // Back up to iCloud: likewise one synced switch; the phone makes the backups.
-        CloudBackup.shared.bind(to: settings)
         // Where booking hours follow (docs/design/BOOKING.md §13): the phone publishes it.
         WhereaboutsStore.shared.start(flightLegs: smart.$flightLegs)
         // The phone's jobs pressed on an iPad or the Mac (docs/design/ADAPTIVE-LAYOUT.md, rule 5).
@@ -1150,10 +1129,6 @@ struct BananaApp: App {
                 #if BANANA_MODULE_WORKOUTS || BANANA_MODULE_PODCASTS || BANANA_MODULE_NOTES
                 connectivity.refreshTransferCount()
                 #endif
-            case .backUpNow:
-                // The service is the copy once this device has moved off iCloud (§6).
-                guard !CloudBackup.isRetired else { return }
-                Task { await CloudBackup.shared.backUpNow(userInitiated: true) }
             }
         }
 
@@ -1285,40 +1260,12 @@ struct BananaApp: App {
         // A changed wake plan has its own requestRecompute trigger and still earns the one trailing
         // pass required to make a pass that began with the old plan final.
         //
-        // Not awaited: nothing below needs the timeline, and awaiting it held everything else —
-        // the iCloud restore check a first launch waits on, and every sync's start — behind a
-        // pass of Google reads and route lookups (16 s on the phone; on a new iPad it never
-        // finished, and the app sat on its "checking iCloud" screen).
         Task { await occ.recomputeIfStale(maxAge: 0, reason: "launch") }
-
-        // iCloud backup: an app's container dies with the app, so this is the only thing standing
-        // between a reinstall and your listening history.
-        CloudBackup.shared.onRestore = {
-            #if BANANA_MODULE_PODCASTS
-            library.reloadFromDisk()
-            #endif
-            RoutineStore.shared.reloadFromDisk()
-            #if BANANA_MODULE_PODCASTS
-            history.reloadFromDisk()
-            #endif
-            ExceptionStore.shared.reloadFromDisk()
-            #if BANANA_MODULE_FOOD
-            WellnessStore.shared.reloadFromDisk()
-            #if os(iOS)
-            connectivity.syncWorkoutPlan()
-            #endif
-            #endif
-            Task { await OccurrenceStore.shared.recompute() }
-        }
-        CloudBackup.shared.onReturningUserDetected = { [onboarding] in
-            onboarding.completeForReturningUser()
-        }
-        Task { await CloudBackup.shared.checkForRestore() }
 
         #if BANANA_MODULE_PODCASTS
         // Everything below reads the library's contents, and the catalogue now decodes off-main
         // (see PodcastLibrary.init) — running these against a not-yet-loaded library would resend
-        // nothing to the Watch, push an empty manifest (pruning real episodes!), and seed CloudKit
+        // nothing to the Watch, push an empty manifest (pruning real episodes!), and seed sync
         // from an empty progress set.
         await library.whenLoaded()
 
@@ -1341,41 +1288,9 @@ struct BananaApp: App {
         }
         #endif
 
-        // Operational sync: per-episode progress records over CloudKit, phone↔Mac. Local JSON stays
-        // the source of truth; this mirrors changes up and applies remote ones through the library's
-        // existing last-write-wins merge.
-        #if BANANA_MODULE_PODCASTS
-        CloudProgressSync.shared.start(library: library)
-        #endif
-        // Routines, one-off alarms, wake sounds and each show's settings: the same on every
-        // device. After the library has loaded, so the phone never offers an empty catalogue.
-        let controls = CloudControlsSync.shared
-        controls.register(routines, for: .routine)
-        controls.register(wake, for: .wake)
-        controls.register(store, for: .alarm)
-        #if BANANA_MODULE_PODCASTS
-        controls.register(library, for: .podcast)
-        controls.register(library, for: .show)
-        #endif
-        controls.register(ExceptionStore.shared, for: .timelineOverride)
-        controls.register(ExceptionStore.shared, for: .timelineExtra)
         ExceptionStore.shared.onCloudChange = { OccurrenceStore.shared.requestRecompute(reason: "timeline change from another device") }
-        #if BANANA_MODULE_PODCASTS
-        controls.register(history, for: .listen)
-        controls.register(history, for: .listenRoute)
-        controls.register(skipPlans.store, for: .skipPlan)
-        controls.register(skipPlans.store, for: .adSlots)
-        controls.register(skipPlans.store, for: .skipCorrection)
-        controls.register(NarratorVoiceStore.shared, for: .narratorReading)
-        controls.register(NarratorVoiceStore.shared, for: .narratorGender)
-        controls.register(NarratorVoiceStore.shared, for: .narratorOverride)
-        #endif
         #if BANANA_MODULE_FOOD
-        controls.register(wellness, for: .workoutPlan)
-        controls.register(wellness, for: .workoutCompletion)
-        controls.register(wellness, for: .foodCorrection)
         MyFoodsStore.shared.follow(wellness.$meals)
-        controls.register(MyFoodsStore.shared, for: .myFood)
         ScannedNumbersRepair.run(foods: MyFoodsStore.shared, wellness: wellness, inbox: MealInboxStore.shared)
         #endif
         #if BANANA_MODULE_PODCASTS
@@ -1390,8 +1305,6 @@ struct BananaApp: App {
                 guard let library else { return }
                 for id in ids { _ = await library.refresh(id) }
                 for id in ids { if let podcast = library.podcast(id) { downloads?.reconcile(podcast) } }
-                CloudProgressSync.shared.fetchLibraryProgress(why: "new shows arrived")
-                CloudControlsSync.shared.refetchAll()
             }
         }
         // Unsubscribed on another device: the same as unsubscribing here.
@@ -1399,35 +1312,6 @@ struct BananaApp: App {
             downloads?.removeAllDownloads(for: podcast)
             wake?.clearIfPodcast(podcast.id)
         }
-        #endif
-        // Everything it offers must have loaded first: an empty list mid-decode is not the truth.
-        #if BANANA_MODULE_PODCASTS
-        await history.whenLoaded()
-        #endif
-        #if BANANA_MODULE_FOOD
-        await wellness.whenLoaded()
-        #endif
-        controls.start()
-        // Fitness has a separate zone and is always on: unlike playback progress it changes only
-        // when a workout or the compact Health cache changes, so it is safe to push immediately.
-        // Its local index also decodes off-main; never seed CloudKit from the temporary empty list.
-        #if BANANA_MODULE_WORKOUTS
-        await fitness.whenLoaded()
-        CloudFitnessSync.shared.start(fitness: fitness, health: health, notes: VoiceNoteStore.shared)
-        #endif
-        #if BANANA_MODULE_FOOD
-        // Meals, supplements and doses, phone↔Mac. Same rule as fitness: seed only from the
-        // decoded file, never from the empty list it starts as.
-        await wellness.whenLoaded()
-        CloudWellnessSync.shared.start(wellness: wellness)
-        #endif
-        // Every sync can fetch now: the once-a-minute "what changed?" may be asked. Asked earlier
-        // (it was, by the first frame), its answer named zones no sync was there to fetch.
-        CloudSyncPoll.syncsHaveStarted()
-        #if os(macOS)
-        // Other devices' changes, now and every minute, for as long as the app runs. The window
-        // starts this too when it appears; with no window, nothing else would.
-        CloudSyncPoll.resume()
         #endif
         #if BANANA_MODULE_FOOD
         // The meal backlog: estimate what's ready here, and drop this device's copies of photos
@@ -1442,17 +1326,6 @@ struct BananaApp: App {
         // And the prints made of them here (`MealPhotoPrints`), off the main actor.
         Task { await MealPhotoPrints.shared.prune(keeping: mealPhotos) }
         #endif
-        #if DEBUG && os(macOS)
-        // --purge-fitness-zone-dry-run / --purge-fitness-zone-apply: deliberate, operator-run
-        // cleanup of the Fitness zone's phantom `workout-<uuid>` records, from an on-disk delete
-        // list rather than a CloudKit query (see CloudFitnessZonePurgeTool). Needs both the sync
-        // engine and the local index (the live real-workout safety check) already live, hence
-        // right here rather than earlier in App.init.
-        #if BANANA_MODULE_WORKOUTS
-        await CloudFitnessZonePurgeTool.runIfRequested()
-        #endif
-        #endif
-
         #if DEBUG
         #if BANANA_MODULE_WORKOUTS
         if ProcessInfo.processInfo.arguments.contains("--dummy-health")

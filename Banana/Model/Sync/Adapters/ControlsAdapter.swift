@@ -9,7 +9,7 @@ import Foundation
 /// - **Seed clocks** are each item's last edit as the Controls sync knows it (`editedAt`), the
 ///   time today's newer-edit rule compares; an item offered and never edited seeds at 0.
 /// - **Fields**: the item's own keys, or the one field `v` for a value that isn't a struct.
-/// - **Reports**: `ControlChangeReporter` already reaches every store's edit; `connectToCloud`
+/// - **Reports**: `ControlChangeReporter` already reaches every store's edit; `connectToSpace`
 ///   hands each to `MoveOver` too.
 /// - **Phone-set kinds** (routine, alarm, wake) need nothing here: the engine seeds them on the
 ///   hub first, and a spoke drops its own once the phone's set arrives.
@@ -108,5 +108,20 @@ enum ControlsAdapter {
             })
         binding.seedClock = { editedAt(kind, $0) }
         return binding
+    }
+}
+
+extension ControlChangeReporter {
+    static func connectToSpace() {
+        changed = { kind, id in
+            if let type = ControlsAdapter.ownReport(kind, id: id) { MoveOver.changed(type: type, ids: [id]) }
+        }
+        deleted = { kind, id in
+            // A route goes with its listen; on its own it's not a deleted listen.
+            if kind != .listenRoute, let type = ControlsAdapter.ownReport(kind, id: id) { MoveOver.deleted(type: type, ids: [id]) }
+        }
+        offered = { kind, id in
+            if let type = ControlsAdapter.ownReport(kind, id: id) { MoveOver.offered(type: type, ids: [id]) }
+        }
     }
 }

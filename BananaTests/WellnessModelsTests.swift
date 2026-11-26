@@ -269,7 +269,7 @@ final class WellnessModelsTests: XCTestCase {
 
     // MARK: - wellness.json decode-and-quarantine (WellnessSnapshotLoader / WellnessSnapshot)
     //
-    // `WellnessStore` itself pulls in `CloudBackup` → `FitnessStore` → CloudKit, and its
+    // `WellnessStore` itself pulls in sync and persistence dependencies, and its
     // singleton would read/write the owner's real Application Support directory on first touch —
     // so these exercise `WellnessSnapshotLoader`/`WellnessSnapshot` directly, the pure decode
     // and quarantine logic `WellnessStore.decodeAndSort` delegates to, entirely against temp

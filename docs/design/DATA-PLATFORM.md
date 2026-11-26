@@ -422,11 +422,9 @@ Tiers:
   - carries out removal requests;
   - arms alarms.
 - **The Watch** keeps getting everything from the iPhone over WatchConnectivity.
-- **Returning person.** Today `CloudBackup.onReturningUserDetected` marks onboarding done for someone
-  coming back. That now happens when the first pull of a new device finds a non-empty space.
-- **The backup stops** once the device has moved (`CloudBackup.isRetired`): its Settings row
-  disappears, and `HubRequest.backUpNow` does nothing. The service is the copy. The code itself
-  (`AppSettings.backupEnabled`, `BackupRules`, `CloudBackup`) goes with the retire release (§8.3).
+- **Returning person.** The first pull that finds a non-empty space completes onboarding.
+- **Recovery.** Devices recover synced records through the Banana service. The app no longer
+  creates or restores iCloud snapshots.
 
 ## 7. Health consent (GDPR Art. 9)
 
@@ -469,16 +467,8 @@ Each area goes through four steps.
    Its device row records `seeded_at` and `flipped_at`.
    Deletes that old builds make after a device has flipped reach its read-only drain but aren't
    carried into the space: old builds are transitional.
-3. **Retire.** The legacy code is removed in the **next** release, once every device row active in
-   the last 30 days has flipped. That covers:
-   - `CloudControlsSync`, `CloudWellnessSync`, `CloudProgressSync`/`CloudFitnessSync` and
-     `CloudSettingsSync`;
-   - `CloudZonePoller`, `CloudSyncPoll` and `CloudChangeCheck`;
-   - `CloudBackup`;
-   - the meals zone subscription;
-   - the per-store key-value listeners.
-
-   The read-only drain in this release is what makes the seed safe.
+3. **Retire.** CloudKit engines, their poller, and the meals-zone subscription are retired.
+   Local records seed into Banana sync. Key-value and Drive readers still follow their tier modes.
 4. **Purge.** Everything Banana left in iCloud is deleted:
    - the six CloudKit zones;
    - the moved key-value keys;

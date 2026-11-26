@@ -100,8 +100,7 @@ Only the phone (`DeviceRole.current.isHub`), because only it can or because the 
 snapshot that can't yet be merged: reading Apple Health and publishing the Health cache
 (`queueHealth`, `HealthKitStore.isAvailable`), seeding the synced settings on first launch,
 computing and publishing the wake plan (others adopt it), arming alarms
-(`AlarmStore.ensureAuthorized`), trip learning, the Watch session, the post-workout review, the
-automatic iCloud backup (one shared file; not from an iPad).
+(`AlarmStore.ensureAuthorized`), trip learning, the Watch session and the post-workout review.
 
 Every device: calendar busy blocks — on/off and the task calendar are synced settings
 (`writeBackEnabled`, `writeBackCalendarID`). No device owns a block: each carries Banana's marker
@@ -122,9 +121,8 @@ own leftovers. An alarm added on an iPad or the Mac is armed by the phone when i
 (there's no push, so: when Banana next opens there), and its row says whether it has been
 (`HubStatus.armedAlarms`).
 
-The phone's status (Health, alarms, notifications, Watch, backup) is published over the
-key-value store (`HubStatus`) and shown in each device's Settings; buttons for the phone's jobs
-(resend to Watch, back up now) send a request (`HubRequests`) the phone carries out.
+Each device's Settings shows the phone's Health, alarm, notification and Watch status
+(`HubStatus`). Resending to the Watch sends a request (`HubRequests`) to the phone.
 
 Still open: a pending voice note may be transcribed by more than one device; iPad notes are
 labelled "iPhone"; subscribing or unsubscribing a show doesn't sync.

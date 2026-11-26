@@ -127,11 +127,11 @@ final class MoveOverTests: XCTestCase {
     }
 
     private func move(_ device: String, hub: Bool, engine: SpaceSync, channels: [FakeLegacyChannel],
-                      adapters: [any RecordAdapter], modes: LegacyCloudModeStore,
+                      adapters: [any RecordAdapter], modes: LegacyCloudModeStore, localTypes: Set<String> = [],
                       returning: @escaping () -> Void = {}, drainTimeout: TimeInterval = 5 * 60,
                       holdBackground: (@MainActor (String, @escaping @MainActor () -> Void) -> @MainActor () -> Void)? = nil) -> MoveOver {
         var deps = MoveOver.Dependencies(
-            engine: engine, isHub: hub, channels: channels, adapters: adapters, modes: modes,
+            engine: engine, isHub: hub, channels: channels, localTypes: localTypes, adapters: adapters, modes: modes,
             account: { [unowned self] maxAge in self.asked.append(maxAge); return self.account() }, defaults: defaults,
             stateKey: MoveOver.stateKey(account: "acc-\(device)"), now: { [unowned self] in self.now },
             log: { [events] in events!.add("\(device) move: \($0)") }, returningPerson: returning)
@@ -174,6 +174,22 @@ final class MoveOverTests: XCTestCase {
         XCTAssertEqual(mac.state.personal.phase, .flipped)
         XCTAssertEqual(Set(server.visible(type: extra).keys), ["a", "b"])
         XCTAssertEqual(macStore.items[extra]?["a"], item("A"), "the spoke has the hub's items")
+    }
+
+    func testLocalTypesSeedWithoutACloudKitChannel() async throws {
+        server.consent = false
+        let store = TestStore(types: [extra, meal])
+        store.items[extra] = ["a": item("A")]
+        store.items[meal] = ["m": item("Oats")]
+        let engine = try await engine("phone", hub: true, store: store)
+        let move = move("phone", hub: true, engine: engine, channels: [],
+                        adapters: [store], modes: modes("phone"), localTypes: [extra, meal])
+        await move.start(listening: false)
+
+        XCTAssertEqual(server.visible(type: extra)["a"], item("A"))
+        XCTAssertNil(server.record(meal, "m"))
+        XCTAssertEqual(move.state.personal.phase, .flipped)
+        XCTAssertEqual(move.state.health.phase, .held, "Health seed still requires consent")
     }
 
     func testASpokeWithNoIPhoneSeedsOnItsOwnAndOneWithNoAnswerWaits() async throws {

@@ -1309,8 +1309,6 @@ extension MailLiveSource {
         return await MailUnsubscribeTransport.post(expected)
     }
 
-    func permitsAccountChanges(_ account: String) -> Bool { deliveryAllowed(account) }
-
     /// UI policy only; delivery independently rechecks permission before every provider write.
     func permitsChanges(to target: MailTarget) -> Bool {
         let accounts: Set<String>

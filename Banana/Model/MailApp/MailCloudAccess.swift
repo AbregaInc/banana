@@ -10,14 +10,13 @@ import Foundation
     }
     func mailGrant(accountID: String) -> MailGrant {
         guard FeatureAccessStore.shared.allows("email"), let link = linked(accountID) else { return .none }
-        return link.capabilities?.mailRead == true ? .granted : .none
+        return link.capabilities?.mailModify == true ? .granted : .none
     }
     func mailAccessToken(accountID: String) async throws -> MailAccessToken {
         guard let link = linked(accountID) else { throw MailAccessError.unknownAccount }
         guard let context = FeatureAccessStore.shared.mailContext else { throw MailAccessError.notGranted }
-        guard link.capabilities?.mailRead == true else { throw MailAccessError.notGranted }
-        let scope = link.capabilities?.mailModify == true ? MailScopes.gmailModify : "https://www.googleapis.com/auth/gmail.readonly"
-        return MailAccessToken(value: CloudMailReference(email: accountID, context: context).value, scopes: [scope])
+        guard link.capabilities?.mailModify == true else { throw MailAccessError.notGranted }
+        return MailAccessToken(value: CloudMailReference(email: accountID, context: context).value, scopes: [MailScopes.gmailModify])
     }
     func dropMailAccessToken(accountID: String) { Task { _ = await BananaAccount.shared.refresh() } }
     func cancelMailTokenRequests() { /* No device-side Google token mint exists. */ }

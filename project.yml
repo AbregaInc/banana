@@ -733,7 +733,7 @@ targets:
       # builds on it. WatchAudioQuality.swift/Podcast.swift and ListenEvent.swift are the pure
       # storage-shaped models for PodcastLibrary/ListenHistoryStore — split out (same reasoning
       # as DistanceUnit.swift below) so their decode-and-quarantine tests don't also pull in
-      # PodcastLibrary/ListenHistoryStore's own CloudBackup/CloudKit dependency chain.
+      # the podcast and listening history stores' dependencies.
       - path: Shared/SnapshotPersistence.swift
       - path: Shared/WorkoutRecoveryCheckpoint.swift
       - path: BananaWatch/SampleWriter.swift
@@ -779,10 +779,7 @@ targets:
       - path: Shared/FitnessModels.swift
       - path: Shared/WorkoutMotionAnalysis.swift
       - path: BananaTests/WorkoutMotionAnalysisTests.swift
-      # Fitness cloud-sync state derivation (FitnessSyncStateDerivation/
-      # WorkoutCloudUploadStateDerivation, appended to FitnessModels.swift above) — pure, so it's
       # testable here without constructing a CKSyncEngine/CKContainer.
-      - path: BananaTests/FitnessSyncStateTests.swift
       # Orientation-capture fix — RotationVector.swift (pure quaternion <-> rotation-vector math)
       # and the new FitnessSample.Kind.orientation case (already in FitnessModels.swift above).
       - path: Shared/RotationVector.swift
@@ -823,7 +820,6 @@ targets:
       # background, the permission half on every activation. Pure; ScenePhase is its only import.
       - path: Banana/Model/ForegroundCascadeRules.swift
       # The Google change poll's loop and its stop/start for the background. Foundation only.
-      - path: Banana/Model/CalendarChangePoll.swift
       # The menu-bar switch's dot-free key and its one-time move from the dotted one. Foundation only.
       - path: Banana/Model/MenuBarAgendaSetting.swift
       # Where a new booking may start (the hour or the half hour). Pure geometry, Foundation only.
@@ -867,13 +863,11 @@ targets:
       # Taps during and just after a pinch belong to the pinch. Pure.
       - path: Banana/Model/ZoomTapGate.swift
       # What each sync is doing, in words, for the pages and Settings. Foundation + Combine.
-      - path: Banana/Model/SyncProgress.swift
       # What's drawn leaves out items whose removal waits on an Undo (a declined invitation). Pure.
       - path: Banana/Model/PendingRemovals.swift
       # How the nearby-device Bonjour browse is paced (a quick stop/start crashed CFNetwork). Pure.
       - path: Banana/Model/PeerBrowsePacing.swift
       # One async job at a time; a request made mid-run runs it once more after. Foundation.
-      - path: Banana/Model/CoalescingRun.swift
       # A guided workout's progress as wall-clock deadlines, so a locked phone neither pauses the
       # rest timer nor (via the background blank) loses the session. Foundation + Combine.
       - path: Banana/Model/GuidedSession.swift
@@ -881,7 +875,6 @@ targets:
       - path: Banana/Model/EpisodeRowText.swift
       # Today's words for time: countdowns, free gaps, and the part of the day. Pure.
       - path: Banana/Model/TodayText.swift
-      - path: Banana/Model/BackupRules.swift
       # The average colour of an image (the player's background wash). CoreGraphics only.
       - path: Banana/Model/ImageAverage.swift
       # Portion scaling and the meal list's macro line. Pure; needs WellnessModels.
@@ -964,7 +957,6 @@ targets:
       - path: Banana/Model/TranscriptModels.swift
       - path: Banana/Model/RoutineWording.swift
       - path: Banana/Model/CalendarRefreshPace.swift
-      - path: Banana/Model/CloudPollRules.swift
       - path: Banana/Views/AdaptiveLayout.swift
       - path: Banana/Model/WorkoutCleanup.swift
       - path: Banana/Views/Workouts/WorkoutGrouping.swift
@@ -974,7 +966,7 @@ targets:
       - path: BananaTests/WorkoutEntryTests.swift
       # Package 3 (Comparison + splits logic) — WorkoutComparison.swift + its dependency chain:
       # DistanceUnit (split out of AppSettings.swift so BananaTests doesn't also pull in
-      # AppSettings' LaunchClock/CloudBackup singleton dependencies — see DistanceUnit.swift's
+      # AppSettings' singleton dependencies — see DistanceUnit.swift's
       # doc comment), WorkoutReviewCoordinator (WorkoutReviewSubject), WorkoutDesign
       # (WorkoutPalette).
       - path: Banana/Model/DistanceUnit.swift
@@ -1119,10 +1111,8 @@ targets:
       - path: BananaTests/SupplementCatalogSearchTests.swift
       # Natural-language food entry — GenericFoodCatalog + FoodTextExtractor.resolve(_:) are pure
       # (no FoundationModels call in tests). WellnessStore.swift itself is deliberately NOT
-      # sourced here: its save() unconditionally calls CloudBackup.shared.schedule(), and
-      # CloudBackup.swift pulls in FitnessStore.swift (CloudFitnessSync/CloudKit) and
-      # ListenHistoryStore.swift — the same class of heavy, unrelated dependency chain the
-      # HealthKitStore comment above this routes around. FoodCorrection/FoodCorrectionBook (the
+      # sourced here: the store has its own persistence and sync dependencies.
+      # FoodCorrection/FoodCorrectionBook (the
       # part WellnessStore's lookupLearned/recordEdit delegate to) live in WellnessModels.swift
       # above instead, specifically so the promotion/tolerance logic is testable on its own.
       - path: Banana/Model/GenericFoodCatalog.swift
@@ -1204,8 +1194,6 @@ targets:
       - path: Banana/Model/Sync/SpaceSyncFlag.swift
       - path: Banana/Model/Sync/MoveOver.swift
       - path: Banana/Model/KeepAwake.swift
-      # The zone listing the move's drain resumes (CloudZonePoller's CloudKit side stays out).
-      - path: Banana/Model/Sync/ZoneListing.swift
       # The purge (§8 step 4): its gate, what it deletes, weekly, over protocols with fakes. Its
       # CloudKit and iCloud Drive side (ICloudPurge+Live.swift) stays out.
       - path: Banana/Model/Sync/ICloudPurge.swift
@@ -1258,7 +1246,6 @@ targets:
       - path: BananaTests/SpaceSyncTests.swift
       - path: BananaTests/MemorySyncServer.swift
       - path: BananaTests/MoveOverTests.swift
-      - path: BananaTests/ZoneListingTests.swift
       - path: BananaTests/LegacyCloudTests.swift
       - path: BananaTests/ICloudPurgeTests.swift
       # Every place that could write iCloud, listed with its gate (tools/icloud-write-sites.tsv).

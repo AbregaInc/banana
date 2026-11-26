@@ -4,7 +4,7 @@ import Foundation
 ///
 /// Split out from AppSettings.swift so it can be sourced into BananaTests (needed transitively by
 /// WorkoutComparison.swift's formatters) without also pulling in AppSettings' LaunchClock/
-/// CloudBackup singleton dependencies, which have their own dependency chains the test target
+/// storage dependencies, which have their own dependency chains the test target
 /// doesn't otherwise need.
 enum DistanceUnit: String, Codable, CaseIterable, Identifiable {
     case kilometers, miles
