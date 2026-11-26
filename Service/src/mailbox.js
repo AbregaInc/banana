@@ -492,9 +492,16 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
    * read is never queued behind it, and stops once it walks out of its window. */
   async function fillStep(who) {
     const state = box.fillState(port);
+    // The window the walk covers: days, or null for every message. A walk that finished under a
+    // narrower one (a state from before 26 Nov 2026 has none: it was the 183-day default) is not
+    // finished for this one, so it starts again at once rather than after FILL_AGAIN.
+    const window = deps.config.mailFillDays ?? null;
+    const setFill = (next) => box.setFillState(port, { ...next, window });
+    const covered = state.window === undefined ? 183 : state.window;
+    const wider = covered !== null && (window === null || window > covered);
     if (state.done !== null) {
-      if (now() - state.done < FILL_AGAIN) return state.done + FILL_AGAIN;
-      box.setFillState(port, { after: null, old: 0, done: null });
+      if (!wider && now() - state.done < FILL_AGAIN) return state.done + FILL_AGAIN;
+      setFill({ after: null, old: 0, done: null });
       return now();
     }
     const nextAt = Number(box.getMeta(port, "fill_next_at") ?? 0);
@@ -504,12 +511,12 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     let after = state.after, old = state.old;
     for (let i = 0; i < 50; i++) {
       const [r] = box.fillNext(port, { after, limit: 1 });
-      if (!r) { box.setFillState(port, { after, old, done: now() }); return null; }
+      if (!r) { setFill({ after, old, done: now() }); return null; }
       if (!box.fillSkips(r, since)) break;
       after = r.id;
-      if (since !== null && r.date !== null && r.date < since && ++old >= FILL_OLD_STOP) { box.setFillState(port, { after, old, done: now() }); return null; }
+      if (since !== null && r.date !== null && r.date < since && ++old >= FILL_OLD_STOP) { setFill({ after, old, done: now() }); return null; }
     }
-    if (after !== state.after) { box.setFillState(port, { after, old, done: null }); return now(); }
+    if (after !== state.after) { setFill({ after, old, done: null }); return now(); }
     const [next] = box.fillNext(port, { after, limit: 1 });
     let answer;
     try { answer = await content(who, next.id, null, { background: true }); }
@@ -529,7 +536,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     old = since !== null && date !== null && date < since ? old + 1 : 0;
     // The watermark moves past it whatever the answer (too large, refused, gone): a later walk
     // tries again; a device that opens it asks for it itself.
-    box.setFillState(port, { after: next.id, old, done: old >= FILL_OLD_STOP ? now() : null });
+    setFill({ after: next.id, old, done: old >= FILL_OLD_STOP ? now() : null });
     box.setMeta(port, "fill_next_at", now() + Math.ceil(FILL_READ_UNITS * 1000 / (FILL_UNITS_PER_SECOND * fillFactor())));
     if (answer?.fetched) box.setMeta(port, "filled", Number(box.getMeta(port, "filled") ?? 0) + 1);
     return now();
