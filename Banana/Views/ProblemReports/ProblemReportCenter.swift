@@ -70,14 +70,24 @@ final class ProblemReportCenter: ObservableObject {
         providers[page.rawValue] = nil
     }
 
-    /// The calendar's days in view and the events on them, kept as the grid changes its days.
-    /// A value and a closure: nothing is read until a report asks.
-    func noteCalendar(start: Date?, end: Date?, ids: [String]) {
+    /// Capture the same ordered IDs the report displays. A dense calendar can hold
+    /// thousands of other events, which the report never includes.
+    static func reportedCalendarIDs(_ days: some Sequence<[Occurrence]>) -> [String] {
+        var ids: [String] = []
+        for day in days {
+            ids.append(contentsOf: day.prefix(200 - ids.count).lazy.map(\.id))
+            if ids.count == 200 { break }
+        }
+        return ids
+    }
+
+    func noteCalendar(start: Date?, end: Date?, occurrencesByDay: some Sequence<[Occurrence]>) {
         guard let start, let end else { return }
+        let ids = Self.reportedCalendarIDs(occurrencesByDay)
         provide(.plan) {
             ProblemReportPageContext(row: .fixed("Days shown"), context: [
                 "start": .text(start.ISO8601Format()), "end": .text(end.ISO8601Format()),
-                "ids": .list(Array(ids.prefix(200))),
+                "ids": .list(ids),
             ])
         }
     }
