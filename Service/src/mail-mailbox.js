@@ -84,6 +84,13 @@ export function migrate(port) {
     port.exec("INSERT OR IGNORE INTO text_todo (id, parts) SELECT id, NULL FROM msg WHERE cached > 0 AND gone = 0 AND id NOT IN (SELECT id FROM text)");
     setMeta(port, "text_requeued", 1);
   }
+  // Once more: every document conversion failed until the media type was passed (26 Nov 2026).
+  if (getMeta(port, "text_requeued_media") === null) {
+    port.exec("INSERT OR IGNORE INTO text_todo (id, parts) SELECT id, NULL FROM text WHERE state IN (2, 3)");
+    port.exec("DELETE FROM text WHERE state IN (2, 3)");
+    port.exec("UPDATE text_todo SET tries = 0");
+    setMeta(port, "text_requeued_media", 1);
+  }
 }
 
 export function getMeta(port, key) { return port.exec("SELECT value FROM meta WHERE key = ?", key)[0]?.value ?? null; }

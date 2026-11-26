@@ -91,7 +91,20 @@ export const contentAAD = (sub, id, attachmentID = null) => `mail-content:${sub}
 // ---- attachment text (MAIL-CLOUD-SYNC §5b) ----
 // Documents are converted by Workers AI's toMarkdown (free for these formats); text formats are
 // read as they are. Images are left out: OCR barely helped search (docs/performance/mail-attachment-search.md).
-const TEXT_CONVERTED = new Set(["pdf", "docx", "xlsx", "xlsm", "xlsb", "xls", "ods", "odt", "numbers"]);
+// toMarkdown requires the file's media type (a Blob without one is refused: "Too small: expected
+// string to have >=1 characters").
+const TEXT_MEDIA = {
+  pdf: "application/pdf",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  xlsm: "application/vnd.ms-excel.sheet.macroenabled.12",
+  xlsb: "application/vnd.ms-excel.sheet.binary.macroenabled.12",
+  xls: "application/vnd.ms-excel",
+  ods: "application/vnd.oasis.opendocument.spreadsheet",
+  odt: "application/vnd.oasis.opendocument.text",
+  numbers: "application/vnd.apple.numbers",
+};
+const TEXT_CONVERTED = new Set(Object.keys(TEXT_MEDIA));
 const TEXT_PLAIN = new Set(["txt", "csv", "ics", "md", "tsv", "json", "xml", "html", "htm"]);
 export const TEXT_FILE_MOST = CACHE_MOST;           // larger attachments are not read (isolate memory)
 export const TEXT_PART_CHARS = 50_000;             // kept of one attachment
@@ -570,7 +583,13 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     if (TEXT_PLAIN.has(part.ext)) return tidy(new TextDecoder("utf-8", { fatal: false }).decode(bytes)).slice(0, TEXT_PART_CHARS);
     if (!deps.ai?.toMarkdown) return "";
     const started = Date.now();
-    const result = await deps.ai.toMarkdown({ name: part.name, blob: new Blob([bytes]) });
+    let result;
+    try { result = await deps.ai.toMarkdown({ name: part.name, blob: new Blob([bytes], { type: TEXT_MEDIA[part.ext] }) }); }
+    catch (error) {
+      // One file the converter refuses never costs the message its other files' text.
+      noteError(`convert-throw:${part.ext}:${error?.name}:${String(error?.message ?? "").slice(0, 60)}`);
+      return "";
+    }
     walk.converted++; walk.convertMS += Date.now() - started;
     const one = Array.isArray(result) ? result[0] : result;
     if (one?.format === "error") noteError(`convert:${part.ext}:${String(one.error ?? "").slice(0, 60)}`);
