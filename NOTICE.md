@@ -9,6 +9,7 @@ the scope. Third-party code, models, data and artwork keep their own licences:
 | Package | Licence |
 |---|---|
 | [GRDB.swift](https://github.com/groue/GRDB.swift) | MIT |
+| [tantivy.swift](https://github.com/botisan-ai/tantivy.swift/tree/0.3.4) and [Tantivy](https://github.com/quickwit-oss/tantivy) | MIT (binding and engine) |
 | [SwiftSoup](https://github.com/scinfu/SwiftSoup) | MIT |
 | [FluidAudio](https://github.com/FluidInference/FluidAudio) | Apache 2.0 |
 | [GoogleSignIn-iOS](https://github.com/google/GoogleSignIn-iOS) | Apache 2.0 |

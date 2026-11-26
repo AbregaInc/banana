@@ -201,11 +201,38 @@ enum ShellSearchRules {
     static func titleMatches(_ title: String, query: String) -> Bool {
         let wanted = words(query)
         guard !wanted.isEmpty else { return false }
-        let have = words(title)
-        return wanted.allSatisfy { word in have.contains { $0.hasPrefix(word) } }
+        return wanted.allSatisfy { containsPrefix($0, in: title) }
     }
 
-    private static func words(_ text: String) -> [String] {
+    /// Compare one already folded query word. ASCII text needs no Foundation folding or token array.
+    static func containsPrefix(_ word: String, in text: String) -> Bool {
+        let bytes = text.utf8
+        guard bytes.allSatisfy({ $0 < 128 }) else {
+            return words(text).contains { $0.hasPrefix(word) }
+        }
+        var boundary = true
+        for index in bytes.indices {
+            let byte = bytes[index]
+            let letter = byte | 32
+            let isWord = (97...122).contains(letter) || (48...57).contains(byte)
+            if boundary && isWord {
+                var cursor = index
+                var matched = true
+                for expected in word.utf8 {
+                    guard cursor != bytes.endIndex else { matched = false; break }
+                    let actual = bytes[cursor]
+                    let folded = (65...90).contains(actual) ? actual | 32 : actual
+                    if folded != expected { matched = false; break }
+                    bytes.formIndex(after: &cursor)
+                }
+                if matched { return true }
+            }
+            boundary = !isWord
+        }
+        return false
+    }
+
+    static func words(_ text: String) -> [String] {
         text.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil)
             .components(separatedBy: CharacterSet.alphanumerics.inverted)
             .filter { !$0.isEmpty }

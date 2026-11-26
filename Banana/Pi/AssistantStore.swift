@@ -223,7 +223,8 @@ final class AssistantStore: ObservableObject {
                 #if DEBUG
                 if AppSupport.isPiUITest && WellnessStore.shared.meals.isEmpty { WellnessStore.shared.injectPreviewData() }
                 #endif
-                return String(decoding: try JSONEncoder().encode(AssistantWorkspace.prepare(args, operation: operation)), as: UTF8.self)
+                let action = try await AssistantWorkspace.prepare(args, operation: operation)
+                return String(decoding: try JSONEncoder().encode(action), as: UTF8.self)
             }
             #if DEBUG
             if self.diagnostic {
@@ -236,7 +237,7 @@ final class AssistantStore: ObservableObject {
             if let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any], value["name"] as? String == "day_plan" {
                 await OccurrenceStore.shared.recomputeIfStale(reason: "assistant day plan")
             }
-            let result = try AssistantCapabilities.execute(request)
+            let result = try await AssistantCapabilities.execute(request)
             self.recordSavedNote(request)
             return result
         }

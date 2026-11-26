@@ -1,0 +1,905 @@
+{
+  "beta": {
+    "synchronizeSeconds": 0.006,
+    "allTopicsLatencyMS": {
+      "chronological-5": {
+        "samples": 1131,
+        "p50": 3.724,
+        "p95": 38.468,
+        "p99": 101.345,
+        "max": 203.083,
+        "over100": 12
+      },
+      "chronological-50": {
+        "samples": 1131,
+        "p50": 5.672,
+        "p95": 37.332,
+        "p99": 87.904,
+        "max": 205.467,
+        "over100": 10
+      },
+      "ranked-5": {
+        "samples": 1131,
+        "p50": 3.604,
+        "p95": 7.305,
+        "p99": 10.593,
+        "max": 19.629,
+        "over100": 0
+      },
+      "ranked-50": {
+        "samples": 1131,
+        "p50": 4.599,
+        "p95": 9.146,
+        "p99": 11.6,
+        "max": 41.369,
+        "over100": 0
+      }
+    },
+    "families": {
+      "complete-filename": {
+        "prototype-50": {
+          "tasks": 37,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 24,
+          "top5": 25,
+          "top50": 28,
+          "exactFilenameFirst": 37,
+          "lookupMS": {
+            "samples": 37,
+            "p50": 3.471,
+            "p95": 10.674,
+            "p99": 12.344,
+            "max": 12.344,
+            "over100": 0
+          }
+        },
+        "chronological-5": {
+          "tasks": 37,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 1,
+          "top5": 1,
+          "top50": 1,
+          "exactFilenameFirst": 1,
+          "lookupMS": {
+            "samples": 111,
+            "p50": 14.735,
+            "p95": 47.698,
+            "p99": 50.513,
+            "max": 75.506,
+            "over100": 0
+          }
+        },
+        "chronological-50": {
+          "tasks": 37,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 1,
+          "top5": 1,
+          "top50": 1,
+          "exactFilenameFirst": 1,
+          "lookupMS": {
+            "samples": 111,
+            "p50": 14.746,
+            "p95": 49.072,
+            "p99": 55.451,
+            "max": 69.912,
+            "over100": 0
+          }
+        },
+        "ranked-5": {
+          "tasks": 37,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 23,
+          "top5": 27,
+          "top50": 27,
+          "exactFilenameFirst": 37,
+          "lookupMS": {
+            "samples": 111,
+            "p50": 6.074,
+            "p95": 10.593,
+            "p99": 11.548,
+            "max": 12.754,
+            "over100": 0
+          }
+        },
+        "ranked-50": {
+          "tasks": 37,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 23,
+          "top5": 27,
+          "top50": 31,
+          "exactFilenameFirst": 37,
+          "lookupMS": {
+            "samples": 111,
+            "p50": 7.469,
+            "p95": 11.34,
+            "p99": 12.438,
+            "max": 12.767,
+            "over100": 0
+          }
+        },
+        "pairedAgainstPrototype": {
+          "gained": 2,
+          "lost": 0
+        },
+        "pairedAgainstChronological": {
+          "gained": 26,
+          "lost": 0
+        }
+      },
+      "filename": {
+        "prototype-50": {
+          "tasks": 100,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 2,
+          "top5": 23,
+          "top50": 26,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 100,
+            "p50": 1.663,
+            "p95": 7.763,
+            "p99": 8.216,
+            "max": 9.245,
+            "over100": 0
+          }
+        },
+        "chronological-5": {
+          "tasks": 100,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 1,
+          "top5": 2,
+          "top50": 2,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 300,
+            "p50": 2.521,
+            "p95": 4.381,
+            "p99": 7.304,
+            "max": 12.258,
+            "over100": 0
+          }
+        },
+        "chronological-50": {
+          "tasks": 100,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 1,
+          "top5": 2,
+          "top50": 7,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 300,
+            "p50": 3.658,
+            "p95": 6.71,
+            "p99": 13.718,
+            "max": 16.125,
+            "over100": 0
+          }
+        },
+        "ranked-5": {
+          "tasks": 100,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 7,
+          "top5": 29,
+          "top50": 29,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 300,
+            "p50": 3.673,
+            "p95": 4.776,
+            "p99": 6.172,
+            "max": 11.282,
+            "over100": 0
+          }
+        },
+        "ranked-50": {
+          "tasks": 100,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 7,
+          "top5": 29,
+          "top50": 35,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 300,
+            "p50": 4.662,
+            "p95": 5.903,
+            "p99": 7.646,
+            "max": 8.717,
+            "over100": 0
+          }
+        },
+        "pairedAgainstPrototype": {
+          "gained": 8,
+          "lost": 2
+        },
+        "pairedAgainstChronological": {
+          "gained": 29,
+          "lost": 2
+        }
+      },
+      "known": {
+        "prototype-50": {
+          "tasks": 120,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 20,
+          "top5": 36,
+          "top50": 68,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 120,
+            "p50": 0.681,
+            "p95": 3.173,
+            "p99": 4.609,
+            "max": 5.413,
+            "over100": 0
+          }
+        },
+        "chronological-5": {
+          "tasks": 120,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 13,
+          "top5": 22,
+          "top50": 22,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 360,
+            "p50": 5.951,
+            "p95": 68.766,
+            "p99": 170.929,
+            "max": 203.083,
+            "over100": 12
+          }
+        },
+        "chronological-50": {
+          "tasks": 120,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 13,
+          "top5": 22,
+          "top50": 42,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 360,
+            "p50": 7.871,
+            "p95": 69.743,
+            "p99": 165.918,
+            "max": 205.467,
+            "over100": 10
+          }
+        },
+        "ranked-5": {
+          "tasks": 120,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 15,
+          "top5": 34,
+          "top50": 34,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 360,
+            "p50": 3.931,
+            "p95": 7.775,
+            "p99": 10.585,
+            "max": 19.629,
+            "over100": 0
+          }
+        },
+        "ranked-50": {
+          "tasks": 120,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 15,
+          "top5": 34,
+          "top50": 62,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 360,
+            "p50": 4.996,
+            "p95": 9.603,
+            "p99": 14.177,
+            "max": 41.369,
+            "over100": 0
+          }
+        },
+        "pairedAgainstPrototype": {
+          "gained": 2,
+          "lost": 4
+        },
+        "pairedAgainstChronological": {
+          "gained": 16,
+          "lost": 4
+        }
+      },
+      "recent-sender": {
+        "prototype-50": {
+          "tasks": 120,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 15,
+          "top5": 55,
+          "top50": 73,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 120,
+            "p50": 0.216,
+            "p95": 0.502,
+            "p99": 0.867,
+            "max": 0.885,
+            "over100": 0
+          }
+        },
+        "chronological-5": {
+          "tasks": 120,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 11,
+          "top5": 27,
+          "top50": 27,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 360,
+            "p50": 5.177,
+            "p95": 36.822,
+            "p99": 69.466,
+            "max": 81.134,
+            "over100": 0
+          }
+        },
+        "chronological-50": {
+          "tasks": 120,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 11,
+          "top5": 27,
+          "top50": 59,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 360,
+            "p50": 7.485,
+            "p95": 37.989,
+            "p99": 73.568,
+            "max": 87.904,
+            "over100": 0
+          }
+        },
+        "ranked-5": {
+          "tasks": 120,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 4,
+          "top5": 59,
+          "top50": 59,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 360,
+            "p50": 2.814,
+            "p95": 4.76,
+            "p99": 7.13,
+            "max": 12.001,
+            "over100": 0
+          }
+        },
+        "ranked-50": {
+          "tasks": 120,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 4,
+          "top5": 59,
+          "top50": 75,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 360,
+            "p50": 3.972,
+            "p95": 6.414,
+            "p99": 9.581,
+            "max": 18.586,
+            "over100": 0
+          }
+        },
+        "pairedAgainstPrototype": {
+          "gained": 8,
+          "lost": 4
+        },
+        "pairedAgainstChronological": {
+          "gained": 32,
+          "lost": 0
+        }
+      }
+    }
+  },
+  "public": {
+    "synchronizeSeconds": 17.25,
+    "allTopicsLatencyMS": {
+      "chronological-5": {
+        "samples": 450,
+        "p50": 13.263,
+        "p95": 223.911,
+        "p99": 532.127,
+        "max": 812.372,
+        "over100": 38
+      },
+      "chronological-50": {
+        "samples": 450,
+        "p50": 14.896,
+        "p95": 224.631,
+        "p99": 783.049,
+        "max": 1456.132,
+        "over100": 41
+      },
+      "ranked-5": {
+        "samples": 450,
+        "p50": 6.218,
+        "p95": 13.741,
+        "p99": 24.417,
+        "max": 33.612,
+        "over100": 0
+      },
+      "ranked-50": {
+        "samples": 450,
+        "p50": 6.704,
+        "p95": 14.428,
+        "p99": 23.305,
+        "max": 26.79,
+        "over100": 0
+      }
+    },
+    "families": {
+      "development": {
+        "prototype-50": {
+          "tasks": 25,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 9,
+          "top5": 17,
+          "top50": 20,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 25,
+            "p50": 5.43,
+            "p95": 14.033,
+            "p99": 14.845,
+            "max": 14.845,
+            "over100": 0
+          }
+        },
+        "chronological-5": {
+          "tasks": 25,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 3,
+          "top5": 5,
+          "top50": 5,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 75,
+            "p50": 13.054,
+            "p95": 219.075,
+            "p99": 235.828,
+            "max": 235.828,
+            "over100": 10
+          }
+        },
+        "chronological-50": {
+          "tasks": 25,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 3,
+          "top5": 5,
+          "top50": 10,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 75,
+            "p50": 14.792,
+            "p95": 224.631,
+            "p99": 1456.132,
+            "max": 1456.132,
+            "over100": 11
+          }
+        },
+        "ranked-5": {
+          "tasks": 25,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 8,
+          "top5": 16,
+          "top50": 16,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 75,
+            "p50": 6.202,
+            "p95": 13.894,
+            "p99": 33.612,
+            "max": 33.612,
+            "over100": 0
+          }
+        },
+        "ranked-50": {
+          "tasks": 25,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 8,
+          "top5": 16,
+          "top50": 21,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 75,
+            "p50": 6.707,
+            "p95": 13.48,
+            "p99": 16.753,
+            "max": 16.753,
+            "over100": 0
+          }
+        },
+        "pairedAgainstPrototype": {
+          "gained": 1,
+          "lost": 2
+        },
+        "pairedAgainstChronological": {
+          "gained": 11,
+          "lost": 0
+        }
+      },
+      "test": {
+        "prototype-50": {
+          "tasks": 125,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 57,
+          "top5": 88,
+          "top50": 115,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 125,
+            "p50": 5.496,
+            "p95": 14.815,
+            "p99": 31.923,
+            "max": 50.235,
+            "over100": 0
+          }
+        },
+        "chronological-5": {
+          "tasks": 125,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 10,
+          "top5": 30,
+          "top50": 30,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 375,
+            "p50": 13.726,
+            "p95": 226.832,
+            "p99": 545.398,
+            "max": 812.372,
+            "over100": 28
+          }
+        },
+        "chronological-50": {
+          "tasks": 125,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 10,
+          "top5": 30,
+          "top50": 56,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 375,
+            "p50": 14.912,
+            "p95": 225.777,
+            "p99": 783.049,
+            "max": 810.138,
+            "over100": 30
+          }
+        },
+        "ranked-5": {
+          "tasks": 125,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 60,
+          "top5": 87,
+          "top50": 87,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 375,
+            "p50": 6.252,
+            "p95": 13.44,
+            "p99": 23.79,
+            "max": 25.401,
+            "over100": 0
+          }
+        },
+        "ranked-50": {
+          "tasks": 125,
+          "unstableRanks": 0,
+          "unstableTop5": 0,
+          "first": 60,
+          "top5": 87,
+          "top50": 110,
+          "exactFilenameFirst": null,
+          "lookupMS": {
+            "samples": 375,
+            "p50": 6.7,
+            "p95": 14.497,
+            "p99": 24.184,
+            "max": 26.79,
+            "over100": 0
+          }
+        },
+        "pairedAgainstPrototype": {
+          "gained": 9,
+          "lost": 10
+        },
+        "pairedAgainstChronological": {
+          "gained": 59,
+          "lost": 2
+        }
+      }
+    }
+  },
+  "host": "Apple M1 Max, macOS 27.2.1, Release XCTest snapshots",
+  "trials": 3,
+  "seed": 73129,
+  "storage": {
+    "messages": 256188,
+    "eligibleThreads": 142419,
+    "hints": 921074,
+    "hintBytes": 51814400,
+    "nativeBytes": 50718365,
+    "eligibleMessages": 199185
+  },
+  "fullBetaBuildSeconds": 50.663,
+  "buildProcessRSS": {
+    "samples": 71,
+    "peakKiB": 238768
+  },
+  "freshProcesses": [
+    {
+      "oneMessageReplaceMS": 167.734,
+      "reopenMS": 28.672,
+      "firstShellLookupMS": 120.306,
+      "maxResidentBytes": 71024640
+    },
+    {
+      "reopenMS": 4.654,
+      "oneMessageReplaceMS": 159.645,
+      "firstShellLookupMS": 6.787,
+      "maxResidentBytes": 71712768
+    },
+    {
+      "reopenMS": 3.82,
+      "firstShellLookupMS": 6.871,
+      "oneMessageReplaceMS": 158.41,
+      "maxResidentBytes": 74645504
+    },
+    {
+      "reopenMS": 3.806,
+      "firstShellLookupMS": 7.329,
+      "oneMessageReplaceMS": 142.812,
+      "maxResidentBytes": 72237056
+    },
+    {
+      "oneMessageReplaceMS": 146.529,
+      "reopenMS": 3.782,
+      "firstShellLookupMS": 7.157,
+      "maxResidentBytes": 71794688
+    },
+    {
+      "reopenMS": 3.852,
+      "firstShellLookupMS": 7.278,
+      "oneMessageReplaceMS": 162.318,
+      "maxResidentBytes": 71860224
+    },
+    {
+      "oneMessageReplaceMS": 172.625,
+      "reopenMS": 5.323,
+      "firstShellLookupMS": 7.997,
+      "maxResidentBytes": 71925760
+    },
+    {
+      "firstShellLookupMS": 7.727,
+      "oneMessageReplaceMS": 161.2,
+      "reopenMS": 4.985,
+      "maxResidentBytes": 71516160
+    }
+  ],
+  "iterations": {
+    "initial-integration": {
+      "beta": {
+        "complete-filename": {
+          "ranked-5": {
+            "top5": 12,
+            "p95MS": 152.589
+          },
+          "ranked-50": {
+            "top5": 12,
+            "p95MS": 192.126
+          }
+        },
+        "filename": {
+          "ranked-5": {
+            "top5": 7,
+            "p95MS": 147.737
+          },
+          "ranked-50": {
+            "top5": 7,
+            "p95MS": 153.756
+          }
+        },
+        "known": {
+          "ranked-5": {
+            "top5": 34,
+            "p95MS": 145.892
+          },
+          "ranked-50": {
+            "top5": 34,
+            "p95MS": 217.705
+          }
+        },
+        "recent-sender": {
+          "ranked-5": {
+            "top5": 49,
+            "p95MS": 140.369
+          },
+          "ranked-50": {
+            "top5": 49,
+            "p95MS": 173.702
+          }
+        }
+      },
+      "public": {
+        "development": {
+          "ranked-5": {
+            "top5": 16,
+            "p95MS": 21.837
+          },
+          "ranked-50": {
+            "top5": 16,
+            "p95MS": 236.129
+          }
+        },
+        "test": {
+          "ranked-5": {
+            "top5": 87,
+            "p95MS": 20.509
+          },
+          "ranked-50": {
+            "top5": 87,
+            "p95MS": 241.408
+          }
+        }
+      }
+    },
+    "visible-rows-and-mime": {
+      "beta": {
+        "complete-filename": {
+          "ranked-5": {
+            "top5": 27,
+            "p95MS": 11.417
+          },
+          "ranked-50": {
+            "top5": 27,
+            "p95MS": 54.988
+          }
+        },
+        "filename": {
+          "ranked-5": {
+            "top5": 29,
+            "p95MS": 5.919
+          },
+          "ranked-50": {
+            "top5": 29,
+            "p95MS": 11.222
+          }
+        },
+        "known": {
+          "ranked-5": {
+            "top5": 35,
+            "p95MS": 9.485
+          },
+          "ranked-50": {
+            "top5": 35,
+            "p95MS": 26.29
+          }
+        },
+        "recent-sender": {
+          "ranked-5": {
+            "top5": 49,
+            "p95MS": 6.105
+          },
+          "ranked-50": {
+            "top5": 49,
+            "p95MS": 9.967
+          }
+        }
+      },
+      "public": {
+        "development": {
+          "ranked-5": {
+            "top5": 16,
+            "p95MS": 14.481
+          },
+          "ranked-50": {
+            "top5": 16,
+            "p95MS": 240.387
+          }
+        },
+        "test": {
+          "ranked-5": {
+            "top5": 87,
+            "p95MS": 15.726
+          },
+          "ranked-50": {
+            "top5": 87,
+            "p95MS": 234.145
+          }
+        }
+      }
+    }
+  },
+  "correctness": {
+    "focusedBetaTestsPassed": 61,
+    "publicReplayPassed": true,
+    "macBetaDebugBuild": "pass"
+  },
+  "componentGates": {
+    "component": {
+      "status": "fail",
+      "scope": "Simulator components, not UI acceptance",
+      "baselineVersion": 1,
+      "failures": {
+        "scale-1d": [
+          "podcasts.nextAcrossCatalog.p95MS: 3.288 > 0.777 + 2.000 ms",
+          "peak RSS regression or ceiling exceeded: 364.06 MB"
+        ],
+        "scale-7d": [
+          "mail.firstPage.p95MS: 7.259 > 4.716 + 2.000 ms",
+          "podcasts.nextAcrossCatalog.p95MS: 6.837 > 4.586 + 2.000 ms",
+          "peak RSS regression or ceiling exceeded: 362.92 MB"
+        ],
+        "scale-30d": [
+          "peak RSS regression or ceiling exceeded: 488.59 MB"
+        ],
+        "scale-90d": [
+          "peak RSS regression or ceiling exceeded: 720.39 MB"
+        ],
+        "redraw-notes": [
+          "peak RSS regression or ceiling exceeded: 488.42 MB"
+        ],
+        "redraw-library": [
+          "peak RSS regression or ceiling exceeded: 494.22 MB"
+        ],
+        "redraw-plan": [
+          "mail.firstPage.p95MS: 17.418 > 14.435 + 2.165 ms",
+          "peak RSS regression or ceiling exceeded: 509.83 MB",
+          "RootView: redraw rate increased from 0 to 0.19278318709825013"
+        ],
+        "redraw-mail": [
+          "peak RSS regression or ceiling exceeded: 496.20 MB"
+        ]
+      }
+    },
+    "component-final": {
+      "status": "unmeasured",
+      "error": "another Xcode build/test is running; retain this run and retry on an idle host"
+    },
+    "component-idle": {
+      "status": "unmeasured",
+      "error": "another Xcode build/test is running; retain this run and retry on an idle host"
+    },
+    "component-quiet": {
+      "status": "unmeasured",
+      "error": "another Xcode build/test is running; retain this run and retry on an idle host"
+    }
+  }
+}

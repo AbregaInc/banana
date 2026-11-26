@@ -63,6 +63,13 @@ enum GoogleEventWindowBuilder {
         var iCalUID: String? = nil
         var originalStart: Date? = nil
         var endTimeZone: String? = nil
+        var searchPeople: [String] = []
+
+        var searchDetails: String? {
+            guard !isSharedAvailability else { return nil }
+            let text = ([notes].compactMap { $0 } + searchPeople).joined(separator: "\n")
+            return text.isEmpty ? nil : text
+        }
         /// Where this Busy copy came from (`GoogleBusyBlocks.sources`): empty for anything else.
         var copySources: Set<String> = []
         /// Keys of copies of this event merged into it by `dedupe` (the same invitation on other
@@ -169,6 +176,8 @@ enum GoogleEventWindowBuilder {
                     ?? original.date.flatMap(GoogleCalendarDates.parseDate)
             },
             endTimeZone: event.end?.timeZone,
+            searchPeople: ([event.organizer?.displayName, event.organizer?.email] +
+                (event.attendees ?? []).flatMap { [$0.displayName, $0.email] }).compactMap { $0 },
             copySources: GoogleBusyBlocks.sources(of: event.extendedProperties)
         )
     }
@@ -584,7 +593,8 @@ enum GoogleEventWindowBuilder {
             isAvailabilityOnly: event.isSharedAvailability, calendarBlocksTime: event.calendarBlocksTime,
             startTimeZone: event.timeZone?.identifier, endTimeZone: event.endTimeZone,
             copySources: event.isSharedAvailability ? [] : [event.sourceKey] + event.alsoOnKeys,
-            blockingCalendarIDs: event.blocksOn.map(GoogleCalendarIDs.calendarInfoID))
+            blockingCalendarIDs: event.blocksOn.map(GoogleCalendarIDs.calendarInfoID),
+            searchDetails: event.searchDetails)
     }
 
     private static func allDayInfo(_ event: Normalized) -> MeetingInfo {
@@ -592,7 +602,7 @@ enum GoogleEventWindowBuilder {
             start: event.start,
             end: event.end,
             coordinate: nil,
-            address: event.location,
+            address: event.isSharedAvailability ? nil : event.location,
             isVirtual: false,
             title: event.title.isEmpty ? "All day" : event.title,
             eventID: GoogleCalendarIDs.eventInfoID(calendarID: event.calendarID, eventID: event.eventID),
@@ -602,9 +612,10 @@ enum GoogleEventWindowBuilder {
             myResponse: MeetingResponse(googleStatus: event.myResponse),
             othersAllDeclined: event.othersAllDeclined,
             alsoOnCalendarIDs: event.alsoOn.map(GoogleCalendarIDs.calendarInfoID),
-            isAllDay: true, calendarBlocksTime: event.calendarBlocksTime,
+            isAllDay: true, isAvailabilityOnly: event.isSharedAvailability, calendarBlocksTime: event.calendarBlocksTime,
             copySources: [event.sourceKey] + event.alsoOnKeys,
-            blockingCalendarIDs: event.blocksOn.map(GoogleCalendarIDs.calendarInfoID))
+            blockingCalendarIDs: event.blocksOn.map(GoogleCalendarIDs.calendarInfoID),
+            searchDetails: event.searchDetails)
     }
 
     private static func looksVirtual(_ address: String?) -> Bool {

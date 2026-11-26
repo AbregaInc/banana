@@ -1,0 +1,7344 @@
+{
+  "headerProbe": {
+    "messages": 256208,
+    "threads": 189714,
+    "bodyDocuments": 93181,
+    "asOf": "2026-11-25",
+    "seed": 73123,
+    "subjects": "Newest locally fetched message per eligible sampled conversation",
+    "scope": "Cue-derived proxy tasks, no query logs. Merged header/body SQL, no UI, live provider or app decoding.",
+    "all": {
+      "topics": 120,
+      "corpusTargets": 120,
+      "top1": 10,
+      "successAt5": 26,
+      "successAt10": 37,
+      "successAt50": 61,
+      "mrrAt10": 0.1418287037037037,
+      "baseQueryMedianMS": 7.9021875,
+      "candidateQueryMedianMS": 8.975604,
+      "baseQueryP95MS": 43.598834,
+      "candidateQueryP95MS": 47.087833,
+      "baseMaxMS": 536.018,
+      "candidateMaxMS": 614.657959,
+      "medianPairedSavingMS": -1.647396,
+      "bootstrap95SavingMS": [
+        -2.2668339999999993,
+        -0.7811254999999999
+      ]
+    },
+    "age": {
+      "31to180d": {
+        "topics": 40,
+        "corpusTargets": 40,
+        "top1": 3,
+        "successAt5": 8,
+        "successAt10": 10,
+        "successAt50": 14,
+        "mrrAt10": 0.125,
+        "baseQueryMedianMS": 10.043479,
+        "candidateQueryMedianMS": 8.6286045,
+        "baseQueryP95MS": 39.288167,
+        "candidateQueryP95MS": 47.087833,
+        "baseMaxMS": 325.541459,
+        "candidateMaxMS": 614.657959,
+        "medianPairedSavingMS": -1.2204165000000002,
+        "bootstrap95SavingMS": [
+          -3.1190204999999995,
+          -0.0401455
+        ]
+      },
+      "last30d": {
+        "topics": 40,
+        "corpusTargets": 40,
+        "top1": 7,
+        "successAt5": 17,
+        "successAt10": 22,
+        "successAt50": 35,
+        "mrrAt10": 0.27819444444444447,
+        "baseQueryMedianMS": 7.411375,
+        "candidateQueryMedianMS": 8.170437499999998,
+        "baseQueryP95MS": 36.0835,
+        "candidateQueryP95MS": 29.08175,
+        "baseMaxMS": 292.311958,
+        "candidateMaxMS": 311.740333,
+        "medianPairedSavingMS": -1.5861874999999999,
+        "bootstrap95SavingMS": [
+          -2.1799165,
+          -0.36935399999999996
+        ]
+      },
+      "older": {
+        "topics": 40,
+        "corpusTargets": 40,
+        "top1": 0,
+        "successAt5": 1,
+        "successAt10": 5,
+        "successAt50": 12,
+        "mrrAt10": 0.022291666666666664,
+        "baseQueryMedianMS": 7.446625,
+        "candidateQueryMedianMS": 12.846645500000001,
+        "baseQueryP95MS": 59.661417,
+        "candidateQueryP95MS": 53.985583,
+        "baseMaxMS": 536.018,
+        "candidateMaxMS": 487.063875,
+        "medianPairedSavingMS": -2.2762919999999993,
+        "bootstrap95SavingMS": [
+          -4.6346665,
+          -0.25364549999999997
+        ]
+      }
+    },
+    "families": {
+      "sender": {
+        "topics": 24,
+        "corpusTargets": 24,
+        "top1": 0,
+        "successAt5": 1,
+        "successAt10": 1,
+        "successAt50": 5,
+        "mrrAt10": 0.013888888888888888,
+        "baseQueryMedianMS": 19.6879165,
+        "candidateQueryMedianMS": 8.809020499999999,
+        "baseQueryP95MS": 59.661417,
+        "candidateQueryP95MS": 27.455125,
+        "baseMaxMS": 536.018,
+        "candidateMaxMS": 311.740333,
+        "medianPairedSavingMS": 9.298792000000002,
+        "bootstrap95SavingMS": [
+          -0.33579200000000053,
+          23.820833
+        ]
+      },
+      "subject": {
+        "topics": 24,
+        "corpusTargets": 24,
+        "top1": 2,
+        "successAt5": 6,
+        "successAt10": 9,
+        "successAt50": 15,
+        "mrrAt10": 0.15763888888888888,
+        "baseQueryMedianMS": 5.1036459999999995,
+        "candidateQueryMedianMS": 8.3260005,
+        "baseQueryP95MS": 21.324042,
+        "candidateQueryP95MS": 29.284709,
+        "baseMaxMS": 146.341417,
+        "candidateMaxMS": 614.657959,
+        "medianPairedSavingMS": -2.3515,
+        "bootstrap95SavingMS": [
+          -6.155791000000001,
+          -1.6162919999999996
+        ]
+      },
+      "sender-and-topic": {
+        "topics": 24,
+        "corpusTargets": 24,
+        "top1": 5,
+        "successAt5": 7,
+        "successAt10": 9,
+        "successAt50": 16,
+        "mrrAt10": 0.24375,
+        "baseQueryMedianMS": 7.092541499999999,
+        "candidateQueryMedianMS": 7.5430209999999995,
+        "baseQueryP95MS": 24.355125,
+        "candidateQueryP95MS": 26.69725,
+        "baseMaxMS": 219.332292,
+        "candidateMaxMS": 392.537959,
+        "medianPairedSavingMS": -1.4437915000000006,
+        "bootstrap95SavingMS": [
+          -2.3999170000000003,
+          0.022479499999999875
+        ]
+      },
+      "snippet": {
+        "topics": 24,
+        "corpusTargets": 24,
+        "top1": 1,
+        "successAt5": 5,
+        "successAt10": 8,
+        "successAt50": 12,
+        "mrrAt10": 0.12407407407407407,
+        "baseQueryMedianMS": 8.153437499999999,
+        "candidateQueryMedianMS": 11.536792,
+        "baseQueryP95MS": 33.386958,
+        "candidateQueryP95MS": 53.07025,
+        "baseMaxMS": 128.581,
+        "candidateMaxMS": 487.063875,
+        "medianPairedSavingMS": -2.0716465,
+        "bootstrap95SavingMS": [
+          -4.752249000000001,
+          -1.2317500000000001
+        ]
+      },
+      "refinement": {
+        "topics": 24,
+        "corpusTargets": 24,
+        "top1": 2,
+        "successAt5": 7,
+        "successAt10": 10,
+        "successAt50": 13,
+        "mrrAt10": 0.16979166666666667,
+        "baseQueryMedianMS": 9.720104,
+        "candidateQueryMedianMS": 11.8392915,
+        "baseQueryP95MS": 49.849959,
+        "candidateQueryP95MS": 53.985583,
+        "baseMaxMS": 325.508875,
+        "candidateMaxMS": 423.111208,
+        "medianPairedSavingMS": -2.08275,
+        "bootstrap95SavingMS": [
+          -9.501187999999999,
+          -0.05279199999999995
+        ]
+      }
+    },
+    "firstRefinementAttempt": {
+      "topics": 24,
+      "corpusTargets": 24,
+      "top1": 0,
+      "successAt5": 1,
+      "successAt10": 2,
+      "successAt50": 4,
+      "mrrAt10": 0.020833333333333332,
+      "baseQueryMedianMS": 16.2082915,
+      "candidateQueryMedianMS": 11.4235835,
+      "baseQueryP95MS": 143.936458,
+      "candidateQueryP95MS": 37.613583,
+      "baseMaxMS": 457.116292,
+      "candidateMaxMS": 274.704959,
+      "medianPairedSavingMS": 4.559666999999998,
+      "bootstrap95SavingMS": [
+        -1.4819590000000016,
+        10.982916999999999
+      ]
+    },
+    "replays": [
+      {
+        "id": "last30d-sender-1",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.918334,
+          0.58675,
+          1.186042,
+          0.650208,
+          0.810333
+        ],
+        "candidateMS": [
+          0.884167,
+          0.936417,
+          0.98275,
+          0.984708,
+          0.658875
+        ],
+        "route": "full",
+        "rankAt50": 3,
+        "rows": 31
+      },
+      {
+        "id": "last30d-subject-1",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          6.858584,
+          10.163,
+          3.397583,
+          3.323416,
+          6.005958
+        ],
+        "candidateMS": [
+          7.953042,
+          6.248,
+          4.451625,
+          13.156834,
+          17.9225
+        ],
+        "route": "full",
+        "rankAt50": 1,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-and-topic-1",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          8.437208,
+          1.165667,
+          13.957584,
+          1.080292,
+          2.43025
+        ],
+        "candidateMS": [
+          2.791708,
+          1.561333,
+          1.441167,
+          1.527542,
+          2.918709
+        ],
+        "route": "full",
+        "rankAt50": 1,
+        "rows": 1
+      },
+      {
+        "id": "last30d-snippet-1",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          11.628875,
+          9.308625,
+          8.515167,
+          54.161083,
+          25.826583
+        ],
+        "candidateMS": [
+          59.2015,
+          27.977625,
+          11.812083,
+          254.416,
+          14.437333
+        ],
+        "route": "full",
+        "rankAt50": 9,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-1",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.477041,
+          4.606042,
+          4.579541,
+          8.238375,
+          42.281666
+        ],
+        "candidateMS": [
+          8.272791,
+          11.43375,
+          40.725,
+          27.039334,
+          7.090125
+        ],
+        "route": "full",
+        "rankAt50": 6,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-1",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          7.498667,
+          8.807667,
+          9.956417,
+          40.496167,
+          49.033125
+        ],
+        "candidateMS": [
+          23.871625,
+          18.453625,
+          13.8055,
+          72.958,
+          59.61525
+        ],
+        "route": "full",
+        "rankAt50": 1,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-2",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          36.796417,
+          21.100625,
+          40.613125,
+          292.311958,
+          50.358833
+        ],
+        "candidateMS": [
+          14.67075,
+          5.94475,
+          5.798,
+          311.740333,
+          7.122125
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-2",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.807334,
+          2.971333,
+          1.709792,
+          2.116125,
+          1.908292
+        ],
+        "candidateMS": [
+          5.240042,
+          3.464375,
+          2.580541,
+          1.960333,
+          4.645208
+        ],
+        "route": "full",
+        "rankAt50": 4,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-and-topic-2",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          8.588375,
+          3.799041,
+          4.633541,
+          6.929583,
+          9.071
+        ],
+        "candidateMS": [
+          7.840791,
+          5.913375,
+          12.062167,
+          8.608083,
+          8.63925
+        ],
+        "route": "full",
+        "rankAt50": 37,
+        "rows": 50
+      },
+      {
+        "id": "last30d-snippet-2",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          2.5105,
+          3.323458,
+          2.214958,
+          2.786583,
+          2.268291
+        ],
+        "candidateMS": [
+          6.823375,
+          2.848792,
+          2.899875,
+          2.775416,
+          61.478208
+        ],
+        "route": "full",
+        "rankAt50": 5,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-2",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          18.098333,
+          39.29075,
+          14.139292,
+          14.794875,
+          22.841709
+        ],
+        "candidateMS": [
+          3.94625,
+          31.614792,
+          5.6285,
+          8.326583,
+          9.203
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-2",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          3.73,
+          12.814917,
+          25.633792,
+          3.351792,
+          22.647625
+        ],
+        "candidateMS": [
+          6.649333,
+          6.034833,
+          23.516667,
+          3.447291,
+          10.867083
+        ],
+        "route": "full",
+        "rankAt50": 18,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-3",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          16.072041,
+          5.580209,
+          3.071375,
+          8.349458,
+          15.519291
+        ],
+        "candidateMS": [
+          5.138541,
+          7.428041,
+          2.25175,
+          16.176334,
+          19.074708
+        ],
+        "route": "full",
+        "rankAt50": 11,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-3",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.767459,
+          5.001792,
+          3.3605,
+          6.596042,
+          19.001459
+        ],
+        "candidateMS": [
+          10.601167,
+          10.561291,
+          11.157583,
+          46.392417,
+          14.7085
+        ],
+        "route": "full",
+        "rankAt50": 6,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-and-topic-3",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          8.342792,
+          3.1515,
+          5.282959,
+          6.03725,
+          24.168083
+        ],
+        "candidateMS": [
+          6.747292,
+          4.677417,
+          4.729375,
+          30.189167,
+          14.674333
+        ],
+        "route": "full",
+        "rankAt50": 15,
+        "rows": 50
+      },
+      {
+        "id": "last30d-snippet-3",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          11.934958,
+          16.874417,
+          12.921458,
+          44.247708,
+          6.6685
+        ],
+        "candidateMS": [
+          11.0885,
+          12.797125,
+          8.60225,
+          12.4575,
+          20.80475
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-3",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          16.009,
+          12.196,
+          20.011791,
+          15.95275,
+          65.110583
+        ],
+        "candidateMS": [
+          5.122833,
+          14.6485,
+          5.747333,
+          10.968708,
+          4.753334
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-3",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          2.587667,
+          2.961167,
+          3.752667,
+          4.13925,
+          1.8575
+        ],
+        "candidateMS": [
+          6.453792,
+          2.726667,
+          4.290125,
+          6.637708,
+          2.511083
+        ],
+        "route": "full",
+        "rankAt50": 1,
+        "rows": 12
+      },
+      {
+        "id": "last30d-sender-4",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          27.707333,
+          19.114209,
+          14.091875,
+          58.235084,
+          37.1155
+        ],
+        "candidateMS": [
+          14.084334,
+          5.779875,
+          5.682875,
+          90.173667,
+          8.676708
+        ],
+        "route": "recent",
+        "rankAt50": 17,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-4",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.324417,
+          5.131708,
+          1.08175,
+          1.4095,
+          1.19325
+        ],
+        "candidateMS": [
+          6.651625,
+          5.278167,
+          1.908833,
+          1.811417,
+          43.663834
+        ],
+        "route": "full",
+        "rankAt50": 6,
+        "rows": 6
+      },
+      {
+        "id": "last30d-sender-and-topic-4",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.2555,
+          6.260167,
+          5.110583,
+          13.332583,
+          11.752417
+        ],
+        "candidateMS": [
+          4.317292,
+          9.042708,
+          11.62325,
+          4.529875,
+          89.255875
+        ],
+        "route": "full",
+        "rankAt50": 1,
+        "rows": 3
+      },
+      {
+        "id": "last30d-snippet-4",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.694041,
+          10.973041,
+          2.948833,
+          7.957125,
+          2.950583
+        ],
+        "candidateMS": [
+          11.964709,
+          3.529542,
+          8.238,
+          12.070833,
+          4.293
+        ],
+        "route": "full",
+        "rankAt50": 2,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-4",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.8095,
+          4.45175,
+          1.37,
+          1.510584,
+          1.2835
+        ],
+        "candidateMS": [
+          1.052042,
+          2.034416,
+          1.117041,
+          1.436333,
+          0.961667
+        ],
+        "route": "full",
+        "rankAt50": 3,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-4",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          29.424,
+          20.319333,
+          67.197958,
+          36.0835,
+          42.887417
+        ],
+        "candidateMS": [
+          42.513417,
+          53.648,
+          39.097417,
+          33.258958,
+          59.270459
+        ],
+        "route": "full",
+        "rankAt50": 2,
+        "rows": 37
+      },
+      {
+        "id": "last30d-sender-5",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          34.042541,
+          62.476083,
+          23.208333,
+          33.798417,
+          76.251042
+        ],
+        "candidateMS": [
+          8.941333,
+          17.338,
+          4.759917,
+          23.2925,
+          5.303209
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-5",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          9.539625,
+          33.421958,
+          8.074416,
+          18.568208,
+          8.653208
+        ],
+        "candidateMS": [
+          25.06125,
+          20.975125,
+          10.154292,
+          4.51625,
+          6.936083
+        ],
+        "route": "full",
+        "rankAt50": 5,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-and-topic-5",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          42.962084,
+          8.595834,
+          6.310041,
+          5.416083,
+          169.938167
+        ],
+        "candidateMS": [
+          9.221375,
+          16.968875,
+          6.590667,
+          80.379459,
+          20.262875
+        ],
+        "route": "full",
+        "rankAt50": 21,
+        "rows": 50
+      },
+      {
+        "id": "last30d-snippet-5",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          24.463417,
+          29.665417,
+          79.040458,
+          53.155,
+          51.310292
+        ],
+        "candidateMS": [
+          44.9565,
+          47.97725,
+          81.881541,
+          53.07025,
+          73.840917
+        ],
+        "route": "recent",
+        "rankAt50": 6,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-5",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          15.158875,
+          31.598458,
+          6.794875,
+          16.407583,
+          36.989834
+        ],
+        "candidateMS": [
+          12.433417,
+          47.133458,
+          10.21275,
+          13.35225,
+          46.212292
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-5",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          7.537625,
+          6.690083,
+          5.685041,
+          6.556792,
+          6.25225
+        ],
+        "candidateMS": [
+          24.440084,
+          37.21575,
+          14.138791,
+          67.757625,
+          28.599709
+        ],
+        "route": "full",
+        "rankAt50": 27,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-6",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          26.770541,
+          50.881625,
+          20.1125,
+          47.673375,
+          32.628542
+        ],
+        "candidateMS": [
+          5.617542,
+          17.365209,
+          5.359,
+          14.952375,
+          15.052666
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-6",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          3.714166,
+          4.26325,
+          3.330541,
+          4.308584,
+          4.278458
+        ],
+        "candidateMS": [
+          9.67625,
+          4.117583,
+          5.069792,
+          5.333833,
+          16.035958
+        ],
+        "route": "full",
+        "rankAt50": 35,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-and-topic-6",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.239791,
+          4.054042,
+          2.003875,
+          1.896792,
+          9.423791
+        ],
+        "candidateMS": [
+          5.017792,
+          6.049375,
+          3.178666,
+          6.443125,
+          271.452208
+        ],
+        "route": "full",
+        "rankAt50": 1,
+        "rows": 2
+      },
+      {
+        "id": "last30d-snippet-6",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          10.448959,
+          20.360917,
+          8.583416,
+          9.385416,
+          19.474708
+        ],
+        "candidateMS": [
+          29.08175,
+          41.55375,
+          13.867209,
+          12.4425,
+          42.008541
+        ],
+        "route": "full",
+        "rankAt50": 15,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-6",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.695542,
+          13.595083,
+          28.546167,
+          8.049584,
+          23.54575
+        ],
+        "candidateMS": [
+          12.069709,
+          22.9165,
+          24.400917,
+          27.805042,
+          63.380958
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-6",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          3.312333,
+          6.462333,
+          3.31775,
+          3.55575,
+          72.022
+        ],
+        "candidateMS": [
+          8.102875,
+          10.489666,
+          7.351208,
+          4.250958,
+          102.407583
+        ],
+        "route": "full",
+        "rankAt50": 5,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-7",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          35.247959,
+          12.442,
+          21.995833,
+          46.568083,
+          45.386292
+        ],
+        "candidateMS": [
+          7.835416,
+          5.871042,
+          4.9085,
+          15.8225,
+          64.84875
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-7",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          8.325625,
+          5.121875,
+          3.571417,
+          5.462292,
+          39.590125
+        ],
+        "candidateMS": [
+          14.26275,
+          13.976458,
+          19.533417,
+          28.521958,
+          30.383708
+        ],
+        "route": "full",
+        "rankAt50": 30,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-and-topic-7",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          14.439875,
+          8.424,
+          9.007542,
+          28.731792,
+          3.965083
+        ],
+        "candidateMS": [
+          4.249791,
+          72.899958,
+          4.126625,
+          33.189666,
+          11.372042
+        ],
+        "route": "full",
+        "rankAt50": 1,
+        "rows": 50
+      },
+      {
+        "id": "last30d-snippet-7",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.60825,
+          16.974334,
+          4.905583,
+          14.1575,
+          15.094584
+        ],
+        "candidateMS": [
+          20.846917,
+          12.025834,
+          21.318083,
+          11.789084,
+          53.26
+        ],
+        "route": "full",
+        "rankAt50": 14,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-7",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          14.637667,
+          15.193083,
+          5.123584,
+          9.822667,
+          294.319584
+        ],
+        "candidateMS": [
+          12.294,
+          38.217875,
+          37.294667,
+          13.307625,
+          24.555417
+        ],
+        "route": "full",
+        "rankAt50": 25,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-7",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          4.0555,
+          65.903958,
+          8.234292,
+          9.266291,
+          19.462583
+        ],
+        "candidateMS": [
+          6.918833,
+          62.922084,
+          9.177958,
+          21.83875,
+          65.317167
+        ],
+        "route": "full",
+        "rankAt50": 6,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-8",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          15.917167,
+          2.352583,
+          3.016417,
+          2.292542,
+          11.896
+        ],
+        "candidateMS": [
+          4.786917,
+          3.38625,
+          2.226542,
+          3.36575,
+          2.741958
+        ],
+        "route": "full",
+        "rankAt50": 17,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-8",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          3.778417,
+          7.912958,
+          4.108125,
+          3.590375,
+          9.241041
+        ],
+        "candidateMS": [
+          10.501542,
+          5.724417,
+          5.071792,
+          22.461042,
+          4.058916
+        ],
+        "route": "full",
+        "rankAt50": 3,
+        "rows": 40
+      },
+      {
+        "id": "last30d-sender-and-topic-8",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.663666,
+          12.292292,
+          7.077709,
+          3.4915,
+          62.740875
+        ],
+        "candidateMS": [
+          5.240417,
+          7.849333,
+          6.737,
+          17.1375,
+          5.002125
+        ],
+        "route": "full",
+        "rankAt50": 20,
+        "rows": 50
+      },
+      {
+        "id": "last30d-snippet-8",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          8.4535,
+          9.967666,
+          7.56725,
+          4.314458,
+          3.457792
+        ],
+        "candidateMS": [
+          9.519375,
+          4.389166,
+          13.521541,
+          3.897708,
+          5.687042
+        ],
+        "route": "full",
+        "rankAt50": 2,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-8",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          12.763959,
+          4.466042,
+          12.521,
+          54.938875,
+          4.329292
+        ],
+        "candidateMS": [
+          26.077166,
+          20.734708,
+          34.104959,
+          11.59725,
+          6.95125
+        ],
+        "route": "full",
+        "rankAt50": 49,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-8",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          1.327875,
+          2.081333,
+          6.798792,
+          1.666375,
+          1.2075
+        ],
+        "candidateMS": [
+          4.552667,
+          1.708583,
+          2.328542,
+          1.679917,
+          1.719167
+        ],
+        "route": "full",
+        "rankAt50": 3,
+        "rows": 21
+      },
+      {
+        "id": "31to180d-sender-1",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          48.466041,
+          29.254542,
+          27.903166,
+          39.288167,
+          166.989875
+        ],
+        "candidateMS": [
+          9.998208,
+          5.669667,
+          11.055708,
+          5.627292,
+          6.088834
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-1",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          15.320125,
+          10.778375,
+          16.136,
+          9.681209,
+          58.444625
+        ],
+        "candidateMS": [
+          25.287542,
+          11.68575,
+          24.385292,
+          19.811791,
+          47.968875
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-and-topic-1",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          2.526625,
+          0.465083,
+          0.695208,
+          3.631,
+          0.627
+        ],
+        "candidateMS": [
+          0.854042,
+          0.718041,
+          0.62575,
+          5.146792,
+          0.507959
+        ],
+        "route": "full",
+        "rankAt50": 1,
+        "rows": 1
+      },
+      {
+        "id": "31to180d-snippet-1",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.019625,
+          35.023042,
+          6.161209,
+          18.71225,
+          2.94475
+        ],
+        "candidateMS": [
+          9.841667,
+          42.148,
+          6.5665,
+          4.043833,
+          4.236917
+        ],
+        "route": "full",
+        "rankAt50": 11,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-1",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          16.038417,
+          23.63625,
+          34.192875,
+          13.356125,
+          21.079209
+        ],
+        "candidateMS": [
+          25.2245,
+          25.544708,
+          61.84075,
+          30.574416,
+          50.524666
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-1",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          27.780917,
+          83.273167,
+          24.718084,
+          49.849959,
+          84.667292
+        ],
+        "candidateMS": [
+          55.365541,
+          106.469208,
+          84.378083,
+          57.250625,
+          204.0205
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-2",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          19.234125,
+          43.552334,
+          32.527416,
+          32.645166,
+          45.213208
+        ],
+        "candidateMS": [
+          14.3825,
+          12.347,
+          7.028458,
+          6.371125,
+          20.059958
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-2",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          6.058834,
+          4.353375,
+          1.545,
+          1.266334,
+          1.1215
+        ],
+        "candidateMS": [
+          5.960042,
+          4.511917,
+          3.365958,
+          1.342167,
+          1.623042
+        ],
+        "route": "full",
+        "rankAt50": 1,
+        "rows": 1
+      },
+      {
+        "id": "31to180d-sender-and-topic-2",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          11.568583,
+          13.721709,
+          5.701834,
+          28.001375,
+          5.545542
+        ],
+        "candidateMS": [
+          6.339083,
+          14.764125,
+          6.495209,
+          29.631,
+          4.962583
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-snippet-2",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.131875,
+          7.151542,
+          14.381334,
+          6.243,
+          64.318542
+        ],
+        "candidateMS": [
+          22.020208,
+          6.036625,
+          15.453875,
+          6.041042,
+          6.928167
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-2",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          12.193459,
+          10.803708,
+          15.316625,
+          29.053,
+          12.804834
+        ],
+        "candidateMS": [
+          6.450708,
+          16.465208,
+          20.588625,
+          18.179666,
+          35.199792
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-2",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          7.534667,
+          5.689166,
+          11.994917,
+          20.555083,
+          149.395542
+        ],
+        "candidateMS": [
+          18.013375,
+          4.410292,
+          11.77125,
+          8.513292,
+          30.917333
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-3",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          6.425833,
+          4.661792,
+          1.613292,
+          0.822375,
+          1.160167
+        ],
+        "candidateMS": [
+          1.682916,
+          11.57325,
+          5.041583,
+          1.179791,
+          0.910458
+        ],
+        "route": "full",
+        "rankAt50": 15,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-3",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          2.994584,
+          22.865208,
+          5.2055,
+          9.205833,
+          2.461333
+        ],
+        "candidateMS": [
+          9.662833,
+          6.998917,
+          6.309125,
+          13.569,
+          3.712292
+        ],
+        "route": "full",
+        "rankAt50": 36,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-and-topic-3",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          24.355125,
+          13.68225,
+          25.519917,
+          49.606959,
+          15.693208
+        ],
+        "candidateMS": [
+          21.521625,
+          25.863,
+          26.69725,
+          77.168917,
+          60.24
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-snippet-3",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          12.712209,
+          12.639959,
+          7.810083,
+          18.775166,
+          128.581
+        ],
+        "candidateMS": [
+          27.705917,
+          30.357125,
+          18.292041,
+          17.355167,
+          170.241583
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-3",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          34.802042,
+          72.325666,
+          42.589125,
+          154.489,
+          23.856333
+        ],
+        "candidateMS": [
+          9.603375,
+          16.731458,
+          5.576708,
+          33.847792,
+          5.529958
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-3",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          5.44325,
+          8.138125,
+          5.99725,
+          8.965792,
+          38.537667
+        ],
+        "candidateMS": [
+          15.634667,
+          5.690334,
+          8.532125,
+          5.060333,
+          7.571041
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-4",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          39.016291,
+          10.478542,
+          10.373083,
+          26.706833,
+          11.6685
+        ],
+        "candidateMS": [
+          23.650167,
+          41.209292,
+          21.064958,
+          36.911166,
+          35.941667
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-4",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          24.048667,
+          43.598834,
+          55.73075,
+          31.463083,
+          146.341417
+        ],
+        "candidateMS": [
+          66.492417,
+          83.309667,
+          56.157458,
+          58.037209,
+          614.657959
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-and-topic-4",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          11.4745,
+          17.561292,
+          9.540916,
+          26.690667,
+          9.122416
+        ],
+        "candidateMS": [
+          17.864708,
+          41.704083,
+          15.3235,
+          17.731042,
+          15.726167
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-snippet-4",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          15.841792,
+          19.123125,
+          12.7705,
+          64.31475,
+          37.421583
+        ],
+        "candidateMS": [
+          26.434125,
+          25.583584,
+          42.275333,
+          53.599166,
+          220.992833
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-4",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          9.931458,
+          4.1515,
+          4.308125,
+          32.477625,
+          25.370042
+        ],
+        "candidateMS": [
+          11.057333,
+          11.413417,
+          6.923708,
+          129.271375,
+          31.903416
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-4",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          2.99425,
+          1.607416,
+          7.040167,
+          126.082708,
+          6.403333
+        ],
+        "candidateMS": [
+          5.869583,
+          1.429834,
+          9.042958,
+          67.002208,
+          6.238958
+        ],
+        "route": "full",
+        "rankAt50": 6,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-5",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          28.584209,
+          18.334,
+          32.745209,
+          82.977292,
+          17.349792
+        ],
+        "candidateMS": [
+          6.892625,
+          9.969917,
+          8.309167,
+          27.95625,
+          4.783916
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-5",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          11.579666,
+          13.420083,
+          34.298875,
+          23.119042,
+          7.060542
+        ],
+        "candidateMS": [
+          30.967,
+          13.832,
+          17.971,
+          43.642709,
+          28.252584
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-and-topic-5",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.006917,
+          1.064833,
+          2.806542,
+          30.719125,
+          5.907375
+        ],
+        "candidateMS": [
+          1.964875,
+          1.881792,
+          2.021458,
+          1.971792,
+          2.204916
+        ],
+        "route": "full",
+        "rankAt50": 4,
+        "rows": 7
+      },
+      {
+        "id": "31to180d-snippet-5",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          2.254209,
+          3.15925,
+          1.238792,
+          1.550584,
+          1.257875
+        ],
+        "candidateMS": [
+          2.782334,
+          3.948625,
+          2.670667,
+          4.891583,
+          1.897458
+        ],
+        "route": "full",
+        "rankAt50": 1,
+        "rows": 4
+      },
+      {
+        "id": "31to180d-refinement-5",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          33.742125,
+          175.317084,
+          32.07775,
+          89.718875,
+          51.830958
+        ],
+        "candidateMS": [
+          9.457166,
+          11.259333,
+          15.227542,
+          11.870791,
+          6.870875
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-5",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          9.292416,
+          13.988083,
+          4.456459,
+          9.483791,
+          17.368875
+        ],
+        "candidateMS": [
+          10.336,
+          12.724458,
+          7.713667,
+          9.302375,
+          13.253333
+        ],
+        "route": "full",
+        "rankAt50": 4,
+        "rows": 7
+      },
+      {
+        "id": "31to180d-sender-6",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          9.286125,
+          3.545917,
+          7.124959,
+          3.836209,
+          41.543125
+        ],
+        "candidateMS": [
+          40.269375,
+          11.234334,
+          18.0745,
+          7.765458,
+          46.931125
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-6",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          10.259958,
+          27.489083,
+          21.324042,
+          13.142083,
+          96.407375
+        ],
+        "candidateMS": [
+          33.511375,
+          23.342875,
+          23.261334,
+          17.480042,
+          72.722
+        ],
+        "route": "full",
+        "rankAt50": 21,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-and-topic-6",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.855584,
+          3.851584,
+          2.20975,
+          0.895458,
+          1.407583
+        ],
+        "candidateMS": [
+          1.527292,
+          1.291083,
+          4.162167,
+          1.453292,
+          1.208416
+        ],
+        "route": "full",
+        "rankAt50": 6,
+        "rows": 8
+      },
+      {
+        "id": "31to180d-snippet-6",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.036167,
+          1.026875,
+          0.8555,
+          4.136375,
+          0.817125
+        ],
+        "candidateMS": [
+          3.192459,
+          0.972,
+          2.259875,
+          2.154791,
+          1.379542
+        ],
+        "route": "full",
+        "rankAt50": 3,
+        "rows": 13
+      },
+      {
+        "id": "31to180d-refinement-6",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          24.940084,
+          52.116875,
+          25.160209,
+          42.139583,
+          18.124292
+        ],
+        "candidateMS": [
+          19.096208,
+          21.967625,
+          9.00625,
+          27.013708,
+          10.912917
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-6",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          30.206625,
+          18.998541,
+          14.190583,
+          156.63375,
+          60.806
+        ],
+        "candidateMS": [
+          34.220834,
+          47.087833,
+          22.07225,
+          52.039709,
+          73.371166
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-7",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.544792,
+          6.777,
+          6.834125,
+          12.720833,
+          37.819375
+        ],
+        "candidateMS": [
+          8.198042,
+          5.742875,
+          17.013667,
+          23.298083,
+          8.55825
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-7",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          6.026875,
+          13.293,
+          6.102,
+          14.853542,
+          11.743334
+        ],
+        "candidateMS": [
+          10.692167,
+          8.468833,
+          15.63925,
+          28.638875,
+          45.8055
+        ],
+        "route": "full",
+        "rankAt50": 2,
+        "rows": 15
+      },
+      {
+        "id": "31to180d-sender-and-topic-7",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          9.4315,
+          4.034125,
+          5.078625,
+          4.110459,
+          20.516875
+        ],
+        "candidateMS": [
+          12.10075,
+          6.287708,
+          5.481875,
+          5.990667,
+          35.529208
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-snippet-7",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.515875,
+          13.093667,
+          7.908958,
+          5.310417,
+          3.340167
+        ],
+        "candidateMS": [
+          13.394542,
+          18.229625,
+          6.359792,
+          7.057166,
+          6.810834
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-7",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          28.1395,
+          26.946875,
+          51.203041,
+          42.391125,
+          302.387667
+        ],
+        "candidateMS": [
+          5.254041,
+          12.095083,
+          10.284541,
+          4.7565,
+          41.522791
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-7",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          10.526833,
+          14.693417,
+          7.1505,
+          43.06575,
+          18.07875
+        ],
+        "candidateMS": [
+          11.907333,
+          11.928708,
+          10.018875,
+          45.92925,
+          6.850334
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-8",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          31.825958,
+          48.506583,
+          26.028875,
+          325.541459,
+          25.388167
+        ],
+        "candidateMS": [
+          8.005125,
+          7.277459,
+          13.227667,
+          76.32175,
+          5.693542
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-8",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          10.549125,
+          4.537583,
+          3.311625,
+          28.485708,
+          3.398625
+        ],
+        "candidateMS": [
+          11.259417,
+          4.38425,
+          4.767625,
+          22.063875,
+          8.698959
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-and-topic-8",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.943708,
+          0.495666,
+          0.63125,
+          0.520708,
+          0.680708
+        ],
+        "candidateMS": [
+          0.688708,
+          0.752958,
+          0.576708,
+          8.606375,
+          0.624208
+        ],
+        "route": "full",
+        "rankAt50": 3,
+        "rows": 4
+      },
+      {
+        "id": "31to180d-snippet-8",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          8.932167,
+          9.09275,
+          7.886458,
+          29.089792,
+          8.244125
+        ],
+        "candidateMS": [
+          15.244167,
+          40.042583,
+          10.074084,
+          12.429667,
+          13.684416
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-8",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          48.118958,
+          50.453458,
+          64.984334,
+          338.181208,
+          103.152083
+        ],
+        "candidateMS": [
+          12.996667,
+          9.782667,
+          22.710333,
+          51.578416,
+          55.914459
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-8",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          8.201417,
+          10.603167,
+          9.276125,
+          50.188084,
+          72.982
+        ],
+        "candidateMS": [
+          20.884167,
+          23.932791,
+          19.335417,
+          24.399208,
+          423.111208
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-1",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          36.29675,
+          35.543459,
+          59.661417,
+          416.78625,
+          199.049708
+        ],
+        "candidateMS": [
+          13.692042,
+          37.316125,
+          27.455125,
+          184.746125,
+          9.0425
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-1",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          2.118709,
+          9.869791,
+          2.040958,
+          13.814542,
+          7.66625
+        ],
+        "candidateMS": [
+          4.807459,
+          5.187125,
+          2.95075,
+          2.543833,
+          29.11775
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-and-topic-1",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          6.79925,
+          0.592,
+          1.719125,
+          3.266542,
+          0.956
+        ],
+        "candidateMS": [
+          1.207625,
+          0.824959,
+          2.557917,
+          0.826916,
+          0.741875
+        ],
+        "route": "full",
+        "rankAt50": 22,
+        "rows": 25
+      },
+      {
+        "id": "older-snippet-1",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          9.639,
+          6.724125,
+          5.56675,
+          6.60225,
+          13.856917
+        ],
+        "candidateMS": [
+          14.167334,
+          6.578791,
+          7.230708,
+          10.180125,
+          9.009875
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-1",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          2.460542,
+          1.236333,
+          2.265,
+          2.135542,
+          1.773458
+        ],
+        "candidateMS": [
+          2.014375,
+          1.683792,
+          2.018791,
+          1.800042,
+          1.288666
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-1",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          4.590959,
+          1.770583,
+          12.09175,
+          1.456,
+          1.398458
+        ],
+        "candidateMS": [
+          4.04,
+          1.678,
+          2.321625,
+          1.538209,
+          1.962458
+        ],
+        "route": "full",
+        "rankAt50": 3,
+        "rows": 5
+      },
+      {
+        "id": "older-sender-2",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          50.677125,
+          35.672167,
+          67.78675,
+          41.628292,
+          127.272333
+        ],
+        "candidateMS": [
+          11.946292,
+          24.618416,
+          24.132833,
+          9.823208,
+          29.986375
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-2",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.433833,
+          1.678208,
+          1.132334,
+          6.771667,
+          1.38075
+        ],
+        "candidateMS": [
+          5.888542,
+          1.630083,
+          1.68575,
+          1.728041,
+          3.55575
+        ],
+        "route": "full",
+        "rankAt50": 23,
+        "rows": 28
+      },
+      {
+        "id": "older-sender-and-topic-2",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          29.193041,
+          20.820333,
+          41.79425,
+          219.332292,
+          78.861625
+        ],
+        "candidateMS": [
+          65.084792,
+          64.149292,
+          60.72075,
+          392.537959,
+          207.255875
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-snippet-2",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.906959,
+          4.769959,
+          1.662833,
+          2.223834,
+          45.376916
+        ],
+        "candidateMS": [
+          6.087375,
+          6.2655,
+          2.439291,
+          1.970333,
+          35.198667
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-2",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.527959,
+          3.095958,
+          14.904208,
+          3.715625,
+          42.531083
+        ],
+        "candidateMS": [
+          4.614,
+          6.062958,
+          10.701208,
+          4.005833,
+          65.568833
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-2",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          2.94775,
+          1.135666,
+          6.106125,
+          1.133916,
+          0.866041
+        ],
+        "candidateMS": [
+          12.072209,
+          1.150541,
+          1.472708,
+          1.662792,
+          1.418833
+        ],
+        "route": "full",
+        "rankAt50": 13,
+        "rows": 39
+      },
+      {
+        "id": "older-sender-3",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.440167,
+          6.289708,
+          3.697917,
+          8.937083,
+          3.697375
+        ],
+        "candidateMS": [
+          7.272292,
+          20.733125,
+          9.622958,
+          39.355958,
+          6.554042
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-3",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          12.217875,
+          7.648875,
+          19.783375,
+          21.819,
+          60.102208
+        ],
+        "candidateMS": [
+          11.866458,
+          5.678167,
+          29.284709,
+          65.062542,
+          278.529417
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-and-topic-3",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          15.557333,
+          12.073416,
+          10.5055,
+          11.097,
+          38.765583
+        ],
+        "candidateMS": [
+          9.450375,
+          15.086042,
+          10.477334,
+          46.731125,
+          35.667875
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-snippet-3",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.474208,
+          8.739625,
+          12.076167,
+          12.181625,
+          7.444
+        ],
+        "candidateMS": [
+          10.616084,
+          13.180792,
+          17.236958,
+          4.965083,
+          6.448042
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-3",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          143.31925,
+          197.76075,
+          206.916791,
+          127.655916,
+          249.747834
+        ],
+        "candidateMS": [
+          33.666291,
+          71.682458,
+          37.613583,
+          22.881458,
+          66.432542
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-3",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          13.240333,
+          39.912084,
+          11.989542,
+          16.770458,
+          58.114834
+        ],
+        "candidateMS": [
+          22.718083,
+          24.269834,
+          64.504375,
+          20.9345,
+          35.84525
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-4",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          6.340583,
+          2.535125,
+          9.017458,
+          2.171916,
+          10.128833
+        ],
+        "candidateMS": [
+          6.660791,
+          8.869417,
+          6.676375,
+          5.80875,
+          9.6225
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-4",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.946583,
+          3.338209,
+          3.147167,
+          55.467208,
+          21.000208
+        ],
+        "candidateMS": [
+          7.63075,
+          3.489833,
+          3.9955,
+          97.743083,
+          10.464166
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-and-topic-4",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.108292,
+          0.969125,
+          0.898,
+          1.007708,
+          0.9205
+        ],
+        "candidateMS": [
+          1.699791,
+          8.766709,
+          0.913042,
+          1.182208,
+          0.844042
+        ],
+        "route": "full",
+        "rankAt50": 10,
+        "rows": 25
+      },
+      {
+        "id": "older-snippet-4",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          10.226208,
+          7.628125,
+          33.386958,
+          59.159791,
+          71.95525
+        ],
+        "candidateMS": [
+          15.044,
+          13.596375,
+          18.514208,
+          17.855917,
+          117.668542
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-4",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          59.053833,
+          143.936458,
+          61.902792,
+          283.753292,
+          166.640458
+        ],
+        "candidateMS": [
+          12.04,
+          54.87575,
+          16.95325,
+          274.704959,
+          9.849792
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-4",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          21.424125,
+          20.814584,
+          20.211333,
+          77.200792,
+          28.8715
+        ],
+        "candidateMS": [
+          38.277375,
+          39.552875,
+          43.653708,
+          105.738417,
+          104.472292
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-5",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          196.294833,
+          95.261,
+          140.063417,
+          248.361667,
+          536.018
+        ],
+        "candidateMS": [
+          37.607834,
+          20.128667,
+          26.677292,
+          55.689291,
+          24.944041
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-5",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.221125,
+          5.669084,
+          3.778875,
+          3.582167,
+          11.315333
+        ],
+        "candidateMS": [
+          25.807,
+          4.171375,
+          4.863916,
+          18.716208,
+          25.45
+        ],
+        "route": "full",
+        "rankAt50": 39,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-and-topic-5",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          17.46775,
+          10.549167,
+          10.854667,
+          6.832791,
+          11.135417
+        ],
+        "candidateMS": [
+          6.947208,
+          10.596625,
+          10.818583,
+          19.668292,
+          7.752708
+        ],
+        "route": "full",
+        "rankAt50": 46,
+        "rows": 49
+      },
+      {
+        "id": "older-snippet-5",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          2.246583,
+          2.238625,
+          2.044458,
+          26.107542,
+          9.374625
+        ],
+        "candidateMS": [
+          4.513417,
+          2.536375,
+          3.021125,
+          62.792459,
+          105.116167
+        ],
+        "route": "full",
+        "rankAt50": 6,
+        "rows": 10
+      },
+      {
+        "id": "older-refinement-5",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.079209,
+          0.828042,
+          5.936625,
+          0.798875,
+          1.280375
+        ],
+        "candidateMS": [
+          1.393542,
+          1.114084,
+          8.01225,
+          1.165917,
+          0.948333
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-5",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          7.227,
+          13.70575,
+          5.592625,
+          30.524208,
+          6.221959
+        ],
+        "candidateMS": [
+          12.184709,
+          38.76625,
+          10.430208,
+          14.416792,
+          19.760333
+        ],
+        "route": "full",
+        "rankAt50": 8,
+        "rows": 8
+      },
+      {
+        "id": "older-sender-6",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          12.340542,
+          6.987667,
+          10.043541,
+          44.062708,
+          5.916708
+        ],
+        "candidateMS": [
+          11.704916,
+          28.231625,
+          14.157583,
+          30.789333,
+          12.08925
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-6",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          3.41525,
+          4.554333,
+          3.624208,
+          17.41725,
+          3.289042
+        ],
+        "candidateMS": [
+          16.42775,
+          11.08125,
+          34.27625,
+          51.541,
+          20.699375
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-and-topic-6",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          10.311583,
+          4.385417,
+          3.183459,
+          3.174375,
+          2.998375
+        ],
+        "candidateMS": [
+          6.960083,
+          8.33875,
+          15.7275,
+          42.795542,
+          3.464458
+        ],
+        "route": "full",
+        "rankAt50": 37,
+        "rows": 43
+      },
+      {
+        "id": "older-snippet-6",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.526917,
+          8.591208,
+          16.816334,
+          22.141708,
+          23.942917
+        ],
+        "candidateMS": [
+          14.193667,
+          18.354666,
+          14.934667,
+          119.759875,
+          487.063875
+        ],
+        "route": "full",
+        "rankAt50": 21,
+        "rows": 28
+      },
+      {
+        "id": "older-refinement-6",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          41.334208,
+          116.950917,
+          72.281333,
+          457.116292,
+          299.20575
+        ],
+        "candidateMS": [
+          12.291458,
+          47.199833,
+          18.263083,
+          57.872291,
+          87.726666
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-6",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          46.6045,
+          82.97025,
+          64.292125,
+          70.25025,
+          325.508875
+        ],
+        "candidateMS": [
+          53.985583,
+          32.724458,
+          65.37075,
+          50.683625,
+          90.926541
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-7",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          11.394125,
+          9.052916,
+          11.349916,
+          3.68575,
+          13.142416
+        ],
+        "candidateMS": [
+          8.362292,
+          7.57225,
+          28.658125,
+          11.535708,
+          20.143208
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-7",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          2.115292,
+          1.982084,
+          1.536458,
+          2.208333,
+          3.732125
+        ],
+        "candidateMS": [
+          4.983333,
+          2.308583,
+          5.085,
+          2.069125,
+          2.285709
+        ],
+        "route": "full",
+        "rankAt50": 6,
+        "rows": 15
+      },
+      {
+        "id": "older-sender-and-topic-7",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          8.91,
+          14.233916,
+          5.934375,
+          58.37525,
+          27.290291
+        ],
+        "candidateMS": [
+          19.20975,
+          21.31925,
+          18.513625,
+          47.104709,
+          28.113084
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-snippet-7",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.380292,
+          6.662208,
+          5.1655,
+          12.338416,
+          7.790583
+        ],
+        "candidateMS": [
+          22.913417,
+          23.599916,
+          12.049416,
+          35.624417,
+          12.037125
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-7",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          8.8085,
+          21.696041,
+          37.8725,
+          8.769125,
+          15.969958
+        ],
+        "candidateMS": [
+          4.277875,
+          16.383417,
+          4.074834,
+          8.198333,
+          9.8445
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-7",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          11.169917,
+          6.729291,
+          16.300083,
+          6.5235,
+          31.931209
+        ],
+        "candidateMS": [
+          19.30975,
+          49.425292,
+          5.710125,
+          5.645166,
+          5.997958
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-8",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          8.142791,
+          5.537208,
+          5.979875,
+          10.839541,
+          5.64225
+        ],
+        "candidateMS": [
+          14.726459,
+          14.384791,
+          9.409542,
+          33.171208,
+          9.013792
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-8",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          2.808667,
+          5.300708,
+          4.857625,
+          9.641042,
+          3.000625
+        ],
+        "candidateMS": [
+          6.206125,
+          5.050709,
+          6.210208,
+          3.510083,
+          3.997375
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-and-topic-8",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          15.12225,
+          15.396625,
+          11.874167,
+          5.856541,
+          9.108
+        ],
+        "candidateMS": [
+          4.570833,
+          21.191333,
+          13.560792,
+          18.953167,
+          46.155541
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-snippet-8",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          20.272167,
+          23.601625,
+          37.902458,
+          73.325083,
+          16.475583
+        ],
+        "candidateMS": [
+          57.119458,
+          50.001459,
+          49.053792,
+          149.083667,
+          81.815833
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-8",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          16.824208,
+          13.652167,
+          16.050542,
+          32.771917,
+          50.943792
+        ],
+        "candidateMS": [
+          5.841291,
+          4.872166,
+          17.266333,
+          8.652958,
+          4.50475
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-8",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          5.966042,
+          2.8595,
+          6.667125,
+          2.752041,
+          1.98775
+        ],
+        "candidateMS": [
+          14.214583,
+          8.540125,
+          3.183,
+          5.696042,
+          2.905625
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      }
+    ]
+  },
+  "reuseSmallPostingList": {
+    "messages": 256208,
+    "threads": 189714,
+    "bodyDocuments": 93181,
+    "asOf": "2026-11-25",
+    "seed": 73123,
+    "subjects": "Newest locally fetched message per eligible sampled conversation",
+    "scope": "Cue-derived proxy tasks, no query logs. Merged header/body SQL, no UI, live provider or app decoding.",
+    "all": {
+      "topics": 120,
+      "corpusTargets": 120,
+      "top1": 10,
+      "successAt5": 26,
+      "successAt10": 37,
+      "successAt50": 61,
+      "mrrAt10": 0.1418287037037037,
+      "baseQueryMedianMS": 5.4563755,
+      "candidateQueryMedianMS": 6.4187085,
+      "baseQueryP95MS": 26.896291,
+      "candidateQueryP95MS": 25.335375,
+      "baseMaxMS": 279.942583,
+      "candidateMaxMS": 402.142708,
+      "medianPairedSavingMS": -0.09672899999999995,
+      "bootstrap95SavingMS": [
+        -0.43149899999999985,
+        0.044624999999999915
+      ]
+    },
+    "age": {
+      "31to180d": {
+        "topics": 40,
+        "corpusTargets": 40,
+        "top1": 3,
+        "successAt5": 8,
+        "successAt10": 10,
+        "successAt50": 14,
+        "mrrAt10": 0.125,
+        "baseQueryMedianMS": 6.4692705,
+        "candidateQueryMedianMS": 7.329375,
+        "baseQueryP95MS": 23.408375,
+        "candidateQueryP95MS": 27.29625,
+        "baseMaxMS": 95.162334,
+        "candidateMaxMS": 236.551084,
+        "medianPairedSavingMS": -0.35725050000000014,
+        "bootstrap95SavingMS": [
+          -1.0444165000000005,
+          -0.04729200000000011
+        ]
+      },
+      "last30d": {
+        "topics": 40,
+        "corpusTargets": 40,
+        "top1": 7,
+        "successAt5": 17,
+        "successAt10": 22,
+        "successAt50": 35,
+        "mrrAt10": 0.27819444444444447,
+        "baseQueryMedianMS": 4.94475,
+        "candidateQueryMedianMS": 5.1055205,
+        "baseQueryP95MS": 23.219583,
+        "candidateQueryP95MS": 12.729791,
+        "baseMaxMS": 108.60725,
+        "candidateMaxMS": 138.978958,
+        "medianPairedSavingMS": 0.050083999999999906,
+        "bootstrap95SavingMS": [
+          -0.2758550000000003,
+          0.40252100000000013
+        ]
+      },
+      "older": {
+        "topics": 40,
+        "corpusTargets": 40,
+        "top1": 0,
+        "successAt5": 1,
+        "successAt10": 5,
+        "successAt50": 12,
+        "mrrAt10": 0.022291666666666664,
+        "baseQueryMedianMS": 5.3452505,
+        "candidateQueryMedianMS": 7.3745835,
+        "baseQueryP95MS": 31.230416,
+        "candidateQueryP95MS": 23.776833,
+        "baseMaxMS": 279.942583,
+        "candidateMaxMS": 402.142708,
+        "medianPairedSavingMS": -0.12343700000000002,
+        "bootstrap95SavingMS": [
+          -0.8361255000000005,
+          0.05489600000000017
+        ]
+      }
+    },
+    "families": {
+      "sender": {
+        "topics": 24,
+        "corpusTargets": 24,
+        "top1": 0,
+        "successAt5": 1,
+        "successAt10": 1,
+        "successAt50": 5,
+        "mrrAt10": 0.013888888888888888,
+        "baseQueryMedianMS": 14.910063000000001,
+        "candidateQueryMedianMS": 8.016167,
+        "baseQueryP95MS": 45.64175,
+        "candidateQueryP95MS": 18.304625,
+        "baseMaxMS": 279.942583,
+        "candidateMaxMS": 130.808125,
+        "medianPairedSavingMS": 3.3791244999999996,
+        "bootstrap95SavingMS": [
+          -1.1665415000000006,
+          14.849
+        ]
+      },
+      "subject": {
+        "topics": 24,
+        "corpusTargets": 24,
+        "top1": 2,
+        "successAt5": 6,
+        "successAt10": 9,
+        "successAt50": 15,
+        "mrrAt10": 0.15763888888888888,
+        "baseQueryMedianMS": 4.3115415,
+        "candidateQueryMedianMS": 4.758854,
+        "baseQueryP95MS": 14.42775,
+        "candidateQueryP95MS": 14.914,
+        "baseMaxMS": 79.732416,
+        "candidateMaxMS": 236.551084,
+        "medianPairedSavingMS": -0.4768119999999998,
+        "bootstrap95SavingMS": [
+          -0.8237080000000001,
+          0.04529199999999989
+        ]
+      },
+      "sender-and-topic": {
+        "topics": 24,
+        "corpusTargets": 24,
+        "top1": 5,
+        "successAt5": 7,
+        "successAt10": 9,
+        "successAt50": 16,
+        "mrrAt10": 0.24375,
+        "baseQueryMedianMS": 4.8564995,
+        "candidateQueryMedianMS": 4.2116039999999995,
+        "baseQueryP95MS": 12.437875,
+        "candidateQueryP95MS": 22.115375,
+        "baseMaxMS": 108.60725,
+        "candidateMaxMS": 199.112709,
+        "medianPairedSavingMS": -0.004666499999999463,
+        "bootstrap95SavingMS": [
+          -0.43149899999999985,
+          0.0912090000000001
+        ]
+      },
+      "snippet": {
+        "topics": 24,
+        "corpusTargets": 24,
+        "top1": 1,
+        "successAt5": 5,
+        "successAt10": 8,
+        "successAt50": 12,
+        "mrrAt10": 0.12407407407407407,
+        "baseQueryMedianMS": 7.123729,
+        "candidateQueryMedianMS": 7.688396,
+        "baseQueryP95MS": 22.233709,
+        "candidateQueryP95MS": 32.773416,
+        "baseMaxMS": 96.327916,
+        "candidateMaxMS": 138.978958,
+        "medianPairedSavingMS": -0.42720849999999944,
+        "bootstrap95SavingMS": [
+          -1.2557919999999996,
+          -0.01191600000000026
+        ]
+      },
+      "refinement": {
+        "topics": 24,
+        "corpusTargets": 24,
+        "top1": 2,
+        "successAt5": 7,
+        "successAt10": 10,
+        "successAt50": 13,
+        "mrrAt10": 0.16979166666666667,
+        "baseQueryMedianMS": 7.0881875,
+        "candidateQueryMedianMS": 7.2488335,
+        "baseQueryP95MS": 30.201417,
+        "candidateQueryP95MS": 41.513666,
+        "baseMaxMS": 121.531292,
+        "candidateMaxMS": 402.142708,
+        "medianPairedSavingMS": -0.07487500000000002,
+        "bootstrap95SavingMS": [
+          -1.3482079999999996,
+          0.2246045000000001
+        ]
+      }
+    },
+    "firstRefinementAttempt": {
+      "topics": 24,
+      "corpusTargets": 24,
+      "top1": 0,
+      "successAt5": 1,
+      "successAt10": 2,
+      "successAt50": 4,
+      "mrrAt10": 0.020833333333333332,
+      "baseQueryMedianMS": 14.279395999999998,
+      "candidateQueryMedianMS": 8.477083499999999,
+      "baseQueryP95MS": 54.288292,
+      "candidateQueryP95MS": 21.238458,
+      "baseMaxMS": 468.179334,
+      "candidateMaxMS": 123.151083,
+      "medianPairedSavingMS": 6.6796045,
+      "bootstrap95SavingMS": [
+        -0.18279200000000007,
+        15.6766245
+      ]
+    },
+    "replays": [
+      {
+        "id": "last30d-sender-1",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.563167,
+          0.725333,
+          1.354834,
+          0.76075,
+          1.361458
+        ],
+        "candidateMS": [
+          0.829125,
+          1.18975,
+          1.325666,
+          1.432791,
+          2.327042
+        ],
+        "route": "sparse",
+        "rankAt50": 3,
+        "rows": 31
+      },
+      {
+        "id": "last30d-subject-1",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          3.052375,
+          25.341334,
+          4.778,
+          7.722208,
+          3.032291
+        ],
+        "candidateMS": [
+          6.072834,
+          3.242583,
+          3.936542,
+          10.373875,
+          3.625666
+        ],
+        "route": "sparse",
+        "rankAt50": 1,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-and-topic-1",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          14.682958,
+          1.262459,
+          2.068459,
+          1.105417,
+          1.530167
+        ],
+        "candidateMS": [
+          1.438958,
+          4.0875,
+          3.295792,
+          1.355292,
+          1.325042
+        ],
+        "route": "sparse",
+        "rankAt50": 1,
+        "rows": 1
+      },
+      {
+        "id": "last30d-snippet-1",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          9.172958,
+          11.702833,
+          10.016625,
+          8.244041,
+          7.0015
+        ],
+        "candidateMS": [
+          32.294542,
+          8.572459,
+          11.40425,
+          6.829459,
+          7.767709
+        ],
+        "route": "sparse",
+        "rankAt50": 9,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-1",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.090333,
+          6.841084,
+          6.540792,
+          3.981417,
+          4.968583
+        ],
+        "candidateMS": [
+          8.08875,
+          29.90775,
+          12.708084,
+          8.471459,
+          9.186542
+        ],
+        "route": "full",
+        "rankAt50": 6,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-1",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          13.889042,
+          30.496792,
+          7.757209,
+          8.583417,
+          8.020709
+        ],
+        "candidateMS": [
+          21.032292,
+          14.343,
+          8.96325,
+          7.701292,
+          9.931625
+        ],
+        "route": "sparse",
+        "rankAt50": 1,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-2",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          47.16225,
+          25.6685,
+          18.285458,
+          16.487625,
+          19.376
+        ],
+        "candidateMS": [
+          21.531042,
+          9.875875,
+          6.323167,
+          6.305458,
+          6.42525
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-2",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.750041,
+          2.546125,
+          2.734125,
+          2.358416,
+          1.8685
+        ],
+        "candidateMS": [
+          3.772584,
+          2.081834,
+          2.927375,
+          2.145667,
+          2.105667
+        ],
+        "route": "sparse",
+        "rankAt50": 4,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-and-topic-2",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          22.196209,
+          3.994625,
+          4.894583,
+          4.242375,
+          5.303916
+        ],
+        "candidateMS": [
+          11.593917,
+          10.545209,
+          3.855417,
+          5.358209,
+          4.187125
+        ],
+        "route": "sparse",
+        "rankAt50": 37,
+        "rows": 50
+      },
+      {
+        "id": "last30d-snippet-2",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          2.433375,
+          5.272542,
+          6.458875,
+          3.32925,
+          2.343625
+        ],
+        "candidateMS": [
+          2.832166,
+          2.743459,
+          7.474625,
+          4.794791,
+          2.904916
+        ],
+        "route": "sparse",
+        "rankAt50": 5,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-2",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          86.54725,
+          34.289875,
+          21.798583,
+          11.3295,
+          14.503459
+        ],
+        "candidateMS": [
+          32.454208,
+          5.564333,
+          14.181125,
+          5.65525,
+          3.967583
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-2",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          23.989375,
+          4.397292,
+          8.61875,
+          4.28675,
+          3.637
+        ],
+        "candidateMS": [
+          3.992708,
+          3.364959,
+          9.028125,
+          3.621042,
+          5.334791
+        ],
+        "route": "sparse",
+        "rankAt50": 18,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-3",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          6.984167,
+          2.936209,
+          3.365041,
+          2.36,
+          5.27075
+        ],
+        "candidateMS": [
+          2.821125,
+          3.651833,
+          3.354625,
+          3.271084,
+          2.493833
+        ],
+        "route": "sparse",
+        "rankAt50": 11,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-3",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          3.796708,
+          4.701084,
+          3.280584,
+          4.679125,
+          3.650208
+        ],
+        "candidateMS": [
+          8.40975,
+          6.982375,
+          4.206625,
+          3.63675,
+          4.060666
+        ],
+        "route": "sparse",
+        "rankAt50": 6,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-and-topic-3",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          14.40025,
+          42.35875,
+          3.89875,
+          3.701917,
+          6.279625
+        ],
+        "candidateMS": [
+          18.920167,
+          13.670792,
+          3.641833,
+          4.257417,
+          10.432958
+        ],
+        "route": "sparse",
+        "rankAt50": 15,
+        "rows": 50
+      },
+      {
+        "id": "last30d-snippet-3",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          46.847,
+          11.62475,
+          7.661542,
+          8.785625,
+          7.588417
+        ],
+        "candidateMS": [
+          9.63375,
+          11.349334,
+          5.495458,
+          5.328708,
+          7.820667
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-3",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          27.327459,
+          11.407709,
+          11.639208,
+          12.230417,
+          12.437125
+        ],
+        "candidateMS": [
+          5.100875,
+          6.225375,
+          5.605875,
+          5.89725,
+          4.707375
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-3",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          2.504375,
+          3.162375,
+          1.8425,
+          2.224167,
+          2.247875
+        ],
+        "candidateMS": [
+          2.186291,
+          2.06825,
+          2.498625,
+          2.232458,
+          2.380958
+        ],
+        "route": "sparse",
+        "rankAt50": 1,
+        "rows": 12
+      },
+      {
+        "id": "last30d-sender-4",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          20.235792,
+          16.542292,
+          10.912625,
+          18.390875,
+          10.881291
+        ],
+        "candidateMS": [
+          14.178125,
+          9.878,
+          5.91825,
+          10.927625,
+          5.530958
+        ],
+        "route": "recent",
+        "rankAt50": 17,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-4",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          26.476541,
+          4.636292,
+          1.08125,
+          1.816625,
+          1.352666
+        ],
+        "candidateMS": [
+          1.296625,
+          1.09325,
+          1.509542,
+          1.308625,
+          1.809375
+        ],
+        "route": "sparse",
+        "rankAt50": 6,
+        "rows": 6
+      },
+      {
+        "id": "last30d-sender-and-topic-4",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.140417,
+          3.795958,
+          3.651958,
+          3.586917,
+          3.605416
+        ],
+        "candidateMS": [
+          4.607375,
+          8.070458,
+          3.332541,
+          3.882292,
+          3.47575
+        ],
+        "route": "sparse",
+        "rankAt50": 1,
+        "rows": 3
+      },
+      {
+        "id": "last30d-snippet-4",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.4185,
+          4.072208,
+          3.693709,
+          4.735375,
+          3.761792
+        ],
+        "candidateMS": [
+          9.342333,
+          3.413458,
+          7.414792,
+          3.228459,
+          5.060875
+        ],
+        "route": "sparse",
+        "rankAt50": 2,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-4",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.95625,
+          5.431208,
+          1.380208,
+          1.292209,
+          1.6625
+        ],
+        "candidateMS": [
+          1.864833,
+          1.669417,
+          1.054792,
+          1.5255,
+          1.830417
+        ],
+        "route": "sparse",
+        "rankAt50": 3,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-4",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          17.793166,
+          42.379666,
+          35.68375,
+          20.116833,
+          18.123958
+        ],
+        "candidateMS": [
+          42.801,
+          24.865459,
+          22.1975,
+          19.988917,
+          19.289792
+        ],
+        "route": "sparse",
+        "rankAt50": 2,
+        "rows": 37
+      },
+      {
+        "id": "last30d-sender-5",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          51.172875,
+          69.672416,
+          20.763875,
+          19.695333,
+          23.219583
+        ],
+        "candidateMS": [
+          28.86875,
+          4.932042,
+          5.426458,
+          6.241916,
+          5.893958
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-5",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.736584,
+          23.519291,
+          4.764167,
+          6.541708,
+          4.212583
+        ],
+        "candidateMS": [
+          13.410833,
+          5.646917,
+          6.360584,
+          5.051916,
+          5.036167
+        ],
+        "route": "sparse",
+        "rankAt50": 5,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-and-topic-5",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          108.60725,
+          5.892833,
+          26.374875,
+          5.68625,
+          7.022292
+        ],
+        "candidateMS": [
+          6.652666,
+          8.922833,
+          51.381459,
+          7.080042,
+          5.150708
+        ],
+        "route": "sparse",
+        "rankAt50": 21,
+        "rows": 50
+      },
+      {
+        "id": "last30d-snippet-5",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          44.580541,
+          23.170875,
+          30.137541,
+          22.762459,
+          24.333542
+        ],
+        "candidateMS": [
+          67.052,
+          32.35625,
+          48.588625,
+          29.883791,
+          32.773416
+        ],
+        "route": "recent",
+        "rankAt50": 6,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-5",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          44.192125,
+          35.7015,
+          7.750916,
+          6.659917,
+          62.892041
+        ],
+        "candidateMS": [
+          41.083875,
+          44.449042,
+          13.352375,
+          10.893458,
+          21.238458
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-5",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          15.204916,
+          8.403667,
+          6.471917,
+          7.07175,
+          6.401167
+        ],
+        "candidateMS": [
+          52.891709,
+          17.415208,
+          12.692167,
+          12.21075,
+          12.729791
+        ],
+        "route": "full",
+        "rankAt50": 27,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-6",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          60.915625,
+          27.76575,
+          23.153667,
+          32.34975,
+          24.842291
+        ],
+        "candidateMS": [
+          50.809041,
+          10.752334,
+          5.86775,
+          9.747958,
+          6.294125
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-6",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.107583,
+          6.577625,
+          6.300167,
+          4.834916,
+          4.620083
+        ],
+        "candidateMS": [
+          15.401708,
+          8.750167,
+          5.041167,
+          6.856959,
+          6.02075
+        ],
+        "route": "sparse",
+        "rankAt50": 35,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-and-topic-6",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.863667,
+          1.565334,
+          1.907875,
+          2.9615,
+          1.800375
+        ],
+        "candidateMS": [
+          1.62725,
+          1.808791,
+          2.297292,
+          3.023917,
+          1.659042
+        ],
+        "route": "sparse",
+        "rankAt50": 1,
+        "rows": 2
+      },
+      {
+        "id": "last30d-snippet-6",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          18.991458,
+          15.261125,
+          9.559417,
+          9.916916,
+          8.902083
+        ],
+        "candidateMS": [
+          36.5215,
+          138.978958,
+          11.375417,
+          9.105542,
+          9.703791
+        ],
+        "route": "sparse",
+        "rankAt50": 15,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-6",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.84175,
+          5.236916,
+          7.10775,
+          5.700375,
+          5.991791
+        ],
+        "candidateMS": [
+          35.66425,
+          11.718167,
+          9.399583,
+          11.072125,
+          8.928833
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-6",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          5.82275,
+          5.798083,
+          3.004916,
+          3.340333,
+          3.47875
+        ],
+        "candidateMS": [
+          12.995042,
+          3.653625,
+          4.460834,
+          2.667958,
+          4.41325
+        ],
+        "route": "sparse",
+        "rankAt50": 5,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-7",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          36.031708,
+          13.958459,
+          14.472667,
+          16.25975,
+          14.754584
+        ],
+        "candidateMS": [
+          6.203833,
+          5.836583,
+          5.532125,
+          7.829625,
+          6.74975
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-7",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.288042,
+          5.876792,
+          6.26125,
+          5.285125,
+          3.806333
+        ],
+        "candidateMS": [
+          35.246875,
+          4.968791,
+          7.413,
+          3.458125,
+          4.868708
+        ],
+        "route": "sparse",
+        "rankAt50": 30,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-and-topic-7",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          98.69925,
+          6.298167,
+          5.177208,
+          4.078584,
+          4.562417
+        ],
+        "candidateMS": [
+          18.661167,
+          3.931375,
+          3.71325,
+          5.8995,
+          4.100083
+        ],
+        "route": "sparse",
+        "rankAt50": 1,
+        "rows": 50
+      },
+      {
+        "id": "last30d-snippet-7",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          8.840417,
+          13.951625,
+          4.844584,
+          7.79825,
+          5.214084
+        ],
+        "candidateMS": [
+          13.050667,
+          9.382875,
+          6.165042,
+          5.953875,
+          8.147459
+        ],
+        "route": "sparse",
+        "rankAt50": 14,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-7",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.935042,
+          5.781167,
+          5.262667,
+          5.205583,
+          6.064916
+        ],
+        "candidateMS": [
+          12.820666,
+          15.035334,
+          9.136417,
+          9.837833,
+          9.650625
+        ],
+        "route": "full",
+        "rankAt50": 25,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-7",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          15.538042,
+          7.104625,
+          4.046791,
+          7.684125,
+          3.625958
+        ],
+        "candidateMS": [
+          22.89875,
+          13.637417,
+          6.541375,
+          5.105958,
+          5.246917
+        ],
+        "route": "sparse",
+        "rankAt50": 6,
+        "rows": 50
+      },
+      {
+        "id": "last30d-sender-8",
+        "family": "sender",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          41.880625,
+          2.680166,
+          3.403958,
+          3.206833,
+          4.041125
+        ],
+        "candidateMS": [
+          3.4,
+          4.439542,
+          6.815916,
+          7.10975,
+          3.023125
+        ],
+        "route": "sparse",
+        "rankAt50": 17,
+        "rows": 50
+      },
+      {
+        "id": "last30d-subject-8",
+        "family": "subject",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          3.365334,
+          11.015584,
+          3.447625,
+          3.931417,
+          3.563458
+        ],
+        "candidateMS": [
+          21.5565,
+          3.182,
+          3.438459,
+          3.518166,
+          4.232042
+        ],
+        "route": "sparse",
+        "rankAt50": 3,
+        "rows": 40
+      },
+      {
+        "id": "last30d-sender-and-topic-8",
+        "family": "sender-and-topic",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          23.714875,
+          4.949459,
+          5.825459,
+          4.994917,
+          4.774709
+        ],
+        "candidateMS": [
+          3.977792,
+          5.12975,
+          3.41775,
+          4.586208,
+          3.781042
+        ],
+        "route": "sparse",
+        "rankAt50": 20,
+        "rows": 50
+      },
+      {
+        "id": "last30d-snippet-8",
+        "family": "snippet",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          9.656,
+          7.991041,
+          4.446792,
+          4.644958,
+          4.119667
+        ],
+        "candidateMS": [
+          16.111792,
+          3.581084,
+          5.150166,
+          3.76075,
+          5.5
+        ],
+        "route": "sparse",
+        "rankAt50": 2,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-8",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          11.867208,
+          7.137458,
+          8.195709,
+          4.597583,
+          5.226167
+        ],
+        "candidateMS": [
+          19.719541,
+          13.418041,
+          9.459125,
+          10.261416,
+          8.052917
+        ],
+        "route": "full",
+        "rankAt50": 49,
+        "rows": 50
+      },
+      {
+        "id": "last30d-refinement-8",
+        "family": "refinement",
+        "age": "last30d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          3.234209,
+          1.488875,
+          1.316083,
+          2.173958,
+          1.222417
+        ],
+        "candidateMS": [
+          5.62575,
+          1.44075,
+          1.4535,
+          1.819334,
+          1.576959
+        ],
+        "route": "sparse",
+        "rankAt50": 3,
+        "rows": 21
+      },
+      {
+        "id": "31to180d-sender-1",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          42.621375,
+          25.5985,
+          30.243792,
+          19.937125,
+          21.947959
+        ],
+        "candidateMS": [
+          8.683042,
+          21.293,
+          9.295959,
+          5.154916,
+          5.029667
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-1",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          27.031708,
+          14.42775,
+          16.849042,
+          10.676833,
+          9.545417
+        ],
+        "candidateMS": [
+          10.70225,
+          10.173667,
+          19.336417,
+          10.648084,
+          11.293083
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-and-topic-1",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          0.940792,
+          0.550125,
+          0.991834,
+          0.472416,
+          0.903958
+        ],
+        "candidateMS": [
+          1.104667,
+          1.325959,
+          0.497541,
+          0.676916,
+          0.453416
+        ],
+        "route": "sparse",
+        "rankAt50": 1,
+        "rows": 1
+      },
+      {
+        "id": "31to180d-snippet-1",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.364042,
+          5.565084,
+          3.266541,
+          8.536708,
+          3.752625
+        ],
+        "candidateMS": [
+          9.45525,
+          3.478292,
+          4.205042,
+          6.202542,
+          3.849208
+        ],
+        "route": "sparse",
+        "rankAt50": 11,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-1",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          18.976875,
+          25.640667,
+          14.339,
+          15.437417,
+          16.777083
+        ],
+        "candidateMS": [
+          24.882667,
+          28.882,
+          23.776417,
+          22.088917,
+          21.30675
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-1",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          66.388166,
+          31.40225,
+          28.016375,
+          30.201417,
+          27.174667
+        ],
+        "candidateMS": [
+          59.585375,
+          63.22475,
+          53.146,
+          52.906083,
+          52.864708
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-2",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          36.317875,
+          47.476125,
+          20.521583,
+          17.606084,
+          23.408375
+        ],
+        "candidateMS": [
+          10.933041,
+          10.148041,
+          6.121,
+          7.828709,
+          6.431084
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-2",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.172667,
+          1.232667,
+          1.136291,
+          1.349666,
+          1.439458
+        ],
+        "candidateMS": [
+          13.206917,
+          1.232625,
+          2.706583,
+          1.170959,
+          2.056375
+        ],
+        "route": "sparse",
+        "rankAt50": 1,
+        "rows": 1
+      },
+      {
+        "id": "31to180d-sender-and-topic-2",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.092083,
+          21.845875,
+          5.223,
+          5.670375,
+          6.489333
+        ],
+        "candidateMS": [
+          9.399875,
+          7.671208,
+          6.650708,
+          5.686084,
+          4.816708
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-snippet-2",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          15.696708,
+          12.743792,
+          5.541667,
+          6.449208,
+          6.294875
+        ],
+        "candidateMS": [
+          8.291125,
+          5.10225,
+          10.160292,
+          7.114958,
+          6.65625
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-2",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          12.115125,
+          45.246375,
+          23.538042,
+          12.356542,
+          12.01
+        ],
+        "candidateMS": [
+          7.561917,
+          13.663334,
+          7.852708,
+          7.758875,
+          7.0025
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-2",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          6.36975,
+          5.577,
+          7.542167,
+          5.763,
+          4.525208
+        ],
+        "candidateMS": [
+          20.87725,
+          4.588208,
+          5.197667,
+          4.619792,
+          8.977375
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-3",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.54325,
+          1.1115,
+          1.1225,
+          0.948583,
+          1.612208
+        ],
+        "candidateMS": [
+          1.088875,
+          1.503291,
+          0.841958,
+          1.211916,
+          1.420333
+        ],
+        "route": "sparse",
+        "rankAt50": 15,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-3",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          11.057667,
+          3.259041,
+          3.246458,
+          3.7325,
+          2.803875
+        ],
+        "candidateMS": [
+          3.6155,
+          2.77225,
+          3.995375,
+          3.297584,
+          3.95625
+        ],
+        "route": "sparse",
+        "rankAt50": 36,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-and-topic-3",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          16.113125,
+          9.833875,
+          12.437875,
+          15.696,
+          11.522625
+        ],
+        "candidateMS": [
+          52.767708,
+          18.499541,
+          21.801542,
+          16.531209,
+          17.773417
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-snippet-3",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          23.917792,
+          15.080833,
+          8.734542,
+          9.801958,
+          8.302209
+        ],
+        "candidateMS": [
+          50.318833,
+          18.372416,
+          16.104416,
+          16.691625,
+          30.964833
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-3",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          40.348625,
+          40.423333,
+          29.752125,
+          34.029125,
+          27.622292
+        ],
+        "candidateMS": [
+          5.374416,
+          10.532417,
+          7.321542,
+          12.552875,
+          5.823334
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-3",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          8.584959,
+          12.904292,
+          3.991833,
+          5.657208,
+          12.579
+        ],
+        "candidateMS": [
+          16.874084,
+          12.750542,
+          6.016125,
+          6.68475,
+          11.591334
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-4",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          15.065542,
+          19.227292,
+          15.436958,
+          12.362625,
+          11.643667
+        ],
+        "candidateMS": [
+          32.034125,
+          40.364542,
+          17.040583,
+          16.557417,
+          15.653208
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-4",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          79.732416,
+          27.231291,
+          21.751709,
+          21.560042,
+          21.175125
+        ],
+        "candidateMS": [
+          236.551084,
+          51.494875,
+          51.05725,
+          39.040459,
+          40.411166
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-and-topic-4",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          12.143708,
+          19.517083,
+          20.90325,
+          9.557792,
+          9.908125
+        ],
+        "candidateMS": [
+          25.335375,
+          29.655916,
+          30.905041,
+          19.315625,
+          16.999833
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-snippet-4",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          95.162334,
+          24.216,
+          12.872625,
+          14.085541,
+          12.584291
+        ],
+        "candidateMS": [
+          128.483417,
+          47.955834,
+          21.851417,
+          21.636417,
+          22.121667
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-4",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          24.61675,
+          4.161709,
+          5.002042,
+          7.338541,
+          5.197875
+        ],
+        "candidateMS": [
+          9.564209,
+          10.133375,
+          7.995209,
+          23.670916,
+          8.012041
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-4",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          2.71075,
+          40.648666,
+          1.146792,
+          1.705292,
+          1.620333
+        ],
+        "candidateMS": [
+          3.590291,
+          7.745917,
+          1.491584,
+          1.409041,
+          1.790083
+        ],
+        "route": "sparse",
+        "rankAt50": 6,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-5",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          75.105666,
+          18.886125,
+          27.436666,
+          17.155583,
+          20.459167
+        ],
+        "candidateMS": [
+          5.735875,
+          6.056541,
+          5.573917,
+          5.610167,
+          5.351958
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-5",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          13.131791,
+          9.097916,
+          9.010292,
+          7.2495,
+          6.930625
+        ],
+        "candidateMS": [
+          31.851167,
+          12.74025,
+          14.287375,
+          14.914,
+          15.462291
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-and-topic-5",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.607459,
+          1.09275,
+          1.516542,
+          1.253917,
+          1.566
+        ],
+        "candidateMS": [
+          1.371959,
+          1.527708,
+          2.574875,
+          1.451625,
+          1.286666
+        ],
+        "route": "sparse",
+        "rankAt50": 4,
+        "rows": 7
+      },
+      {
+        "id": "31to180d-snippet-5",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.756375,
+          1.451875,
+          1.183084,
+          1.444917,
+          1.334833
+        ],
+        "candidateMS": [
+          2.046667,
+          1.18175,
+          2.482542,
+          1.167167,
+          1.458083
+        ],
+        "route": "sparse",
+        "rankAt50": 1,
+        "rows": 4
+      },
+      {
+        "id": "31to180d-refinement-5",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          103.034916,
+          23.818041,
+          25.417542,
+          37.1355,
+          27.92025
+        ],
+        "candidateMS": [
+          7.56925,
+          7.768167,
+          7.831208,
+          7.401083,
+          9.494083
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-5",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          4.324041,
+          5.248125,
+          11.34225,
+          5.009208,
+          4.621917
+        ],
+        "candidateMS": [
+          4.50175,
+          5.134375,
+          11.43575,
+          4.512167,
+          4.964583
+        ],
+        "route": "sparse",
+        "rankAt50": 4,
+        "rows": 7
+      },
+      {
+        "id": "31to180d-sender-6",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          10.742667,
+          4.768458,
+          4.686666,
+          11.413625,
+          4.85925
+        ],
+        "candidateMS": [
+          21.754042,
+          8.230083,
+          6.977917,
+          10.033208,
+          7.807666
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-6",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          16.115792,
+          27.489833,
+          12.009959,
+          10.378833,
+          9.725375
+        ],
+        "candidateMS": [
+          76.329709,
+          19.646291,
+          12.430541,
+          9.292667,
+          10.3085
+        ],
+        "route": "sparse",
+        "rankAt50": 21,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-and-topic-6",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          3.831375,
+          0.882916,
+          1.354666,
+          1.150125,
+          1.208584
+        ],
+        "candidateMS": [
+          5.006916,
+          1.640083,
+          0.95475,
+          1.755541,
+          1.152958
+        ],
+        "route": "sparse",
+        "rankAt50": 6,
+        "rows": 8
+      },
+      {
+        "id": "31to180d-snippet-6",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          0.797333,
+          0.925334,
+          1.561959,
+          1.088459,
+          2.16375
+        ],
+        "candidateMS": [
+          1.468333,
+          0.737708,
+          1.18675,
+          0.800584,
+          37.936875
+        ],
+        "route": "sparse",
+        "rankAt50": 3,
+        "rows": 13
+      },
+      {
+        "id": "31to180d-refinement-6",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          67.128959,
+          20.574917,
+          22.875542,
+          19.474667,
+          23.094166
+        ],
+        "candidateMS": [
+          25.247333,
+          9.74775,
+          9.186,
+          8.822833,
+          8.732833
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-6",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          25.351708,
+          19.041542,
+          15.609167,
+          60.30625,
+          13.869333
+        ],
+        "candidateMS": [
+          33.006541,
+          27.251292,
+          27.29625,
+          32.712666,
+          24.40025
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-7",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.30325,
+          4.743375,
+          7.954292,
+          10.902791,
+          6.054125
+        ],
+        "candidateMS": [
+          46.355,
+          8.414125,
+          5.1475,
+          6.329,
+          6.412167
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-7",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.489792,
+          22.8245,
+          9.126875,
+          6.538875,
+          5.759666
+        ],
+        "candidateMS": [
+          28.505917,
+          7.531458,
+          8.704833,
+          6.207208,
+          15.439667
+        ],
+        "route": "sparse",
+        "rankAt50": 2,
+        "rows": 15
+      },
+      {
+        "id": "31to180d-sender-and-topic-7",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.005292,
+          4.796083,
+          4.798875,
+          4.732584,
+          6.378
+        ],
+        "candidateMS": [
+          4.145292,
+          5.672667,
+          6.677667,
+          5.838375,
+          5.15925
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-snippet-7",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.607417,
+          5.918875,
+          3.460208,
+          5.194291,
+          4.290667
+        ],
+        "candidateMS": [
+          9.371292,
+          5.3335,
+          9.115625,
+          4.424875,
+          4.892583
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-7",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          25.281917,
+          27.53125,
+          21.970541,
+          17.853167,
+          16.601208
+        ],
+        "candidateMS": [
+          7.333291,
+          5.080334,
+          4.583959,
+          5.477709,
+          4.865625
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-7",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          3.426084,
+          6.566834,
+          3.349292,
+          5.025708,
+          3.429708
+        ],
+        "candidateMS": [
+          38.077917,
+          7.706125,
+          7.543792,
+          3.666667,
+          5.365375
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-8",
+        "family": "sender",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          39.8965,
+          44.929208,
+          22.438167,
+          20.955583,
+          18.604209
+        ],
+        "candidateMS": [
+          10.896917,
+          14.903666,
+          9.688542,
+          11.78775,
+          6.298958
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-subject-8",
+        "family": "subject",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.225917,
+          5.1565,
+          5.9905,
+          5.177791,
+          3.844791
+        ],
+        "candidateMS": [
+          9.084667,
+          3.7995,
+          4.860625,
+          3.859375,
+          4.852833
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-sender-and-topic-8",
+        "family": "sender-and-topic",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          0.865375,
+          0.478958,
+          3.449084,
+          0.681458,
+          0.843917
+        ],
+        "candidateMS": [
+          0.65975,
+          0.661917,
+          0.536625,
+          0.896542,
+          0.6345
+        ],
+        "route": "sparse",
+        "rankAt50": 3,
+        "rows": 4
+      },
+      {
+        "id": "31to180d-snippet-8",
+        "family": "snippet",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          8.598708,
+          10.567125,
+          8.438125,
+          9.69,
+          8.411958
+        ],
+        "candidateMS": [
+          13.277458,
+          8.929959,
+          10.22175,
+          8.731459,
+          9.943292
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-8",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          203.133208,
+          51.789667,
+          104.288667,
+          49.006583,
+          45.8205
+        ],
+        "candidateMS": [
+          66.185333,
+          17.602208,
+          38.839125,
+          10.009833,
+          9.848333
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "31to180d-refinement-8",
+        "family": "refinement",
+        "age": "31to180d",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          18.077875,
+          11.006792,
+          7.292291,
+          10.949584,
+          7.792458
+        ],
+        "candidateMS": [
+          10.104791,
+          10.046792,
+          9.532416,
+          7.758708,
+          8.860625
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-1",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          48.686541,
+          30.708,
+          29.694375,
+          25.596958,
+          28.85475
+        ],
+        "candidateMS": [
+          12.502916,
+          8.87225,
+          6.856958,
+          7.056916,
+          6.679625
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-1",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.9655,
+          2.383208,
+          3.405292,
+          5.37875,
+          2.136125
+        ],
+        "candidateMS": [
+          3.141,
+          2.359292,
+          6.61125,
+          4.418042,
+          2.825583
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-and-topic-1",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.329083,
+          4.520708,
+          1.267958,
+          0.574167,
+          0.885791
+        ],
+        "candidateMS": [
+          1.586666,
+          11.600583,
+          0.713625,
+          0.763375,
+          1.219083
+        ],
+        "route": "sparse",
+        "rankAt50": 22,
+        "rows": 25
+      },
+      {
+        "id": "older-snippet-1",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.90775,
+          6.340583,
+          5.709125,
+          7.445625,
+          6.175
+        ],
+        "candidateMS": [
+          83.533792,
+          5.565333,
+          7.099125,
+          8.013792,
+          7.193042
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-1",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.684,
+          1.1875,
+          5.428583,
+          1.633833,
+          2.077292
+        ],
+        "candidateMS": [
+          2.224917,
+          52.733167,
+          2.264083,
+          2.273125,
+          1.841083
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-1",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          3.894708,
+          7.797333,
+          1.352167,
+          1.629917,
+          1.586292
+        ],
+        "candidateMS": [
+          1.753791,
+          12.879416,
+          1.652583,
+          1.667792,
+          2.692542
+        ],
+        "route": "sparse",
+        "rankAt50": 3,
+        "rows": 5
+      },
+      {
+        "id": "older-sender-2",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          78.478458,
+          43.2825,
+          58.339291,
+          45.64175,
+          42.266208
+        ],
+        "candidateMS": [
+          10.65575,
+          9.159708,
+          9.265709,
+          13.011375,
+          9.367333
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-2",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.439125,
+          1.556625,
+          1.518292,
+          1.762459,
+          1.328125
+        ],
+        "candidateMS": [
+          3.403125,
+          2.247625,
+          1.651792,
+          1.485459,
+          1.609084
+        ],
+        "route": "sparse",
+        "rankAt50": 23,
+        "rows": 28
+      },
+      {
+        "id": "older-sender-and-topic-2",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          24.390792,
+          20.218958,
+          21.289916,
+          23.7465,
+          21.4345
+        ],
+        "candidateMS": [
+          26.133917,
+          22.068542,
+          18.700959,
+          25.44975,
+          22.115375
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-snippet-2",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          2.062333,
+          3.182167,
+          1.868792,
+          2.915,
+          2.164459
+        ],
+        "candidateMS": [
+          57.784709,
+          1.801208,
+          2.176375,
+          1.908292,
+          2.687541
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-2",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          40.978333,
+          3.608542,
+          8.347375,
+          3.729333,
+          5.000333
+        ],
+        "candidateMS": [
+          9.882166,
+          5.200583,
+          5.183125,
+          5.143333,
+          3.783208
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-2",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          1.205583,
+          1.3195,
+          1.296959,
+          1.468417,
+          1.000916
+        ],
+        "candidateMS": [
+          1.856333,
+          0.956541,
+          1.234167,
+          1.229083,
+          1.447917
+        ],
+        "route": "sparse",
+        "rankAt50": 13,
+        "rows": 39
+      },
+      {
+        "id": "older-sender-3",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.163292,
+          2.936,
+          4.083667,
+          3.265625,
+          4.533917
+        ],
+        "candidateMS": [
+          7.77925,
+          8.203625,
+          7.518959,
+          8.5705,
+          8.596958
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-3",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.923583,
+          7.167084,
+          5.000709,
+          6.161666,
+          5.548709
+        ],
+        "candidateMS": [
+          7.47775,
+          7.467667,
+          6.111084,
+          5.066083,
+          5.899458
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-and-topic-3",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          20.014708,
+          9.15075,
+          10.196333,
+          7.903292,
+          9.111625
+        ],
+        "candidateMS": [
+          13.72025,
+          10.126416,
+          7.378833,
+          9.102333,
+          8.453458
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-snippet-3",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          12.148333,
+          6.300333,
+          4.635708,
+          6.449666,
+          4.952209
+        ],
+        "candidateMS": [
+          42.685125,
+          4.586667,
+          9.354833,
+          4.69775,
+          7.556125
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-3",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          468.179334,
+          100.006167,
+          99.511167,
+          127.645875,
+          105.173959
+        ],
+        "candidateMS": [
+          123.151083,
+          17.804042,
+          17.951875,
+          21.206875,
+          18.639542
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-3",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          10.967959,
+          10.054291,
+          9.195667,
+          10.271,
+          8.79825
+        ],
+        "candidateMS": [
+          10.715666,
+          9.7485,
+          9.832917,
+          10.227125,
+          10.11925
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-4",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          13.4415,
+          2.647042,
+          6.96775,
+          2.6285,
+          3.294542
+        ],
+        "candidateMS": [
+          12.060625,
+          7.681125,
+          8.273042,
+          6.852167,
+          7.253584
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-4",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          3.230917,
+          3.540125,
+          4.677625,
+          3.27675,
+          3.204666
+        ],
+        "candidateMS": [
+          3.809792,
+          3.353792,
+          5.154875,
+          2.735083,
+          3.8845
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-and-topic-4",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          11.084708,
+          0.752792,
+          1.116625,
+          0.892333,
+          1.111542
+        ],
+        "candidateMS": [
+          9.202292,
+          1.2615,
+          1.003625,
+          1.234542,
+          0.790334
+        ],
+        "route": "sparse",
+        "rankAt50": 10,
+        "rows": 25
+      },
+      {
+        "id": "older-snippet-4",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          21.503625,
+          9.843959,
+          15.893292,
+          6.830083,
+          6.488125
+        ],
+        "candidateMS": [
+          50.361584,
+          8.142584,
+          20.091292,
+          6.626542,
+          7.163125
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-4",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          106.396791,
+          42.27175,
+          45.812791,
+          40.99625,
+          43.441625
+        ],
+        "candidateMS": [
+          35.834917,
+          9.07925,
+          9.26025,
+          9.601209,
+          9.263625
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-4",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          51.372792,
+          22.837542,
+          27.04025,
+          21.968,
+          26.896291
+        ],
+        "candidateMS": [
+          402.142708,
+          44.187792,
+          38.725916,
+          38.791125,
+          41.513666
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-5",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          279.942583,
+          108.645417,
+          82.324916,
+          72.747208,
+          79.007458
+        ],
+        "candidateMS": [
+          130.808125,
+          18.304625,
+          19.90475,
+          16.888333,
+          17.609333
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-5",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          5.199541,
+          3.845083,
+          4.719542,
+          3.7695,
+          3.830875
+        ],
+        "candidateMS": [
+          6.907666,
+          5.136208,
+          3.775417,
+          4.664875,
+          4.192417
+        ],
+        "route": "sparse",
+        "rankAt50": 39,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-and-topic-5",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          10.639959,
+          7.84525,
+          4.163625,
+          4.048541,
+          4.818416
+        ],
+        "candidateMS": [
+          4.323125,
+          199.112709,
+          3.903666,
+          4.496833,
+          4.207375
+        ],
+        "route": "sparse",
+        "rankAt50": 46,
+        "rows": 49
+      },
+      {
+        "id": "older-snippet-5",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          7.175625,
+          2.255125,
+          2.196334,
+          3.143542,
+          2.694125
+        ],
+        "candidateMS": [
+          2.244083,
+          2.089375,
+          2.855208,
+          2.455292,
+          2.897458
+        ],
+        "route": "sparse",
+        "rankAt50": 6,
+        "rows": 10
+      },
+      {
+        "id": "older-refinement-5",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          1.296583,
+          1.489084,
+          1.233,
+          0.998791,
+          1.341875
+        ],
+        "candidateMS": [
+          1.155625,
+          3.9445,
+          0.946292,
+          1.641834,
+          0.993792
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-5",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          56.371125,
+          11.385291,
+          9.094375,
+          5.763958,
+          5.632209
+        ],
+        "candidateMS": [
+          23.098334,
+          5.352583,
+          7.232,
+          10.005541,
+          7.847209
+        ],
+        "route": "sparse",
+        "rankAt50": 8,
+        "rows": 8
+      },
+      {
+        "id": "older-sender-6",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          10.202333,
+          7.133542,
+          5.8625,
+          20.8305,
+          6.771292
+        ],
+        "candidateMS": [
+          9.315791,
+          17.540083,
+          8.594333,
+          36.445125,
+          10.292333
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-6",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          8.988375,
+          9.705583,
+          3.434,
+          4.9595,
+          4.3205
+        ],
+        "candidateMS": [
+          33.59325,
+          11.919542,
+          9.306834,
+          9.963958,
+          9.472667
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-and-topic-6",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          4.3605,
+          6.787667,
+          3.280083,
+          3.056666,
+          3.881958
+        ],
+        "candidateMS": [
+          2.645291,
+          7.440917,
+          2.699291,
+          3.706125,
+          2.948833
+        ],
+        "route": "sparse",
+        "rankAt50": 37,
+        "rows": 43
+      },
+      {
+        "id": "older-snippet-6",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          28.513959,
+          7.982834,
+          13.745375,
+          12.885416,
+          6.14675
+        ],
+        "candidateMS": [
+          12.028417,
+          5.664083,
+          23.0145,
+          9.632708,
+          6.612167
+        ],
+        "route": "sparse",
+        "rankAt50": 21,
+        "rows": 28
+      },
+      {
+        "id": "older-refinement-6",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          77.417083,
+          65.751417,
+          54.288292,
+          42.083708,
+          38.046541
+        ],
+        "candidateMS": [
+          66.959167,
+          9.791792,
+          8.878125,
+          10.422291,
+          21.114375
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-6",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          121.531292,
+          49.205125,
+          29.240083,
+          31.230416,
+          26.720209
+        ],
+        "candidateMS": [
+          59.309458,
+          33.560458,
+          23.776833,
+          21.721166,
+          21.28025
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-7",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          21.684209,
+          8.754209,
+          4.879,
+          4.888375,
+          5.079875
+        ],
+        "candidateMS": [
+          15.601416,
+          10.3875,
+          7.356542,
+          11.49525,
+          7.639125
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-7",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          2.807708,
+          1.755,
+          1.432583,
+          1.932458,
+          10.439958
+        ],
+        "candidateMS": [
+          2.895125,
+          11.961125,
+          1.60275,
+          1.856292,
+          5.704
+        ],
+        "route": "sparse",
+        "rankAt50": 6,
+        "rows": 15
+      },
+      {
+        "id": "older-sender-and-topic-7",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          11.142667,
+          5.400833,
+          9.202792,
+          6.051958,
+          6.44025
+        ],
+        "candidateMS": [
+          16.191125,
+          19.948334,
+          18.638667,
+          11.8335,
+          10.4895
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-snippet-7",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          9.386208,
+          17.93025,
+          10.51825,
+          6.466625,
+          5.863042
+        ],
+        "candidateMS": [
+          52.420583,
+          24.331834,
+          17.000875,
+          11.973084,
+          14.402208
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-7",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          9.227417,
+          72.231166,
+          16.985833,
+          11.47475,
+          10.726333
+        ],
+        "candidateMS": [
+          4.213208,
+          8.805375,
+          5.755792,
+          4.740083,
+          4.636
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-7",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          24.512458,
+          33.835041,
+          6.866917,
+          7.3715,
+          7.233292
+        ],
+        "candidateMS": [
+          6.518,
+          6.265333,
+          13.755542,
+          6.953875,
+          7.205042
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-8",
+        "family": "sender",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          27.405042,
+          25.824167,
+          6.385291,
+          9.542125,
+          6.623791
+        ],
+        "candidateMS": [
+          14.8885,
+          23.421917,
+          22.648791,
+          20.373333,
+          13.30925
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-subject-8",
+        "family": "subject",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          3.161709,
+          4.381416,
+          3.115834,
+          3.720375,
+          3.194875
+        ],
+        "candidateMS": [
+          12.949167,
+          5.30175,
+          9.794709,
+          3.054042,
+          3.455042
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-sender-and-topic-8",
+        "family": "sender-and-topic",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          9.562458,
+          4.554083,
+          5.141792,
+          3.9265,
+          8.299166
+        ],
+        "candidateMS": [
+          5.041916,
+          10.181209,
+          4.038,
+          5.371333,
+          4.635083
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-snippet-8",
+        "family": "snippet",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          33.400125,
+          96.327916,
+          19.965416,
+          22.233709,
+          19.133375
+        ],
+        "candidateMS": [
+          95.037792,
+          58.646625,
+          48.126958,
+          48.784667,
+          44.637542
+        ],
+        "route": "full",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-8",
+        "family": "refinement",
+        "age": "older",
+        "step": 1,
+        "targetPresent": true,
+        "baseMS": [
+          22.862541,
+          13.6945,
+          20.492458,
+          13.693542,
+          16.20225
+        ],
+        "candidateMS": [
+          9.361625,
+          5.308416,
+          6.240417,
+          5.382209,
+          7.893041
+        ],
+        "route": "recent",
+        "rankAt50": 0,
+        "rows": 50
+      },
+      {
+        "id": "older-refinement-8",
+        "family": "refinement",
+        "age": "older",
+        "step": 2,
+        "targetPresent": true,
+        "baseMS": [
+          8.154958,
+          3.693459,
+          2.402791,
+          3.030959,
+          2.612291
+        ],
+        "candidateMS": [
+          17.550416,
+          5.684083,
+          2.537666,
+          2.508625,
+          2.970042
+        ],
+        "route": "sparse",
+        "rankAt50": 0,
+        "rows": 50
+      }
+    ]
+  }
+}

@@ -850,15 +850,6 @@ extension MailDraftPart {
         guard let first = text?.blocks.first else { return "" }
         return MailAttributedText.plain(first.runs)
     }
-
-    /// What the quote says, as text; nil for a part with no body to show.
-    var text: MailText? {
-        switch body {
-        case .text(let text, _, _): return text
-        case .designed(_, _, _, let plain, _): return plain
-        case .notOnDevice: return nil
-        }
-    }
 }
 
 #endif

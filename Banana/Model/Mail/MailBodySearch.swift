@@ -158,6 +158,27 @@ enum MailLocalSearch {
         return (Array(all.prefix(query.limit)), more)
     }
 
+    /// A full ranked page only needs to know whether a literal continuation exists.
+    /// Stop at the first authorized thread outside the ranked set, without sorting all header hits.
+    static func hasContinuation(_ query: MailLocalSearchQuery, stores: MailStores) async throws -> Bool {
+        guard let match = query.match, query.before == nil else {
+            return try await !rows(query, stores: stores).rows.isEmpty
+        }
+        return try await stores.searchReader.read { db in
+            var predicates = ["mail_header_search MATCH ?", "t.last_date > 0"]
+            var arguments: [(any DatabaseValueConvertible)?] = [match]
+            MailIndexReader.conditions(query, predicates: &predicates, arguments: &arguments)
+            let found = try Bool.fetchOne(db, sql: """
+                SELECT EXISTS(SELECT 1 FROM idx.mail_header_search
+                CROSS JOIN idx.message m ON m.msg_pk=mail_header_search.rowid
+                CROSS JOIN idx.thread t ON t.thread_pk=m.thread_pk CROSS JOIN idx.account a ON a.account_pk=t.account_pk
+                WHERE \(predicates.joined(separator: " AND ")))
+                """, arguments: StatementArguments(arguments))
+            if found == true { return true }
+            return try !bodyThreads(query, in: db).threads.isEmpty
+        }
+    }
+
     /// Conversations whose messages' bodies match, newest message first, at most `query.limit`.
     /// Runs on the search reader: `search.sqlite` with `index.sqlite` attached as `idx`.
     static func bodyThreads(_ query: MailLocalSearchQuery, in db: Database) throws -> (threads: [Int64], more: Bool) {
@@ -165,11 +186,12 @@ enum MailLocalSearch {
         var predicates = ["msg_fts MATCH ?", "t.last_date > 0"]
         var arguments: [(any DatabaseValueConvertible)?] = [match]
         MailIndexReader.conditions(query, predicates: &predicates, arguments: &arguments)
-        for person in query.definition?.terms.filter({ $0.field == "person" }) ?? [] {
-            predicates.append("(coalesce(m.from_name,'') || ' ' || coalesce(m.from_addr,'')) LIKE ? ESCAPE '\\'")
-            let escaped = person.value.replacingOccurrences(of: "\\", with: "\\\\")
-                .replacingOccurrences(of: "%", with: "\\%").replacingOccurrences(of: "_", with: "\\_")
-            arguments.append("%" + escaped + "%")
+        if let sender = query.senderMatch {
+            predicates.append("""
+                m.msg_pk IN (SELECT rowid FROM \(MailStores.attachedIndexName).mail_header_search
+                             WHERE mail_header_search MATCH ?)
+                """)
+            arguments.append(sender)
         }
         if let before = query.before {
             // A message is never newer than its conversation's newest.
@@ -177,7 +199,7 @@ enum MailLocalSearch {
             predicates.append("(t.last_date,t.tie) < (?,?)"); arguments += [before.sortKey, before.tie]
         }
         arguments.append(bodyScan)
-        let rows = try Row.fetchAll(db, sql: """
+        let rows = try Int64.fetchCursor(db, sql: """
             SELECT t.thread_pk FROM msg_fts f
             JOIN body_doc d ON d.rowid=f.rowid
             JOIN \(MailStores.attachedIndexName).message m ON m.msg_pk=d.msg_pk AND m.fts_state=2
@@ -187,12 +209,13 @@ enum MailLocalSearch {
             ORDER BY f.rowid DESC LIMIT ?
             """, arguments: StatementArguments(arguments))
         var seen = Set<Int64>(), threads: [Int64] = []
-        for row in rows {
-            let pk: Int64 = row[0]
+        var scanned = 0
+        while let pk = try rows.next() {
+            scanned += 1
             if seen.insert(pk).inserted { threads.append(pk) }
             if threads.count > query.limit { break }
         }
-        return (Array(threads.prefix(query.limit)), rows.count == bodyScan || threads.count > query.limit)
+        return (Array(threads.prefix(query.limit)), scanned == bodyScan || threads.count > query.limit)
     }
 }
 

@@ -1,0 +1,31 @@
+{
+  "sources": [{"id":"work","name":"Work"},{"id":"personal","name":"Personal"}],
+  "rows": {
+    "plan": [
+      {"id":"p1","text":"Launch review","calendarIDs":["work"],"person":"Noor Haddad"},
+      {"id":"p2","text":"Launch dinner","calendarIDs":["personal"],"person":"Noor Haddad"},
+      {"id":"p3","text":"Staff review","calendarIDs":["work"],"person":"Other attendee"}
+    ],
+    "notes": [
+      {"id":"n1","text":"Café receipt","archived":false},
+      {"id":"n2","text":"Coffee receipt","archived":true},
+      {"id":"n3","text":"Café menu","archived":false}
+    ],
+    "workouts": [
+      {"id":"w1","kind":"Traditional Strength Training","duration":1801},
+      {"id":"w2","kind":"Traditional Strength Training","duration":1800},
+      {"id":"w3","kind":"Running","duration":3600}
+    ]
+  },
+  "cases": [
+    {"scope":"plan","query":"Work with Noor Haddad","expected":["p1"]},
+    {"scope":"plan","query":"not Work","expected":["p2"]},
+    {"scope":"plan","query":"launch","expected":["p1","p2"]},
+    {"scope":"notes","query":"receipt","expected":["n1","n2"]},
+    {"scope":"notes","query":"archived receipt","expected":["n2"]},
+    {"scope":"notes","query":"cafe","expected":["n1","n3"]},
+    {"scope":"notes","query":"noodle","expected":[]},
+    {"scope":"workouts","query":"strength workouts over 30 minutes","expected":["w1"]},
+    {"scope":"workouts","query":"running workouts","expected":["w3"]}
+  ]
+}

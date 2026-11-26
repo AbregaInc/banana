@@ -1,0 +1,121 @@
+{
+  "status": "fail",
+  "scope": "Simulator components, not UI acceptance",
+  "baselineVersion": 1,
+  "failures": {
+    "scale-1d": [
+      "peak RSS regression or ceiling exceeded: 363.83 MB"
+    ],
+    "scale-7d": [
+      "peak RSS regression or ceiling exceeded: 405.22 MB"
+    ],
+    "scale-30d": [
+      "peak RSS regression or ceiling exceeded: 487.92 MB"
+    ],
+    "scale-90d": [
+      "peak RSS regression or ceiling exceeded: 719.77 MB"
+    ],
+    "redraw-notes": [
+      "peak RSS regression or ceiling exceeded: 488.02 MB"
+    ],
+    "redraw-library": [
+      "peak RSS regression or ceiling exceeded: 494.00 MB"
+    ],
+    "redraw-plan": [
+      "peak RSS regression or ceiling exceeded: 509.64 MB",
+      "weather\u21bb: redraw rate increased from 0 to 0.09589032333252263",
+      "WeekView: redraw rate increased from 0 to 0.09589032333252263"
+    ],
+    "redraw-mail": [
+      "peak RSS regression or ceiling exceeded: 494.42 MB"
+    ]
+  },
+  "residentMB": {
+    "scale-1d": {
+      "measured": 363.828125,
+      "reference": 299.359375
+    },
+    "scale-7d": {
+      "measured": 405.21875,
+      "reference": 336.65625
+    },
+    "scale-30d": {
+      "measured": 487.921875,
+      "reference": 459.859375
+    },
+    "scale-90d": {
+      "measured": 719.765625,
+      "reference": 670.046875
+    },
+    "redraw-notes": {
+      "measured": 488.015625,
+      "reference": 459.796875
+    },
+    "redraw-library": {
+      "measured": 494,
+      "reference": 454.296875
+    },
+    "redraw-plan": {
+      "measured": 509.640625,
+      "reference": 474.84375
+    },
+    "redraw-mail": {
+      "measured": 494.421875,
+      "reference": 415.078125
+    }
+  },
+  "mailChecks": {
+    "passed": 17,
+    "failed": 0,
+    "groups": [
+      "MailGmailSearchTests",
+      "MailLocalSearchTests"
+    ],
+    "timings": {
+      "messages": 180000,
+      "samplesMS": {
+        "180000": [
+          0.365083,
+          0.301875,
+          0.289167,
+          0.2905,
+          0.273708,
+          0.271541,
+          0.273625,
+          0.269041
+        ],
+        "180000-reference": [
+          0.840167,
+          0.233834,
+          0.220333,
+          0.232084,
+          0.218208,
+          0.212125,
+          0.207916,
+          0.207791
+        ],
+        "budget": [
+          77.033958,
+          77.956375,
+          81.102833,
+          82.123083,
+          82.251625,
+          81.1715,
+          85.47425,
+          80.685792
+        ],
+        "budget-reference": [
+          140.782084,
+          141.539541,
+          144.366625,
+          153.162666,
+          146.271083,
+          144.729917,
+          145.097667,
+          141.874625
+        ]
+      },
+      "scope": "Mac disk query component; first query then seven warm samples, no UI or eviction acceptance"
+    }
+  }
+}

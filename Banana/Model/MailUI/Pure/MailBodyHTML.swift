@@ -49,6 +49,28 @@ enum MailBodyHTML {
         return url
     }
 
+    /// A message as it goes, in its two forms: what he wrote, then his signature, then the original
+    /// he is answering, **each its own part** and none merged into his words. The signature and the
+    /// quote are the engine's prepared fragments and are appended exactly as they came; his words are
+    /// serialised here. The plain text has the signature after the usual "-- " line and the quote as
+    /// "> " lines.
+    static func message(body: MailText, signature: MailDraftPart?,
+                        quote: MailDraftPart?) -> (html: String, plain: String) {
+        var html = Self.html(body)
+        var parts: [String] = []
+        let words = Self.plain(body)
+        if !words.isEmpty { parts.append(words) }
+        if let signature {
+            html += signature.fragment.html
+            if let text = signature.text.map { Self.plain($0) }, !text.isEmpty { parts.append("-- \n" + text) }
+        }
+        if let quote {
+            html += quote.fragment.html
+            if let text = quote.text.map { Self.plain($0) }, !text.isEmpty { parts.append(text) }
+        }
+        return (html, parts.joined(separator: "\n\n"))
+    }
+
     // MARK: - HTML
 
     /// The message as HTML: paragraphs, with a line break for each line break inside one; lists;
@@ -267,6 +289,17 @@ enum MailBodyHTML {
             }
         }
         return out
+    }
+}
+
+extension MailDraftPart {
+    /// What the quote says, as text; nil for a part with no body to show.
+    var text: MailText? {
+        switch body {
+        case .text(let text, _, _): return text
+        case .designed(_, _, _, let plain, _): return plain
+        case .notOnDevice: return nil
+        }
     }
 }
 

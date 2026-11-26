@@ -4,7 +4,7 @@ import Foundation
 /// Application capabilities. Pi owns tool admission, argument validation and replay policy.
 @MainActor
 enum AssistantCapabilities {
-    static func execute(_ request: String) throws -> String {
+    static func execute(_ request: String) async throws -> String {
         guard let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any],
               let name = value["name"] as? String, let arguments = value["arguments"] as? [String: Any] else {
             throw AssistantFailure(message: "The assistant sent an invalid app action.")
@@ -14,7 +14,7 @@ enum AssistantCapabilities {
         case "list_notes":
             let limit = arguments["limit"] as? Int ?? 5
             guard (1...10).contains(limit) else { throw AssistantFailure(message: "Request between one and ten notes.") }
-            let notes = VoiceNoteStore.shared.matchingNotes(search: "", archived: false)
+            let notes = await VoiceNoteStore.shared.searchResults("", limit: limit + 1)
             result = ["notes": notes.prefix(limit).map { note in
                 ["id": note.id.uuidString, "text": String((note.transcript ?? "").prefix(160)),
                  "createdAt": note.createdAt.ISO8601Format()]

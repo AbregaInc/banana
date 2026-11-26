@@ -1,0 +1,4968 @@
+{
+  "source": "TREC 2005 Enterprise email known-item titles and official judgments; UMD parsed W3C mail",
+  "scope": "Document-level merged local header/body SQL. All 125 test topics included. No Gmail or display timing.",
+  "sqlite": "3.54.0",
+  "timing": "Six rotating paired trials per topic; fresh reader connections, warm OS file cache.",
+  "filesSHA256": {
+    "topics": "0283cfea852a83f62221e1948d133251e46e0abf93d2f3622fd2f4a49d3d9fee",
+    "training-qrels": "c2de826ae714d8ec8631b29f06d49c097e236cb6721067faee61f6f7fa02290c",
+    "qrels": "69ab8f687e303deb461769345e9b24e3b108e7065ffeb8ee81ef3d6bcb5fac3a",
+    "discussion.topics": "ad831667948893ccf811544e487e264e09a9bc1aceb84a680f99636597fbd435",
+    "discussion.qrels": "d2aa34ba41c8efd96c4d16b69fc0e8b4898b68b058d019340d528c4516274436",
+    "part1.tar.gz": "8ffad24d0acd77b35db4d59c3ef2ecda6a97b6241862bd1eedfaae1333af1568",
+    "part2.tar.gz": "eff1fef51ee0523226796ee7a882f374ee596cefca219fe29134ad224221d09b",
+    "part3.tar.gz": "ac3663322f8aab23159f441ac7b76355102a3ac1c7f10ba97473c9b36e5101c3"
+  },
+  "collection": {
+    "documents": 174299,
+    "missingDate": 12,
+    "duplicateDocumentID": 0,
+    "bodyDocuments": 173280
+  },
+  "offlineBM25Fusion": {
+    "development": {
+      "topics": 25,
+      "top1": 8,
+      "successAt5": 9,
+      "successAt10": 11,
+      "successAt50": 12,
+      "mrrAt10": 0.3417777777777778,
+      "gainedAt5": 3,
+      "lostAt5": 0,
+      "lookupMedianMS": 23.783458,
+      "lookupP95MS": 218.178
+    },
+    "test": {
+      "topics": 125,
+      "top1": 38,
+      "successAt5": 63,
+      "successAt10": 68,
+      "successAt50": 70,
+      "mrrAt10": 0.3921428571428571,
+      "gainedAt5": 33,
+      "lostAt5": 0,
+      "lookupMedianMS": 21.740625,
+      "lookupP95MS": 238.204458
+    }
+  },
+  "discussion": {
+    "topics": 59,
+    "unjudgedTopics": [
+      "DS4"
+    ],
+    "meanNDCGAt5": 0.17974066903450414,
+    "meanPrecisionAt5": 0.2305084745762712,
+    "judgedRetrievedAt5": 202,
+    "retrievedAt5": 272,
+    "lexicalNDCGAt5": 0.45885110709209137,
+    "lexicalPrecisionAt5": 0.5288135593220339,
+    "queries": [
+      {
+        "lexicalNDCGAt5": 0.7860137352654724,
+        "lexicalPrecisionAt5": 0.8,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS1",
+        "rowsAt5": 5,
+        "judgedAt5": 1,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.0,
+        "lexicalPrecisionAt5": 0.0,
+        "lexicalJudgedAt5": 0,
+        "lexicalRowsAt5": 0,
+        "topic": "DS2",
+        "rowsAt5": 0,
+        "judgedAt5": 0,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.6164336326286644,
+        "lexicalPrecisionAt5": 0.6,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS3",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.6357901029964336,
+        "lexicalPrecisionAt5": 1.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS5",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.22201468685328482,
+        "lexicalPrecisionAt5": 0.4,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS6",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.4,
+        "ndcgAt5": 0.2964428357775808
+      },
+      {
+        "lexicalNDCGAt5": 0.12001820485907799,
+        "lexicalPrecisionAt5": 0.4,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS7",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.8,
+        "ndcgAt5": 0.42080338500822784
+      },
+      {
+        "lexicalNDCGAt5": 0.6018359199557124,
+        "lexicalPrecisionAt5": 0.6,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS8",
+        "rowsAt5": 5,
+        "judgedAt5": 3,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.0,
+        "lexicalPrecisionAt5": 0.0,
+        "lexicalJudgedAt5": 4,
+        "lexicalRowsAt5": 4,
+        "topic": "DS9",
+        "rowsAt5": 4,
+        "judgedAt5": 4,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.6548086577531306,
+        "lexicalPrecisionAt5": 0.6,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS10",
+        "rowsAt5": 5,
+        "judgedAt5": 4,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.04868944994756881,
+        "lexicalPrecisionAt5": 0.2,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS11",
+        "rowsAt5": 5,
+        "judgedAt5": 4,
+        "precisionAt5": 0.2,
+        "ndcgAt5": 0.11305340175787203
+      },
+      {
+        "lexicalNDCGAt5": 0.0,
+        "lexicalPrecisionAt5": 0.0,
+        "lexicalJudgedAt5": 0,
+        "lexicalRowsAt5": 0,
+        "topic": "DS12",
+        "rowsAt5": 0,
+        "judgedAt5": 0,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.8262346571285599,
+        "lexicalPrecisionAt5": 0.2,
+        "lexicalJudgedAt5": 2,
+        "lexicalRowsAt5": 4,
+        "topic": "DS13",
+        "rowsAt5": 4,
+        "judgedAt5": 2,
+        "precisionAt5": 0.2,
+        "ndcgAt5": 0.8262346571285599
+      },
+      {
+        "lexicalNDCGAt5": 0.0,
+        "lexicalPrecisionAt5": 0.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS14",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.0,
+        "lexicalPrecisionAt5": 0.0,
+        "lexicalJudgedAt5": 0,
+        "lexicalRowsAt5": 0,
+        "topic": "DS15",
+        "rowsAt5": 0,
+        "judgedAt5": 0,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.7227265726449517,
+        "lexicalPrecisionAt5": 0.6,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS16",
+        "rowsAt5": 5,
+        "judgedAt5": 4,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.6985436835905778,
+        "lexicalPrecisionAt5": 0.8,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS17",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 1.0,
+        "ndcgAt5": 0.7698724385020871
+      },
+      {
+        "lexicalNDCGAt5": 0.21922102252603518,
+        "lexicalPrecisionAt5": 0.2,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS18",
+        "rowsAt5": 5,
+        "judgedAt5": 3,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.6608397947263838,
+        "lexicalPrecisionAt5": 0.8,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS19",
+        "rowsAt5": 5,
+        "judgedAt5": 4,
+        "precisionAt5": 0.8,
+        "ndcgAt5": 0.6608397947263838
+      },
+      {
+        "lexicalNDCGAt5": 1.0,
+        "lexicalPrecisionAt5": 1.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS20",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 1.0,
+        "ndcgAt5": 0.8573424901769816
+      },
+      {
+        "lexicalNDCGAt5": 0.28959830749588605,
+        "lexicalPrecisionAt5": 0.8,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS21",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.2577212905719748,
+        "lexicalPrecisionAt5": 0.4,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS22",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.2,
+        "ndcgAt5": 0.14606834984270645
+      },
+      {
+        "lexicalNDCGAt5": 0.0,
+        "lexicalPrecisionAt5": 0.0,
+        "lexicalJudgedAt5": 1,
+        "lexicalRowsAt5": 1,
+        "topic": "DS23",
+        "rowsAt5": 1,
+        "judgedAt5": 1,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.13120507751234178,
+        "lexicalPrecisionAt5": 0.2,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS24",
+        "rowsAt5": 5,
+        "judgedAt5": 1,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.8539316501572934,
+        "lexicalPrecisionAt5": 0.8,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS25",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.4,
+        "ndcgAt5": 0.2577212905719748
+      },
+      {
+        "lexicalNDCGAt5": 0.14606834984270645,
+        "lexicalPrecisionAt5": 0.2,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS26",
+        "rowsAt5": 5,
+        "judgedAt5": 4,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.33916020527361607,
+        "lexicalPrecisionAt5": 0.2,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS27",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.8,
+        "ndcgAt5": 0.3642766841292918
+      },
+      {
+        "lexicalNDCGAt5": 0.4104889601851253,
+        "lexicalPrecisionAt5": 0.4,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS28",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.2,
+        "ndcgAt5": 0.11305340175787203
+      },
+      {
+        "lexicalNDCGAt5": 0.0,
+        "lexicalPrecisionAt5": 0.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS29",
+        "rowsAt5": 5,
+        "judgedAt5": 0,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 1.0,
+        "lexicalPrecisionAt5": 1.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS30",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 1.0,
+        "ndcgAt5": 1.0
+      },
+      {
+        "lexicalNDCGAt5": 0.7738931964842558,
+        "lexicalPrecisionAt5": 1.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS31",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.6,
+        "ndcgAt5": 0.40171804312580534
+      },
+      {
+        "lexicalNDCGAt5": 0.0,
+        "lexicalPrecisionAt5": 0.0,
+        "lexicalJudgedAt5": 3,
+        "lexicalRowsAt5": 3,
+        "topic": "DS32",
+        "rowsAt5": 3,
+        "judgedAt5": 3,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.3956869061525521,
+        "lexicalPrecisionAt5": 0.4,
+        "lexicalJudgedAt5": 4,
+        "lexicalRowsAt5": 5,
+        "topic": "DS33",
+        "rowsAt5": 5,
+        "judgedAt5": 2,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.5157051110116301,
+        "lexicalPrecisionAt5": 0.8,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS34",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.6,
+        "ndcgAt5": 0.176544905738014
+      },
+      {
+        "lexicalNDCGAt5": 0.0,
+        "lexicalPrecisionAt5": 0.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS35",
+        "rowsAt5": 5,
+        "judgedAt5": 4,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.48522855511632257,
+        "lexicalPrecisionAt5": 0.4,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS36",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 1.0,
+        "lexicalPrecisionAt5": 1.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS37",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 1.0,
+        "ndcgAt5": 1.0
+      },
+      {
+        "lexicalNDCGAt5": 0.7738931964842558,
+        "lexicalPrecisionAt5": 1.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS38",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.2,
+        "ndcgAt5": 0.05652670087893601
+      },
+      {
+        "lexicalNDCGAt5": 0.5968814958455909,
+        "lexicalPrecisionAt5": 0.6,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS39",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.4,
+        "ndcgAt5": 0.09242447578501607
+      },
+      {
+        "lexicalNDCGAt5": 0.0,
+        "lexicalPrecisionAt5": 0.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS40",
+        "rowsAt5": 5,
+        "judgedAt5": 3,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.24090885754831726,
+        "lexicalPrecisionAt5": 0.6,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS41",
+        "rowsAt5": 5,
+        "judgedAt5": 0,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.8304198973631919,
+        "lexicalPrecisionAt5": 0.8,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS42",
+        "rowsAt5": 5,
+        "judgedAt5": 0,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.37077469232984683,
+        "lexicalPrecisionAt5": 0.6,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS43",
+        "rowsAt5": 5,
+        "judgedAt5": 4,
+        "precisionAt5": 0.6,
+        "ndcgAt5": 0.3486021822665574
+      },
+      {
+        "lexicalNDCGAt5": 0.37077469232984683,
+        "lexicalPrecisionAt5": 0.6,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS44",
+        "rowsAt5": 5,
+        "judgedAt5": 3,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.6469101885239719,
+        "lexicalPrecisionAt5": 1.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS45",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 1.0,
+        "ndcgAt5": 0.5890442449142237
+      },
+      {
+        "lexicalNDCGAt5": 1.0,
+        "lexicalPrecisionAt5": 1.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS46",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.2,
+        "ndcgAt5": 0.33916020527361607
+      },
+      {
+        "lexicalNDCGAt5": 0.27392380563315166,
+        "lexicalPrecisionAt5": 0.6,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS47",
+        "rowsAt5": 5,
+        "judgedAt5": 0,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.5574297578579929,
+        "lexicalPrecisionAt5": 0.6,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS48",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.2,
+        "ndcgAt5": 0.04868944994756881
+      },
+      {
+        "lexicalNDCGAt5": 1.0,
+        "lexicalPrecisionAt5": 1.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS49",
+        "rowsAt5": 5,
+        "judgedAt5": 0,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.37211393506065904,
+        "lexicalPrecisionAt5": 0.6,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS50",
+        "rowsAt5": 5,
+        "judgedAt5": 1,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.30078518014914984,
+        "lexicalPrecisionAt5": 0.4,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS51",
+        "rowsAt5": 5,
+        "judgedAt5": 3,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.3156484524795145,
+        "lexicalPrecisionAt5": 0.4,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS52",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.4,
+        "ndcgAt5": 0.5531464700081437
+      },
+      {
+        "lexicalNDCGAt5": 0.8687949224876581,
+        "lexicalPrecisionAt5": 0.8,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS53",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.6,
+        "ndcgAt5": 0.7227265726449517
+      },
+      {
+        "lexicalNDCGAt5": 1.0,
+        "lexicalPrecisionAt5": 1.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS54",
+        "rowsAt5": 5,
+        "judgedAt5": 5,
+        "precisionAt5": 0.8,
+        "ndcgAt5": 0.4504074930733741
+      },
+      {
+        "lexicalNDCGAt5": 0.07132875491150918,
+        "lexicalPrecisionAt5": 0.2,
+        "lexicalJudgedAt5": 4,
+        "lexicalRowsAt5": 5,
+        "topic": "DS55",
+        "rowsAt5": 5,
+        "judgedAt5": 3,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.656819036744215,
+        "lexicalPrecisionAt5": 1.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS56",
+        "rowsAt5": 5,
+        "judgedAt5": 4,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.7521109272785776,
+        "lexicalPrecisionAt5": 0.8,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS57",
+        "rowsAt5": 5,
+        "judgedAt5": 4,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.6608397947263838,
+        "lexicalPrecisionAt5": 0.8,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS58",
+        "rowsAt5": 5,
+        "judgedAt5": 2,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 0.0,
+        "lexicalPrecisionAt5": 0.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS59",
+        "rowsAt5": 5,
+        "judgedAt5": 3,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      },
+      {
+        "lexicalNDCGAt5": 1.0,
+        "lexicalPrecisionAt5": 1.0,
+        "lexicalJudgedAt5": 5,
+        "lexicalRowsAt5": 5,
+        "topic": "DS60",
+        "rowsAt5": 5,
+        "judgedAt5": 3,
+        "precisionAt5": 0.0,
+        "ndcgAt5": 0.0
+      }
+    ]
+  },
+  "splits": {
+    "development": {
+      "topics": 25,
+      "corpusTargets": 25,
+      "top1": 4,
+      "successAt5": 6,
+      "successAt10": 8,
+      "successAt50": 11,
+      "mrrAt10": 0.1957142857142857,
+      "baseQueryMedianMS": 12.7942085,
+      "candidateQueryMedianMS": 11.7994375,
+      "baseQueryP95MS": 126.34774949999999,
+      "candidateQueryP95MS": 135.93702100000002,
+      "baseMaxMS": 407.901708,
+      "candidateMaxMS": 353.958583,
+      "medianPairedSavingMS": 0.02474999999999916,
+      "bootstrap95SavingMS": [
+        -0.15060500000000054,
+        0.5069584999999996
+      ]
+    },
+    "test": {
+      "topics": 125,
+      "corpusTargets": 125,
+      "top1": 10,
+      "successAt5": 30,
+      "successAt10": 38,
+      "successAt50": 57,
+      "mrrAt10": 0.15165396825396826,
+      "baseQueryMedianMS": 14.703624999999999,
+      "candidateQueryMedianMS": 13.897020999999999,
+      "baseQueryP95MS": 238.808479,
+      "candidateQueryP95MS": 239.6629165,
+      "baseMaxMS": 1139.054166,
+      "candidateMaxMS": 959.695083,
+      "medianPairedSavingMS": 0.07585399999999964,
+      "bootstrap95SavingMS": [
+        0.03814600000000112,
+        0.13316649999999974
+      ]
+    }
+  },
+  "topics": [
+    {
+      "id": "KI1",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        15.457667,
+        15.242584,
+        15.848958,
+        16.312833,
+        15.277167,
+        15.521417
+      ],
+      "candidateMS": [
+        18.162208,
+        14.99675,
+        18.160208,
+        15.772458,
+        15.15925,
+        15.577375
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 21,
+      "rows": 41,
+      "lexicalLookupMS": 28.392333,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI2",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        22.630625,
+        22.477208,
+        23.460375,
+        32.053666,
+        56.295208,
+        21.5865
+      ],
+      "candidateMS": [
+        22.38775,
+        22.530416,
+        21.58525,
+        23.300042,
+        71.886125,
+        21.653916
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 7,
+      "rows": 11,
+      "lexicalLookupMS": 35.244959,
+      "lexicalRankAt50": 9,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI3",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        5.143416,
+        4.854542,
+        5.041292,
+        4.831,
+        4.96125,
+        4.733208
+      ],
+      "candidateMS": [
+        5.261166,
+        5.013791,
+        5.391916,
+        4.867833,
+        4.844625,
+        4.709459
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 1,
+      "lexicalLookupMS": 9.690417,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI4",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        4.544833,
+        3.682209,
+        4.573375,
+        4.479917,
+        4.36975,
+        4.38125
+      ],
+      "candidateMS": [
+        2.44825,
+        2.268958,
+        2.223,
+        2.420625,
+        2.304541,
+        2.670125
+      ],
+      "tokens": 2,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 6.635958,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI5",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        7.747,
+        7.009291,
+        7.55725,
+        7.202667,
+        7.363125,
+        7.84775
+      ],
+      "candidateMS": [
+        7.923541,
+        6.729375,
+        7.617708,
+        7.074583,
+        7.253167,
+        7.865
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 35,
+      "lexicalLookupMS": 12.065583,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI6",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        21.850042,
+        23.137667,
+        26.569625,
+        24.054292,
+        283.459583,
+        24.958834
+      ],
+      "candidateMS": [
+        21.825542,
+        23.232833,
+        24.749375,
+        26.5535,
+        23.382625,
+        24.616584
+      ],
+      "tokens": 8,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 1,
+      "lexicalLookupMS": 38.016875,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI7",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        11.480084,
+        12.638292,
+        12.171959,
+        11.5185,
+        11.094209,
+        11.350666
+      ],
+      "candidateMS": [
+        12.075208,
+        14.009209,
+        12.338042,
+        11.338125,
+        11.523667,
+        11.39
+      ],
+      "tokens": 8,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 10.292458,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI8",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        3.543334,
+        3.333875,
+        4.612459,
+        3.597334,
+        3.190167,
+        3.233542
+      ],
+      "candidateMS": [
+        6.339375,
+        3.650917,
+        6.050875,
+        4.943584,
+        3.126875,
+        3.25175
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 1,
+      "lexicalLookupMS": 5.111333,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI9",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        34.022542,
+        33.077333,
+        35.957792,
+        34.504417,
+        35.215959,
+        38.384041
+      ],
+      "candidateMS": [
+        34.755333,
+        33.475875,
+        35.430083,
+        35.235458,
+        63.402083,
+        37.031417
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 39,
+      "lexicalLookupMS": 51.699292,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI10",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        13.98325,
+        14.205166,
+        13.963708,
+        13.731792,
+        13.895125,
+        13.341958
+      ],
+      "candidateMS": [
+        13.737584,
+        14.567333,
+        14.422459,
+        19.139166,
+        13.645083,
+        13.408958
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 31,
+      "lexicalLookupMS": 23.783458,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "termsSplitAcrossIndexes"
+    },
+    {
+      "id": "KI11",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        17.21075,
+        16.131542,
+        20.455834,
+        15.851083,
+        16.66025,
+        15.837083
+      ],
+      "candidateMS": [
+        16.365083,
+        21.524834,
+        21.446833,
+        16.038958,
+        16.649416,
+        16.24175
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 17,
+      "rows": 33,
+      "lexicalLookupMS": 27.249667,
+      "lexicalRankAt50": 10,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI12",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        14.068167,
+        12.359375,
+        13.095208,
+        12.296375,
+        12.493209,
+        13.137166
+      ],
+      "candidateMS": [
+        11.648167,
+        10.375125,
+        9.7575,
+        9.992458,
+        10.196,
+        10.450458
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 25.048583,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "absentOrUndated"
+    },
+    {
+      "id": "KI13",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        3.899042,
+        3.667834,
+        3.967,
+        3.82625,
+        3.769166,
+        3.5665
+      ],
+      "candidateMS": [
+        4.094166,
+        3.609125,
+        3.919333,
+        3.891208,
+        3.65175,
+        3.5195
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 3.020042,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI14",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        17.089541,
+        17.993416,
+        17.051292,
+        16.683083,
+        16.61125,
+        17.088292
+      ],
+      "candidateMS": [
+        16.520416,
+        17.404792,
+        17.400333,
+        16.433708,
+        16.261708,
+        16.479708
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 35.943166,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI15",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        0.422041,
+        0.572916,
+        0.65275,
+        0.738125,
+        0.744833,
+        0.870042
+      ],
+      "candidateMS": [
+        0.448166,
+        0.446291,
+        0.965166,
+        0.65075,
+        0.853334,
+        0.699375
+      ],
+      "tokens": 2,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 3,
+      "lexicalLookupMS": 0.712125,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI16",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        5.964667,
+        5.083,
+        5.416042,
+        5.246125,
+        5.472125,
+        5.660125
+      ],
+      "candidateMS": [
+        7.142959,
+        5.140042,
+        5.93925,
+        5.199709,
+        26.896167,
+        5.767291
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 14.317875,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI17",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        33.696417,
+        33.037,
+        51.426667,
+        81.900625,
+        39.144125,
+        33.440125
+      ],
+      "candidateMS": [
+        32.476416,
+        33.389833,
+        51.325833,
+        47.464708,
+        34.798625,
+        33.819042
+      ],
+      "tokens": 8,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 2,
+      "lexicalLookupMS": 61.17825,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI18",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        15.627417,
+        15.439208,
+        15.584791,
+        16.727917,
+        15.458083,
+        15.124292
+      ],
+      "candidateMS": [
+        16.168083,
+        15.1675,
+        15.482,
+        15.894583,
+        15.14875,
+        15.638167
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 30,
+      "lexicalLookupMS": 71.424459,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI19",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        132.652958,
+        124.240041,
+        128.455458,
+        123.533416,
+        407.901708,
+        124.011167
+      ],
+      "candidateMS": [
+        139.989834,
+        140.296542,
+        131.884208,
+        124.975375,
+        353.958583,
+        123.686708
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 215.269125,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI20",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        221.938959,
+        235.349417,
+        238.25325,
+        233.048,
+        231.343625,
+        252.667167
+      ],
+      "candidateMS": [
+        222.527625,
+        224.614167,
+        247.502541,
+        230.4455,
+        231.477417,
+        253.37
+      ],
+      "tokens": 10,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 220.511542,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI21",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        3.183709,
+        3.986542,
+        3.444417,
+        3.6225,
+        77.159666,
+        3.625833
+      ],
+      "candidateMS": [
+        3.443625,
+        3.832291,
+        3.543333,
+        3.4575,
+        21.068625,
+        3.509209
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 4,
+      "lexicalLookupMS": 6.646542,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI22",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        9.772375,
+        9.127041,
+        10.69325,
+        9.226166,
+        9.399833,
+        12.099042
+      ],
+      "candidateMS": [
+        11.096458,
+        9.223042,
+        22.096875,
+        9.142667,
+        9.390667,
+        10.102667
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 6,
+      "rows": 37,
+      "lexicalLookupMS": 15.481584,
+      "lexicalRankAt50": 18,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI23",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        3.650208,
+        4.030542,
+        4.868208,
+        8.135625,
+        4.591291,
+        4.013292
+      ],
+      "candidateMS": [
+        3.435708,
+        3.849459,
+        4.034875,
+        3.909458,
+        3.793917,
+        3.506625
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 3,
+      "rows": 50,
+      "lexicalLookupMS": 6.163708,
+      "lexicalRankAt50": 3,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI24",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        109.112625,
+        114.719791,
+        128.112709,
+        113.15175,
+        112.105875,
+        114.022042
+      ],
+      "candidateMS": [
+        107.138583,
+        114.725917,
+        150.553625,
+        164.35225,
+        110.69,
+        110.843417
+      ],
+      "tokens": 8,
+      "route": "full",
+      "rankAt50": 45,
+      "rows": 48,
+      "lexicalLookupMS": 218.178,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI25",
+      "split": "development",
+      "targetPresent": true,
+      "baseMS": [
+        6.276292,
+        7.07825,
+        7.363583,
+        7.118417,
+        6.912083,
+        7.360125
+      ],
+      "candidateMS": [
+        6.817083,
+        6.785958,
+        6.848042,
+        6.86975,
+        7.201042,
+        7.809542
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 4,
+      "rows": 9,
+      "lexicalLookupMS": 15.881917,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI26",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        21.524959,
+        8.086333,
+        8.078875,
+        8.071084,
+        8.337791,
+        8.098042
+      ],
+      "candidateMS": [
+        23.796834,
+        8.075958,
+        8.816792,
+        8.118042,
+        8.346458,
+        8.06975
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 3,
+      "rows": 7,
+      "lexicalLookupMS": 14.217375,
+      "lexicalRankAt50": 4,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI27",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        4.482167,
+        4.275042,
+        4.525458,
+        4.170667,
+        4.44225,
+        5.433833
+      ],
+      "candidateMS": [
+        3.911875,
+        3.620458,
+        4.092166,
+        3.556875,
+        3.737959,
+        3.713167
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 6.908709,
+      "lexicalRankAt50": 4,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI28",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        3.3795,
+        2.781667,
+        3.253417,
+        2.75675,
+        6.60475,
+        2.747042
+      ],
+      "candidateMS": [
+        2.934125,
+        2.800709,
+        3.207416,
+        2.864708,
+        6.332375,
+        2.847667
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 2.493417,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI29",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        27.31125,
+        28.148459,
+        30.33775,
+        31.343834,
+        35.395375,
+        29.955833
+      ],
+      "candidateMS": [
+        27.180917,
+        27.985708,
+        28.850375,
+        29.909959,
+        30.006625,
+        31.885125
+      ],
+      "tokens": 8,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 9,
+      "lexicalLookupMS": 58.554916,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI30",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        2.829583,
+        2.761791,
+        3.258625,
+        2.925583,
+        2.881666,
+        3.036417
+      ],
+      "candidateMS": [
+        2.002792,
+        2.109208,
+        2.390166,
+        2.306667,
+        2.050125,
+        3.204208
+      ],
+      "tokens": 2,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 3.98375,
+      "lexicalRankAt50": 10,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI31",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        6.237417,
+        6.600709,
+        7.782458,
+        6.661916,
+        6.801917,
+        6.828458
+      ],
+      "candidateMS": [
+        6.18475,
+        6.666875,
+        6.862833,
+        6.463208,
+        6.791417,
+        6.651083
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 10,
+      "rows": 37,
+      "lexicalLookupMS": 12.610917,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI32",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        15.405125,
+        14.477917,
+        16.598083,
+        14.663166,
+        15.037334,
+        15.415333
+      ],
+      "candidateMS": [
+        17.076083,
+        15.222791,
+        18.784375,
+        14.985125,
+        15.02275,
+        15.298334
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 13.312667,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI33",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        8.936,
+        8.140917,
+        9.745792,
+        10.735084,
+        8.611833,
+        7.944666
+      ],
+      "candidateMS": [
+        8.538041,
+        8.21325,
+        8.521083,
+        8.711167,
+        8.273708,
+        7.937584
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 5,
+      "rows": 7,
+      "lexicalLookupMS": 14.693791,
+      "lexicalRankAt50": 4,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI34",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        100.202584,
+        98.404833,
+        99.287375,
+        109.19625,
+        100.248708,
+        102.841083
+      ],
+      "candidateMS": [
+        91.558291,
+        86.677958,
+        89.052583,
+        105.054458,
+        91.105084,
+        97.230541
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 187.8205,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI35",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        18.9085,
+        19.233375,
+        20.933,
+        19.180417,
+        18.605875,
+        20.465208
+      ],
+      "candidateMS": [
+        18.972625,
+        18.427083,
+        19.938875,
+        19.022084,
+        19.315416,
+        20.025083
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 2,
+      "lexicalLookupMS": 30.714333,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI36",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        16.364292,
+        16.852542,
+        15.36425,
+        15.93525,
+        17.759834,
+        14.912834
+      ],
+      "candidateMS": [
+        15.742667,
+        20.586792,
+        15.259167,
+        25.6215,
+        21.851667,
+        15.091667
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 26.609,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI37",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        15.039084,
+        16.91975,
+        17.345125,
+        16.392292,
+        16.282,
+        15.507084
+      ],
+      "candidateMS": [
+        9.927792,
+        10.75475,
+        10.769375,
+        11.046458,
+        10.627125,
+        10.598583
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 15,
+      "rows": 50,
+      "lexicalLookupMS": 37.43975,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI38",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        33.626542,
+        29.813167,
+        33.067417,
+        32.709083,
+        33.978625,
+        31.107
+      ],
+      "candidateMS": [
+        36.590417,
+        30.452542,
+        34.640125,
+        34.210625,
+        32.350958,
+        31.365291
+      ],
+      "tokens": 11,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 34.506458,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI39",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        41.179375,
+        38.077417,
+        40.508542,
+        39.378625,
+        39.302541,
+        39.600667
+      ],
+      "candidateMS": [
+        40.400792,
+        42.266666,
+        39.795417,
+        39.6095,
+        38.399,
+        40.844542
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 7,
+      "rows": 12,
+      "lexicalLookupMS": 58.662125,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI40",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        0.852958,
+        0.874875,
+        1.003834,
+        1.065125,
+        0.971375,
+        0.861625
+      ],
+      "candidateMS": [
+        0.75575,
+        1.167167,
+        0.801708,
+        1.087958,
+        0.8195,
+        0.943084
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 15,
+      "rows": 24,
+      "lexicalLookupMS": 1.2045,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI41",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        5.893667,
+        5.573292,
+        7.095042,
+        6.171,
+        6.269292,
+        6.096584
+      ],
+      "candidateMS": [
+        5.694209,
+        5.949625,
+        6.282041,
+        6.066625,
+        7.1875,
+        5.950459
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 5,
+      "lexicalLookupMS": 8.133167,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI42",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        11.552375,
+        10.927958,
+        12.587542,
+        12.985584,
+        21.159208,
+        11.152584
+      ],
+      "candidateMS": [
+        11.167583,
+        10.676084,
+        12.701875,
+        17.380333,
+        47.068125,
+        10.922417
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 20.1005,
+      "lexicalRankAt50": 3,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI43",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        255.177542,
+        235.808667,
+        243.449333,
+        248.604208,
+        295.612958,
+        240.548791
+      ],
+      "candidateMS": [
+        268.985542,
+        231.29775,
+        302.526292,
+        265.480333,
+        481.597292,
+        276.119
+      ],
+      "tokens": 10,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 227.240792,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI44",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        34.447042,
+        34.071167,
+        37.6145,
+        37.542208,
+        35.370959,
+        35.069167
+      ],
+      "candidateMS": [
+        32.709666,
+        33.764875,
+        37.8805,
+        39.699875,
+        35.892542,
+        34.5675
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 31.591459,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI45",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        15.832833,
+        16.063125,
+        17.693833,
+        16.1825,
+        16.155917,
+        16.202875
+      ],
+      "candidateMS": [
+        15.554875,
+        15.836291,
+        17.539791,
+        16.184375,
+        15.83,
+        16.38325
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 14.097708,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "termsSplitAcrossIndexes"
+    },
+    {
+      "id": "KI46",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        33.914125,
+        20.7255,
+        23.190584,
+        24.057667,
+        30.315041,
+        24.331167
+      ],
+      "candidateMS": [
+        27.335875,
+        19.969125,
+        20.582958,
+        21.880667,
+        22.71825,
+        69.024625
+      ],
+      "tokens": 8,
+      "route": "full",
+      "rankAt50": 4,
+      "rows": 9,
+      "lexicalLookupMS": 34.223667,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI47",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        7.046917,
+        6.235459,
+        11.826916,
+        6.961666,
+        7.302667,
+        6.703417
+      ],
+      "candidateMS": [
+        5.53925,
+        4.895917,
+        6.433625,
+        5.309708,
+        5.69475,
+        5.21775
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 10.808917,
+      "lexicalRankAt50": 7,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI48",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        5.951125,
+        5.856667,
+        12.956292,
+        5.697291,
+        5.640292,
+        5.632792
+      ],
+      "candidateMS": [
+        5.739666,
+        5.911541,
+        6.24675,
+        8.216333,
+        5.607834,
+        5.562042
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 2,
+      "lexicalLookupMS": 8.707833,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI49",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        28.322542,
+        29.469542,
+        28.740625,
+        34.973417,
+        30.053542,
+        27.582084
+      ],
+      "candidateMS": [
+        27.365125,
+        29.816542,
+        28.650875,
+        29.056208,
+        28.436375,
+        27.738
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 6,
+      "rows": 13,
+      "lexicalLookupMS": 50.937334,
+      "lexicalRankAt50": 3,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI50",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        28.787,
+        22.1845,
+        41.624125,
+        23.069,
+        23.87675,
+        22.544
+      ],
+      "candidateMS": [
+        26.25525,
+        22.532458,
+        37.838833,
+        22.269125,
+        22.510542,
+        33.456292
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 16,
+      "lexicalLookupMS": 38.055791,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI51",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        3.959333,
+        4.215041,
+        4.046041,
+        4.34325,
+        3.604625,
+        3.756583
+      ],
+      "candidateMS": [
+        3.938375,
+        3.800666,
+        4.18125,
+        3.7775,
+        3.671917,
+        3.975084
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 15,
+      "lexicalLookupMS": 5.5085,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI52",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        11.891584,
+        13.052042,
+        12.819167,
+        12.622417,
+        12.840583,
+        12.662125
+      ],
+      "candidateMS": [
+        8.704,
+        9.774666,
+        9.769875,
+        9.37075,
+        9.360583,
+        9.243625
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 18.898292,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "termsSplitAcrossIndexes"
+    },
+    {
+      "id": "KI53",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        1.467458,
+        1.347459,
+        1.558209,
+        1.244083,
+        1.247209,
+        1.27225
+      ],
+      "candidateMS": [
+        1.229,
+        1.218541,
+        1.631167,
+        1.059875,
+        1.4395,
+        1.200875
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 1.203375,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI54",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        33.006709,
+        38.340541,
+        34.176875,
+        33.380625,
+        39.319459,
+        45.7815
+      ],
+      "candidateMS": [
+        19.921666,
+        20.747917,
+        22.697333,
+        20.762708,
+        26.814417,
+        28.693
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 65.705375,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI55",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        2.370291,
+        1.62125,
+        1.840667,
+        1.646708,
+        1.602958,
+        1.74075
+      ],
+      "candidateMS": [
+        2.011625,
+        1.512417,
+        1.845667,
+        1.559208,
+        1.669041,
+        1.555209
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 9,
+      "rows": 10,
+      "lexicalLookupMS": 2.414833,
+      "lexicalRankAt50": 6,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI56",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        43.019042,
+        39.814667,
+        45.838584,
+        47.368167,
+        41.200083,
+        40.977
+      ],
+      "candidateMS": [
+        41.162625,
+        40.351917,
+        42.607959,
+        43.010209,
+        41.528042,
+        40.185125
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 28,
+      "rows": 45,
+      "lexicalLookupMS": 80.368208,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI57",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        23.601458,
+        20.896916,
+        23.268708,
+        21.130417,
+        22.250292,
+        23.092042
+      ],
+      "candidateMS": [
+        16.967625,
+        15.905458,
+        17.220625,
+        18.074583,
+        16.519,
+        17.271416
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 39.803417,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI58",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        22.809792,
+        23.252084,
+        24.0295,
+        23.367875,
+        23.840791,
+        24.670417
+      ],
+      "candidateMS": [
+        23.098208,
+        22.837417,
+        23.723375,
+        23.553708,
+        23.50325,
+        24.958334
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 6,
+      "lexicalLookupMS": 40.308916,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI59",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        9.588292,
+        7.675625,
+        7.734209,
+        7.260916,
+        8.652,
+        7.259292
+      ],
+      "candidateMS": [
+        10.360916,
+        8.506791,
+        7.878833,
+        7.345959,
+        7.785792,
+        7.38525
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 4,
+      "lexicalLookupMS": 12.739958,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI60",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        35.07225,
+        29.377083,
+        30.449584,
+        34.183917,
+        165.60675,
+        28.16525
+      ],
+      "candidateMS": [
+        34.32,
+        24.008125,
+        25.403917,
+        23.54575,
+        67.312625,
+        23.161541
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 43.456084,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI61",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        228.71475,
+        237.706375,
+        246.071833,
+        239.910583,
+        233.684584,
+        256.246209
+      ],
+      "candidateMS": [
+        237.065208,
+        234.698708,
+        242.260625,
+        242.467291,
+        234.660459,
+        252.336208
+      ],
+      "tokens": 11,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 223.540667,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI62",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        32.047417,
+        29.32875,
+        27.114834,
+        29.999417,
+        29.564917,
+        28.423375
+      ],
+      "candidateMS": [
+        29.0925,
+        30.4865,
+        33.569167,
+        29.4815,
+        33.236709,
+        29.395583
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 18,
+      "lexicalLookupMS": 55.348417,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI63",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        19.668958,
+        13.505875,
+        19.02725,
+        14.451834,
+        14.472083,
+        13.930792
+      ],
+      "candidateMS": [
+        89.057792,
+        13.481,
+        18.48475,
+        14.179125,
+        14.570583,
+        13.250333
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 27,
+      "lexicalLookupMS": 36.3125,
+      "lexicalRankAt50": 3,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI64",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        549.552375,
+        563.150791,
+        591.280375,
+        617.907875,
+        611.92375,
+        591.981292
+      ],
+      "candidateMS": [
+        534.228208,
+        558.79775,
+        555.121708,
+        618.657083,
+        602.27375,
+        580.180458
+      ],
+      "tokens": 9,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 574.114959,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI65",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        1.231959,
+        1.211208,
+        0.9575,
+        0.970875,
+        0.836334,
+        1.056125
+      ],
+      "candidateMS": [
+        1.453333,
+        1.131375,
+        1.269667,
+        0.8745,
+        1.021042,
+        0.900375
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 1.506791,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI66",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        10.688958,
+        9.340375,
+        10.363542,
+        9.345375,
+        9.150541,
+        8.958208
+      ],
+      "candidateMS": [
+        9.259583,
+        9.787792,
+        14.066792,
+        9.46775,
+        9.301125,
+        8.990417
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 8.943333,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI67",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        20.813792,
+        20.239834,
+        24.750958,
+        20.719,
+        36.699541,
+        20.747458
+      ],
+      "candidateMS": [
+        18.054208,
+        17.019,
+        18.582459,
+        17.130041,
+        119.007459,
+        16.7585
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 30,
+      "rows": 50,
+      "lexicalLookupMS": 39.865542,
+      "lexicalRankAt50": 5,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI68",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        73.916583,
+        77.783292,
+        73.404583,
+        89.566791,
+        73.264542,
+        76.512292
+      ],
+      "candidateMS": [
+        66.372583,
+        71.155792,
+        69.088917,
+        90.269917,
+        70.113583,
+        71.581625
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 134.601291,
+      "lexicalRankAt50": 3,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI69",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        14.6805,
+        14.616,
+        15.829042,
+        15.434916,
+        14.439583,
+        14.72675
+      ],
+      "candidateMS": [
+        14.737875,
+        14.427958,
+        16.04825,
+        14.912584,
+        14.940625,
+        14.739666
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 4,
+      "rows": 6,
+      "lexicalLookupMS": 20.11475,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI70",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        16.651583,
+        12.154292,
+        14.294667,
+        13.110917,
+        11.9175,
+        10.29625
+      ],
+      "candidateMS": [
+        12.612667,
+        11.628625,
+        41.020916,
+        12.3295,
+        11.617958,
+        10.517166
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 9.53775,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "termsSplitAcrossIndexes"
+    },
+    {
+      "id": "KI71",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        5.7295,
+        6.384541,
+        6.829041,
+        6.447834,
+        6.456958,
+        7.709708
+      ],
+      "candidateMS": [
+        6.450833,
+        5.988292,
+        7.346375,
+        6.23975,
+        7.222458,
+        6.895125
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 14,
+      "lexicalLookupMS": 10.269625,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI72",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        11.980792,
+        11.544917,
+        15.151792,
+        12.722167,
+        17.861208,
+        12.019042
+      ],
+      "candidateMS": [
+        12.117083,
+        11.767542,
+        12.174709,
+        12.138458,
+        11.779917,
+        12.162
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 18.475834,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI73",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        12.268375,
+        10.038625,
+        10.635583,
+        16.006833,
+        9.365083,
+        9.799333
+      ],
+      "candidateMS": [
+        10.26225,
+        9.798542,
+        18.179,
+        9.229833,
+        9.236083,
+        9.624583
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 16,
+      "lexicalLookupMS": 16.189917,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI74",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        402.140792,
+        231.903,
+        370.6735,
+        252.68775,
+        261.378458,
+        235.641541
+      ],
+      "candidateMS": [
+        322.428,
+        235.462833,
+        274.526125,
+        248.453666,
+        280.342167,
+        238.261666
+      ],
+      "tokens": 8,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 2,
+      "lexicalLookupMS": 392.036042,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI75",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        75.530583,
+        73.464667,
+        84.192625,
+        74.364541,
+        83.579709,
+        72.319125
+      ],
+      "candidateMS": [
+        73.833042,
+        72.068875,
+        77.775042,
+        73.577917,
+        96.478,
+        71.542167
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 5,
+      "lexicalLookupMS": 130.062625,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI76",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        13.981334,
+        13.501,
+        22.504334,
+        13.568542,
+        13.360042,
+        13.609917
+      ],
+      "candidateMS": [
+        14.16725,
+        13.012208,
+        17.046917,
+        13.7685,
+        14.025542,
+        13.487458
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 8,
+      "rows": 8,
+      "lexicalLookupMS": 35.576083,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI77",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        27.40825,
+        27.576083,
+        29.501042,
+        27.387,
+        27.542333,
+        27.026834
+      ],
+      "candidateMS": [
+        27.355833,
+        28.038667,
+        27.865666,
+        27.306875,
+        27.55725,
+        27.218417
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 1,
+      "lexicalLookupMS": 41.922292,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI78",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        1.779958,
+        2.30175,
+        2.109208,
+        2.352875,
+        1.915625,
+        1.848792
+      ],
+      "candidateMS": [
+        1.589,
+        1.993167,
+        1.975125,
+        1.938917,
+        1.782,
+        1.974
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 1,
+      "lexicalLookupMS": 2.608292,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI79",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        5.891625,
+        6.99325,
+        6.629958,
+        6.639875,
+        6.422416,
+        5.871042
+      ],
+      "candidateMS": [
+        4.403125,
+        5.04575,
+        5.070875,
+        4.712791,
+        4.675875,
+        4.453333
+      ],
+      "tokens": 2,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 11.383875,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI80",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        19.58925,
+        17.694666,
+        16.396916,
+        23.279,
+        17.082875,
+        18.701125
+      ],
+      "candidateMS": [
+        15.764208,
+        14.5705,
+        13.55275,
+        17.012875,
+        13.616709,
+        14.656709
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 25,
+      "rows": 50,
+      "lexicalLookupMS": 35.635125,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI81",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        13.62175,
+        12.091041,
+        11.810125,
+        13.999792,
+        12.609542,
+        12.108625
+      ],
+      "candidateMS": [
+        13.605709,
+        11.963417,
+        12.594666,
+        12.48675,
+        11.926,
+        12.133458
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 3,
+      "rows": 9,
+      "lexicalLookupMS": 17.585125,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI82",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        42.359209,
+        43.926166,
+        47.5705,
+        44.325208,
+        114.228584,
+        53.181042
+      ],
+      "candidateMS": [
+        43.0955,
+        44.815708,
+        74.47025,
+        44.085167,
+        96.184541,
+        51.433959
+      ],
+      "tokens": 10,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 1,
+      "lexicalLookupMS": 82.89825,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI83",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        1032.639333,
+        799.039459,
+        969.715916,
+        801.355625,
+        1139.054166,
+        880.278125
+      ],
+      "candidateMS": [
+        829.231209,
+        958.797458,
+        939.925125,
+        887.772291,
+        959.695083,
+        807.682708
+      ],
+      "tokens": 15,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 786.701541,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI84",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        12.447583,
+        11.624,
+        12.877708,
+        15.333375,
+        13.669209,
+        12.688166
+      ],
+      "candidateMS": [
+        12.796125,
+        12.23325,
+        12.852458,
+        13.164708,
+        12.785625,
+        12.920666
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 10.604333,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI85",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        65.343959,
+        61.841708,
+        65.572,
+        63.929167,
+        61.386459,
+        64.428583
+      ],
+      "candidateMS": [
+        63.42175,
+        61.540167,
+        63.652792,
+        63.965292,
+        62.22725,
+        63.381333
+      ],
+      "tokens": 8,
+      "route": "full",
+      "rankAt50": 9,
+      "rows": 10,
+      "lexicalLookupMS": 124.101083,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI86",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        7.968292,
+        7.161291,
+        8.19,
+        7.243625,
+        7.156458,
+        9.429417
+      ],
+      "candidateMS": [
+        7.519959,
+        7.449083,
+        7.690583,
+        6.968083,
+        62.844875,
+        6.954166
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 20,
+      "rows": 50,
+      "lexicalLookupMS": 12.161167,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI87",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        5.057292,
+        6.251125,
+        5.630625,
+        6.535584,
+        5.703542,
+        6.714208
+      ],
+      "candidateMS": [
+        4.532125,
+        5.405583,
+        4.703417,
+        4.873125,
+        5.048958,
+        5.020167
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 38,
+      "rows": 50,
+      "lexicalLookupMS": 8.784292,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI88",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        8.86775,
+        9.353375,
+        10.368208,
+        9.131709,
+        9.791625,
+        9.412875
+      ],
+      "candidateMS": [
+        9.143584,
+        8.978792,
+        9.752125,
+        9.50925,
+        9.737666,
+        9.411375
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 7.646208,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI89",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        17.324042,
+        18.446708,
+        19.65125,
+        17.829042,
+        18.435667,
+        18.541625
+      ],
+      "candidateMS": [
+        17.654833,
+        18.533584,
+        19.605625,
+        17.838166,
+        18.754125,
+        18.060916
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 16,
+      "rows": 38,
+      "lexicalLookupMS": 35.182708,
+      "lexicalRankAt50": 5,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI90",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        7.502417,
+        6.886708,
+        7.725375,
+        6.920666,
+        7.611083,
+        7.951833
+      ],
+      "candidateMS": [
+        7.160417,
+        6.273792,
+        6.852208,
+        6.4835,
+        8.489791,
+        6.841209
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 12.737625,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI91",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        17.909375,
+        15.912917,
+        21.31325,
+        15.557083,
+        16.918125,
+        16.450917
+      ],
+      "candidateMS": [
+        17.391416,
+        15.567459,
+        18.979958,
+        16.548375,
+        15.723875,
+        16.996042
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 4,
+      "rows": 4,
+      "lexicalLookupMS": 30.243791,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI92",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        2.602291,
+        2.75425,
+        3.307667,
+        2.893417,
+        3.148208,
+        2.988292
+      ],
+      "candidateMS": [
+        2.597041,
+        2.834666,
+        3.378292,
+        2.987875,
+        3.225417,
+        3.097584
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 2.546791,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "termsSplitAcrossIndexes"
+    },
+    {
+      "id": "KI93",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        11.997584,
+        13.046958,
+        14.070834,
+        13.05125,
+        14.732584,
+        13.838
+      ],
+      "candidateMS": [
+        12.00575,
+        12.788667,
+        16.56225,
+        12.753833,
+        14.270292,
+        13.285208
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 8,
+      "lexicalLookupMS": 17.178083,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI94",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        17.294083,
+        15.838292,
+        15.318375,
+        15.097542,
+        14.873375,
+        15.796292
+      ],
+      "candidateMS": [
+        23.206625,
+        15.356125,
+        15.225875,
+        14.629833,
+        15.930625,
+        15.300625
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 15.734417,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI95",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        14.066875,
+        10.28475,
+        10.610917,
+        12.444333,
+        11.39675,
+        11.125292
+      ],
+      "candidateMS": [
+        10.353375,
+        9.762209,
+        20.976834,
+        12.487208,
+        10.384792,
+        10.622917
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 15.289125,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI96",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        31.871666,
+        25.236833,
+        25.22875,
+        28.441333,
+        25.226584,
+        26.332125
+      ],
+      "candidateMS": [
+        28.93875,
+        26.3715,
+        28.060542,
+        26.340375,
+        25.005125,
+        25.965334
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 21,
+      "lexicalLookupMS": 56.99675,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI97",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        30.847291,
+        32.865959,
+        33.664542,
+        33.638708,
+        33.927917,
+        34.75
+      ],
+      "candidateMS": [
+        22.269708,
+        22.683875,
+        22.65275,
+        24.922709,
+        23.866334,
+        24.507166
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 52.804958,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI98",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        23.118459,
+        20.23025,
+        25.191541,
+        20.139792,
+        19.409708,
+        19.388792
+      ],
+      "candidateMS": [
+        21.436875,
+        19.412583,
+        20.563708,
+        19.992208,
+        21.092,
+        19.221833
+      ],
+      "tokens": 8,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 2,
+      "lexicalLookupMS": 32.607417,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI99",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        25.697667,
+        20.510792,
+        17.169542,
+        19.238709,
+        126.929625,
+        17.423708
+      ],
+      "candidateMS": [
+        15.746417,
+        16.360083,
+        14.056708,
+        20.066667,
+        107.564167,
+        14.758333
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 47.713458,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI100",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        2.140791,
+        1.975958,
+        2.572,
+        2.235542,
+        1.971459,
+        2.071792
+      ],
+      "candidateMS": [
+        2.039375,
+        2.244917,
+        3.866708,
+        2.193625,
+        1.912625,
+        2.157042
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 3.524583,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI101",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        23.595458,
+        57.679042,
+        25.360084,
+        24.226958,
+        24.055667,
+        25.587334
+      ],
+      "candidateMS": [
+        23.449375,
+        68.924666,
+        25.141166,
+        24.503458,
+        24.136708,
+        25.527792
+      ],
+      "tokens": 10,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 35.429708,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI102",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        1.296459,
+        1.459292,
+        1.371917,
+        1.58875,
+        1.441,
+        1.21825
+      ],
+      "candidateMS": [
+        1.230292,
+        1.476917,
+        1.314334,
+        1.658625,
+        1.349625,
+        1.376458
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 2,
+      "lexicalLookupMS": 1.870667,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI103",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        16.96475,
+        16.968917,
+        51.410958,
+        21.034417,
+        19.089208,
+        17.278291
+      ],
+      "candidateMS": [
+        16.619833,
+        16.822375,
+        38.173292,
+        19.352959,
+        17.882291,
+        17.094209
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 2,
+      "lexicalLookupMS": 29.907125,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI104",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        23.102417,
+        26.03375,
+        51.912833,
+        28.429375,
+        21.85625,
+        21.60875
+      ],
+      "candidateMS": [
+        23.738875,
+        24.572208,
+        29.1795,
+        21.750458,
+        23.104708,
+        21.610084
+      ],
+      "tokens": 9,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 19.8775,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI105",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        18.892542,
+        19.547,
+        20.877333,
+        19.506292,
+        40.342625,
+        19.194792
+      ],
+      "candidateMS": [
+        18.879792,
+        19.895917,
+        22.079,
+        26.21475,
+        180.333625,
+        19.535875
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 44,
+      "rows": 50,
+      "lexicalLookupMS": 55.199542,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI106",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        5.2025,
+        2.304708,
+        1.804875,
+        1.64175,
+        2.338708,
+        5.894541
+      ],
+      "candidateMS": [
+        2.113792,
+        2.064,
+        3.161583,
+        1.77525,
+        2.112375,
+        1.838334
+      ],
+      "tokens": 2,
+      "route": "full",
+      "rankAt50": 47,
+      "rows": 50,
+      "lexicalLookupMS": 2.682666,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI107",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        32.805792,
+        34.861625,
+        33.856292,
+        33.6125,
+        50.013708,
+        32.690667
+      ],
+      "candidateMS": [
+        26.233917,
+        25.713458,
+        26.892083,
+        30.475292,
+        48.750958,
+        25.9995
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 81.723291,
+      "lexicalRankAt50": 6,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI108",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        1.136084,
+        0.916167,
+        1.356667,
+        0.851958,
+        1.207959,
+        1.337709
+      ],
+      "candidateMS": [
+        1.007208,
+        1.030958,
+        1.160959,
+        0.891125,
+        1.081333,
+        1.37375
+      ],
+      "tokens": 2,
+      "route": "full",
+      "rankAt50": 31,
+      "rows": 36,
+      "lexicalLookupMS": 1.401333,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI109",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        1.1735,
+        0.388,
+        0.462584,
+        0.645166,
+        0.42425,
+        0.597292
+      ],
+      "candidateMS": [
+        0.948166,
+        0.330542,
+        0.57675,
+        0.435291,
+        0.525125,
+        0.448958
+      ],
+      "tokens": 2,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 2,
+      "lexicalLookupMS": 0.4665,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI110",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        24.337708,
+        24.883917,
+        38.426292,
+        24.836084,
+        24.871209,
+        25.726959
+      ],
+      "candidateMS": [
+        23.736541,
+        24.587125,
+        28.820125,
+        25.786958,
+        24.877542,
+        25.791833
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 3,
+      "lexicalLookupMS": 46.670459,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI111",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        6.20775,
+        6.95025,
+        6.804,
+        6.431083,
+        6.455209,
+        6.64475
+      ],
+      "candidateMS": [
+        6.369333,
+        6.859166,
+        6.985917,
+        6.633125,
+        6.499041,
+        6.78425
+      ],
+      "tokens": 8,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 4,
+      "lexicalLookupMS": 10.969458,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI112",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        228.296583,
+        219.47625,
+        216.051166,
+        230.603583,
+        265.876459,
+        211.394
+      ],
+      "candidateMS": [
+        255.099458,
+        215.7745,
+        258.54075,
+        216.376875,
+        227.267208,
+        210.677667
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 6,
+      "lexicalLookupMS": 433.13875,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI113",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        7.040167,
+        7.383625,
+        7.288709,
+        17.024791,
+        6.879208,
+        7.601375
+      ],
+      "candidateMS": [
+        7.117917,
+        7.244667,
+        7.671709,
+        7.976041,
+        6.972083,
+        7.2535
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 6.9525,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI114",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        5.399041,
+        5.849875,
+        6.822333,
+        6.776625,
+        5.967042,
+        6.566125
+      ],
+      "candidateMS": [
+        6.224208,
+        5.638542,
+        6.32225,
+        12.443583,
+        5.766791,
+        6.3875
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 10.768667,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI115",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        17.818166,
+        21.910666,
+        18.658334,
+        18.173083,
+        18.066792,
+        18.00975
+      ],
+      "candidateMS": [
+        16.278958,
+        18.141291,
+        17.365084,
+        17.796708,
+        16.285459,
+        16.453667
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 36.345958,
+      "lexicalRankAt50": 8,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI116",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        25.433875,
+        25.168375,
+        26.534792,
+        26.377042,
+        25.760333,
+        25.217917
+      ],
+      "candidateMS": [
+        25.704625,
+        25.152833,
+        32.473208,
+        25.455667,
+        26.034084,
+        26.016542
+      ],
+      "tokens": 8,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 24.727041,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI117",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        213.846542,
+        183.317292,
+        204.470167,
+        274.392,
+        400.7165,
+        186.484834
+      ],
+      "candidateMS": [
+        187.69875,
+        184.038625,
+        210.806375,
+        232.076917,
+        271.576917,
+        180.647416
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 398.992292,
+      "lexicalRankAt50": 21,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI118",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        3.649417,
+        3.482375,
+        4.088125,
+        3.800833,
+        3.59875,
+        4.277708
+      ],
+      "candidateMS": [
+        3.4865,
+        3.873625,
+        3.919584,
+        3.759541,
+        4.178583,
+        4.211958
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 3.547208,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI119",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        2.506666,
+        3.551166,
+        3.0135,
+        2.911083,
+        46.644125,
+        3.205834
+      ],
+      "candidateMS": [
+        2.623709,
+        2.768666,
+        3.099917,
+        2.867375,
+        2.856125,
+        3.959791
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 4,
+      "rows": 4,
+      "lexicalLookupMS": 4.754334,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI120",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        14.747625,
+        11.015167,
+        11.849625,
+        17.544792,
+        11.615083,
+        12.198625
+      ],
+      "candidateMS": [
+        13.839208,
+        11.116042,
+        11.91025,
+        12.803,
+        11.711666,
+        12.011166
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 21,
+      "rows": 29,
+      "lexicalLookupMS": 21.740625,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI121",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        308.162583,
+        329.336,
+        339.403334,
+        334.59325,
+        319.052417,
+        299.404584
+      ],
+      "candidateMS": [
+        323.503417,
+        299.163708,
+        356.355375,
+        331.366666,
+        506.551167,
+        301.827458
+      ],
+      "tokens": 10,
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 2,
+      "lexicalLookupMS": 626.280292,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI122",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        11.596209,
+        13.218291,
+        16.7645,
+        12.5025,
+        12.208458,
+        12.820875
+      ],
+      "candidateMS": [
+        9.006042,
+        9.945458,
+        10.059334,
+        9.735458,
+        9.412042,
+        11.381584
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 26.900875,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI123",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        1.905709,
+        2.89375,
+        2.311292,
+        2.643708,
+        2.260584,
+        2.41825
+      ],
+      "candidateMS": [
+        1.97675,
+        2.344083,
+        2.525375,
+        2.583083,
+        2.654625,
+        2.32075
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 8,
+      "rows": 8,
+      "lexicalLookupMS": 4.476042,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI124",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        14.946,
+        16.919,
+        16.414417,
+        15.5315,
+        16.14525,
+        15.977417
+      ],
+      "candidateMS": [
+        15.7265,
+        17.894166,
+        19.780667,
+        21.56325,
+        16.071125,
+        16.151042
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 12,
+      "lexicalLookupMS": 25.961875,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI125",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        6.416875,
+        6.775291,
+        7.00625,
+        9.686667,
+        6.805,
+        6.773292
+      ],
+      "candidateMS": [
+        6.28825,
+        6.653375,
+        7.462542,
+        19.25925,
+        7.100625,
+        6.637291
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 6,
+      "lexicalLookupMS": 11.507,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI126",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        36.189541,
+        45.293125,
+        38.053625,
+        38.750084,
+        36.375167,
+        36.50125
+      ],
+      "candidateMS": [
+        35.979417,
+        35.751958,
+        37.412917,
+        37.631542,
+        36.39275,
+        37.327291
+      ],
+      "tokens": 12,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 34.017625,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI127",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        4.370542,
+        4.348458,
+        4.568208,
+        5.293834,
+        14.595417,
+        3.790875
+      ],
+      "candidateMS": [
+        4.216292,
+        4.219209,
+        8.164125,
+        4.33925,
+        11.738208,
+        3.778958
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 2,
+      "lexicalLookupMS": 6.620291,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI128",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        13.489,
+        9.107083,
+        13.810958,
+        9.02625,
+        9.314833,
+        9.185417
+      ],
+      "candidateMS": [
+        10.529667,
+        9.671833,
+        9.285834,
+        9.2,
+        9.755333,
+        8.754208
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 3,
+      "rows": 3,
+      "lexicalLookupMS": 14.794583,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI129",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        222.746583,
+        233.062042,
+        286.97075,
+        261.52375,
+        633.695584,
+        241.272708
+      ],
+      "candidateMS": [
+        226.949875,
+        222.666292,
+        303.55125,
+        244.282042,
+        918.672,
+        236.109958
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 238.204458,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI130",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        119.942084,
+        83.551375,
+        87.509667,
+        90.02325,
+        84.237917,
+        86.971334
+      ],
+      "candidateMS": [
+        219.318625,
+        80.702791,
+        85.613417,
+        113.680875,
+        86.749583,
+        87.584875
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 23,
+      "rows": 50,
+      "lexicalLookupMS": 175.474375,
+      "lexicalRankAt50": 12,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI131",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        10.574041,
+        10.766583,
+        11.277875,
+        11.304,
+        53.9285,
+        10.863083
+      ],
+      "candidateMS": [
+        10.8835,
+        10.979666,
+        11.500542,
+        11.36825,
+        29.898833,
+        10.526875
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 18.235625,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI132",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        20.987208,
+        23.330541,
+        25.572208,
+        21.429208,
+        21.197625,
+        20.954042
+      ],
+      "candidateMS": [
+        20.67375,
+        22.839375,
+        22.487292,
+        24.108291,
+        20.982625,
+        22.42325
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 23,
+      "rows": 23,
+      "lexicalLookupMS": 38.718292,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI133",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        3.80575,
+        4.154084,
+        3.894583,
+        3.988792,
+        4.256375,
+        4.040916
+      ],
+      "candidateMS": [
+        3.913375,
+        4.662917,
+        7.237167,
+        3.798083,
+        4.627791,
+        4.137458
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 11,
+      "rows": 30,
+      "lexicalLookupMS": 8.378375,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI134",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        9.94075,
+        3.44875,
+        4.241583,
+        3.172,
+        3.803375,
+        3.396166
+      ],
+      "candidateMS": [
+        4.451,
+        3.47625,
+        4.134125,
+        3.148959,
+        3.191667,
+        3.549042
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 2,
+      "lexicalLookupMS": 5.117333,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI135",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        17.299916,
+        18.609125,
+        18.435333,
+        18.880292,
+        83.463375,
+        18.678458
+      ],
+      "candidateMS": [
+        12.987959,
+        12.789292,
+        13.412375,
+        14.039833,
+        110.902375,
+        13.471084
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 28.769375,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI136",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        18.066584,
+        17.784,
+        19.494125,
+        18.656292,
+        38.370084,
+        18.106875
+      ],
+      "candidateMS": [
+        17.673625,
+        18.434708,
+        18.446875,
+        19.2045,
+        43.065792,
+        17.280375
+      ],
+      "tokens": 9,
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 3,
+      "lexicalLookupMS": 40.587958,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI137",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        31.090541,
+        27.711125,
+        27.829916,
+        28.901834,
+        31.92625,
+        28.021917
+      ],
+      "candidateMS": [
+        30.678625,
+        27.912875,
+        27.487083,
+        29.163208,
+        38.553333,
+        28.371
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 8,
+      "rows": 21,
+      "lexicalLookupMS": 52.982042,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI138",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        1.130584,
+        1.247125,
+        1.065209,
+        1.368125,
+        1.184666,
+        1.039542
+      ],
+      "candidateMS": [
+        1.024291,
+        1.252458,
+        1.085333,
+        1.720792,
+        0.973584,
+        1.134167
+      ],
+      "tokens": 2,
+      "route": "full",
+      "rankAt50": 29,
+      "rows": 33,
+      "lexicalLookupMS": 1.712542,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI139",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        21.268791,
+        21.524125,
+        22.992,
+        20.904875,
+        21.3825,
+        21.720167
+      ],
+      "candidateMS": [
+        21.219125,
+        20.85675,
+        23.270667,
+        20.949291,
+        23.730084,
+        21.699375
+      ],
+      "tokens": 5,
+      "route": "full",
+      "rankAt50": 16,
+      "rows": 20,
+      "lexicalLookupMS": 29.400375,
+      "lexicalRankAt50": 2,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI140",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        2.842375,
+        1.363542,
+        1.861417,
+        1.710958,
+        1.659167,
+        1.691333
+      ],
+      "candidateMS": [
+        1.7345,
+        1.4405,
+        2.395542,
+        3.333833,
+        1.495,
+        1.805708
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 1.415625,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI141",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        4.924125,
+        4.399542,
+        5.940459,
+        4.118541,
+        5.79425,
+        4.287959
+      ],
+      "candidateMS": [
+        5.659708,
+        4.073542,
+        4.813041,
+        3.939542,
+        5.585208,
+        4.672375
+      ],
+      "tokens": 4,
+      "route": "full",
+      "rankAt50": 42,
+      "rows": 47,
+      "lexicalLookupMS": 7.229875,
+      "lexicalRankAt50": 3,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI142",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        10.764083,
+        10.989833,
+        10.503666,
+        16.139542,
+        10.682334,
+        10.904209
+      ],
+      "candidateMS": [
+        11.044541,
+        10.41275,
+        10.326833,
+        10.658041,
+        10.814125,
+        11.217542
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 0,
+      "lexicalLookupMS": 9.396791,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI143",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        7.167416,
+        19.349917,
+        7.37525,
+        7.259542,
+        7.176459,
+        7.395542
+      ],
+      "candidateMS": [
+        7.116459,
+        10.785333,
+        7.382583,
+        7.754709,
+        7.2555,
+        7.32425
+      ],
+      "tokens": 3,
+      "route": "full",
+      "rankAt50": 12,
+      "rows": 30,
+      "lexicalLookupMS": 12.783334,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI144",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        11.927584,
+        12.502833,
+        16.980708,
+        12.999708,
+        12.941125,
+        12.840375
+      ],
+      "candidateMS": [
+        13.09875,
+        12.666125,
+        13.232834,
+        12.280167,
+        13.375792,
+        13.186125
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 2,
+      "lexicalLookupMS": 23.005,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI145",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        16.665834,
+        13.136875,
+        25.44625,
+        16.577167,
+        14.556709,
+        15.058833
+      ],
+      "candidateMS": [
+        15.818166,
+        12.953,
+        15.118167,
+        14.820709,
+        15.055667,
+        14.7135
+      ],
+      "tokens": 7,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 5,
+      "lexicalLookupMS": 26.169375,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI146",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        8.420875,
+        8.407917,
+        8.093541,
+        8.178458,
+        7.723542,
+        8.6705
+      ],
+      "candidateMS": [
+        8.554375,
+        8.615083,
+        8.111959,
+        12.430375,
+        7.710416,
+        8.616833
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 1,
+      "lexicalLookupMS": 16.203625,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI147",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        18.5205,
+        17.091625,
+        16.582083,
+        17.544833,
+        16.969459,
+        17.45525
+      ],
+      "candidateMS": [
+        18.849625,
+        16.689583,
+        17.403041,
+        17.376875,
+        16.786333,
+        17.134209
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 29,
+      "lexicalLookupMS": 42.96625,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    },
+    {
+      "id": "KI148",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        67.737541,
+        67.025417,
+        101.9725,
+        72.439292,
+        114.489166,
+        69.835208
+      ],
+      "candidateMS": [
+        69.407917,
+        68.173083,
+        100.580875,
+        69.789333,
+        97.626834,
+        69.063625
+      ],
+      "tokens": 12,
+      "route": "full",
+      "rankAt50": 4,
+      "rows": 16,
+      "lexicalLookupMS": 129.556583,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI149",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        7.847334,
+        8.24925,
+        8.75225,
+        8.463875,
+        8.438375,
+        8.534958
+      ],
+      "candidateMS": [
+        8.17975,
+        7.82575,
+        8.782792,
+        8.307375,
+        21.804083,
+        8.567458
+      ],
+      "tokens": 6,
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 20.463042,
+      "lexicalRankAt50": 1,
+      "targetCoverage": "eligible"
+    },
+    {
+      "id": "KI150",
+      "split": "test",
+      "targetPresent": true,
+      "baseMS": [
+        42.603083,
+        38.867167,
+        52.725625,
+        39.403,
+        40.297375,
+        40.094375
+      ],
+      "candidateMS": [
+        41.072791,
+        37.984166,
+        47.70175,
+        39.774042,
+        39.481542,
+        40.340375
+      ],
+      "tokens": 8,
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 1,
+      "lexicalLookupMS": 85.258458,
+      "lexicalRankAt50": 0,
+      "targetCoverage": "missingLiteralTerm"
+    }
+  ],
+  "environment": {
+    "referenceRevision": "f987bd34",
+    "sqlite": "3.54.0",
+    "python": "3.11.5",
+    "system": "Darwin",
+    "machine": "arm64",
+    "sourceSHA256": {
+      "Banana/Model/Mail/MailLocalSearch.swift": "de92cb25b6658546a1326bbf8d4a64f3a63463a39d48b20748ad7fc1c25db89c",
+      "Banana/Model/Mail/MailBodySearch.swift": "731ef1d469b777d2c1cbfd4eea866f4831115d70b0aa392759470f3e9c580140",
+      "tools/search-eval/mail_sql.py": "2dbd46c6958d82e211e949aa99fe55cb1112b58007b4068451ab20367dec42d7"
+    }
+  },
+  "targetCoverageNote": "Read each judged target against the exact header and body FTS expression in a separate fixture replay. A later search may change eligibility."
+}

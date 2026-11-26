@@ -1,0 +1,337 @@
+{
+  "sourceCommit": "f987bd34",
+  "platform": "arm64 macOS 27.2.1",
+  "node": "24.18.0",
+  "webRelevance": {
+    "layer": "web parser and predicate",
+    "cases": [
+      {
+        "scope": "plan",
+        "query": "Work with Noor Haddad",
+        "expected": [
+          "p1"
+        ],
+        "actual": [
+          "p1"
+        ],
+        "missing": [],
+        "unexpected": [],
+        "issues": [],
+        "passed": true
+      },
+      {
+        "scope": "plan",
+        "query": "not Work",
+        "expected": [
+          "p2"
+        ],
+        "actual": [
+          "p2"
+        ],
+        "missing": [],
+        "unexpected": [],
+        "issues": [],
+        "passed": true
+      },
+      {
+        "scope": "plan",
+        "query": "launch",
+        "expected": [
+          "p1",
+          "p2"
+        ],
+        "actual": [
+          "p1",
+          "p2"
+        ],
+        "missing": [],
+        "unexpected": [],
+        "issues": [],
+        "passed": true
+      },
+      {
+        "scope": "notes",
+        "query": "receipt",
+        "expected": [
+          "n1",
+          "n2"
+        ],
+        "actual": [
+          "n1",
+          "n2"
+        ],
+        "missing": [],
+        "unexpected": [],
+        "issues": [],
+        "passed": true
+      },
+      {
+        "scope": "notes",
+        "query": "archived receipt",
+        "expected": [
+          "n2"
+        ],
+        "actual": [
+          "n2"
+        ],
+        "missing": [],
+        "unexpected": [],
+        "issues": [],
+        "passed": true
+      },
+      {
+        "scope": "notes",
+        "query": "cafe",
+        "expected": [
+          "n1",
+          "n3"
+        ],
+        "actual": [],
+        "missing": [
+          "n1",
+          "n3"
+        ],
+        "unexpected": [],
+        "issues": [],
+        "passed": false
+      },
+      {
+        "scope": "notes",
+        "query": "noodle",
+        "expected": [],
+        "actual": [],
+        "missing": [],
+        "unexpected": [],
+        "issues": [],
+        "passed": true
+      },
+      {
+        "scope": "workouts",
+        "query": "strength workouts over 30 minutes",
+        "expected": [
+          "w1"
+        ],
+        "actual": [
+          "w1"
+        ],
+        "missing": [],
+        "unexpected": [],
+        "issues": [],
+        "passed": true
+      },
+      {
+        "scope": "workouts",
+        "query": "running workouts",
+        "expected": [
+          "w3"
+        ],
+        "actual": [
+          "w3"
+        ],
+        "missing": [],
+        "unexpected": [],
+        "issues": [],
+        "passed": true
+      }
+    ],
+    "passed": 8,
+    "total": 9
+  },
+  "webTiming": {
+    "scope": "Node predicate components, not browser frame/input latency",
+    "rows": 10000,
+    "perRowMS": [
+      18.41408299999999,
+      14.743250000000003,
+      18.797292,
+      12.133583999999999,
+      11.755916,
+      8.917667000000023,
+      9.157584000000014
+    ],
+    "oncePerQueryMS": [
+      3.797083999999998,
+      1.6832919999999945,
+      1.4469589999999926,
+      1.3867079999999987,
+      1.468291999999991,
+      1.4007080000000087,
+      1.4813749999999857
+    ]
+  },
+  "nativeFilters": [
+    "21 shared phrase fixtures; ambiguity, duration, invalid version/fields, transport and DST checks passed",
+    "Parser only, 1000 warm samples (ms): p50=0.5775834433734417 p95=0.7084582466632128 p99=0.8932915516197681 max=3.7323751021176577. Not UI latency.",
+    "10,000-row predicate preparation ablation, identical results. Per-row preparation ms: [29.86512496136129, 29.7819166444242, 30.46470833942294, 30.04616661928594, 30.29624978080392, 30.177375068888068, 30.467416625469923]; once-per-query ms: [9.756291517987847, 9.953041793778539, 9.918333496898413, 9.979041758924723, 9.867041604593396, 9.940291522070765, 10.059708496555686]. Not UI latency."
+  ],
+  "calendarRouting": "Calendar search URL checks passed",
+  "notesBridge": {
+    "checks": 384,
+    "comparisonsPerSample": 3600,
+    "samples": [
+      {
+        "ms": 9.025666629895568,
+        "native": false
+      },
+      {
+        "ms": 4.608500050380826,
+        "native": true
+      },
+      {
+        "ms": 1.4659585431218147,
+        "native": true
+      },
+      {
+        "ms": 4.208708414807916,
+        "native": false
+      },
+      {
+        "ms": 4.198708338662982,
+        "native": false
+      },
+      {
+        "ms": 1.4056249056011438,
+        "native": true
+      },
+      {
+        "ms": 1.3761247973889112,
+        "native": true
+      },
+      {
+        "ms": 4.195499932393432,
+        "native": false
+      },
+      {
+        "ms": 4.181916592642665,
+        "native": false
+      },
+      {
+        "ms": 1.382583286613226,
+        "native": true
+      },
+      {
+        "ms": 1.3696250971406698,
+        "native": true
+      },
+      {
+        "ms": 4.1744166519492865,
+        "native": false
+      },
+      {
+        "ms": 4.186583450064063,
+        "native": false
+      },
+      {
+        "ms": 1.376958331093192,
+        "native": true
+      },
+      {
+        "ms": 1.3563332613557577,
+        "native": true
+      },
+      {
+        "ms": 4.139958415180445,
+        "native": false
+      },
+      {
+        "ms": 4.176166607066989,
+        "native": false
+      },
+      {
+        "ms": 1.3798750005662441,
+        "native": true
+      },
+      {
+        "ms": 1.3787082862108946,
+        "native": true
+      },
+      {
+        "ms": 4.1760418098419905,
+        "native": false
+      },
+      {
+        "ms": 4.157208371907473,
+        "native": false
+      },
+      {
+        "ms": 1.3610415626317263,
+        "native": true
+      },
+      {
+        "ms": 1.368124969303608,
+        "native": true
+      },
+      {
+        "ms": 4.188791615888476,
+        "native": false
+      },
+      {
+        "ms": 4.1854167357087135,
+        "native": false
+      },
+      {
+        "ms": 1.375541789457202,
+        "native": true
+      },
+      {
+        "ms": 1.3723333831876516,
+        "native": true
+      },
+      {
+        "ms": 4.149416694417596,
+        "native": false
+      },
+      {
+        "ms": 4.1339583694934845,
+        "native": false
+      },
+      {
+        "ms": 1.365333329886198,
+        "native": true
+      },
+      {
+        "ms": 1.373291714116931,
+        "native": true
+      },
+      {
+        "ms": 4.163583507761359,
+        "native": false
+      },
+      {
+        "ms": 4.176416667178273,
+        "native": false
+      },
+      {
+        "ms": 1.3754165265709162,
+        "native": true
+      },
+      {
+        "ms": 1.3833751436322927,
+        "native": true
+      },
+      {
+        "ms": 4.1911250445991755,
+        "native": false
+      },
+      {
+        "ms": 4.185124998912215,
+        "native": false
+      },
+      {
+        "ms": 1.3686250895261765,
+        "native": true
+      },
+      {
+        "ms": 1.374875195324421,
+        "native": true
+      },
+      {
+        "ms": 4.187166690826416,
+        "native": false
+      }
+    ],
+    "scope": "Foundation matching API only, warmed by correctness checks; not repository or UI timings.",
+    "sink": 11600
+  },
+  "firstNotesBuild": "Existing standalone command omitted BANANA_MODULE_NOTES and could not resolve VoiceNote. Retried with the module flag."
+}
