@@ -857,6 +857,13 @@ struct BananaApp: App {
     private func configured<Content: View>(_ content: Content) -> some View {
         content
             .problemReporting()
+            #if DEBUG
+            .task {
+                guard let missing = GoogleConsentRetryPreview.requested else { return }
+                try? await Task.sleep(for: .seconds(2))
+                _ = await GoogleConsentRetry.ask(missing)
+            }
+            #endif
             .environmentObject(store)
             #if BANANA_MODULE_PODCASTS
             .environmentObject(library)
