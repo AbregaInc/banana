@@ -135,6 +135,8 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
   const inflight = new Map();        // content fetches by key: concurrent asks share one download
   let ready = false;
   const now = () => deps.now();
+  // What the attachment-text walk did since the last progress line (counts and times only).
+  let walk = { opened: 0, openMS: 0, reads: 0, readMS: 0, converted: 0, convertMS: 0, waits: 0, stored: 0 };
   const setup = () => { if (!ready) { box.migrate(port); ready = true; } };
 
   async function lock(work, { wait = true } = {}) {
@@ -531,6 +533,10 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
 
   /** The stored message's Gmail JSON, or null. */
   async function storedMessage(who, id) {
+    const started = Date.now();
+    try { return await storedMessageTimed(who, id); } finally { walk.opened++; walk.openMS += Date.now() - started; }
+  }
+  async function storedMessageTimed(who, id) {
     const object = await blobs.get(await contentKey(who.sub, id));
     if (!object) return null;
     try {
@@ -544,7 +550,9 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     let bytes;
     if (part.data) bytes = fromBase64url(part.data);
     else {
+      const started = Date.now();
       const answer = await gmail(who, { resource: "attachment", id, attachmentID: part.attachmentId, query: [] }, { background: true });
+      walk.reads++; walk.readMS += Date.now() - started;
       const { bytes: raw, tooLarge } = await answerBytes(answer, Math.ceil(TEXT_FILE_MOST * 1.4) + 4096);
       if (tooLarge || answer.status !== 200) return "";
       const data = parse(raw)?.data;
@@ -553,7 +561,9 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     }
     if (TEXT_PLAIN.has(part.ext)) return tidy(new TextDecoder("utf-8", { fatal: false }).decode(bytes)).slice(0, TEXT_PART_CHARS);
     if (!deps.ai?.toMarkdown) return "";
+    const started = Date.now();
     const result = await deps.ai.toMarkdown({ name: part.name, blob: new Blob([bytes]) });
+    walk.converted++; walk.convertMS += Date.now() - started;
     const one = Array.isArray(result) ? result[0] : result;
     return one?.format === "error" || typeof one?.data !== "string" ? "" : tidy(one.data).slice(0, TEXT_PART_CHARS);
   }
@@ -579,7 +589,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
           box.textProgress(port, job.id, parts);
         }
       } catch (error) {
-        if (error instanceof Retry) return Math.max(now() + 100, await nextMailReadAt(deps, who.sub));
+        if (error instanceof Retry) { walk.waits++; return Math.max(now() + 100, await nextMailReadAt(deps, who.sub)); }
         if (error instanceof Unauthorized) throw error;
         box.textTried(port, job.id);
         return now();
@@ -590,6 +600,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
       const sha = hex(new Uint8Array(await crypto.subtle.digest("SHA-256", sealed)));
       if (!(await blobs.put(await contentKey(who.sub, job.id, TEXT_KEY), new Blob([sealed]).stream(), { sha256: sha }))) throw new Error("content store refused");
       box.textDone(port, job.id, 1, sealed.length);
+      walk.stored++;
       return now();
     }
     return now();
@@ -649,12 +660,24 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
         }
       }
       if (next === null) return null;
+      progressLine();
       // A snooze due before the next step: the alarm is set for it, idle or not.
       const wake = box.snoozeNext(port, { now: now() });
       await alarm.set(Math.max(wake === null ? next : Math.min(next, wake), now()));
       await recordWake(wake);
       return next;
     });
+  }
+
+  /** Once a minute, where the mailbox's walks stand: counts and times only, never an id or address. */
+  function progressLine() {
+    if (now() - Number(box.getMeta(port, "progress_logged_at") ?? 0) < MINUTE) return;
+    box.setMeta(port, "progress_logged_at", now());
+    const st = box.status(port);
+    const c = st.counts;
+    console.log(`mailbox: progress ${JSON.stringify({ messages: c.messages, cached: c.cached, scan: st.scanning, fillDone: st.fill?.done !== null,
+      verify: c.verify, fetch: c.fetch, textTodo: c.textTodo, textStored: c.textStored, ...walk })}`);
+    walk = { opened: 0, openMS: 0, reads: 0, readMS: 0, converted: 0, convertMS: 0, waits: 0, stored: 0 };
   }
 
   /** The earliest pending wake, in D1 too: the quarter-hour job sets an alarm that was lost again. */
