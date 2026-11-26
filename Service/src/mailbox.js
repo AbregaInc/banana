@@ -28,12 +28,12 @@ const BACKOFF = MINUTE;
 // once; polling stays as the safety net, at a slower pace.
 const POLL_ACTIVE_WATCHED = MINUTE, POLL_RECENT_WATCHED = 10 * MINUTE, POLL_IDLE_WATCHED = 2 * 60 * MINUTE;
 export const WATCH_RENEW_BEFORE = DAY;         // Gmail ends a watch after 7 days
-// The content fill: every message inside the window, newest first, on the background lane only.
+// The content fill: every message, newest first, on the background lane only. Content search needs
+// the whole mailbox (docs/performance/mail-content-search.md); MAIL_FILL_DAYS can still cap it.
 // It uses whatever of the identity's read budget nobody else is using, up to the 4,500 units a
 // minute ceiling (mail-read-pacing.js) less one full-read slot a minute kept for a person: 74
 // units a second, one full read every 811 ms. A background read only takes a slot that is free
 // now, so a person's read never waits behind it for more than one slot (800 ms).
-export const FILL_DAYS = 183;                   // six months, the engine's default sync limit
 export const FILL_CEILING_UNITS_PER_MINUTE = 4500;
 export const FILL_RESERVE_UNITS = 60;           // one full read a minute, for interactive reads only
 export const FILL_UNITS_PER_SECOND = (FILL_CEILING_UNITS_PER_MINUTE - FILL_RESERVE_UNITS) / 60;
@@ -43,7 +43,7 @@ const FILL_READ_UNITS = 60;                     // a full message read (mail-rea
 export const FILL_BACKOFF = 5 * MINUTE;
 export const FILL_RAMP = 5 * MINUTE;
 const FILL_FLOOR = 0.125;
-const FILL_OLD_STOP = 20;                       // this many in a row older than the window: done
+const FILL_OLD_STOP = 20;                       // with a cap: this many in a row older than it, done
 const FILL_AGAIN = 6 * 60 * MINUTE;             // a finished fill looks again (skipped, new rows)
 // "New mail is here" to the devices: one silent push for a burst, at most one per this gap.
 export const PUSH_GAP = 15 * SECOND;
@@ -438,12 +438,13 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     if (scan) return (await scanStep(who, scan)) ? now() : Math.max(now() + 100, await nextMailReadAt(deps, who.sub));
     const fillAt = await fillStep(who);
     if (fillAt !== null && fillAt <= now()) return now();
-    const dropped = box.maintain(port, { now: now(), keepSince: fillSince() });
+    const dropped = box.maintain(port, { now: now(), keepSince: fillSince() ?? 0 });
     if (dropped.length) await dropContent(dropped);
     return Math.min(Number(box.getMeta(port, "polled_at") ?? now()) + pollEvery(), fillAt ?? Infinity, pushAt ?? Infinity);
   }
 
-  const fillSince = () => now() - (deps.config.mailFillDays ?? FILL_DAYS) * DAY;
+  /** The oldest date the fill takes, or null for every message (the default). */
+  const fillSince = () => (deps.config.mailFillDays ? now() - deps.config.mailFillDays * DAY : null);
 
   /** One read of the content fill. Returns when the fill can go on (now: at once), or null when it
    * has nothing to do. It takes only a background slot and at most half the pace, so a device's
@@ -465,7 +466,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
       if (!r) { box.setFillState(port, { after, old, done: now() }); return null; }
       if (!box.fillSkips(r, since)) break;
       after = r.id;
-      if (r.date !== null && r.date < since && ++old >= FILL_OLD_STOP) { box.setFillState(port, { after, old, done: now() }); return null; }
+      if (since !== null && r.date !== null && r.date < since && ++old >= FILL_OLD_STOP) { box.setFillState(port, { after, old, done: now() }); return null; }
     }
     if (after !== state.after) { box.setFillState(port, { after, old, done: null }); return now(); }
     const [next] = box.fillNext(port, { after, limit: 1 });
@@ -484,7 +485,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
       throw error;
     }
     const date = box.contentState(port, next.id)?.date ?? null;
-    old = date !== null && date < since ? old + 1 : 0;
+    old = since !== null && date !== null && date < since ? old + 1 : 0;
     // The watermark moves past it whatever the answer (too large, refused, gone): a later walk
     // tries again; a device that opens it asks for it itself.
     box.setFillState(port, { after: next.id, old, done: old >= FILL_OLD_STOP ? now() : null });
