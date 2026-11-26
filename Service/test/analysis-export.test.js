@@ -105,3 +105,17 @@ test('malformed scalar source fields never become object-valued analysis cells',
 test('calendar errors preserve actionable structured recovery instead of suggesting blind retries',async()=>{
  await assert.rejects(importFeed('https://feed.test/data',{...options,fetcher:async()=>response({error:'calendar_unavailable',issues:[{calendar:'Shared calendar 1',reason:'unavailable'}]},503)}),error=>error.status===503&&error.issues.length===1&&/restore access or remove/.test(error.message));
 });
+
+test('calendar issues on later pages survive collection and deduplicate across pages', async () => {
+ const issue = {calendarRef:'opaque-ref',calendarIndex:1,reason:'unavailable'};
+ const fetcher = async url => {
+  const cursor = new URL(url).searchParams.get('cursor');
+  if(cursor==='calendar')return response({...page([], 'https://feed.test/data?cursor=end'),calendarIssues:[issue]});
+  if(cursor==='end')return response({...page([]),calendarIssues:[issue]});
+  return response(page([records[0]], 'https://feed.test/data?cursor=calendar'));
+ };
+ const result = await importFeed('https://feed.test/data',{...options,fetcher});
+ assert.deepEqual(result.calendarIssues,[issue]);
+ assert.equal(result.tables.meals.length,1);
+ assert.match(result.warnings.join(' '),/Calendar is incomplete/);
+});

@@ -77,7 +77,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
         </div>
         <p class="feed-footnote">${preview ? 'Your recipient creates their own credentials.' : 'Save your credentials now. They’re shown when you create the feed.'}</p>` : '';
       const createForm=label=>`<form data-feed-form><button class="button" type="submit" ${busy?'disabled':''}>${busy?'Creating…':label}</button></form>`;
-      const recovery=state.calendarIssue?`<div class="feed-warning" role="alert"><strong>A shared calendar needs attention</strong><p>${esc(state.calendarIssue.issues.some(i=>i.reason==='unavailable')?'The owner needs to restore or remove an unavailable calendar.':state.calendarIssue.issues.some(i=>i.reason==='reconnect')?'The owner needs to reconnect Google Calendar in Banana.':'Calendar data could not be read. Try again.')}</p><div class="share-actions"><button class="text-button" data-feed-response>Retry</button>${editShareURL?`<a class="text-button" href="${esc(editShareURL)}">Edit shared calendars</a>`:''}${permittedTypes()?.some(type=>type!=='calendar')?'<button class="text-button" data-feed-exclude-calendar>Preview without Calendar</button>':''}</div><details><summary>Calendar details</summary><ul>${state.calendarIssue.issues.map(i=>`<li>${esc(i.calendar||'Shared calendar')}${i.ownerCalendarID?`<br><code>${esc(i.ownerCalendarID)}</code>`:''}</li>`).join('')}</ul></details></div>`:'';
+      const recovery=state.calendarIssue?`<div class="feed-warning" role="alert"><strong>Calendar export is incomplete</strong><p>${esc(state.calendarIssue.issues.some(i=>i.reason==='unavailable')?'The owner needs to restore or remove an unavailable calendar.':state.calendarIssue.issues.some(i=>i.reason==='reconnect')?'The owner needs to reconnect Google Calendar in Banana.':'Some calendar data could not be read. Try again.')}</p><div class="share-actions"><button class="text-button" data-feed-response>Retry</button>${editShareURL?`<a class="text-button" href="${esc(editShareURL)}">Edit shared calendars</a>`:''}${permittedTypes()?.some(type=>type!=='calendar')?'<button class="text-button" data-feed-exclude-calendar>Preview without Calendar</button>':''}</div><details><summary>Calendar details</summary><ul>${state.calendarIssue.issues.map(i=>`<li>${esc(i.calendar||'Shared calendar')}${i.ownerCalendarID?`<br><code>${esc(i.ownerCalendarID)}</code>`:''}</li>`).join('')}</ul></details></div>`:'';
       const open=name=>state.panels?.[name]?'open':'';
       element.innerHTML=`<div class="feed-page">
         ${heading?'<h3>Data feed</h3>':''}
@@ -119,6 +119,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
       if (state.exportWorker) return;
       const url = selectedURL(saved(), true); if (!url) return;
       const worker = new Worker(new URL('./feed-export-worker.js', import.meta.url), {type:'module'});
+      let calendarIncomplete = false;
       state.exportWorker = worker; state.exportStatus = 'Reading shared data…'; draw();
       element.querySelector('[data-feed-export-cancel]')?.focus();
       state.exportObserver = new MutationObserver(() => { if (!element.isConnected) cancelExport(); });
@@ -129,6 +130,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
         if (data.error) { finish(); state.exportStatus=data.error; draw(); return; }
         if (data.progress) {
           const p=data.progress;
+          calendarIncomplete ||= Boolean(p.calendarIncomplete);
           state.exportStatus=p.stage==='waiting'?`Request limit reached. Waiting ${p.retryAfterSeconds} seconds…`:p.stage==='images'?`Downloaded ${p.completed} of ${p.total} photos.`:p.stage==='packaging'?'Preparing ZIP…':`Read ${p.records} records across ${p.pages} pages.`;
           const status=element.querySelector('[data-export-status]');if(status)status.textContent=state.exportStatus;return;
         }
@@ -136,7 +138,7 @@ export function shareFeedControls({ request, escape: esc, notice }) {
         if(!alive())return;
         const blob=new Blob([data.bytes],{type:'application/zip'}), href=URL.createObjectURL(blob),link=document.createElement('a');
         document.body.appendChild(link);link.href=href;link.download='banana-analysis-'+new Date().toISOString().slice(0,10)+'.zip';link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(href),60000);
-        state.exportStatus='Complete download ready.';draw();
+        state.exportStatus=calendarIncomplete?'Download ready. Calendar is incomplete.':'Complete download ready.';draw();
       };
       worker.onerror=()=>{finish();state.exportStatus='The download could not be prepared. Try again; no partial file was saved.';draw();};
       worker.postMessage({url,preview:preview||saved()?.session,images:state.includeImages!==false});
@@ -158,6 +160,11 @@ export function shareFeedControls({ request, escape: esc, notice }) {
         const text = await response.text();
         if (epoch !== credentialEpoch || state.responseEpoch !== owner) return;
         if(response.status===503&&text.length<=65536){try{const issue=JSON.parse(text);if(issue.error==='calendar_unavailable')state.calendarIssue={message:issue.message||'A selected calendar could not be read. Retry, edit the share or exclude Calendar from this request.',issues:Array.isArray(issue.issues)?issue.issues:[]};}catch{}}
+        if(response.ok&&response.headers.has('Banana-Calendar-Unavailable')){
+          let issues=[];
+          try{issues=JSON.parse(text).calendarIssues??[];}catch{}
+          state.calendarIssue={issues};
+        }
         let display = text.slice(0, 65536);
         if (text.length <= 65536) { try { display = JSON.stringify(JSON.parse(text), null, 2); } catch {} }
         state.responseText = display.slice(0, 65536); state.responseClipped = text.length > 65536 || display.length > 65536;

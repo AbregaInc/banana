@@ -9,7 +9,7 @@ export async function collectFeed(url,{fetcher=fetch,signal,onProgress=()=>{},wa
   first.searchParams.delete('view');first.searchParams.delete('cursor');first.searchParams.set('format','json');
   if(token)first.searchParams.delete('signature');
   let bytes=0,requests=0,pages=0,expected=null,initial=null;
-  const seen=new Set(),ids=new Set(),records=[];
+  const seen=new Set(),ids=new Set(),records=[],calendarIssues=new Map();
   async function request(target,binary=false){
     const u=new URL(target);if(u.origin!==first.origin||u.username||u.password)throw new FeedImportError('The feed returned an unexpected URL origin.');
     for(let attempt=0;attempt<4;attempt++){
@@ -44,6 +44,7 @@ export async function collectFeed(url,{fetcher=fetch,signal,onProgress=()=>{},wa
     const page=await request(next);
     if(page.schema!=='banana.feed.v2'||!Array.isArray(page.records)||!Array.isArray(page.types))throw new FeedImportError('Unsupported feed response schema.');
     if(initial==null){initial=page;expected=signature(page);}else if(signature(page)!==expected)throw new FeedImportError(messages[409],409);
+    for(const issue of page.calendarIssues??[])calendarIssues.set(issue.calendarRef??issue.calendarIndex,issue);
     for(const record of page.records){if(!page.types.includes(record.type)||typeof record.id!=='string'||!record.data||typeof record.data!=='object'||Array.isArray(record.data))throw new FeedImportError('The feed returned an invalid record.');const id=JSON.stringify([record.type,record.id]);if(ids.has(id))throw new FeedImportError('Records changed or repeated while paging. Start again.',409);ids.add(id);records.push(record);if(records.length>maxRecords)throw new FeedImportError('The export exceeds the configured record limit. Select fewer types or increase maxRecords in the developer importer.');}
     pages++;onProgress({stage:'reading',pages,records:records.length,bytes});next=page.next;
     if(next!=null&&typeof next!=='string')throw new FeedImportError('The feed returned an invalid next-page URL.');
@@ -52,6 +53,10 @@ export async function collectFeed(url,{fetcher=fetch,signal,onProgress=()=>{},wa
   const verify=await request(verifyURL.href);if(signature(verify)!==expected)throw new FeedImportError(messages[409],409);
   const result=normalizeAnalysis(records,{types:initial.types,access:initial.access,ownBundleID:initial.analysis?.ownBundleID??null});
   result.generatedAt=new Date().toISOString();result.access=initial.access;result.types=initial.types;result.calendarWindow=initial.calendarWindow??null;result.contentVersion=initial.contentVersion;
+  if(calendarIssues.size){
+    result.calendarIssues=[...calendarIssues.values()];
+    result.warnings.push('Calendar is incomplete. Preserve existing data for unavailable calendars when reconciling this export.');
+  }
   result.collection={pages,records:records.length,bytes,verifiedAt:result.generatedAt};
   // request() remains closed over the auth/session context for optional asset downloads.
   return {result,request,verify:async()=>{const page=await request(verifyURL.href);if(signature(page)!==expected)throw new FeedImportError(messages[409],409);},get bytes(){return bytes;}};
