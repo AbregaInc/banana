@@ -9,7 +9,7 @@ enum MailGmailSearchProbe {
     static let argument = "--mail-gmail-search"
     static var isRequested: Bool {
         let arguments = ProcessInfo.processInfo.arguments
-        return arguments.contains(argument) || arguments.contains(attachmentsArgument)
+        return arguments.contains(argument) || arguments.contains(attachmentsArgument) || arguments.contains(cloudTextArgument)
     }
 
     private struct Task_: Decodable { let topic: Int; let query: String; let accounts: [String] }
@@ -70,7 +70,57 @@ enum MailGmailSearchProbe {
         }
     }
 
+    /// `--mail-cloud-text`: READ-ONLY. For `{"account","ids":[…]}` entries in `BANANA_CLOUD_TEXT_IN`,
+    /// asks Banana Cloud's bulk content (`/v1/mail/content`, no Gmail read) for the attachment text it
+    /// has read, and writes `{account: {id: text}}` to `BANANA_CLOUD_TEXT_OUT` (0600).
+    static let cloudTextArgument = "--mail-cloud-text"
+    private struct TextWanted: Decodable { let account: String; let ids: [String] }
+
+    private static func downloadCloudText() {
+        Task { @MainActor in
+            let env = ProcessInfo.processInfo.environment
+            guard let input = env["BANANA_CLOUD_TEXT_IN"], let output = env["BANANA_CLOUD_TEXT_OUT"],
+                  let data = FileManager.default.contents(atPath: input),
+                  let wanted = try? JSONDecoder().decode([TextWanted].self, from: data) else { exit(1) }
+            _ = await BananaAccount.shared.refresh()
+            let access = MailCloudAccess()
+            var result: [String: [String: String]] = [:]
+            var asked = 0, withText = 0, failures = 0
+            for group in wanted {
+                guard let reference = try? await access.mailAccessToken(accountID: group.account).value else { failures += 1; continue }
+                for start in stride(from: 0, to: group.ids.count, by: 50) {
+                    let batch = Array(group.ids[start..<min(start + 50, group.ids.count)])
+                    var pending = batch
+                    for _ in 0..<5 where !pending.isEmpty {
+                        guard let body = try? JSONSerialization.data(withJSONObject: ["email": group.account.lowercased(), "ids": pending]),
+                              let (answer, status) = try? await BananaAccount.shared.mailFeedRequest(kind: "content", reference: reference, body: body),
+                              status == 200,
+                              let json = try? JSONSerialization.jsonObject(with: answer) as? [String: Any],
+                              let messages = json["messages"] as? [[String: Any]] else { failures += 1; break }
+                        var later: [String] = []
+                        for item in messages {
+                            guard let id = item["id"] as? String else { continue }
+                            if item["later"] as? Bool == true { later.append(id); continue }
+                            if let parts = item["attachmentText"] as? [[String: Any]] {
+                                let text = parts.map { "\($0["name"] as? String ?? "")\n\($0["text"] as? String ?? "")" }.joined(separator: "\n\n")
+                                result[group.account, default: [:]][id] = text
+                                withText += 1
+                            }
+                        }
+                        pending = later
+                    }
+                    asked += batch.count
+                    if asked % 500 < 50 { FileHandle.standardError.write(Data("\(asked) asked, \(withText) with text\n".utf8)) }
+                }
+            }
+            if let encoded = try? JSONEncoder().encode(result) { PrivateReport.write(encoded, toPath: output) }
+            FileHandle.standardError.write(Data("asked \(asked), with text \(withText), failures \(failures)\n".utf8))
+            exit(0)
+        }
+    }
+
     static func runIfRequested() {
+        if ProcessInfo.processInfo.arguments.contains(cloudTextArgument) { downloadCloudText(); return }
         if ProcessInfo.processInfo.arguments.contains(attachmentsArgument) { downloadAttachments(); return }
         guard isRequested else { return }
         Task { @MainActor in
