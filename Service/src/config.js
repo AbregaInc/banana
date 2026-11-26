@@ -36,7 +36,7 @@ export function configFrom(env) {
      * `${PUBLIC_URL}/v1/mail/push`) and the service account it is signed as. Both must match. */
     mailPushAudience: env.MAIL_PUSH_AUDIENCE ?? "",
     mailPushServiceAccount: String(env.MAIL_PUSH_SERVICE_ACCOUNT ?? "").toLowerCase(),
-    /** Days of mail the cloud mailbox fills with content ahead of any device (default 183). */
+    /** Optional cap, in days, on the mail the cloud mailbox fills with content. Unset: all mail. */
     mailFillDays: Number.isFinite(Number(env.MAIL_FILL_DAYS)) && Number(env.MAIL_FILL_DAYS) > 0 ? Number(env.MAIL_FILL_DAYS) : undefined,
     /** Event alerts from the service (docs/design/EVENT-ALERTS.md): "on" reads calendars and rings.
      * Off, the service reads no event and sends no alert; the devices' own alerts carry on. */

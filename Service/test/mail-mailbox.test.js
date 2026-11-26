@@ -424,6 +424,27 @@ test("the fill takes only free background slots, at the ceiling less the reserve
   assert.equal(answer.status, 200);
 });
 
+test("by default the fill takes every message, however old", async () => {
+  const t = await mailbox({ count: 30, labels: () => ["Label_1"] });
+  t.s.advance(400 * DAY);   // every message is now more than a year old
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const from = t.gmail.calls.length;
+  await fillDone(t);
+  assert.equal(new Set(fullReads(t.gmail, from)).size, 30);
+  const entries = t.latest((await t.all(t.mac)).entries);
+  for (const [id, e] of entries) assert.equal(e.content, true, id);
+});
+
+test("with no cap, old content is kept however long it goes unread", () => {
+  const db = new DatabaseSync(":memory:");
+  const port = sqlitePort(db);
+  box.migrate(port);
+  const now = Date.UTC(2026, 9, 15);
+  port.exec("INSERT INTO msg (id, thread, known, date, cached, used_at, labels) VALUES ('old', 't', 1, ?, 100, ?, '[]')", now - 3000 * DAY, now - 500 * DAY);
+  assert.deepEqual(box.maintain(port, { now, keepSince: 0 }), []);
+});
+
 test("content the fill keeps inside its window is not dropped as unused", () => {
   const db = new DatabaseSync(":memory:");
   const port = sqlitePort(db);

@@ -129,7 +129,7 @@ GOOGLE_REDIRECT_URI = ""                                    # empty for iOS serv
 # MAIL_PUSH_TOPIC = ""                 # projects/<PROJECT_ID>/topics/<TOPIC>
 # MAIL_PUSH_SERVICE_ACCOUNT = ""       # the push subscription's OIDC service account
 # MAIL_PUSH_AUDIENCE = ""              # optional; default <PUBLIC_URL>/v1/mail/push
-# MAIL_FILL_DAYS = ""                  # optional; days of mail the mailbox fills with content (183)
+# MAIL_FILL_DAYS = ""                  # optional cap in days on the content fill; unset fills all mail
 
 # The booking pages' fonts, served as they are from public/book/; the Worker answers every other path.
 [assets]
@@ -240,7 +240,7 @@ GOOGLE_REDIRECT_URI = ""
 # MAIL_PUSH_TOPIC = ""                 # projects/<PROJECT_ID>/topics/<TOPIC>
 # MAIL_PUSH_SERVICE_ACCOUNT = ""       # the push subscription's OIDC service account
 # MAIL_PUSH_AUDIENCE = ""              # optional; default <PUBLIC_URL>/v1/mail/push
-# MAIL_FILL_DAYS = ""                  # optional; days of mail the mailbox fills with content (183)
+# MAIL_FILL_DAYS = ""                  # optional cap in days on the content fill; unset fills all mail
 
 [env.beta.assets]
 directory = "./public"
