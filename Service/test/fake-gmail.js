@@ -53,6 +53,17 @@ export function fakeGmail({ email = "noor@plan.example", userLabels = ["Label_1"
     wire(m, format) {
       const out = { id: m.id, threadId: m.threadId, labelIds: [...m.labels].sort(), historyId: String(m.hist), internalDate: String(m.internalDate), snippet: `snippet ${m.id}`, sizeEstimate: 100 };
       if (format === "full") out.payload = { mimeType: "text/plain", headers: [{ name: "Subject", value: m.subject }], body: { size: 5, data: "aGVsbG8" } };
+      // Attachments (`m.attachments`: [{filename, text, inline?}]): a multipart payload, the body
+      // first; a part carries its bytes inline when `inline`, else an attachmentId to read.
+      if (format === "full" && m.attachments?.length) {
+        const body = out.payload;
+        out.payload = { mimeType: "multipart/mixed", partId: "", headers: body.headers, body: { size: 0 },
+          parts: [{ ...body, partId: "0", headers: [] }, ...m.attachments.map((a, i) => {
+            const data = Buffer.from(a.text).toString("base64url");
+            return { partId: String(i + 1), filename: a.filename, mimeType: "application/octet-stream", headers: [],
+              body: a.inline ? { size: a.text.length, data } : { size: a.size ?? a.text.length, attachmentId: `att-${m.id}-${i + 1}` } };
+          })] };
+      }
       if (m.from && format === "full") out.payload.headers.push({ name: "From", value: m.from });
       if (format === "metadata") out.payload = { headers: m.headers ?? (m.from ? [{ name: "From", value: m.from }] : []) };
       return out;
@@ -102,7 +113,10 @@ export function fakeGmail({ email = "noor@plan.example", userLabels = ["Label_1"
       }
       case "attachment": {
         const m = messages.get(request.id);
-        return m ? { status: 200, body: { size: 3, data: "YWJj" } } : { status: 404, body: notFound };
+        if (!m) return { status: 404, body: notFound };
+        const i = m.attachments?.findIndex((_, n) => request.attachmentID === `att-${m.id}-${n + 1}`) ?? -1;
+        if (i >= 0) { const text = m.attachments[i].text; return { status: 200, body: { size: text.length, data: Buffer.from(text).toString("base64url") } }; }
+        return { status: 200, body: { size: 3, data: "YWJj" } };
       }
       default: return { status: 400, body: { error: { code: 400, message: "unsupported" } } };
       }

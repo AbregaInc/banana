@@ -189,6 +189,25 @@ Gmail's `full` JSON (base64 bodies, ≈ 1.35× the raw message) sealed; at an AS
 message, **10–15 GB** for that mailbox (≈ $0.15–0.23 a month at R2's storage price). Content over 16 MB is
 never stored.
 
+### 5b. Attachment text
+
+Added 26 Nov 2026 ([measured](../performance/mail-attachment-search.md): indexing attachment text
+lifted known-item search by half, to Gmail's level). When the mailbox stores a message's content it
+lists the parts worth reading: named, at most `CACHE_MOST` bytes, and a document
+(`pdf docx xlsx xlsm xlsb xls ods odt numbers`, converted by Workers AI `toMarkdown`, free for these
+formats) or text (`txt csv tsv ics md json xml html htm`, read as is). Images are left out: OCR
+barely helped. Content stored before this existed is queued once (`text_todo`, parts unknown) and
+looked at from its stored copy.
+
+A walk takes the newest queued message ahead of the content fill, on the same background lane (an
+attachment read is 20 units). Each part's text is saved as it is read, so waiting for Gmail's next
+slot resumes the message rather than starting it again. A failing conversion is tried three times.
+At most 50,000 characters of an attachment and 200,000 of a message are kept, as
+`{version: 1, parts: [{partId, name, text}]}`, sealed like the message beside it in R2
+(`…/a-<sha256("banana-attachment-text-v1")>`), dropped with it. The message is published again with
+`text: true` in its feed entry, and `POST /v1/mail/content` hands the text over with the message as
+`attachmentText`. Devices index it; they never download the files to search them.
+
 **Bulk content.** `POST /v1/mail/content {email, ids ≤ 50}` answers, for each id, the stored
 `full` message with the mailbox's current labels and position, `missing` (not stored yet),
 `gone`, or `later` (the answer reached 8 MB). It never asks Google: a pull costs no Gmail quota.
