@@ -11,9 +11,9 @@ extension MailGoogleAccess {
                     .trimmingCharacters(in: .whitespacesAndNewlines)
                 return value?.isEmpty == false ? value : nil
             },
-            consent: { account, scopes in
+            consent: { account, _ in
                 guard FeatureAccessStore.shared.allows("email") else { throw GoogleConsentError.notConfigured }
-                return try await GoogleCalendarService.shared.googleConsent(hint: account, scopes: scopes)
+                return try await GoogleCalendarService.shared.googleConsent(hint: account)
             })
     }
 }

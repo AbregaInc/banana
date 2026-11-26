@@ -89,7 +89,7 @@ When Banana stalls, uses too much battery or memory, or crashes, and Share usage
 
 ## Email in the separate Banana Beta app
 
-Email is unavailable in the main Banana app and its public TestFlight build. In the separate Banana Beta app, on Google accounts we have enabled for testing, you can turn on Email. Banana then asks Google for permission to read, change and send your Gmail and, if you leave those boxes ticked, to read your contacts’ addresses and photos.
+Email is unavailable in the main Banana app and its public TestFlight build. When you connect Google in the separate Banana Beta app, Google’s screen asks in one go for your calendar, for permission to read, change and send your Gmail, and for your contacts’ addresses and photos; you can untick any of them. Email works only on Google accounts we have enabled for testing; for other accounts our server keeps no Gmail permission and no mail.
 
 - **What our server keeps.** Google’s permission for Gmail, stored encrypted with the key kept apart from the data. A copy of your mailbox, so each message is downloaded from Google once and all your devices get it from our server: for each message its id, conversation, labels and date, and its content (headers, body, and the attachments a device opened), each message encrypted on its own. Content no device has opened for 90 days is dropped and fetched again when needed. A message deleted in Gmail goes from our copy too.
 - **Staying current.** Gmail tells our server when your mailbox changes; the server reads what changed and passes it on to your devices.

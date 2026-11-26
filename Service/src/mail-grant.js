@@ -23,7 +23,7 @@ export async function connectMail(deps,vault,account,code,email) {
  if(grant.sub!==link.sub||grant.email.toLowerCase()!==link.email.toLowerCase())return {status:409,error:'different_account'};
  const prepared=await mailGrantStatements(deps,vault,account,grant);
  if(prepared.status!==200)return prepared;
- await deps.db.batch(prepared.statements);
+ await deps.db.batch([...prepared.statements,...await calendarGrantStatements(vault,link,grant,deps.now())]);
  return {status:200,capabilities:prepared.capabilities};
 }
 
@@ -45,4 +45,18 @@ export async function mailGrantStatements(deps,vault,account,grant) {
   // Re-consent retries an API that was disabled earlier; keep photos until refresh.
   sql:'DELETE FROM sender_contact_syncs WHERE account_id=? AND google_sub=?',params:[account,grant.sub]
  }]};
+}
+
+// Every consent asks for every scope (the app's GoogleScopes.all), so Mail's consent usually
+// carries the calendar's too: it then renews the Calendar grant as a sign-in would, and a calendar
+// waiting on a refused grant works again. Only a grant with all the calendar access the app needs
+// replaces it; anything less leaves the Calendar grant as it was.
+export async function calendarGrantStatements(vault,link,grant,now) {
+ if(!grant.refreshToken)return [];
+ const c=googleCapabilities({scopes:grant.scopes,status:'ok',has_token:true});
+ if(!c.calendarRead||!c.calendarWrite||!c.calendarList)return [];
+ return [{
+  sql:"UPDATE google_links SET refresh_token=?,scopes=?,status='ok',updated_at=? WHERE sub=?",
+  params:[await vault.seal(grant.sub,grant.refreshToken),grant.scopes,now,link.sub],
+ },{sql:'UPDATE watches SET retry_at=NULL,failures=0 WHERE google_sub=?',params:[link.sub]}];
 }

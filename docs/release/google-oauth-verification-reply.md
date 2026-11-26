@@ -9,10 +9,12 @@ script.
 
 Done in code (26 Nov 2026):
 
-- Every Google sign-in in the app is cut to `GoogleScopes.submitted`
-  (`Banana/Model/GoogleReconnectPermissions.swift`); a request for anything else is dropped and
-  asserts in Debug. Reconnect now asks for `gmail.modify` and the two contacts scopes whatever the
-  account held before, so an older `gmail.readonly` or full-Gmail grant comes back as `gmail.modify`.
+- Every Google consent in the app, whatever starts it (first run, adding or reconnecting an
+  account, turning on Mail, sender photos), asks for the whole set in `GoogleScopes.all`
+  (`Banana/Model/GoogleScopes.swift`) and nothing else. In builds without Email that is the two
+  calendar scopes.
+- Whatever a consent grants updates every surface: the service stores the Calendar and Mail grants
+  from any code that carries them (sign-in and Mail consent alike), and the app reloads both.
 - The Privacy Policy's Email section describes the cloud mailbox, Gmail push, drafts and sending,
   and what turning Email off deletes. It still has to be deployed (`LandingPage/`, `check_site.py`
   passes).
@@ -57,11 +59,13 @@ Banana requests exactly these scopes, and the Data Access page lists exactly the
 We removed `<removed scopes>` from the Console, and the app no longer requests any Gmail scope other
 than `gmail.modify`.
 
-Gmail and Contacts are requested only when a user turns on Email in the Banana Beta app. The two
-Contacts boxes are optional on Google's consent screen; Email works fully with them unticked. The
-App Store build of Banana is calendar-only and never requests these scopes (our release check
-rejects any build that contains them). Email is enabled on the server only for accounts marked as
-test accounts, so no production traffic requests unverified scopes.
+Gmail and Contacts are requested only by the Banana Beta app, which asks for Calendar, Gmail and
+Contacts together on one consent screen whenever the user connects Google, so one grant serves
+every part of the app. Each box can be unticked; Email works fully with the Contacts boxes
+unticked. The App Store and TestFlight builds of Banana are calendar-only and never request these
+scopes (our release check rejects any build that contains them). The Beta app is not publicly
+distributed, and Email is enabled on the server only for accounts marked as test accounts, so no
+production traffic requests unverified scopes.
 
 **2. `https://www.googleapis.com/auth/gmail.modify`**
 

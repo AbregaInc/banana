@@ -397,12 +397,11 @@ final class GoogleCalendarService: ObservableObject {
         restorationTask = nil
     }
 
-    /// Connect a Google account. `extraScopes` joins further scopes to the calendar's in the same
-    /// Google screen (the first run asks for Gmail with Calendar, `EmailSetup`); the calendar is
+    /// Connect a Google account, asking for every scope (`GoogleScopes.all`). The calendar is
     /// accepted on its own scopes, so unticking the others on Google's screen still connects it.
     /// - Returns: the scopes Google granted, or nil when nothing was connected.
     @discardableResult
-    func connect(extraScopes: [String] = []) async -> Set<String>? {
+    func connect() async -> Set<String>? {
         guard isConfigured else {
             lastError = "Google Calendar isn’t configured for this Banana build."
             return nil
@@ -414,12 +413,11 @@ final class GoogleCalendarService: ObservableObject {
         do {
             // Only hint when there is nothing connected yet: that is the case the hint helps,
             // and the case where preselecting cannot hide an account you are trying to add.
-            let result = try await interactiveSignIn(
-                hint: accounts.isEmpty ? suggestedAccountEmail : nil,
-                scopes: extraScopes.isEmpty ? nil : Self.requiredScopes + extraScopes)
+            let result = try await interactiveSignIn(hint: accounts.isEmpty ? suggestedAccountEmail : nil)
             try accept(result.user)
             // Cloud reads need the newly granted server credential before the first list request.
             await BananaAccount.shared.googleSignedIn(code: result.serverAuthCode)
+            if let email = result.user.profile?.email { await grantChanged(email: email) }
             try await loadCalendars()
             Telemetry.shared.record(.feature(.calendarConnected))
             return Set(result.user.grantedScopes ?? [])
@@ -451,14 +449,7 @@ final class GoogleCalendarService: ObservableObject {
         lastError = nil
         defer { isWorking = false }
         do {
-            var scopes = Self.requiredScopes
-            #if !BANANA_PUBLIC
-            let link = BananaAccount.shared.account?.google.first { $0.email.lowercased() == email.lowercased() }
-            scopes = GoogleReconnectPermissions.scopes(calendar: scopes,
-                mail: link?.permissionScopes?["mail"] ?? [], readable: link?.capabilities?.mailRead == true,
-                enabled: ModuleStore.shared.choice.includes(.email) && FeatureAccessStore.shared.allows("email"))
-            #endif
-            let result = try await interactiveSignIn(hint: email, scopes: Array(Set(scopes)).sorted())
+            let result = try await interactiveSignIn(hint: email)
             guard let signedIn = result.user.profile?.email,
                   signedIn.lowercased() == email.lowercased() else {
                 // Signing in as someone else here would silently swap which account is connected.
@@ -470,18 +461,24 @@ final class GoogleCalendarService: ObservableObject {
             reconnectReasons[email.lowercased()] = nil
             tokenCache[email.lowercased()] = nil
             await BananaAccount.shared.googleSignedIn(code: result.serverAuthCode)
-            #if !BANANA_PUBLIC
-            if ModuleStore.shared.choice.includes(.email), FeatureAccessStore.shared.allows("email"),
-               BananaAccount.shared.account?.google.first(where: { $0.email.lowercased() == email.lowercased() })?.capabilities?.mailRead == true {
-                await MailSenderImages.shared.permissionsDidChange()
-                NotificationCenter.default.post(name: MailSenderImages.permissionsChanged, object: nil)
-            }
-            #endif
+            await grantChanged(email: email)
             try await loadCalendars()
         } catch is CancellationError {
         } catch {
             lastError = Self.friendlyMessage(for: error)
         }
+    }
+
+    /// A consent for `email` finished and the service has its code: every surface that reads
+    /// Google's grant reads it again. The calendar is reloaded by the caller.
+    func grantChanged(email: String) async {
+        #if !BANANA_PUBLIC
+        guard ModuleStore.shared.choice.includes(.email), FeatureAccessStore.shared.allows("email"),
+              BananaAccount.shared.account?.google.first(where: { $0.email.lowercased() == email.lowercased() })?.capabilities?.mailRead == true
+        else { return }
+        await MailSenderImages.shared.permissionsDidChange()
+        NotificationCenter.default.post(name: MailSenderImages.permissionsChanged, object: nil)
+        #endif
     }
 
     /// Google's identity token for a connected account, minted with the refresh token already held:
@@ -2265,13 +2262,9 @@ final class GoogleCalendarService: ObservableObject {
         return error
     }
 
-    private func interactiveSignIn(hint: String?, scopes requestedScopes: [String]? = nil) async throws -> GIDSignInResult {
-        let wanted = requestedScopes ?? Self.requiredScopes
-        let scopes = GoogleScopes.allowed(wanted)
-        if scopes.count != Set(wanted).count {
-            Self.log.fault("Dropped a Google scope that is not submitted for verification")
-            assertionFailure("Asked Google for a scope outside GoogleScopes.submitted")
-        }
+    /// Every consent asks for every scope (`GoogleScopes.all`), whatever started it.
+    private func interactiveSignIn(hint: String?) async throws -> GIDSignInResult {
+        let scopes = GoogleScopes.all
         #if os(iOS)
         guard let presenter = Self.presentingViewController() else {
             throw GoogleCalendarError.noPresentationContext
@@ -2931,13 +2924,21 @@ extension MeetingInfo {
 
 #if BANANA_UNRELEASED
 extension GoogleCalendarService {
-    /// Reuse Google's platform presenter without accepting a Calendar account or changing its grant.
-    func googleConsent(hint: String, scopes: [String]) async throws -> GoogleConsentResult {
+    /// Consent started by Mail. It asks for every scope like any other, so a grant that carries the
+    /// calendar's also renews the calendar here, as reconnecting would; the caller hands the code
+    /// to the service, which stores both grants from it.
+    func googleConsent(hint: String) async throws -> GoogleConsentResult {
         guard clientID != nil else { throw GoogleConsentError.notConfigured }
         do {
-            let result = try await interactiveSignIn(hint: hint, scopes: scopes)
+            let result = try await interactiveSignIn(hint: hint)
             defer { GIDSignIn.sharedInstance.signOut() }
             guard let email = result.user.profile?.email else { throw GoogleConsentError.failed }
+            if (try? accept(result.user)) != nil {
+                accountsNeedingReconnect.remove(email.lowercased())
+                reconnectReasons[email.lowercased()] = nil
+                tokenCache[email.lowercased()] = nil
+                Task { try? await self.loadCalendars() }
+            }
             return GoogleConsentResult(email: email,
                 refreshToken: result.user.refreshToken.tokenString,
                 grantedScopes: result.user.grantedScopes ?? [], serverAuthCode: result.serverAuthCode)

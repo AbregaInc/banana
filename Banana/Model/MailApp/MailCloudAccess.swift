@@ -27,7 +27,7 @@ import Foundation
         guard !consenting else { return .cancelled }
         consenting = true; defer { consenting = false }
         do {
-            let result = try await GoogleCalendarService.shared.googleConsent(hint: accountID, scopes: [MailScopes.gmailModify] + MailScopes.senderPhotos)
+            let result = try await GoogleCalendarService.shared.googleConsent(hint: accountID)
             guard result.email.lowercased() == accountID.lowercased() else { return .differentAccount }
             guard result.grantedScopes.contains(MailScopes.gmailModify) else { return .declined }
             guard let code = result.serverAuthCode else { return .failed(.notConfigured) }

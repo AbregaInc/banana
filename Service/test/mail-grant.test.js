@@ -32,6 +32,22 @@ test('Mail consent and forgetting Mail preserve the Calendar grant byte for byte
  assert.equal(after.json.google[0].capabilities.calendarRead,true);
  assert.equal(s.google.calls.revoke.length,0);
 });
+test('Mail consent carrying every scope renews the Calendar grant from the same code',async()=>{
+ const s=setup(),a=await user(s);
+ await s.db.run("UPDATE google_links SET status='refused' WHERE sub=?",'sub-noor');
+ const all='openid email https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar.calendarlist.readonly https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/contacts.readonly https://www.googleapis.com/auth/contacts.other.readonly';
+ s.google.person('all','sub-noor','noor@plan.example','all-refresh',{scopes:all});
+ const before=s.google.calls.exchange;
+ assert.equal((await connect(s,a,'all')).status,200);
+ assert.equal(s.google.calls.exchange,before+1);
+ const link=await s.db.first('SELECT refresh_token,scopes,status FROM google_links WHERE sub=?','sub-noor');
+ assert.equal(link.scopes,all);assert.equal(link.status,'ok');assert.notEqual(link.refresh_token,'all-refresh');
+ const grant=await s.db.first('SELECT scopes,status FROM mail_grants WHERE google_sub=?','sub-noor');
+ assert.equal(grant.scopes,all);assert.equal(grant.status,'ok');
+ const account=(await s.call('GET','/v1/account',{session:a.session})).json.google[0].capabilities;
+ assert.equal(account.calendarWrite,true);assert.equal(account.calendarList,true);assert.equal(account.mailModify,true);
+});
+
 test('declined scope upgrade and a different Google identity leave existing grants intact',async()=>{
  const s=setup(),a=await user(s);
  s.google.person('mail','sub-noor','noor@plan.example','mail-refresh',{scopes:mail});await connect(s,a);
