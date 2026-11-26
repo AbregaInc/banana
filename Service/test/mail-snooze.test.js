@@ -85,7 +85,7 @@ async function mailbox() {
   const mac = (await s.signIn("noor", device("device-mac1", { platform: "mac", push: pushToken(2), capabilities: ["mail"] }))).json;
   await s.db.run("INSERT INTO feature_access VALUES (?,?,1,NULL,?)", phone.account.id, "email", s.now());
   s.google.person("mail-noor", SUB, EMAIL, "mail-noor", { scopes: "https://www.googleapis.com/auth/gmail.modify" });
-  assert.equal((await s.call("POST", "/v1/google/mail", { session: phone.session, body: { email: EMAIL, code: "mail-noor" } })).status, 200);
+  assert.equal((await s.signIn("mail-noor", device("device-phone", { push: pushToken(1), capabilities: ["mail"] }), phone.session)).status, 200);
   for (const [id, thread] of [["a1", "t-a"], ["a2", "t-a"], ["b1", "t-b"], ["c1", "t-c"]]) gmail.add(id, ["INBOX", "UNREAD"], thread);
   const operation = (body, who = phone) => s.call("POST", "/v1/mail/operation", { session: who.session, body: { email: EMAIL, operationID: opID(), ...body } });
   const status = () => s.mailboxes.get(SUB).status();

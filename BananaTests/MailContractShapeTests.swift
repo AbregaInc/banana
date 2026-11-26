@@ -404,8 +404,6 @@ final class MailContractShapeTests: XCTestCase {
         source.discard(receipt)
         source.retrySend(draftID)
         source.answer(MailQuestion.ID(raw: "q1"), .keepHere)
-        source.setWantsMail(true, account: account)
-        source.forgetPermission(account: account)
         source.reconsiderKeptMail(account: account)
         await source.finishSends(within: 5)
         await source.removeDownloadedMail(account: nil)

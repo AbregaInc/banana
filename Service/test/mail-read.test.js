@@ -10,7 +10,7 @@ async function signed(s,name='noor') {
  const a=(await s.signIn(name,device('device-'+name))).json;
  await s.db.run('INSERT INTO feature_access VALUES (?,?,1,NULL,?)',a.account.id,'email',s.now());
  s.google.person('mail-'+name,'sub-'+name,name+'@plan.example','mail-'+name,{scopes:'https://www.googleapis.com/auth/gmail.modify'});
- assert.equal((await s.call('POST','/v1/google/mail',{session:a.session,body:{email:name+'@plan.example',code:'mail-'+name}})).status,200);
+ assert.equal((await s.signIn('mail-'+name,device('device-'+name),a.session)).status,200);
  return a;
 }
 const call=(s,a,r=request())=>s.call('POST','/v1/mail/read',{session:a?.session,body:r});
@@ -29,12 +29,10 @@ test('mail requests cannot cross Banana accounts or bypass expired tester eligib
  await s.db.run('UPDATE feature_access SET expires_at=? WHERE account_id=?',s.now()-1,a.account.id);
  assert.equal((await call(s,a)).status,403);assert.equal(reads,0);
 });
-test('revoked Mail grants never revoke the Calendar grant or return an empty inbox success',async()=>{
- const s=setup(),a=await signed(s);const before=await s.db.first('SELECT refresh_token,status FROM google_links');
+test('a grant Google refuses answers 403, never an empty inbox success',async()=>{
+ const s=setup(),a=await signed(s);
  s.google.refused.add('mail-noor');
  assert.equal((await call(s,a)).status,403);
- assert.equal((await s.db.first('SELECT status FROM mail_grants')).status,'refused');
- assert.deepEqual(await s.db.first('SELECT refresh_token,status FROM google_links'),before);
 });
 test('typed mail resources reject arbitrary paths, methods and malformed pagination',()=>{
  for(const extra of [{resource:'__proto__'},{resource:'send'}, {resource:'message',id:'..'},
@@ -56,7 +54,7 @@ test('queued reads recheck revoked grants before contacting Gmail',async()=>{
  const s=setup(),a=await signed(s);let reads=0;
  s.google.mailRead=async()=>{reads++;return {status:200,body:{}};};
  assert.equal((await call(s,a)).status,200);
- s.deps.sleep=async ms=>{s.advance(ms);await s.db.run("UPDATE mail_grants SET status='unlinked'");};
+ s.deps.sleep=async ms=>{s.advance(ms);await s.db.run("UPDATE google_links SET status='unlinked'");};
  assert.equal((await call(s,a)).status,403);
  assert.equal(reads,1);
 });

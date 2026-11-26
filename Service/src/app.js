@@ -3,7 +3,6 @@ import {parseMailDraftRequest,mailDraft} from './mail-drafts.js';
 import {uploadMailPart,removeMailParts} from './mail-uploads.js';
 import {parseMailOperation,mailOperation} from "./mail-operation.js";
 import {parseMailRead,mailRead} from "./mail-read.js";
-import {connectMail,mailGrantStatements} from "./mail-grant.js";
 import {parseFeedQuery,mailFeed,parseMailCheck,mailCheck,wipeMailbox,parseMailContent,mailContent,mailPush,stopMailWatch} from "./mail-sync.js";
 import { parseCalendarOperation, calendarOperation } from "./calendar-operation.js";
 import { parseCalendarRead, calendarRead } from "./calendar-read.js";
@@ -232,9 +231,8 @@ export function createApp(deps) {
   async function summary(account) {
     const links = await db.all(
       `SELECT g.email, g.status, g.scopes, g.refresh_token IS NOT NULL AS has_token,
-              m.status AS mail_status, m.scopes AS mail_scopes, m.refresh_token IS NOT NULL AS mail_has_token,
               (SELECT COUNT(*) FROM watches w WHERE w.google_sub = g.sub AND w.status = 'live' AND w.expires_at > ?) AS watching
-       FROM google_links g LEFT JOIN mail_grants m ON m.google_sub = g.sub WHERE g.account_id = ? AND g.status <> 'unlinked' ORDER BY g.created_at, g.email`, now(), account);
+       FROM google_links g WHERE g.account_id = ? AND g.status <> 'unlinked' ORDER BY g.created_at, g.email`, now(), account);
     const devices = await db.first("SELECT COUNT(*) AS n FROM devices WHERE account_id = ?", account);
     return {
       id: account,
@@ -339,17 +337,9 @@ export function createApp(deps) {
               scopes = excluded.scopes, status = excluded.status, updated_at = excluded.updated_at, name = COALESCE(excluded.name, google_links.name)`,
       params: [google.sub, account, google.email.toLowerCase(), sealed, scopes, status, t, t, typeof google.name === "string" ? google.name.slice(0, 120) : null],
     });
-    // Combined reconnect updates both grants atomically. Calendar-only consent and
-    // identity refreshes leave working Mail access untouched.
-    if (!byIdentity && await featureAllowed(deps, account, "email")) {
-      const previousMail = await db.first("SELECT status FROM mail_grants WHERE google_sub = ?", google.sub);
-      // Google may return previously granted scopes even on a Calendar-only sign-in.
-      // Explicitly disconnected Mail is re-enabled only by the dedicated Mail consent action.
-      if (previousMail?.status !== "unlinked") {
-        const mail = await mailGrantStatements(deps, vault, account, google);
-        if (mail.status === 200) statements.push(...mail.statements);
-      }
-    }
+    // This one grant is Calendar's and Mail's: Mail is connected when it carries gmail.modify.
+    // Contacts' photos are read again with the new grant.
+    if (!byIdentity) statements.push({ sql: "DELETE FROM sender_contact_syncs WHERE account_id = ? AND google_sub = ?", params: [account, google.sub] });
     // Connected again: calendars waiting for a retry are tried at the next job run.
     if (existing) statements.push({ sql: "UPDATE watches SET retry_at = NULL, failures = 0 WHERE google_sub = ?", params: [google.sub] });
     // The device: a row another account holds moves to this one (the same install, signed in as
@@ -480,30 +470,6 @@ export function createApp(deps) {
     const body = await readJson(c,16 * 1024);
     const answer = await mailPush(deps,c.req.header("authorization"),body === TOO_LARGE || body === BAD ? null : body);
     return c.body(null,answer.status);
-  });
-
-  app.post("/v1/google/mail", signedIn, async (c) => {
-    const body = await readJson(c,4096);
-    if (typeof body?.code !== "string" || !body.code || body.code.length > 2048 || typeof body.email !== "string")
-      return c.json({error:"bad_request"},400);
-    const answer = await connectMail(deps,vault,c.get("account"),body.code,body.email);
-    c.header("Cache-Control","no-store");
-    return c.json(answer,answer.status);
-  });
-
-  app.delete("/v1/google/mail", signedIn, async (c) => {
-    const body = await readJson(c,4096);
-    if (typeof body?.email !== "string") return c.json({error:"bad_request"},400);
-    const link = await linkByEmail(c.get("account"),body.email);
-    if (!link) return c.json({error:"unknown_google"},404);
-    await stopMailWatch(deps,link.sub);   // while the grant still works
-    // Forget Mail access only. Revoking at Google could also revoke working Calendar consent.
-    await db.run(`INSERT INTO mail_grants(google_sub,refresh_token,scopes,client_id,status,granted_at,updated_at)
-      VALUES (?,NULL,'','','unlinked',?,?) ON CONFLICT(google_sub) DO UPDATE SET refresh_token=NULL,status='unlinked',updated_at=excluded.updated_at`,link.sub,now(),now());
-    // Mail turned off: the shared mailbox and every stored message go with it, and his contacts' photos.
-    await wipeMailbox(deps,link.sub);
-    await forgetContacts(deps,c.get("account"),link.sub);
-    return c.body(null,204);
   });
 
   app.post("/v1/calendar/operation", signedIn, async (c) => {
@@ -645,8 +611,6 @@ export function createApp(deps) {
     const others = await otherIdentity(link);
     await db.batch([
       ...(others ? [{ sql: "UPDATE sessions SET ended_at = ? WHERE account_id = ? AND kind = 'person' AND ended_at IS NULL AND (google_sub = ? OR google_sub IS NULL)", params: [now(), account, link.sub] }] : []),
-      // Mail consent goes with the Google account; only the Mail consent action brings it back.
-      { sql: "UPDATE mail_grants SET refresh_token = NULL, status = 'unlinked', updated_at = ? WHERE google_sub = ?", params: [now(), link.sub] },
       { sql: "DELETE FROM watches WHERE google_sub = ?", params: [link.sub] },
       ...forgetUnwatched(link.sub),
       { sql: "UPDATE google_links SET status = 'unlinked', refresh_token = NULL, updated_at = ? WHERE sub = ?", params: [now(), link.sub] },

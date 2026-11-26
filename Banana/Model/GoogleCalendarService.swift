@@ -440,10 +440,21 @@ final class GoogleCalendarService: ObservableObject {
     ///
     /// The login hint IS right here, unlike when adding: this is a request to re-authorise one
     /// named account, so preselecting it is exactly what is wanted.
-    func reconnect(email: String) async {
+    /// How a reconnect ended, for callers that act on it (Mail's Connect). Settings only shows
+    /// `lastError`.
+    enum ReconnectOutcome: Equatable {
+        /// Connected again, with the scopes Google granted.
+        case connected(Set<String>)
+        case cancelled
+        case differentAccount
+        case failed
+    }
+
+    @discardableResult
+    func reconnect(email: String) async -> ReconnectOutcome {
         guard isConfigured else {
             lastError = "Google Calendar isn’t configured for this Banana build."
-            return
+            return .failed
         }
         isWorking = true
         lastError = nil
@@ -454,7 +465,7 @@ final class GoogleCalendarService: ObservableObject {
                   signedIn.lowercased() == email.lowercased() else {
                 // Signing in as someone else here would silently swap which account is connected.
                 lastError = "That signed in as \(result.user.profile?.email ?? "another account"). Use “Add another Google account” for a different one."
-                return
+                return .differentAccount
             }
             try accept(result.user)
             accountsNeedingReconnect.remove(email.lowercased())
@@ -462,10 +473,13 @@ final class GoogleCalendarService: ObservableObject {
             tokenCache[email.lowercased()] = nil
             await BananaAccount.shared.googleSignedIn(code: result.serverAuthCode)
             await grantChanged(email: email)
-            try await loadCalendars()
+            do { try await loadCalendars() } catch { lastError = Self.friendlyMessage(for: error) }
+            return .connected(Set(result.user.grantedScopes ?? []))
         } catch is CancellationError {
+            return .cancelled
         } catch {
             lastError = Self.friendlyMessage(for: error)
+            return .failed
         }
     }
 
@@ -474,7 +488,7 @@ final class GoogleCalendarService: ObservableObject {
     func grantChanged(email: String) async {
         #if !BANANA_PUBLIC
         guard ModuleStore.shared.choice.includes(.email), FeatureAccessStore.shared.allows("email"),
-              BananaAccount.shared.account?.google.first(where: { $0.email.lowercased() == email.lowercased() })?.capabilities?.mailRead == true
+              BananaAccount.shared.account?.google.first(where: { $0.email.lowercased() == email.lowercased() })?.capabilities?.mailModify == true
         else { return }
         await MailSenderImages.shared.permissionsDidChange()
         NotificationCenter.default.post(name: MailSenderImages.permissionsChanged, object: nil)

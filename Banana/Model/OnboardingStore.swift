@@ -51,8 +51,6 @@ final class OnboardingStore: NSObject, ObservableObject {
     }
     @Published private(set) var copies: CopiesState = .idle
 
-    /// Email on the calendar page: on unless turned off there. Only in builds that have Email.
-    @Published var emailWanted = true
     /// Why the last "Continue with Google" didn't connect, kept until a try succeeds.
     @Published private(set) var connectProblem: String?
     /// Working out Email after a sign-in (waiting for the account's feature access).
@@ -126,7 +124,7 @@ final class OnboardingStore: NSObject, ObservableObject {
         defer { settlingEmail = false }
         let gmailGranted = Self.gmailGrantedAccounts.isEmpty == false
         var eligible: Bool? = Self.sampleEligibility
-        if eligible == nil, Self.emailInBuild, emailWanted, gmailGranted {
+        if eligible == nil, Self.emailInBuild, gmailGranted {
             let access = FeatureAccessStore.shared
             let deadline = ContinuousClock.now + timeout
             while !access.policyLoaded, ContinuousClock.now < deadline {
@@ -134,7 +132,7 @@ final class OnboardingStore: NSObject, ObservableObject {
             }
             eligible = access.policyLoaded ? access.emailAvailable : nil
         }
-        let outcome = EmailSetup.outcome(inBuild: Self.emailInBuild, wanted: emailWanted,
+        let outcome = EmailSetup.outcome(inBuild: Self.emailInBuild,
                                          gmailGranted: gmailGranted, eligible: eligible)
         emailOutcome = outcome
         if Self.emailInBuild {

@@ -227,11 +227,11 @@ final class MailFixtureSource: MailSource {
 
     /// Two accounts, and a second "send as" address on the first (`MailFixtureSource+Schedule.swift`).
     var accounts: [MailAccount] {
-        [MailAccount(id: MailFixtureConversations.account, shortName: "z0", wantsMail: true,
+        [MailAccount(id: MailFixtureConversations.account, shortName: "z0",
                      state: .connected, health: .live, lastSyncAt: MailFixtureConversations.now,
                      identities: Self.identities.filter { $0.account == MailFixtureConversations.account },
                      keptAfterRemoval: 0),
-         MailAccount(id: MailFixtureConversations.secondAccount, shortName: "abrega", wantsMail: true,
+         MailAccount(id: MailFixtureConversations.secondAccount, shortName: "abrega",
                      state: .connected, health: .live, lastSyncAt: MailFixtureConversations.now,
                      identities: Self.identities.filter { $0.account == MailFixtureConversations.secondAccount },
                      keptAfterRemoval: 0)]

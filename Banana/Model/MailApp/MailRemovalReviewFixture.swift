@@ -16,7 +16,6 @@ enum MailRemovalReviewFixture {
         func mailAccessToken(accountID: String) async throws -> MailAccessToken { throw MailAccessError.notGranted }
         func dropMailAccessToken(accountID: String) {}
         func requestMailAccess(accountID: String) async -> MailAccessOutcome { .cancelled }
-        func forgetMailAccess(accountID: String) async throws {}
         func cancelMailTokenRequests() {}
     }
     @MainActor static func make() async throws -> MailLiveSource {

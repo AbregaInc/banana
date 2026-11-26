@@ -250,8 +250,6 @@ enum EmailSetup {
     enum Reason: Equatable {
         /// A build without Email (Stable): nothing about it is shown.
         case notInBuild
-        /// Turned off on the calendar page.
-        case notWanted
         /// Gmail unticked on Google's screen: Calendar alone, a success.
         case notGranted
         /// The account isn't offered Email. Never shown as an error.
@@ -261,9 +259,8 @@ enum EmailSetup {
     }
 
     /// `eligible`: nil while feature access hasn't loaded.
-    static func outcome(inBuild: Bool, wanted: Bool, gmailGranted: Bool, eligible: Bool?) -> Outcome {
+    static func outcome(inBuild: Bool, gmailGranted: Bool, eligible: Bool?) -> Outcome {
         guard inBuild else { return .off(.notInBuild) }
-        guard wanted else { return .off(.notWanted) }
         guard gmailGranted else { return .off(.notGranted) }
         switch eligible {
         case true?: return .on

@@ -16,7 +16,7 @@ Done in code (26 Nov 2026):
 - Whatever a consent grants updates every surface: the service stores the Calendar and Mail grants
   from any code that carries them (sign-in and Mail consent alike), and the app reloads both.
 - The Privacy Policy's Email section describes the cloud mailbox, Gmail push, drafts and sending,
-  and what turning Email off deletes. It still has to be deployed (`LandingPage/`, `check_site.py`
+  and what disconnecting deletes. It still has to be deployed (`LandingPage/`, `check_site.py`
   passes).
 
 Still to do by hand:
@@ -129,7 +129,7 @@ Neither scope covers the other's list, so a sender in either one needs its own s
 
 **4. Limited Use**
 
-Turning Email off deletes the Gmail permission, our copy of the mailbox and the contact photos from our server at once. Gmail and Contacts data is used only for the features above. It is not used for advertising, not
+Disconnecting the Google account in Banana revokes the grant at Google and deletes our copy of the mailbox and the contact photos from our server at once. Gmail and Contacts data is used only for the features above. It is not used for advertising, not
 sold, not used to train AI models, and not read by people except with the user's explicit consent
 (a problem report they send), for security, or to comply with the law. Banana complies with the
 Google API Services User Data Policy, including the Limited Use requirements:
@@ -147,7 +147,7 @@ https://bananatheapp.com/privacy
 - `<t>` Drafts in Gmail Drafts, sending, deleting a draft
 - `<t>` Contacts: contact photo and Other-contacts photo shown beside the sender
 - `<t>` Calendar: the calendar list, and an event created, moved and deleted in Google Calendar
-- `<t>` Turning Email off, and removing access in the Google Account
+- `<t>` Disconnecting: access gone from the Google Account
 
 **6. Test access**
 
@@ -210,7 +210,7 @@ each section. Captions are enough, but a short voice-over helps.
 | 6 | 4:30 | both | **R** reply, type a line, pause: show it in Gmail Drafts. **Send**: show it in Gmail Sent (and arriving on the second account). Start another reply, discard it: show it gone from Gmail Drafts. | "gmail.modify: drafts and sending" |
 | 7 | 5:30 | Banana + Contacts | Show Alex Rivera in Google Contacts with the orange photo, then the same photo on Alex's rows in Banana. Show the Other-contacts sender (contacts.google.com › Other contacts) and their photo in Banana. Show the sender in neither, with initials. | "contacts.readonly / contacts.other.readonly: sender photos" |
 | 7b | 6:15 | Banana + Google Calendar | The calendar scopes are on the same consent screen, so show them in use too: Banana's calendar list with every Google calendar (`calendar.calendarlist.readonly`). Create an event in Banana, move it, delete it, and show each change in Google Calendar on the web (`calendar.events`). Keep it under a minute. | "calendar.events, calendar.calendarlist.readonly" |
-| 8 | 6:30 | Banana + Google Account | Banana Settings: turn Email off; Mail is gone from Banana. Then Google Account › Third-party connections: open Banana, show Gmail and Contacts listed, **Remove all access**. | "Turning Email off and revoking access" |
+| 8 | 6:30 | Banana + Google Account | First show Google Account › Third-party connections listing Banana with Calendar, Gmail and Contacts. In Banana Settings › Accounts, disconnect the Google account: Mail and the calendar are gone from Banana. Refresh Third-party connections: Banana is no longer listed. | "Disconnecting revokes access" |
 
 ### Don'ts
 

@@ -124,12 +124,6 @@ final class MailGoogleAccess: MailAccountAccess {
         catch { return .failed(.transport) }
     }
 
-    func forgetMailAccess(accountID: String) async throws {
-        let id = accountID.lowercased()
-        consentGeneration[id, default: 0] += 1
-        try await persist { $0.removeValue(forKey: id) }
-    }
-
     private func persist(_ change: @escaping @MainActor (inout [String: MailCredential]) -> Void) async throws {
         let previous = mutation
         mutationNumber += 1; let number = mutationNumber

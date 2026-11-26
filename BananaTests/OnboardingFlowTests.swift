@@ -150,27 +150,23 @@ final class OnboardingFlowTests: XCTestCase {
     // MARK: - Calendar and email, one consent
 
     func testBothGrantedAndEligibleTurnsEmailOn() {
-        XCTAssertEqual(EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: true, eligible: true), .on)
+        XCTAssertEqual(EmailSetup.outcome(inBuild: true, gmailGranted: true, eligible: true), .on)
     }
 
     func testBothGrantedButNotEligibleLeavesEmailOffQuietly() {
-        XCTAssertEqual(EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: true, eligible: false), .off(.notEligible))
+        XCTAssertEqual(EmailSetup.outcome(inBuild: true, gmailGranted: true, eligible: false), .off(.notEligible))
     }
 
     func testGmailUntickedIsACalendarSuccessWithEmailOff() {
-        XCTAssertEqual(EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: false, eligible: true), .off(.notGranted))
+        XCTAssertEqual(EmailSetup.outcome(inBuild: true, gmailGranted: false, eligible: true), .off(.notGranted))
     }
 
     func testEligibilityNotLoadedSkipsRatherThanBlocks() {
-        XCTAssertEqual(EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: true, eligible: nil), .off(.eligibilityUnknown))
-    }
-
-    func testEmailTurnedOffOnThePageLeavesItOffWhateverWasGranted() {
-        XCTAssertEqual(EmailSetup.outcome(inBuild: true, wanted: false, gmailGranted: true, eligible: true), .off(.notWanted))
+        XCTAssertEqual(EmailSetup.outcome(inBuild: true, gmailGranted: true, eligible: nil), .off(.eligibilityUnknown))
     }
 
     func testAStableBuildNeverMentionsEmail() {
-        XCTAssertEqual(EmailSetup.outcome(inBuild: false, wanted: true, gmailGranted: true, eligible: true), .off(.notInBuild))
+        XCTAssertEqual(EmailSetup.outcome(inBuild: false, gmailGranted: true, eligible: true), .off(.notInBuild))
         XCTAssertNil(OnboardingReceipt(choices: [], copies: .off, accounts: ["noor@plan.example"], email: nil).emailLine,
                      "no Email line in a build without Email")
     }

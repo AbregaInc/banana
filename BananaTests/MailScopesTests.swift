@@ -3,9 +3,9 @@ import XCTest
 /// Reading the scopes out of a token response.
 ///
 /// The one thing that matters here is the empty case. Whether the scopes are *known* decides
-/// whether an account can be marked withdrawn, so "Google did not say" and "Google said none"
+/// whether an account can be marked not connected, so "Google did not say" and "Google said none"
 /// must never be the same value: nil is unknown and the empty set is never produced. A working
-/// account marked withdrawn because one response left the field out is the failure.
+/// account marked not connected because one response left the field out is the failure.
 final class MailScopesTests: XCTestCase {
 
     private let gmail = "https://www.googleapis.com/auth/gmail.modify"
@@ -53,22 +53,22 @@ final class MailScopesTests: XCTestCase {
 
     /// The whole reason for the nil: an account whose token response carried no scope field is
     /// still a working account.
-    func testATerseTokenResponseDoesNotWithdrawAWorkingAccount() {
+    func testATerseTokenResponseDoesNotDisconnectAWorkingAccount() {
         for field in [nil, "", "  "] as [String?] {
             XCTAssertEqual(
-                MailAccountRules.state(wantsMail: true, activatedOnThisDevice: true,
+                MailAccountRules.state(activatedOnThisDevice: true,
                                        grant: .granted, tokenScopes: MailScopes.parse(field),
                                        serverRefusedScope: false),
                 .connected)
         }
     }
 
-    func testAResponseThatNamesOnlyOtherScopesDoesWithdraw() {
+    func testAResponseThatNamesOnlyOtherScopesIsNotConnected() {
         XCTAssertEqual(
-            MailAccountRules.state(wantsMail: true, activatedOnThisDevice: true,
+            MailAccountRules.state(activatedOnThisDevice: true,
                                    grant: .granted,
                                    tokenScopes: MailScopes.parse("openid email"),
                                    serverRefusedScope: false),
-            .needsAccess(.withdrawn))
+            .notConnected)
     }
 }

@@ -30,9 +30,6 @@ protocol MailAccountAccess: AnyObject {
     func dropMailAccessToken(accountID: String)
     /// Google's consent for Gmail, for this account, on this device. Needs a window in front.
     func requestMailAccess(accountID: String) async -> MailAccessOutcome
-    /// Durably delete this device's mail credential. Revokes nothing at Google.
-    /// Failure leaves the previous grant intact and must be shown to the user.
-    func forgetMailAccess(accountID: String) async throws
     /// Mail is leaving the foreground: end every token request in the air. Nothing is
     /// remembered of them; the next call mints again.
     func cancelMailTokenRequests()
@@ -128,8 +125,8 @@ enum MailScopes {
     /// **Nil means unknown, and nothing else does.** A token response need not carry the field
     /// at all, and an empty one says nothing either, so both read as "Google did not say" —
     /// never as the empty set. The difference matters: a set known to lack Gmail marks the
-    /// account withdrawn (`MailAccountRules.state`), and a working account must never be marked
-    /// withdrawn because one response was terse. A field of nothing but blanks is the same as
+    /// account not connected (`MailAccountRules.state`), and a working account must never be marked
+    /// not connected because one response was terse. A field of nothing but blanks is the same as
     /// an empty one.
     static func parse(_ scopeField: String?) -> Set<String>? {
         guard let scopeField else { return nil }

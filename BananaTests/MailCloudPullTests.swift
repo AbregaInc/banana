@@ -502,7 +502,6 @@ final class MailCloudPullTests: XCTestCase {
         func mailAccessToken(accountID: String) async throws -> MailAccessToken { MailAccessToken(value: "fixture", scopes: [MailScopes.gmailModify]) }
         func dropMailAccessToken(accountID: String) {}
         func requestMailAccess(accountID: String) async -> MailAccessOutcome { .granted }
-        func forgetMailAccess(accountID: String) async throws {}
         func cancelMailTokenRequests() {}
     }
     private func source(cloud: MailCloudPullTests.Cloud?, gmail: MailCloudPullTests.Gmail) async throws -> (MailStores, MailLiveSource) {
@@ -742,7 +741,6 @@ final class MailCloudPullTests: XCTestCase {
         func mailAccessToken(accountID: String) async throws -> MailAccessToken { MailAccessToken(value: "fixture", scopes: [MailScopes.gmailModify]) }
         func dropMailAccessToken(accountID: String) {}
         func requestMailAccess(accountID: String) async -> MailAccessOutcome { .granted }
-        func forgetMailAccess(accountID: String) async throws {}
         func cancelMailTokenRequests() {}
     }
     private func id(_ m: String) -> MailMessageID { MailMessageID(account: Self.account, message: m) }
