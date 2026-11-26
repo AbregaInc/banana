@@ -283,6 +283,9 @@ struct BananaApp: App {
         #if os(macOS)
         // Before any window exists, so it can be run on a machine nobody is sitting at.
         GoogleRoundTripProbe.runIfRequested()
+        #if !BANANA_PUBLIC
+        MailGmailSearchProbe.runIfRequested()
+        #endif
         #endif
         #if os(macOS)
         if !CalendarWriteBack.isDiagnosticLaunch {

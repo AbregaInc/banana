@@ -23,6 +23,10 @@ import Combine
 
     func start() {
         guard session == nil, startup == nil else { return }
+        #if os(macOS)
+        // The Gmail search probe reads through the service only; it never opens the mailbox.
+        if MailGmailSearchProbe.isRequested { return }
+        #endif
         #if DEBUG && targetEnvironment(simulator)
         if MailRemovalReviewFixture.enabled {
             loading = true; failed = false
