@@ -124,8 +124,7 @@ including deletions, rather than only appending returned rows. `contentVersion` 
 authorized synced datasets; compare the manifest before and after a full import and retry if it
 changed. It does not cover live Google calendar changes. Calendar queries use explicit windows
 of at most eight days, with the start within 366 days of now. Busy-only calendars retain the same
-redaction and busy-time merging as the shared web view. The unified endpoint returns 503 for unavailable calendars in either format; the legacy JSON
-calendar alias retains its `unavailable` list.
+redaction and busy-time merging as the shared web view. Feeds return readable calendars and other selected data. JSON pages that read an incomplete calendar window include `calendarIssues`. CSV callers must check the `Banana-Calendar-Unavailable` response header on each page for the count of unreadable calendars. The legacy calendar JSON alias retains its `unavailable` list.
 
 Asset URLs expire within one hour, or earlier when the grant expires. Fetch assets promptly;
 refresh their record page for new URLs. Assets always recheck the current share, feed, record
@@ -278,10 +277,10 @@ use, but must receive the complete selected dataset; use `importFeed` for a veri
 Every page checks `contentVersion`, access, selected types and workout source preference against
 the first page. The server checks synced content before and after constructing each page. The
 importer verifies again at the end and, for ZIPs, after downloading images. Any mismatch, revoked
-access, unavailable calendar/image, malformed record, duplicate, or exhausted retry fails without
+access, unavailable image, malformed record, duplicate, or exhausted retry fails without
 saving a partial archive. This is optimistic consistency, not an atomic multi-provider database
 transaction. Calendar pagination checks its own stable window/version; calendars can change after
-collection. Reconcile a complete replacement by the selected type/ID set, including deletions.
+collection. Reconcile deletions by type and ID for complete datasets. When `calendarIssues` is present, preserve existing calendar data for the affected window.
 
 The importer defaults to at least 1.1 seconds between requests under the shared 60/minute budget,
 respects `Retry-After`, and retries 429 three times before surfacing failure. Other consumers on the
@@ -347,16 +346,13 @@ are `DELETE /app/api/feeds/<id>`, `DELETE /app/api/shares/<share>/feeds/<id>` (o
 `DELETE /app/api/shared/<share>/feeds/<id>` (recipient), with a same-origin authenticated JSON body.
 An active key returns 409, unknown or out-of-scope keys 404.
 
-`calendar_unavailable` returns a message and per-selected-calendar `issues`, with a reason of
-`reconnect`, `unavailable` or `retry`. The preview renders the recovery instructions, Retry, an
-owner link to edit the share, and **Exclude Calendar from this request** when other types are
-selected. Exclusion changes only the request/type selection, never the saved share. The importer
-surfaces the same actionable reasons and exposes structured `error.issues`; no partial archive is
-saved. Google 403/404/410 requires the owner to restore access or remove the obsolete selection;
-transient failures remain retryable. Owner preview identifies its account/calendar IDs; recipient
-errors never expose busy-calendar names, account addresses or Google IDs.
+Each `calendarIssues` entry has a share-scoped `calendarRef` and a reason of
+`reconnect`, `unavailable` or `retry`. The importer and ZIP manifest retain these issues.
+The preview offers Retry and an edit link for owners. Owner preview identifies account and
+calendar IDs. The recipient warning protects busy-calendar names, account addresses and Google IDs.
+If every calendar fails, the warning still appears alongside the other selected data.
 
 Explicitly selected hidden or unsubscribed calendars are read if Google still permits the events
 request. Sidebar membership is not the permission check. Deleted/inaccessible calendars and missing
-Google links fail closed instead of being silently omitted. The existing share editor's unavailable
+Google links each produce an issue alongside the readable data. The existing share editor's unavailable
 calendar rows can remove a stale permission, followed by Review and save access → Save access.

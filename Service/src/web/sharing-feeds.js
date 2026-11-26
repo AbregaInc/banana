@@ -261,6 +261,7 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
       ({ index, after, offset, calendarVersion } = value);
     }
     const records = []; let bytes = 0, continuation = false;
+    let calendarIssues = [];
     while (index < types.length && records.length < limit) {
       const type = types[index], remaining = limit - records.length;
       if (type === 'calendar') {
@@ -268,7 +269,7 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
         const text = await response.text();
         if (new TextEncoder().encode(text).byteLength > 8 * 1024 * 1024) return fail(c, 413, 'Use a shorter calendar window.');
         const page = JSON.parse(text);
-        if (page.unavailable?.length) return c.json({error:'calendar_unavailable',message:'The selected calendar data is incomplete. Fix the calendars below or exclude Calendar from this request.',issues:page.unavailable},503);
+        calendarIssues = page.unavailable ?? [];
         const version = await sha256Hex(text);
         if (calendarVersion && calendarVersion !== version) return fail(c, 409, 'Calendar changed. Start again from the original feed URL.');
         const selected = page.events.slice(offset, offset + remaining);
@@ -302,10 +303,11 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
     const result = { schema: 'banana.feed.v2', ...(feed.preview ? { preview: true } : {}), scope: personal ? 'personal' : 'share', access: accessSummary(policy),
       generatedAt: new Date(now()).toISOString(), expiresOn: policy.expiresOn ?? null,
       contentVersion: await contentVersion(state, available.filter(t => t !== 'calendar')), analysis: await analysis(c, types), types,
-      ...(types.includes('calendar') ? { calendarWindow: { from, to } } : {}), records, next };
+      ...(types.includes('calendar') ? { calendarWindow: { from, to } } : {}), records, next, ...(calendarIssues.length ? { calendarIssues } : {}) };
     const text = JSON.stringify(result);
     if (new TextEncoder().encode(text).byteLength > 8 * 1024 * 1024) return fail(c, 413, 'Use a smaller page size.');
     if (next) c.header('Link', `<${next}>; rel="next"`);
+    if (calendarIssues.length) c.header('Banana-Calendar-Unavailable', String(calendarIssues.length));
     if (format === 'json') return c.json(result);
     try { return c.body(feedCSV(records, { typed: true }), 200, { 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="banana-feed.csv"' }); }
     catch { return fail(c, 413, 'Use JSON for this record structure.'); }
@@ -343,7 +345,7 @@ export function sharingFeeds(app, deps, { owner, signedIn, shared, ownerRow, bod
     app.get(`/app/feeds/:feed/calendar.${format}`, authenticate, async c => {
       const response = await calendarResponse(c); if (!response.ok || format === 'json') return response;
       const result = await response.json();
-      if (result.unavailable?.length) return fail(c, 503, 'calendar_unavailable');
+      if (result.unavailable?.length) c.header('Banana-Calendar-Unavailable', String(result.unavailable.length));
       try { return c.body(feedCSV(result.events.map(e => ({ id: e.id, data: e, assets: [] }))), 200, { 'Content-Type': 'text/csv; charset=utf-8' }); }
       catch { return fail(c, 413, 'Use JSON for this record structure.'); }
     });
