@@ -263,13 +263,12 @@ struct PlanAttentionSnapshot {
     }
     static func make(now: Date = Date()) -> Self {
         var result = Self()
-        let timeline = OccurrenceStore.shared.occurrences
+        let store = OccurrenceStore.shared
+        let index = store.planAttentionIndex
         // A routine with no time of its own is already in the row as one of the day's moments.
-        for occurrence in timeline where occurrence.behavior == .cue && occurrence.hasScheduledTime {
-            guard let routine = RoutineStore.shared.routines.first(where: { $0.id == occurrence.routineID }),
-                  routine.cueType == .custom || routine.cueType == .workout,
-                  ActionItems.routineDueSince(start: occurrence.start, hasTime: occurrence.hasScheduledTime,
-                      completed: occurrence.completed, skipped: occurrence.skipped, now: now) != nil else { continue }
+        index.forEachDueRoutine(
+            in: store.occurrences, routines: RoutineStore.shared.routines, now: now
+        ) { occurrence, routine in
             result.routines.append(.init(occurrence: occurrence, routine: routine))
         }
         result.routines.sort { $0.occurrence.start < $1.occurrence.start }
@@ -284,8 +283,7 @@ struct PlanAttentionSnapshot {
             }
             // A dose that is also an open reminder ("Creatine") is already a reminder chip.
             .filter { dose in
-                !timeline.contains { $0.behavior == .task && !$0.completed
-                    && $0.title.localizedCaseInsensitiveCompare(dose.supplement.name) == .orderedSame }
+                !index.containsOpenReminder(named: dose.supplement.name, in: store.occurrences)
             }
             .sorted { $0.due < $1.due }
         }

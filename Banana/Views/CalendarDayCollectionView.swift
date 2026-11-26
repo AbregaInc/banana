@@ -46,7 +46,8 @@ struct CalendarViewportItem {
                 .frame(width: frame.width, height: frame.height)
                 .offset(x: frame.minX - clippedFrame.minX, y: frame.minY - clippedFrame.minY)
                 .frame(width: clippedFrame.width, height: clippedFrame.height, alignment: .topLeading)
-                .clipped())
+                .clipped()
+                .contentShape([.interaction, .accessibility], Rectangle()))
         }
     }
 }
@@ -82,7 +83,24 @@ private final class CalendarFixedFrameCell: UICollectionViewCell {
 }
 
 private final class CalendarDayCollectionLayout: UICollectionViewLayout {
-    var attributes: [UICollectionViewLayoutAttributes] = []
+    private(set) var attributes: [UICollectionViewLayoutAttributes] = []
+    private(set) var items: [CalendarViewportItem] = []
+
+    @discardableResult
+    func replaceItems(_ next: [CalendarViewportItem]) -> Bool {
+        let changed = CalendarViewportAttributes.update(&attributes, from: items, to: next,
+            sameGeometry: { $0.frame == $1.frame && $0.zIndex == $1.zIndex && $0.retainsActiveGesture == $1.retainsActiveGesture }
+        ) { index, item in
+            let attribute = UICollectionViewLayoutAttributes(forCellWith: IndexPath(item: index, section: 0))
+            attribute.frame = item.frame
+            attribute.zIndex = item.zIndex
+            attribute.alpha = item.retainsActiveGesture ? 0.75 : 1
+            return attribute
+        }
+        items = next
+        return changed
+    }
+
     var height: CGFloat = 0
     var contentWidth: CGFloat?
     var activeItem: Int?
@@ -92,7 +110,7 @@ private final class CalendarDayCollectionLayout: UICollectionViewLayout {
     }
 
     override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        attributes.filter { $0.indexPath.item == activeItem || $0.frame.intersects(rect) }
+        CalendarViewportAttributes.visible(attributes, items: items, rect: rect, active: activeItem, frame: { $0.frame })
     }
 
     override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
@@ -123,6 +141,16 @@ final class CalendarDayCollectionView: UICollectionView, UICollectionViewDataSou
     }()
     private var moveAudit: [String] = []
     private var droppedAuditEvents = 0
+    #if DEBUG
+    // Cumulative counts let a test compare a swipe with the preceding quiet screen.
+    // They do not require a display link or another timer in the measured app.
+    private var pageApplications = 0
+    private var membershipReloads = 0
+    private var cellConfigurations = 0
+    private var layoutPasses = 0
+    private var rulerChanges: [[String: Double]] = []
+    var pageAudit: (() -> [String: Any])?
+    #endif
 
     func auditMove(_ message: @autoclosure () -> String) {
         guard Self.auditEnabled else { return }
@@ -141,7 +169,21 @@ final class CalendarDayCollectionView: UICollectionView, UICollectionViewDataSou
                     "visibleIDs": indexPathsForVisibleItems.filter { items.indices.contains($0.item) }
                         .sorted().map { items[$0.item].id }]
                 #if DEBUG
+                // Include the full height of the displayed columns. An adjacent preloaded
+                // day may have events even when the selected day is empty for a create gesture.
+                let columns = CGRect(x: bounds.minX + gutterWidth, y: 0,
+                                     width: max(0, bounds.width - gutterWidth), height: contentSize.height)
+                payload["displayedColumnDescriptors"] = items.filter { !$0.frame.intersection(columns).isEmpty }.count
                 payload["columnSelection"] = columnSelectionAudit?()
+                payload["applies"] = pageApplications
+                payload["reloads"] = membershipReloads
+                payload["cellConfigurations"] = cellConfigurations
+                payload["layouts"] = layoutPasses
+                payload["rulerChanges"] = rulerChanges
+                let origin = convert(bounds, to: window).origin
+                payload["windowX"] = origin.x
+                payload["windowY"] = origin.y
+                if let pageAudit { payload.merge(pageAudit()) { _, latest in latest } }
                 #endif
                 return (try? JSONSerialization.data(withJSONObject: payload, options: [.sortedKeys]))
                     .flatMap { String(data: $0, encoding: .utf8) }
@@ -173,7 +215,7 @@ final class CalendarDayCollectionView: UICollectionView, UICollectionViewDataSou
         #endif
     }()
     private let calendarLayout = CalendarDayCollectionLayout()
-    private var items: [CalendarViewportItem] = []
+    private var items: [CalendarViewportItem] { calendarLayout.items }
     private var environment = EnvironmentValues()
     weak var calendarBackground: UIView?
     weak var frozenGutter: UIView?
@@ -212,6 +254,13 @@ final class CalendarDayCollectionView: UICollectionView, UICollectionViewDataSou
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    #if STRESS_DEVICE_AUDIT && !BANANA_PUBLIC
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        StressPresentationClock.attach(to: self, surface: .calendar)
+    }
+    #endif
 
     func moveTarget(at point: CGPoint) -> CalendarViewportMove? {
         guard frozenGutter?.frame.contains(point) != true else { return nil }
@@ -276,24 +325,27 @@ final class CalendarDayCollectionView: UICollectionView, UICollectionViewDataSou
 
     func apply(_ next: [CalendarViewportItem], height: CGFloat, width: CGFloat? = nil,
                environment: EnvironmentValues, preservesActiveGesture: Bool) {
+        #if DEBUG
+        if Self.viewportAuditEnabled { pageApplications += 1 }
+        #endif
         if previewFinishing || (previewID != nil && !next.contains(where: { $0.id == previewID })) {
             cancelMovePreview()
         }
-        let membershipChanged = items.map(\.id) != next.map(\.id)
-        items = next
+        let membershipChanged = !items.elementsEqual(next) { $0.id == $1.id }
+        let changedFrames = calendarLayout.replaceItems(next)
         self.environment = environment
-        calendarLayout.height = height
-        calendarLayout.contentWidth = width
-        calendarLayout.activeItem = next.firstIndex { $0.id == previewID || $0.retainsActiveGesture }
-        calendarLayout.attributes = next.enumerated().map { index, item in
-            let attributes = UICollectionViewLayoutAttributes(forCellWith: IndexPath(item: index, section: 0))
-            attributes.frame = item.frame
-            attributes.zIndex = item.zIndex
-            attributes.alpha = item.retainsActiveGesture ? 0.75 : 1
-            return attributes
+        let activeItem = next.firstIndex { $0.id == previewID || $0.retainsActiveGesture }
+        if changedFrames || calendarLayout.height != height || calendarLayout.contentWidth != width ||
+            calendarLayout.activeItem != activeItem {
+            calendarLayout.height = height
+            calendarLayout.contentWidth = width
+            calendarLayout.activeItem = activeItem
+            calendarLayout.invalidateLayout()
         }
-        calendarLayout.invalidateLayout()
         if membershipChanged {
+            #if DEBUG
+            if Self.viewportAuditEnabled { membershipReloads += 1 }
+            #endif
             reloadData()
         } else if !preservesActiveGesture && previewID == nil {
             // Preserve the hosting subtree that owns an in-flight event drag. Its native
@@ -316,12 +368,74 @@ final class CalendarDayCollectionView: UICollectionView, UICollectionViewDataSou
 
     var prepareOpeningPosition: ((CalendarDayCollectionView) -> Void)?
 
+    private struct RulerPosition {
+        var viewport: CGRect
+        var windowSize: CGSize
+        var topInWindow: CGFloat
+        var offset: CGFloat
+        var contentHeight: CGFloat
+    }
+    private weak var rulerWindow: UIWindow?
+    private var rulerPosition: RulerPosition?
+    var openingRulerOffset: CGFloat?
+    var onRulerRepositioned: ((CGFloat) -> Void)?
+
+    /// When a row above the grid appears or a recovery bar takes space below it, keep
+    /// the same hour under the reader's eye. At midnight, keep the start of the day.
+    private func preserveRulerWhenResized() {
+        guard let window, !bounds.isEmpty else { rulerPosition = nil; return }
+        // The opening hour applies until the person scrolls; after that their position wins.
+        if isTracking || isDragging { openingRulerOffset = nil }
+        let viewport = frame
+        let windowSize = window.bounds.size
+        if let previous = rulerPosition, rulerWindow === window,
+           previous.viewport == viewport, previous.windowSize == windowSize {
+            rulerPosition?.offset = contentOffset.y
+            rulerPosition?.contentHeight = contentSize.height
+            return
+        }
+        let top = convert(bounds, to: window).minY
+        #if DEBUG
+        if Self.viewportAuditEnabled, rulerChanges.count < 24 {
+            rulerChanges.append(["time": ProcessInfo.processInfo.systemUptime, "top": top,
+                "height": bounds.height, "offset": contentOffset.y,
+                "previousOffset": rulerPosition?.offset ?? -1, "previousTop": rulerPosition?.topInWindow ?? -1,
+                "visibleLayer": layer.presentation() == nil ? 0 : 1, "content": contentSize.height])
+        }
+        #endif
+        // SwiftUI can measure the navigation and all-day rows again before this grid
+        // first reaches the screen. Clamp the requested opening hour to the final bounds.
+        // Once presented, a resize instead preserves the hour already visible in the window.
+        if let openingRulerOffset, layer.presentation() == nil, !isTracking, !isDragging {
+            let target = min(max(0, openingRulerOffset), max(0, contentSize.height - bounds.height))
+            if contentOffset.y != target { contentOffset.y = target }
+        } else if let previous = rulerPosition, rulerWindow === window,
+           previous.windowSize == windowSize, previous.viewport.width == viewport.width,
+           previous.contentHeight == contentSize.height, !isTracking, !isDragging, !isDecelerating,
+           previous.offset >= 0 {
+            openingRulerOffset = nil
+            let maximum = max(0, contentSize.height - bounds.height)
+            let target = previous.offset == 0 ? 0 : min(maximum, max(0, previous.offset + top - previous.topInWindow))
+            if abs(target - contentOffset.y) > 0.1 {
+                contentOffset.y = target
+                onRulerRepositioned?(target)
+            }
+        }
+        rulerWindow = window
+        rulerPosition = RulerPosition(viewport: viewport, windowSize: windowSize, topInWindow: top,
+                                      offset: contentOffset.y, contentHeight: contentSize.height)
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
+        #if DEBUG
+        if Self.viewportAuditEnabled { layoutPasses += 1 }
+        #endif
         if bounds.width > 0, bounds.height > 0, let prepareOpeningPosition {
             self.prepareOpeningPosition = nil
             prepareOpeningPosition(self)
         }
+        preserveRulerWhenResized()
         if let calendarBackground {
             calendarBackground.frame = CGRect(x: 0, y: 0, width: calendarLayout.collectionViewContentSize.width, height: calendarLayout.height)
             sendSubviewToBack(calendarBackground)
@@ -342,6 +456,9 @@ final class CalendarDayCollectionView: UICollectionView, UICollectionViewDataSou
 
     func configure(_ cell: UICollectionViewCell, at path: IndexPath) {
         guard items.indices.contains(path.item) else { return }
+        #if DEBUG
+        if Self.viewportAuditEnabled { cellConfigurations += 1 }
+        #endif
         let item = items[path.item]
         if previewCell === cell { previewCell = nil }
         cell.transform = .identity

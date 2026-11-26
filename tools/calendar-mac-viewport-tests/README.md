@@ -20,3 +20,7 @@ windowless resize. A controlled narrower background host reproduces the native
 host/descriptor width mismatch: background chrome must retain the descriptor
 width and leading origin. This proves the coordinate invariant under that
 proposal; it does not reproduce AppKit's visible-window scrollbar lifecycle.
+
+## Scroll query comparison
+
+Run `python3 tools/calendar-mac-viewport-tests/queries/run.py --out /tmp/calendar-queries` with a fresh output path. The runner uses the current production descriptor types and value-frame query, native layout attributes, 24 moving viewports, and zero through 10,000 descriptors on AppKit and the stock iPad Simulator. Each trial verifies object identity and paint order against native frame lookup, including an offscreen pinned cell. It records wall time, fixed-work CPU time, and storage for the alternative frame array. This isolates lookup cost within a layout pass.

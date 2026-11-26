@@ -250,9 +250,7 @@ extension MeetingInfo: Codable {
 
 /// Manual Hashable conformance over exactly the fields the Codable conformance above enumerates
 /// (CLLocationCoordinate2D isn't Hashable, so `coordinate` is decomposed into lat/lon the same way
-/// Codable already does). Used only as a cheap change-detection token (WeekView's day content
-/// hash); not persisted or compared across launches, so hash-value stability across app versions
-/// is not a requirement.
+/// Codable already does). Calendar snapshots use the same fields for equality.
 extension MeetingInfo: Hashable {
     static func == (a: MeetingInfo, b: MeetingInfo) -> Bool {
         a.start == b.start && a.end == b.end

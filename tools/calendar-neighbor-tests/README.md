@@ -46,3 +46,24 @@ compare the same native host with the same varied fixture. Week uses
 `testReferenceNeighborsWeekScroll` / `testDenseCalendarScroll`. Include paging,
 zoom, overnight move recovery, the full component gate and iPad coverage. Automation
 wall-clock or scrolling signpost duration is not physical frame/input evidence.
+
+## Travel bands
+
+The travel replay builds a new layout for every timed call. It compares rescanning the
+previous events, reading the existing neighbor plan and building every possible travel
+floor up front. It verifies the full result at zero, one, four, sixteen and all trips,
+including days with overnight placements. Run from the repository root on an idle Mac.
+
+```sh
+mkdir -p .build/calendar-neighbors
+for geometry in mobile mac; do
+  flag=""
+  if [ "$geometry" = mac ]; then flag="-DMAC_TRAVEL"; fi
+  tools/agents/xcode-lock.sh -l build swiftc -O -whole-module-optimization -parse-as-library $flag \
+    Banana/Model/{CalendarMobileNeighbors,CalendarMacLaneNeighbors,CalendarDayClockGeometry,CalendarLanePlan}.swift \
+    tools/calendar-library-benchmark/Shared/Fixtures.swift tools/calendar-neighbor-tests/Travel/*.swift \
+    -o ".build/calendar-neighbors/travel-$geometry"
+  ".build/calendar-neighbors/travel-$geometry" ".build/calendar-neighbors/travel-$geometry.json" 9
+  ".build/calendar-neighbors/travel-$geometry" ".build/calendar-neighbors/travel-$geometry-reverse.json" 9 reverse
+done
+```

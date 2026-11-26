@@ -80,14 +80,13 @@ final class ActionBadges: ObservableObject {
         // Food switched off: nothing of it waits, on a tab or on the app's icon.
         let food = ModuleStore.shared.includes(.food)
         #endif
-        let dueRoutines = OccurrenceStore.shared.occurrences.filter { occurrence in
-            guard occurrence.behavior == .cue,
-                  let routine = RoutineStore.shared.routines.first(where: { $0.id == occurrence.routineID }),
-                  routine.cueType == .custom || routine.cueType == .workout else { return false }
-            return ActionItems.routineDueSince(start: occurrence.start, hasTime: occurrence.hasScheduledTime,
-                completed: occurrence.completed, skipped: occurrence.skipped, now: now) != nil
-        }.count
-        var plan = OccurrenceStore.shared.occurrences.filter(\.isOverdueReminder).count + dueRoutines
+        let store = OccurrenceStore.shared
+        let occurrences = store.occurrences
+        let index = store.planAttentionIndex
+        var plan = index.overdueReminders
+        index.forEachDueRoutine(in: occurrences, routines: RoutineStore.shared.routines, now: now) { _, _ in
+            plan += 1
+        }
         #if DEBUG
         // `--badge-count N` (Debug): Plan's badge held at N, to photograph the badge at 1, 2 and 3
         // digits and at 99+.

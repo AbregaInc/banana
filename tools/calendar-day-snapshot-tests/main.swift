@@ -29,7 +29,7 @@ for (zone, dateString, dayHours) in [
     ]
     func snapshot(_ items: [Occurrence], grid: Bool) -> WeekView.DayData {
         WeekView.DayData(id: 0, date: day, weekday: "", dayNum: "", letter: "", isToday: false,
-                         items: items, committed: 0, itemsToken: 0, calendarGrid: grid)
+                         items: items, committed: 0, calendarGrid: grid)
     }
     for grid in [false, true] {
         let expected = Set(grid ? ["carry-in", "first", "last-quarter-hour"]

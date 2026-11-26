@@ -267,8 +267,16 @@ struct RootView: View {
                 // The plan's Day with that sheet already open, for the sheets' own tests.
                 NewItemSheetHost(task: ProcessInfo.processInfo.arguments.contains("--new-task"))
             } else if ProcessInfo.processInfo.arguments.contains("--plan") {
-                // With the toasts the Plan tab has, so an Undo can be seen and tapped here too.
-                PlannerTab().toastHost()
+                if ProcessInfo.processInfo.arguments.contains("--stress-empty-scene") {
+                    // Same fixture preparation and foreground diagnostics, without mounting the planner.
+                    Color(.systemBackground).ignoresSafeArea()
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Empty fixture scene")
+                        .accessibilityIdentifier("stress.emptyScene")
+                        .onAppear { PlaybackDiagnostics.shared.log("fixture", "empty scene appeared") }
+                } else {
+                    PlannerTab().toastHost()
+                }
             } else if ProcessInfo.processInfo.arguments.contains("--week") {
                 WeekView().toastHost()
             } else if ProcessInfo.processInfo.arguments.contains("--day") {

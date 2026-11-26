@@ -32,7 +32,11 @@ struct Occurrence: Equatable {
 generated = stubs + 'enum CalendarLaneAllocator {' + allocator
 generated += '\nstruct WeekView { static let reuseGridLayouts = true\n'
 generated += '    struct DayData: Identifiable, Equatable {' + snapshot + '\n}\n'
-generated += (Path(__file__).parent / 'main.swift').read_text()
+harness = (Path(__file__).parent / 'main.swift').read_text()
+# Older saved sources required this unused field in their initializer.
+if 'let itemsToken: Int' in snapshot:
+    harness = harness.replace('committed: 0, calendarGrid:', 'committed: 0, itemsToken: 0, calendarGrid:')
+generated += harness
 swift = args.out / 'main.swift'
 swift.write_text(generated)
 binary = args.out / 'checks'

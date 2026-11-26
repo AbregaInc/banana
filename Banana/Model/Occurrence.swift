@@ -213,7 +213,53 @@ struct Occurrence: Identifiable {
 
 extension Occurrence: Codable {}   // synthesized — every stored property is Codable
 
-/// Synthesized — every stored property is Hashable once `MeetingInfo` is (see MeetingLink.swift/
-/// CalendarService.swift). Used only as a cheap change-detection token (WeekView's day content
-/// hash); not persisted or compared across launches.
+/// Synthesized over every stored property, including meeting details. Immutable calendar
+/// snapshots compare their occurrences directly when checking for changes.
 extension Occurrence: Hashable {}
+
+/// Rows that can contribute to Plan's badges and attention chips. Their positions are valid
+/// only for the occurrence snapshot they were built from. Due times and routine settings
+/// are checked by the consumers at the time of the recount.
+struct PlanAttentionIndex {
+    private(set) var overdueReminders = 0
+    private(set) var cueOffsets: [Int] = []
+    #if BANANA_MODULE_FOOD
+    private(set) var openReminderOffsets: [Int] = []
+    #endif
+
+    init(_ occurrences: [Occurrence]) {
+        for offset in occurrences.indices {
+            switch occurrences[offset].behavior {
+            case .task where !occurrences[offset].completed:
+                if occurrences[offset].isOverdueReminder { overdueReminders += 1 }
+                #if BANANA_MODULE_FOOD
+                openReminderOffsets.append(offset)
+                #endif
+            case .cue where occurrences[offset].hasScheduledTime
+                && !occurrences[offset].completed && !occurrences[offset].skipped:
+                cueOffsets.append(offset)
+            default:
+                continue
+            }
+        }
+    }
+
+    #if BANANA_MODULE_FOOD
+    func containsOpenReminder(named title: String, in occurrences: [Occurrence]) -> Bool {
+        openReminderOffsets.contains { occurrences[$0].title.localizedCaseInsensitiveCompare(title) == .orderedSame }
+    }
+    #endif
+
+    func forEachDueRoutine(in occurrences: [Occurrence], routines: [Routine], now: Date,
+                           _ visit: (Occurrence, Routine) -> Void) {
+        for offset in cueOffsets {
+            let occurrence = occurrences[offset]
+            guard ActionItems.routineDueSince(start: occurrence.start, hasTime: occurrence.hasScheduledTime,
+                                              completed: occurrence.completed, skipped: occurrence.skipped,
+                                              now: now) != nil,
+                  let routine = routines.first(where: { $0.id == occurrence.routineID }),
+                  routine.cueType == .custom || routine.cueType == .workout else { continue }
+            visit(occurrence, routine)
+        }
+    }
+}

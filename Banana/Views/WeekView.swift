@@ -7,6 +7,23 @@ import UIKit
 import AppKit
 #endif
 
+/// Loading a planning window changes its status indicator independently of the calendar grid.
+@MainActor
+private final class CalendarPageLoading: ObservableObject {
+    @Published private(set) var active = false
+
+    func set(_ value: Bool) {
+        if active != value { active = value }
+    }
+}
+
+private struct CalendarRefreshStatus<Content: View>: View {
+    @ObservedObject var loading: CalendarPageLoading
+    @ViewBuilder var content: (Bool) -> Content
+
+    var body: some View { content(loading.active) }
+}
+
 /// A bounded local snapshot for the first body evaluation, before onAppear takes ownership.
 @MainActor
 private final class CalendarMountSnapshot<Value> {
@@ -372,8 +389,8 @@ struct MacWeekView: View {
     @State private var showingAlarms = false
     @State private var draftSelection: MacGridSelection?
     @State private var weekOffset = 0
-    /// Not observed here: only the toolbar spinner reads it (`MacWeekLoadingSpinner`).
-    @State private var loading = MacWeekLoading()
+    /// Not observed here: only the toolbar status reads it.
+    @State private var loading = CalendarPageLoading()
     private static let nativeViewport: Bool = {
         #if DEBUG
         !ProcessInfo.processInfo.arguments.contains("--calendar-reference-mac")
@@ -844,7 +861,9 @@ struct MacWeekView: View {
         } else if days.contains(where: \.isToday) {
             WeatherChip(day: Date())
         }
-        MacWeekLoadingSpinner(loading: loading)
+        CalendarRefreshStatus(loading: loading) { active in
+            if active { ProgressView().controlSize(.small) }
+        }
     }
 
     private var plannerActions: some View {
@@ -1077,51 +1096,71 @@ struct MacWeekView: View {
         #endif
     }()
 
+    private struct MacViewportTravelBand {
+        let y: CGFloat
+        let height: CGFloat
+        let minutes: Int
+        let detail: TravelLegDetail?
+    }
+
     private func macViewportItems(width: CGFloat, now: Date) -> [CalendarMacViewportItem] {
         let columnWidth = availableDayWidth(in: width)
+        let includesToday = days.contains(where: \.isToday)
         return days.enumerated().flatMap { dayIndex, day in
             let layout = timedLayout(for: day)
             let placements = layout.placements
-            let events = placements.map { placement in
+            let neighbors = CalendarMacLaneNeighbors.make(placements.map {
+                .init(lane: $0.lane, start: $0.occurrence.start, end: $0.occurrence.resolvedEnd,
+                      displayedStart: displayStart($0.occurrence))
+            })
+            let dayKey = Occurrence.dayKey(day.date)
+            let blocked = day.items.contains(where: \.blocksWholeDay)
+            let events = zip(placements, neighbors).map { placement, neighbor in
                 let x = laneX(totalWidth: columnWidth, lane: placement.lane, lanes: placement.laneCount)
                 let y = gridY(for: displayStart(placement.occurrence), on: day.date)
                 let blockWidth = laneWidth(totalWidth: columnWidth, lanes: placement.laneCount) * CGFloat(placement.laneSpan) + 2 * CGFloat(placement.laneSpan - 1)
-                let end = visualEnd(for: placement, among: placements)
-                let next = placements.filter {
-                    $0.lane == placement.lane && $0.occurrence.start > placement.occurrence.start
-                }.map { displayStart($0.occurrence) }.min()
-                let room = next.map { gridY(for: $0, on: day.date) - y }
-                let height = min(blockHeight(for: placement.occurrence, on: day.date, endingAt: end),
+                let room = neighbor.nextDisplayedStart.map { gridY(for: $0, on: day.date) - y }
+                let height = min(blockHeight(for: placement.occurrence, on: day.date, endingAt: neighbor.visualEnd),
                                  max(12, room ?? .greatestFiniteMagnitude))
+                let eventFrame = CGRect(x: x, y: y, width: blockWidth, height: height)
+                let outward: MacViewportTravelBand?
+                let returning: MacViewportTravelBand?
                 var top = y
                 var bottom = y + height
                 if let outbound = outboundBand(forGrid: placement.occurrence) {
                     let bandTop = travelBandTop(placement, among: placements, on: day.date,
-                        preferred: gridY(for: outbound.leaveBy, on: day.date))
+                        preferred: gridY(for: outbound.leaveBy, on: day.date), neighbors: neighbors)
+                    let bandHeight = max(6, gridY(for: placement.occurrence.start, on: day.date) - bandTop)
+                    outward = .init(y: bandTop, height: bandHeight, minutes: outbound.minutes, detail: outbound.detail)
                     top = min(top, bandTop)
-                    bottom = max(bottom, bandTop + max(6, gridY(for: placement.occurrence.start, on: day.date) - bandTop))
-                }
+                    bottom = max(bottom, bandTop + bandHeight)
+                } else { outward = nil }
                 if let ret = returnLeg(forGrid: placement.occurrence), (ret.end ?? ret.start) > Date() {
+                    let returnEnd = ret.end ?? ret.start
                     let bandTop = max(gridY(for: ret.start, on: day.date), y + height)
-                    bottom = max(bottom, bandTop + max(6, gridY(for: ret.end ?? ret.start, on: day.date) - bandTop))
-                }
+                    let bandHeight = max(6, gridY(for: returnEnd, on: day.date) - bandTop)
+                    returning = .init(y: bandTop, height: bandHeight,
+                                      minutes: Int(returnEnd.timeIntervalSince(ret.start) / 60), detail: ret.travel)
+                    bottom = max(bottom, bandTop + bandHeight)
+                } else { returning = nil }
                 let localFrame = CGRect(x: x, y: top, width: blockWidth, height: bottom - top)
                 let frame = localFrame.offsetBy(dx: timeGutterWidth + CGFloat(dayIndex) * columnWidth, dy: 0)
                 return CalendarMacViewportItem(
-                    id: Occurrence.dayKey(day.date) + "|" + placement.occurrence.id,
+                    id: dayKey + "|" + placement.occurrence.id,
                     frame: frame, zIndex: draggingEventID == placement.occurrence.id ? 3 : 0) {
-                        AnyView(macPlacementLayer(placement, placements: placements, day: day, width: columnWidth)
+                        AnyView(macPlacementLayer(placement, frame: eventFrame, outbound: outward, returning: returning,
+                                                  day: day.date, width: columnWidth)
                             .frame(width: columnWidth, height: gridHeight, alignment: .topLeading)
                             .offset(x: -localFrame.minX, y: -localFrame.minY)
                             .frame(width: localFrame.width, height: localFrame.height, alignment: .topLeading)
-                            .environment(\.blockedDayBase, day.items.contains(where: \.blocksWholeDay)
+                            .environment(\.blockedDayBase, blocked
                                 ? Color(.systemBackground) : nil))
                     }
             }
             let overflow = layout.overflow.map { cluster in
                 let x = max(4, columnWidth - 34)
                 return CalendarMacViewportItem(
-                    id: Occurrence.dayKey(day.date) + "|overflow|" + String(describing: cluster.id),
+                    id: dayKey + "|overflow|" + String(describing: cluster.id),
                     frame: CGRect(x: timeGutterWidth + CGFloat(dayIndex) * columnWidth + x,
                                   y: gridY(for: cluster.start, on: day.date) + 2,
                                   width: max(1, columnWidth - x), height: 26), zIndex: 2) {
@@ -1132,10 +1171,10 @@ struct MacWeekView: View {
                 }
             }
             var result = events + overflow
-            if days.contains(where: \.isToday) {
+            if includesToday {
                 let y = gridY(for: now, on: Calendar.current.startOfDay(for: now))
                 result.append(CalendarMacViewportItem(
-                    id: Occurrence.dayKey(day.date) + "|now",
+                    id: dayKey + "|now",
                     frame: CGRect(x: timeGutterWidth + CGFloat(dayIndex) * columnWidth,
                                   y: day.isToday ? y - 3.5 : y,
                                   width: columnWidth, height: day.isToday ? 7 : 1),
@@ -1569,109 +1608,63 @@ struct MacWeekView: View {
                 .offset(x: max(4, width - 34), y: 0)
     }
 
-    private func macPlacementLayer(_ placement: MacWeekPlacement, placements: [MacWeekPlacement],
-                                   day: MacWeekDay, width: CGFloat) -> some View {
+    private func macPlacementLayer(_ placement: MacWeekPlacement, frame: CGRect,
+                                   outbound: MacViewportTravelBand?, returning: MacViewportTravelBand?,
+                                   day: Date, width: CGFloat) -> some View {
         ZStack(alignment: .topLeading) {
-                let blockWidth = laneWidth(totalWidth: width, lanes: placement.laneCount) * CGFloat(placement.laneSpan) + 2 * CGFloat(placement.laneSpan - 1)
-                let visualEnd = visualEnd(for: placement, among: placements)
-                // The 15-minute minimum height must never reach into the next block in the same
-                // lane: a 20-minute travel leg drawn 22 pt tall used to cover the start of the
-                // meeting it leads to.
-                let nextInLane = placements
-                    .filter { $0.lane == placement.lane && $0.occurrence.start > placement.occurrence.start }
-                    .map { displayStart($0.occurrence) }
-                    .min()
-                let room = nextInLane.map {
-                    gridY(for: $0, on: day.date) - gridY(for: displayStart(placement.occurrence), on: day.date)
-                }
-                let visualHeight = min(blockHeight(for: placement.occurrence, on: day.date, endingAt: visualEnd),
-                                       max(12, room ?? .greatestFiniteMagnitude))
-                // Travel renders as a band occupying the minutes it actually takes, immediately
-                // before the event. On a time grid that is the honest form: a "leave by 8:40"
-                // caption tells you a time, but a band tells you the 25 minutes are SPENT — so a
-                // meeting booked over your commute reads as the overlap it is. The list rows on
-                // Today/Tomorrow/agenda keep the caption; there they have a line to spare.
-                if let outbound = outboundBand(forGrid: placement.occurrence) {
-                    // Clamped to the bottom of whatever is drawn before it, exactly as the return
-                    // band below already is. Two places a few hundred feet apart produce a leg
-                    // rounded up to the five-minute minimum, and unclamped that band was drawn
-                    // straight through the preceding event.
-                    let preferred = gridY(for: outbound.leaveBy, on: day.date)
-                    let travelY = travelBandTop(placement, among: placements,
-                                                on: day.date, preferred: preferred)
-                    let travelHeight = max(6, gridY(for: placement.occurrence.start, on: day.date) - travelY)
-                    TravelBand(minutes: outbound.minutes, height: travelHeight, detail: outbound.detail)
-                        .frame(width: blockWidth, height: travelHeight, alignment: .topLeading)
-                        .offset(
-                            x: laneX(totalWidth: width, lane: placement.lane, lanes: placement.laneCount),
-                            y: travelY
-                        )
-                }
-                // The return leg reads the same way, mirrored: a band starting right where the
-                // meeting's own drawn block ends (not its nominal end time — a short meeting's
-                // block can be stretched to the 22pt/15-minute minimum, and the band must start
-                // at its actual bottom edge or the two would overlap) and running the "Travel
-                // home" hold's own window.
-                if let ret = returnLeg(forGrid: placement.occurrence), (ret.end ?? ret.start) > Date() {
-                    let returnEnd = ret.end ?? ret.start
-                    let meetingBottom = gridY(for: displayStart(placement.occurrence), on: day.date) + visualHeight
-                    let bandTop = max(gridY(for: ret.start, on: day.date), meetingBottom)
-                    let bandHeight = max(6, gridY(for: returnEnd, on: day.date) - bandTop)
-                    TravelBand(
-                        minutes: Int(returnEnd.timeIntervalSince(ret.start) / 60),
-                        height: bandHeight,
-                        detail: ret.travel,
-                        isReturn: true
-                    )
-                        .frame(width: blockWidth, height: bandHeight, alignment: .topLeading)
-                        .offset(
-                            x: laneX(totalWidth: width, lane: placement.lane, lanes: placement.laneCount),
-                            y: bandTop
-                        )
-                }
-                let eventContent = occurrenceBlock(
-                    placement.occurrence,
-                    height: visualHeight,
-                    width: blockWidth,
-                    showsIcon: width >= DS.Event.iconMinColumnWidth
+            if let outbound {
+                TravelBand(minutes: outbound.minutes, height: outbound.height, detail: outbound.detail)
+                    .frame(width: frame.width, height: outbound.height, alignment: .topLeading)
+                    .offset(x: frame.minX, y: outbound.y)
+            }
+            if let returning {
+                TravelBand(minutes: returning.minutes, height: returning.height, detail: returning.detail, isReturn: true)
+                    .frame(width: frame.width, height: returning.height, alignment: .topLeading)
+                    .offset(x: frame.minX, y: returning.y)
+            }
+            let eventContent = occurrenceBlock(
+                placement.occurrence,
+                height: frame.height,
+                width: frame.width,
+                showsIcon: width >= DS.Event.iconMinColumnWidth
+            )
+                .frame(
+                    width: frame.width,
+                    height: frame.height,
+                    alignment: .topLeading
                 )
-                    .frame(
-                        width: blockWidth,
-                        height: visualHeight,
-                        alignment: .topLeading
-                    )
-                if CalendarEventDragFeedback.experimentalEnabled {
-                    eventContent
-                        .modifier(CalendarEventDragFeedback(
-                            enabled: placement.occurrence.behavior == .event && placement.occurrence.meeting != nil,
-                            columnWidth: width, showProgress: savingEventIDs.contains(placement.occurrence.id),
-                            finish: { finishMoveGesture(for: placement.occurrence, on: day.date,
-                                translation: $0, columnWidth: width) }))
-                        .offset(x: laneX(totalWidth: width, lane: placement.lane, lanes: placement.laneCount),
-                                y: gridY(for: displayStart(placement.occurrence), on: day.date))
-                        .animation(.snappy(duration: 0.18), value: optimisticStart[placement.occurrence.id])
-                } else {
-                    let isDragging = draggingEventID == placement.occurrence.id
-                    eventContent
-                    .opacity(isDragging ? 0.75 : 1)
-                    .shadow(color: .black.opacity(isDragging ? 0.25 : 0), radius: isDragging ? 6 : 0, y: 3)
-                    .zIndex(isDragging ? 1 : 0)
-                    .overlay(alignment: .topTrailing) {
-                        if savingEventIDs.contains(placement.occurrence.id) {
-                            ProgressView()
-                                .controlSize(.small)
-                                .padding(3)
-                        }
-                    }
-                    .offset(
-                        x: laneX(totalWidth: width, lane: placement.lane, lanes: placement.laneCount)
-                            + (isDragging ? CGFloat(dragDayShift) * width : 0),
-                        y: gridY(for: displayStart(placement.occurrence), on: day.date)
-                            + (isDragging ? dragOffsetY : 0)
-                    )
+            if CalendarEventDragFeedback.experimentalEnabled {
+                eventContent
+                    .modifier(CalendarEventDragFeedback(
+                        enabled: placement.occurrence.behavior == .event && placement.occurrence.meeting != nil,
+                        columnWidth: width, showProgress: savingEventIDs.contains(placement.occurrence.id),
+                        finish: { finishMoveGesture(for: placement.occurrence, on: day,
+                            translation: $0, columnWidth: width) }))
+                    .offset(x: frame.minX,
+                            y: frame.minY)
                     .animation(.snappy(duration: 0.18), value: optimisticStart[placement.occurrence.id])
-                    .gesture(moveGesture(for: placement.occurrence, on: day.date, columnWidth: width))
+            } else {
+                let isDragging = draggingEventID == placement.occurrence.id
+                eventContent
+                .opacity(isDragging ? 0.75 : 1)
+                .shadow(color: .black.opacity(isDragging ? 0.25 : 0), radius: isDragging ? 6 : 0, y: 3)
+                .zIndex(isDragging ? 1 : 0)
+                .overlay(alignment: .topTrailing) {
+                    if savingEventIDs.contains(placement.occurrence.id) {
+                        ProgressView()
+                            .controlSize(.small)
+                            .padding(3)
+                    }
                 }
+                .offset(
+                    x: frame.minX
+                        + (isDragging ? CGFloat(dragDayShift) * width : 0),
+                    y: frame.minY
+                        + (isDragging ? dragOffsetY : 0)
+                )
+                .animation(.snappy(duration: 0.18), value: optimisticStart[placement.occurrence.id])
+                .gesture(moveGesture(for: placement.occurrence, on: day, columnWidth: width))
+            }
         }
     }
 
@@ -1689,9 +1682,12 @@ struct MacWeekView: View {
             returnCaption = height >= 48 ? "Home by \(TimeRangeText.time(ret.start)) · \(mins) min"
                 : TimeRangeText.time(ret.start)
         } else { returnCaption = nil }
+        let start = displayStart(occurrence)
+        let end = start.addingTimeInterval(occurrence.resolvedEnd.timeIntervalSince(occurrence.start))
+        let timeRange = TimeRangeText.compact(start, end)
         let paint = CalendarEventPaint(occurrence: occurrence, tint: tint, ribbons: ribbons,
-            startText: TimeRangeText.time(displayStart(occurrence)),
-            timeRange: height >= DS.Event.twoLineMinHeight && returnCaption == nil ? timeRange(for: occurrence) : "",
+            startText: TimeRangeText.time(start),
+            timeRange: height >= DS.Event.twoLineMinHeight && returnCaption == nil ? timeRange : "",
             returnCaption: returnCaption)
         return CalendarPreparedArtwork(paint: paint, height: height, layout: .desktop, showsIcon: showsIcon)
         .blockedDayBase(cornerRadius: DS.Radius.block)
@@ -1715,9 +1711,9 @@ struct MacWeekView: View {
             }
         }
         .contextMenu { occurrenceMenu(occurrence) }
-        .help("\(occurrence.title), \(timeRange(for: occurrence))")
+        .help("\(occurrence.title), \(timeRange)")
         .modifier(CalendarEventAccessibility(occurrence: occurrence,
-            timeRange: timeRange(for: occurrence), activate: { activate(occurrence) }))
+            timeRange: timeRange, activate: { activate(occurrence) }))
     }
 
     private func allDayChip(_ occurrence: Occurrence) -> some View {
@@ -2075,7 +2071,7 @@ struct MacWeekView: View {
             ProblemReportCenter.shared.noteCalendar(
                 start: nextDays.first?.date,
                 end: nextDays.last.flatMap { Calendar.current.date(byAdding: .day, value: 1, to: $0.date) },
-                ids: nextDays.flatMap { $0.items.map(\.id) })
+                occurrencesByDay: nextDays.lazy.map(\.items))
         }
         updateSecondaryZone()
     }
@@ -2236,16 +2232,17 @@ struct MacWeekView: View {
     private func travelBandTop(_ placement: MacWeekPlacement,
                                among placements: [MacWeekPlacement],
                                on day: Date,
-                               preferred: CGFloat) -> CGFloat {
+                               preferred: CGFloat,
+                               neighbors: [CalendarMacLaneNeighbors.Result]? = nil) -> CGFloat {
         let start = displayStart(placement.occurrence)
         var top = preferred
-        for other in placements where other.lane == placement.lane
+        for (index, other) in placements.enumerated() where other.lane == placement.lane
             && other.occurrence.id != placement.occurrence.id {
             let otherStart = displayStart(other.occurrence)
             guard otherStart < start else { continue }
+            let end = neighbors?[index].visualEnd ?? visualEnd(for: other, among: placements)
             let bottom = gridY(for: otherStart, on: day)
-                + blockHeight(for: other.occurrence, on: day,
-                              endingAt: visualEnd(for: other, among: placements))
+                + blockHeight(for: other.occurrence, on: day, endingAt: end)
             top = max(top, bottom)
         }
         return top
@@ -2568,11 +2565,6 @@ struct MacWeekView: View {
         }
     }
 
-    private func timeRange(for occurrence: Occurrence) -> String {
-        TimeRangeText.compact(displayStart(occurrence),
-                              displayStart(occurrence).addingTimeInterval(occurrence.resolvedEnd.timeIntervalSince(occurrence.start)))
-    }
-
     private func hourLabel(_ hour: Int) -> String {
         let date = Calendar.current.date(bySettingHour: hour, minute: 0, second: 0, of: Date()) ?? Date()
         return date.formatted(.dateTime.hour())
@@ -2605,27 +2597,6 @@ struct MacWeekView: View {
 
 private final class MacGridScrollBookkeeping {
     var offset: CGFloat = 0
-}
-
-/// Whether the Mac week is fetching the page on screen. Its own object, read only by the toolbar
-/// spinner: the refresh that follows every timeline publication used to set view state on and off
-/// again, and each write re-laid out all seven days though nothing on them had changed — about
-/// once a second while another device kept rewriting a block weeks away.
-@MainActor
-final class MacWeekLoading: ObservableObject {
-    @Published private(set) var active = false
-
-    func set(_ value: Bool) {
-        if active != value { active = value }
-    }
-}
-
-private struct MacWeekLoadingSpinner: View {
-    @ObservedObject var loading: MacWeekLoading
-
-    var body: some View {
-        if loading.active { ProgressView().controlSize(.small) }
-    }
 }
 
 private struct MacWeekDay: Identifiable, Equatable {
@@ -2691,9 +2662,7 @@ private struct MacHorizontalPeriodSwipe: NSViewRepresentable {
         var move: ((Int) -> Void)?
 
         private var eventMonitor: Any?
-        private var accumulatedX: CGFloat = 0
-        private var didMove = false
-        private var lastTimestamp: TimeInterval = 0
+        private var swipe = CalendarMacPeriodSwipe()
 
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
@@ -2717,25 +2686,11 @@ private struct MacHorizontalPeriodSwipe: NSViewRepresentable {
                   bounds.contains(convert(event.locationInWindow, from: nil)),
                   event.hasPreciseScrollingDeltas else { return }
 
-            if event.phase.contains(.began) || event.timestamp - lastTimestamp > 0.45 {
-                accumulatedX = 0
-                didMove = false
+            let x = event.isDirectionInvertedFromDevice ? -event.scrollingDeltaX : event.scrollingDeltaX
+            if let direction = swipe.page(x: x, y: event.scrollingDeltaY, phase: event.phase,
+                                          momentum: event.momentumPhase, timestamp: event.timestamp) {
+                move?(direction)
             }
-            lastTimestamp = event.timestamp
-            guard !didMove else { return }
-
-            let x = event.isDirectionInvertedFromDevice
-                ? -event.scrollingDeltaX
-                : event.scrollingDeltaX
-            guard abs(x) > abs(event.scrollingDeltaY) * 1.2 else { return }
-            accumulatedX += x
-
-            guard abs(accumulatedX) >= 60 else { return }
-            didMove = true
-            // Pushing the calendar content left reveals the next period; pushing it right
-            // reveals the previous one. AppKit's normalized scroll delta is positive for that
-            // physical leftward gesture.
-            move?(accumulatedX > 0 ? 1 : -1)
         }
     }
 }
@@ -2779,9 +2734,23 @@ enum MobileZoom {
 /// Counts the fingers on the Day grid without taking part in any gesture: it never recognizes
 /// and cancels nothing. Tells the zoom gate when the last one lifts — after a pinch the second
 /// finger often stays down, then lifts over an event.
+#if DEBUG && STRESS_DEVICE_AUDIT
+private let calendarPressRace = ProcessInfo.processInfo.arguments.contains("--stress-calendar-press-race")
+#else
+private let calendarPressRace = false
+#endif
+
 private final class FingerCounter: UIGestureRecognizer {
     var onAllLifted: (() -> Void)?
     private var down = 0
+    var tracksDayDrag = false
+    private var startPoint: CGPoint?
+    private var endPoint: CGPoint?
+    private weak var movingTouch: UITouch?
+    var dayTranslation: CGPoint? {
+        guard let start = startPoint, let end = movingTouch?.location(in: nil) ?? endPoint else { return nil }
+        return CGPoint(x: end.x - start.x, y: end.y - start.y)
+    }
 
     override init(target: Any?, action: Selector?) {
         super.init(target: target, action: action)
@@ -2792,11 +2761,29 @@ private final class FingerCounter: UIGestureRecognizer {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
         down += touches.count
+        if tracksDayDrag, down == 1, let touch = touches.first {
+            movingTouch = touch
+            startPoint = touch.location(in: nil)
+            endPoint = nil
+        } else {
+            movingTouch = nil
+            startPoint = nil
+        }
     }
 
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) { lift(touches.count) }
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+        if let movingTouch, touches.contains(movingTouch) {
+            endPoint = movingTouch.location(in: nil)
+            self.movingTouch = nil
+        }
+        lift(touches.count)
+    }
 
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) { lift(touches.count) }
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
+        movingTouch = nil
+        startPoint = nil
+        lift(touches.count)
+    }
 
     private func lift(_ count: Int) {
         down = max(0, down - count)
@@ -2811,12 +2798,15 @@ private final class FingerCounter: UIGestureRecognizer {
     }
 }
 
-struct CalendarWeekScrollConfiguration {
+struct CalendarColumnScrollConfiguration {
+    var pagesBetweenDays = false
     let contentWidth: CGFloat
     let columnWidth: CGFloat
     let selectedColumn: Int
     let gutterWidth: CGFloat
     let gutter: AnyView
+    let centerDay: Date
+    let selectDay: (Date) -> Void
     let onHorizontalOffset: (CGFloat) -> Void
     let onColumnSettled: (Int) -> Void
 }
@@ -2841,7 +2831,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
     let onZoomChanged: (CGFloat) -> Void
     let onZoomEnded: (CGFloat) -> Void
     var nativeItems: [CalendarViewportItem]? = nil
-    var week: CalendarWeekScrollConfiguration? = nil
+    var week: CalendarColumnScrollConfiguration? = nil
     var preservesActiveGesture = false
     let content: Content
 
@@ -2870,7 +2860,6 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         scrollView.alwaysBounceHorizontal = week != nil
         scrollView.bottomEdgeEffect.isHidden = context.environment.bottomBarShell
         scrollView.isDirectionalLockEnabled = true
-        scrollView.decelerationRate = .normal
         scrollView.isMultipleTouchEnabled = true
         scrollView.showsVerticalScrollIndicator = true
         scrollView.backgroundColor = .systemBackground
@@ -2878,6 +2867,16 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         #if DEBUG
         (scrollView as? CalendarDayCollectionView)?.columnSelectionAudit = { [weak coordinator = context.coordinator] in
             coordinator?.columnSelectionAudit ?? "coordinator released"
+        }
+        (scrollView as? CalendarDayCollectionView)?.pageAudit = { [weak coordinator = context.coordinator] in
+            ["page": coordinator?.resetToken ?? "", "pageTransitions": coordinator?.pageTransitions ?? 0,
+             "bodyEvaluations": RenderStats.lifetimeCount("WeekView"),
+             "preparedDayWindows": RenderStats.lifetimeCount("Calendar.prepareDays"),
+             "pinchStarts": coordinator?.pinchStarts ?? 0, "pinchUpdates": coordinator?.pinchUpdates ?? 0,
+             "pinchEndScale": coordinator?.pinchEndScale ?? 1,
+             "lastDayDrag": coordinator?.lastDayDrag ?? [:], "dayGestureHistory": coordinator?.dayGestureHistory ?? [],
+             "dayMotion": coordinator?.dayMotion ?? [], "auditEpoch": Date().timeIntervalSince1970,
+             "auditUptime": ProcessInfo.processInfo.systemUptime]
         }
         #endif
 
@@ -2928,7 +2927,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         // A quick drag moves beyond the long press's allowance immediately, so the native pan
         // begins normally. A deliberate hold recognizes first and keeps the following drag from
         // scrolling while it selects the event duration.
-        scrollView.panGestureRecognizer.require(toFail: createLongPress)
+        if !calendarPressRace { scrollView.panGestureRecognizer.require(toFail: createLongPress) }
         if scrollView is CalendarDayCollectionView, CalendarDayCollectionView.nativeMovementEnabled {
             let eventPress = CalendarMovePressRecognizer(target: context.coordinator,
                 action: #selector(Coordinator.didMoveEvent(_:)))
@@ -2939,7 +2938,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
             eventPress.delegate = context.coordinator
             context.coordinator.eventPress = eventPress
             scrollView.addGestureRecognizer(eventPress)
-            scrollView.panGestureRecognizer.require(toFail: eventPress)
+            if !calendarPressRace { scrollView.panGestureRecognizer.require(toFail: eventPress) }
             (scrollView as? CalendarDayCollectionView)?.auditMove("registered")
         }
         // Pinch to zoom, anchored where the two fingers are: the time between them stays between
@@ -2953,6 +2952,8 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         // Knows when the last finger of a pinch is up, for the zoom gate (taps on events wait).
         let fingers = FingerCounter(target: nil, action: nil)
         fingers.onAllLifted = { GridZoom.gate.fingersLifted() }
+        fingers.tracksDayDrag = week?.pagesBetweenDays == true
+        context.coordinator.fingerCounter = fingers
         fingers.delegate = context.coordinator
         scrollView.addGestureRecognizer(fingers)
         context.coordinator.pinch = pinch
@@ -2971,6 +2972,14 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
             context.coordinator.gutterHost = gutter
         }
         if let collection = scrollView as? CalendarDayCollectionView {
+            collection.onRulerRepositioned = { [weak coordinator = context.coordinator, weak collection] offset in
+                // Persist only after UIKit finishes geometry, and only if the user has not
+                // moved again before the next turn of the main run loop.
+                DispatchQueue.main.async {
+                    if let collection, collection.contentOffset.y == offset { coordinator?.onVerticalOffset(offset) }
+                }
+            }
+            collection.openingRulerOffset = initialOffset
             collection.prepareOpeningPosition = { [weak coordinator = context.coordinator] view in
                 let maximum = max(0, view.contentSize.height - view.bounds.height)
                 view.contentOffset.y = min(max(0, initialOffset), maximum)
@@ -2990,7 +2999,9 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         scrollView.bottomEdgeEffect.isHidden = context.environment.bottomBarShell
         context.coordinator.isUpdatingView = true
         defer { context.coordinator.isUpdatingView = false }
+        let previousWeek = context.coordinator.week
         context.coordinator.week = week
+        context.coordinator.fingerCounter?.tracksDayDrag = week?.pagesBetweenDays == true
         if let week {
             context.coordinator.gutterHost?.rootView = week.gutter
             (scrollView as? CalendarDayCollectionView)?.gutterWidth = week.gutterWidth
@@ -3009,11 +3020,17 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         let previousResetToken = context.coordinator.resetToken
         let pageChanged = previousResetToken != resetToken
         let preservedOffset = scrollView.contentOffset.y
+        let shift = pageChanged ? context.coordinator.interruptedDayShift(to: resetToken, from: previousWeek) : nil
+        let rebasedX = shift.map { scrollView.contentOffset.x - $0 }
+        #if DEBUG
+        if pageChanged { context.coordinator.recordRebase("page before", in: scrollView, shift: shift) }
+        #endif
         if pageChanged {
+            context.coordinator.resetToken = resetToken
             // A horizontal page gesture is an explicit request, not a background publication.
             // End any vertical coast exactly where it is so the destination day does not wait
             // for deceleration to finish while the fixed date header has already changed.
-            scrollView.setContentOffset(scrollView.contentOffset, animated: false)
+            if rebasedX == nil { scrollView.setContentOffset(scrollView.contentOffset, animated: false) }
             context.coordinator.pendingRoot = nil
             context.coordinator.resetColumnRequest()
         }
@@ -3036,7 +3053,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
                 }
             }
         } else {
-            if pageChanged, !UIAccessibility.isReduceMotionEnabled, let hostView = context.coordinator.host?.view {
+            if pageChanged, week?.pagesBetweenDays != true, !UIAccessibility.isReduceMotionEnabled, let hostView = context.coordinator.host?.view {
                 let transition = CATransition()
                 transition.type = .push
                 transition.subtype = resetToken > previousResetToken ? .fromRight : .fromLeft
@@ -3044,6 +3061,9 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
                 transition.timingFunction = CAMediaTimingFunction(name: .easeOut)
                 let pageView = scrollView is CalendarDayCollectionView ? scrollView : hostView
                 pageView.layer.add(transition, forKey: "day-page")
+                #if DEBUG
+                if context.coordinator.auditColumns { context.coordinator.pageTransitions += 1 }
+                #endif
             }
             context.coordinator.host?.rootView = nextRoot
             if let collection = scrollView as? CalendarDayCollectionView, let nativeItems {
@@ -3058,17 +3078,22 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         // UIScrollView's content layout guide. The calendar has a fixed ruler, so state the
         // scroll range directly instead of asking UIKit to infer it.
         scrollView.contentSize = CGSize(width: week?.contentWidth ?? scrollView.bounds.width, height: contentHeight)
-        context.coordinator.applySelectedColumn(scrollView)
+        context.coordinator.applySelectedColumn(scrollView, preservingX: rebasedX)
+        if let shift { context.coordinator.rebasePan(in: scrollView, by: shift) }
         guard pageChanged else { return }
-        context.coordinator.resetToken = resetToken
+        #if DEBUG
+        context.coordinator.recordRebase("page after", in: scrollView, shift: shift)
+        #endif
         let maximum = max(0, contentHeight - scrollView.bounds.height)
         // Preserve the scroll view's live position in the same update transaction as the host
         // replacement. Dispatching this to the next run-loop turn exposed a one-frame jump to the
         // top on dense days and made a preserved position look reset.
         let targetOffset = min(maximum, max(0, preservedOffset))
-        scrollView.setContentOffset(CGPoint(x: week == nil ? 0 : scrollView.contentOffset.x, y: targetOffset), animated: false)
+        let targetPoint = CGPoint(x: week == nil ? 0 : scrollView.contentOffset.x, y: targetOffset)
+        if scrollView.contentOffset != targetPoint { scrollView.setContentOffset(targetPoint, animated: false) }
         onVerticalOffset(targetOffset)
         context.coordinator.pendingWeekPage = nil
+        context.coordinator.continueDayCoastIfNeeded(in: scrollView)
     }
 
     static func dismantleUIView(_ uiView: UIScrollView, coordinator: Coordinator) {
@@ -3082,7 +3107,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         // controller dies after `makeUIView`, making every later day update a silent no-op.
         var host: UIHostingController<AnyView>?
         var gutterHost: UIHostingController<AnyView>?
-        var week: CalendarWeekScrollConfiguration?
+        var week: CalendarColumnScrollConfiguration?
         // MARK: Header offset delivery
         var isUpdatingView = false
         private var pendingHorizontalOffset: CGFloat?
@@ -3118,12 +3143,89 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         private var appliedViewportWidth: CGFloat = 0
         private var appliedColumnWidth: CGFloat = 0
         private var appliedContentWidth: CGFloat = 0
-        private var dragStartX: CGFloat = 0
+        private var dragStart = CGPoint.zero
+        private var horizontalDayAnchorY: CGFloat?
+        // The intended date survives an interrupted coast. A column index alone becomes
+        // ambiguous as soon as the same three native columns are reused for the next day.
+        private var dragOriginDay: Date?
+        private var settlingDay: Date?
+        private var interruptedDay: Date?
+        private var continuingFromDay: Date?
+        private var panTranslationAdjustment: CGFloat = 0
+
+        // UIKit keeps the offset at touch-down as its pan origin. Recentring a recycled
+        // date must move the recognizer's coordinates too, or its next input jumps a day.
+        func rebasePan(in scrollView: UIScrollView, by shift: CGFloat) {
+            let pan = scrollView.panGestureRecognizer
+            guard pan.state == .began || pan.state == .changed else { return }
+            var translation = pan.translation(in: scrollView)
+            translation.x += shift
+            pan.setTranslation(translation, in: scrollView)
+            panTranslationAdjustment += shift
+        }
+
+        func interruptedDayShift(to page: String, from previous: CalendarColumnScrollConfiguration?) -> CGFloat? {
+            if let continuingFromDay, page == Occurrence.dayKey(continuingFromDay) { return nil }
+            continuingFromDay = nil
+            guard let target = interruptedDay, let previous, let week,
+                  page == Occurrence.dayKey(target),
+                  previous.columnWidth == week.columnWidth else {
+                interruptedDay = nil
+                dragOriginDay = nil
+                settlingDay = nil
+                return nil
+            }
+            interruptedDay = nil
+            let columns = Calendar.app.dateComponents([.day], from: previous.centerDay, to: target).day ?? 0
+            let shift = CGFloat(columns) * week.columnWidth
+            dragStart.x -= shift
+            return shift
+        }
+
         var pendingWeekPage: Int?
         func resetColumnRequest() { requestedColumn = nil }
         #if DEBUG
         private var columnTransitions: [String] = []
-        private let auditColumns = ProcessInfo.processInfo.arguments.contains("--calendar-viewport-audit")
+        fileprivate let auditColumns = ProcessInfo.processInfo.arguments.contains("--calendar-viewport-audit")
+        fileprivate var pageTransitions = 0
+        fileprivate var pinchStarts = 0
+        fileprivate var pinchUpdates = 0
+        fileprivate var pinchEndScale: CGFloat = 1
+        fileprivate var lastDayDrag: [String: Double] = [:]
+        fileprivate var dayGestureHistory: [[String: Any]] = []
+        private let tracesFlicks = ProcessInfo.processInfo.arguments.contains("--calendar-flick-trace")
+        private var remainingRebaseSamples = 0
+        fileprivate var dayMotion: [[Double]] = []
+        private var tracksDayMotion = false
+        // Only the signed stress test requests per-scroll coordinates. Day identity and
+        // offset together show whether rotating the three columns moved the user's date.
+        private func recordDayMotion(in view: UIScrollView) {
+            guard tracesFlicks, tracksDayMotion, let week, week.pagesBetweenDays else { return }
+            if dayMotion.count >= 400 { dayMotion.removeFirst(100) }
+            dayMotion.append([ProcessInfo.processInfo.systemUptime, week.centerDay.timeIntervalSince1970,
+                              view.contentOffset.x, view.layer.presentation()?.bounds.minX ?? view.contentOffset.x,
+                              view.panGestureRecognizer.translation(in: view).x - panTranslationAdjustment, week.columnWidth])
+        }
+        func recordRebase(_ phase: String, in view: UIScrollView, shift: CGFloat?) {
+            guard tracesFlicks else { return }
+            recordDayGesture(phase, in: view)
+            if shift != nil, phase == "page after" { remainingRebaseSamples = 3 }
+            if let shift, !dayGestureHistory.isEmpty { dayGestureHistory[dayGestureHistory.count - 1]["shift"] = shift }
+        }
+        private func recordDayGesture(_ phase: String, in view: UIScrollView) {
+            guard tracesFlicks, week?.pagesBetweenDays == true else { return }
+            if dayGestureHistory.count == 160 { dayGestureHistory.removeFirst(80) }
+            dayGestureHistory.append(["phase": phase, "time": ProcessInfo.processInfo.systemUptime,
+                                      "page": resetToken, "x": view.contentOffset.x, "y": view.contentOffset.y,
+                                      "dx": view.panGestureRecognizer.translation(in: view).x - panTranslationAdjustment,
+                                      "origin": dragOriginDay.map { Occurrence.dayKey($0) } ?? "",
+                                      "destination": settlingDay.map { Occurrence.dayKey($0) } ?? "",
+                                      "center": week.map { Occurrence.dayKey($0.centerDay) } ?? ""])
+        }
+
+        private let referenceDayDeceleration =
+            ProcessInfo.processInfo.arguments.contains("--calendar-reference-day-deceleration")
+
         private func traceColumn(_ message: @autoclosure () -> String) {
             if auditColumns && columnTransitions.count < 64 { columnTransitions.append(message()) }
         }
@@ -3131,7 +3233,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
             "transitions=\(columnTransitions);selected=\(week?.selectedColumn ?? -1);requested=\(requestedColumn ?? -1);viewport=\(appliedViewportWidth);column=\(appliedColumnWidth);content=\(appliedContentWidth)"
         }
         #endif
-        func applySelectedColumn(_ scrollView: UIScrollView) {
+        func applySelectedColumn(_ scrollView: UIScrollView, preservingX: CGFloat? = nil) {
             guard let week, scrollView.bounds.width > 0 else { return }
             guard requestedColumn != week.selectedColumn
                     || appliedViewportWidth != scrollView.bounds.width
@@ -3144,7 +3246,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
             appliedViewportWidth = scrollView.bounds.width
             appliedColumnWidth = week.columnWidth
             appliedContentWidth = week.contentWidth
-            let x = min(max(0, CGFloat(week.selectedColumn) * week.columnWidth),
+            let x = min(max(0, preservingX ?? CGFloat(week.selectedColumn) * week.columnWidth),
                         max(0, week.contentWidth - scrollView.bounds.width))
             scrollView.setContentOffset(CGPoint(x: x, y: scrollView.contentOffset.y), animated: false)
             #if DEBUG
@@ -3154,6 +3256,11 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         }
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             #if DEBUG
+            recordDayMotion(in: scrollView)
+            if remainingRebaseSamples > 0, !isUpdatingView {
+                remainingRebaseSamples -= 1
+                recordDayGesture("scroll after rebase", in: scrollView)
+            }
             traceColumn("scroll offset=\(scrollView.contentOffset) content=\(scrollView.contentSize) bounds=\(scrollView.bounds.size) updating=\(isUpdatingView) tracking=\(scrollView.isTracking)")
             #endif
             (scrollView as? CalendarDayCollectionView)?.updatePinnedGutter()
@@ -3162,16 +3269,72 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
             sendHorizontalOffset(scrollView.contentOffset.x,
                                  programmatic: !scrollView.isTracking && !scrollView.isDragging && !scrollView.isDecelerating)
         }
-        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) { dragStartX = scrollView.contentOffset.x }
+        func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+            dragStart = scrollView.contentOffset
+            horizontalDayAnchorY = nil
+            dragOriginDay = nil
+            panTranslationAdjustment = 0
+            #if DEBUG
+            remainingRebaseSamples = 0
+            #endif
+            guard let week, week.pagesBetweenDays else { return }
+            // A date snaps to a column. Scrolling through hours keeps the usual vertical coast.
+            let pan = scrollView.panGestureRecognizer
+            let speed = pan.velocity(in: scrollView)
+            let translation = pan.translation(in: scrollView)
+            let direction = speed == .zero ? translation : speed
+            let horizontal = abs(direction.x) > abs(direction.y)
+            scrollView.decelerationRate = horizontal ? .fast : .normal
+            let previous = settlingDay
+            settlingDay = nil
+            dragOriginDay = horizontal ? previous ?? week.centerDay : nil
+            continuingFromDay = nil
+            if horizontal, let previous, previous != week.centerDay {
+                // The finger can overtake the native coast. Rotate only when the same
+                // piece of both dates still fits in the three-column viewport.
+                let step = previous > week.centerDay ? 1 : -1
+                let x = scrollView.contentOffset.x - CGFloat(step) * week.columnWidth
+                let maximum = week.contentWidth - scrollView.bounds.width
+                // When the finger reverses it is heading back into dates we already
+                // display. Rotating toward the old destination can move it past the
+                // edge between this callback and SwiftUI's update of the three columns.
+                if direction.x * CGFloat(step) < 0, x >= 0, x <= maximum,
+                   let next = Calendar.app.date(byAdding: .day, value: step, to: week.centerDay) {
+                    interruptedDay = next
+                    week.selectDay(next)
+                }
+            }
+            #if DEBUG
+            if tracesFlicks, horizontal {
+                if !tracksDayMotion { dayMotion.removeAll(keepingCapacity: true) }
+                tracksDayMotion = true
+                recordDayMotion(in: scrollView)
+            }
+            recordDayGesture("began", in: scrollView)
+            if referenceDayDeceleration { scrollView.decelerationRate = .normal }
+            #endif
+        }
         func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint,
                                       targetContentOffset: UnsafeMutablePointer<CGPoint>) {
             guard let week else { return }
             let maximum = max(0, week.contentWidth - scrollView.bounds.width)
-            if pendingWeekPage == nil, !isPinching, eventMove == nil, canBeginSwipe(),
+            var translation = scrollView.panGestureRecognizer.translation(in: scrollView)
+            translation.x -= panTranslationAdjustment
+            // The pan can be recognized after much of a fast drag is already over. Use the
+            // single finger's window coordinates so that movement still counts after a rebase.
+            if week.pagesBetweenDays, let actual = fingerCounter?.dayTranslation { translation = actual }
+            if week.pagesBetweenDays, abs(translation.x) > abs(translation.y),
+               !isPinching, eventMove == nil, scrollView.panGestureRecognizer.state != .cancelled {
+                // Selecting another date keeps the hour under the finger. UIKit can otherwise
+                // propose a small vertical adjustment even for a straight horizontal drag.
+                horizontalDayAnchorY = dragStart.y
+                targetContentOffset.pointee.y = dragStart.y
+            }
+            if !week.pagesBetweenDays, pendingWeekPage == nil, !isPinching, eventMove == nil, canBeginSwipe(),
                scrollView.panGestureRecognizer.state != .cancelled,
-               let page = CalendarWeekEdge.page(start: dragStartX, offset: scrollView.contentOffset.x,
+               let page = CalendarWeekEdge.page(start: dragStart.x, offset: scrollView.contentOffset.x,
                     maximum: maximum, width: scrollView.bounds.width,
-                    translation: scrollView.panGestureRecognizer.translation(in: scrollView)) {
+                    translation: translation) {
                 pendingWeekPage = page
                 targetContentOffset.pointee = CGPoint(x: page > 0 ? maximum : 0, y: scrollView.contentOffset.y)
                 let token = resetToken
@@ -3187,9 +3350,35 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
                 }
                 return
             }
-            let current = (dragStartX / week.columnWidth).rounded()
-            let proposed = (targetContentOffset.pointee.x / week.columnWidth).rounded()
+            let current: CGFloat
+            if let origin = dragOriginDay, horizontalDayAnchorY != nil {
+                let delta = Calendar.app.dateComponents([.day], from: week.centerDay, to: origin).day ?? 0
+                current = CGFloat(week.selectedColumn + delta)
+            } else {
+                current = (dragStart.x / week.columnWidth).rounded()
+            }
+            var proposed = (targetContentOffset.pointee.x / week.columnWidth).rounded()
+            if horizontalDayAnchorY != nil,
+               abs(translation.x) > 44, abs(velocity.x) > abs(velocity.y),
+               velocity.x * translation.x < 0, abs(velocity.x) >= 0.3 {
+                // A decisive lateral flick advances one date, including on a wide viewport.
+                // The native deceleration rate determines how that date settles into place.
+                proposed = current + (velocity.x > 0 ? 1 : -1)
+            }
+            #if DEBUG
+            recordDayGesture("released", in: scrollView)
+            if auditColumns, horizontalDayAnchorY != nil {
+                lastDayDrag = ["release": ProcessInfo.processInfo.systemUptime,
+                               "panDX": scrollView.panGestureRecognizer.translation(in: scrollView).x - panTranslationAdjustment,
+                               "from": current,
+                               "proposed": proposed, "dx": translation.x, "vx": velocity.x,
+                               "rate": Double(scrollView.decelerationRate.rawValue)]
+            }
+            #endif
             let column = min(current + 1, max(current - 1, proposed))
+            if horizontalDayAnchorY != nil {
+                settlingDay = Calendar.app.date(byAdding: .day, value: Int(column) - week.selectedColumn, to: week.centerDay)
+            }
             targetContentOffset.pointee.x = min(max(0, column * week.columnWidth),
                                                 max(0, week.contentWidth - scrollView.bounds.width))
         }
@@ -3222,6 +3411,7 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         var onCreateChanged: (CGPoint, CGPoint) -> Void
         var onCreateEnded: (CGPoint, CGPoint) -> Void
         var onCreateCancelled: () -> Void
+        fileprivate weak var fingerCounter: FingerCounter?
         weak var horizontalPan: UIPanGestureRecognizer?
         weak var createLongPress: UILongPressGestureRecognizer?
         weak var eventPress: UILongPressGestureRecognizer?
@@ -3262,6 +3452,11 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         ) -> Bool {
             // The finger counter only watches; nothing may cancel it.
             if gestureRecognizer is FingerCounter || otherGestureRecognizer is FingerCounter { return true }
+            if calendarPressRace, let pan = (createLongPress?.view as? UIScrollView)?.panGestureRecognizer,
+               (gestureRecognizer === pan && otherGestureRecognizer === createLongPress ||
+                otherGestureRecognizer === pan && gestureRecognizer === createLongPress) {
+                return false
+            }
             if gestureRecognizer === eventPress || otherGestureRecognizer === eventPress {
                 if CalendarDayCollectionView.simultaneousMovementEnabled { return true }
                 // A second finger can turn a hold into a pinch; pinch startup cancels the move.
@@ -3393,14 +3588,21 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
                 scrollView.panGestureRecognizer.isEnabled = false
                 scrollView.panGestureRecognizer.isEnabled = true
                 GridZoom.gate.pinchChanged()
+                horizontalDayAnchorY = nil
                 isPinching = true
                 pinchBase = hourHeight
+                #if DEBUG
+                if auditColumns { pinchStarts += 1 }
+                #endif
                 pinchAnchorHours = point.y / max(1, hourHeight)
             case .changed:
                 guard isPinching else { return }
                 GridZoom.gate.pinchChanged()
                 let height = min(hourHeightRange.upperBound,
                                  max(hourHeightRange.lowerBound, pinchBase * recognizer.scale))
+                #if DEBUG
+                if auditColumns { pinchUpdates += 1 }
+                #endif
                 let hours = (heightConstraint?.constant ?? scrollView.contentSize.height) / max(1, hourHeight)
                 hourHeight = height
                 // Size the grid now, in this frame, so the offset below isn't clamped to the old
@@ -3415,6 +3617,9 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
             case .ended, .cancelled, .failed:
                 guard isPinching else { return }
                 isPinching = false
+                #if DEBUG
+                if auditColumns { pinchEndScale = recognizer.scale }
+                #endif
                 onZoomEnded(hourHeight)
                 onVerticalOffset(scrollView.contentOffset.y)
             default:
@@ -3434,17 +3639,62 @@ struct DirectionalDayScrollView<Content: View>: UIViewRepresentable {
         }
 
         func scrollViewDidEndDragging(_ scrollView: UIScrollView, willDecelerate decelerate: Bool) {
-            if !decelerate {
-                applyPendingRoot()
-                onVerticalOffset(scrollView.contentOffset.y)
+            if !decelerate { finishScroll(scrollView) }
+        }
+
+        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+            finishScroll(scrollView)
+        }
+
+        private func finishScroll(_ scrollView: UIScrollView) {
+            guard !isUpdatingView, scrollView.panGestureRecognizer.state != .changed,
+                  scrollView.panGestureRecognizer.state != .began else { return }
+            let destination = settlingDay
+            if let destination, let week, week.pagesBetweenDays {
+                let delta = Calendar.app.dateComponents([.day], from: week.centerDay, to: destination).day ?? 0
+                if abs(delta) > 1,
+                   let next = Calendar.app.date(byAdding: .day, value: delta > 0 ? 1 : -1, to: week.centerDay) {
+                    // Several flicks can ask for a date beyond the visible neighbors.
+                    // Reuse the neighbor that just arrived and coast the remaining distance.
+                    continuingFromDay = next
+                    week.selectDay(next)
+                    return
+                }
+            }
+            settlingDay = nil
+            dragOriginDay = nil
+            applyPendingRoot()
+            if let anchor = horizontalDayAnchorY {
+                #if DEBUG
+                recordDayMotion(in: scrollView)
+                tracksDayMotion = false
+                recordDayGesture("settled", in: scrollView)
+                if auditColumns { lastDayDrag["settled"] = ProcessInfo.processInfo.systemUptime }
+                #endif
+                horizontalDayAnchorY = nil
+                let y = min(max(0, anchor), max(0, scrollView.contentSize.height - scrollView.bounds.height))
+                if y != scrollView.contentOffset.y { scrollView.contentOffset.y = y }
+            }
+            onVerticalOffset(scrollView.contentOffset.y)
+            if let destination, let week, week.pagesBetweenDays {
+                if destination != week.centerDay { week.selectDay(destination) }
+                else { resetColumnRequest(); applySelectedColumn(scrollView) }
+            } else {
                 settledColumn(scrollView)
             }
         }
 
-        func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-            applyPendingRoot()
-            onVerticalOffset(scrollView.contentOffset.y)
-            settledColumn(scrollView)
+        func continueDayCoastIfNeeded(in scrollView: UIScrollView) {
+            guard let week, let page = continuingFromDay, page == week.centerDay,
+                  let destination = settlingDay else { return }
+            continuingFromDay = nil
+            let column = week.selectedColumn + (destination > page ? 1 : -1)
+            let target = CGPoint(x: CGFloat(column) * week.columnWidth, y: scrollView.contentOffset.y)
+            scrollView.setContentOffset(target, animated: true)
+        }
+
+        func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView) {
+            if settlingDay != nil { finishScroll(scrollView) }
         }
 
         private func applyPendingRoot() {
@@ -3872,7 +4122,7 @@ struct WeekView: View {
     /// height it began at.
     @State private var mobileWeekPinch: (hours: CGFloat, base: CGFloat)?
     private static let mobileHourHeights: ClosedRange<CGFloat> = 44...160
-    @State private var mobileWeekLoading = false
+    @State private var mobileWeekLoading = CalendarPageLoading()
     @State private var mobileSelectedDay = Date()
     /// The orange block shown while a long-press drag is selecting a new event. Without it, the
     /// iPhone gesture had no visible acknowledgement until a sheet appeared on release.
@@ -3910,17 +4160,14 @@ struct WeekView: View {
         let isToday: Bool
         let items: [Occurrence]
         let committed: Double
-        /// `items.hashValue`, computed once here at construction (items is immutable), for
-        /// views that key on a day's contents.
-        let itemsToken: Int
         let preparedPlacements: [CalendarLaneAllocator.Placement]
 
         init(id: Int, date: Date, weekday: String, dayNum: String, letter: String,
-             isToday: Bool, items: [Occurrence], committed: Double, itemsToken: Int,
+             isToday: Bool, items: [Occurrence], committed: Double,
              calendarGrid: Bool = false) {
             self.id = id; self.date = date; self.weekday = weekday; self.dayNum = dayNum
             self.letter = letter; self.isToday = isToday; self.items = items
-            self.committed = committed; self.itemsToken = itemsToken
+            self.committed = committed
             let calendar = Calendar.current
             // Match the renderer's local midnight boundaries, including 23/25-hour days.
             // The wall-clock ruler has 24 labels; the underlying date interval can differ.
@@ -4041,7 +4288,9 @@ struct WeekView: View {
                                       isCurrent: mobileWeekOffset == 0,
                                       step: { moveMobileWeek($0) }, toCurrent: { moveMobileWeekToCurrent() }) {
                         mobileForecast
-                        if mobileWeekLoading { ProgressView().controlSize(.mini) }
+                        CalendarRefreshStatus(loading: mobileWeekLoading) { active in
+                            if active { ProgressView().controlSize(.mini) }
+                        }
                     }
                     ToolbarItem(placement: .topBarTrailing) {
                         MoreMenu(identifier: "mobile.week.more") {
@@ -4431,16 +4680,18 @@ struct WeekView: View {
 
     private var mobileWeekChrome: some View {
         // The one date line (`PageChrome`): this was the row it was lifted from.
-        DateLine(current: dayMode ? "Today" : "This week", dates: mobileWeekRangeTitle,
-                 isCurrent: mobileWeekOffset == 0, loading: mobileWeekLoading,
-                 unit: dayMode ? "day" : "week", titleIdentifier: "mobile.day.title",
-                 titleValue: dayMode ? Occurrence.dayKey(mobileVisibleWeekStart) : mobileWeekRangeTitle,
-                 step: { moveMobileWeek($0) }, toCurrent: { moveMobileWeekToCurrent() }) {
-            // The forecast: the day shown in Day, today in this week. It ran down the List.
-            if dayMode {
-                WeatherChip(day: mobileVisibleWeekStart)
-            } else if mobileWeekOffset == 0 {
-                WeatherChip(day: Date())
+        CalendarRefreshStatus(loading: mobileWeekLoading) { active in
+            DateLine(current: dayMode ? "Today" : "This week", dates: mobileWeekRangeTitle,
+                     isCurrent: mobileWeekOffset == 0, loading: active,
+                     unit: dayMode ? "day" : "week", titleIdentifier: "mobile.day.title",
+                     titleValue: dayMode ? Occurrence.dayKey(mobileVisibleWeekStart) : mobileWeekRangeTitle,
+                     step: { moveMobileWeek($0) }, toCurrent: { moveMobileWeekToCurrent() }) {
+                // The forecast: the day shown in Day, today in this week. It ran down the List.
+                if dayMode {
+                    WeatherChip(day: mobileVisibleWeekStart)
+                } else if mobileWeekOffset == 0 {
+                    WeatherChip(day: Date())
+                }
             }
         }
         .background(Color(.systemBackground))
@@ -4774,66 +5025,70 @@ struct WeekView: View {
                     mobileRemindersBand(bandDay)
                 }
                 if dayMode, let currentDay = calendarDays.first(where: { $0.id == 1 }) {
-                    DirectionalDayScrollView(
-                        resetToken: Occurrence.dayKey(currentDay.date),
-                        contentHeight: gridHeight,
-                        initialOffset: mobileDayScrollOffset >= 0
-                            ? CGFloat(mobileDayScrollOffset)
-                            : max(0, (CGFloat(GridOpeningHour.current) - 1.5) * hourHeight),
-                        onHorizontalSwipe: { forward in moveMobileWeek(forward ? 1 : -1) },
-                        canBeginSwipe: { draggingEventID == nil },
-                        onVerticalOffset: { mobileDayScrollOffset = Double($0) },
-                        canBeginCreate: { point in
-                            guard point.x >= timeWidth else { return false }
-                            let instant = mobileGridDate(
-                                on: currentDay.date,
-                                y: point.y,
-                                startHour: startHour,
-                                hourHeight: hourHeight)
-                            return !currentDay.items.contains {
-                                drawnAmongTheHours($0, on: currentDay)
-                                    && $0.start <= instant && $0.resolvedEnd > instant
-                            }
-                        },
-                        onCreateChanged: { start, current in
-                            updateMobileSelection(
-                                on: currentDay.date,
-                                startY: start.y,
-                                currentY: current.y,
-                                startHour: startHour,
-                                hourHeight: hourHeight)
-                        },
-                        onCreateEnded: { start, current in
-                            updateMobileSelection(
-                                on: currentDay.date,
-                                startY: start.y,
-                                currentY: current.y,
-                                startHour: startHour,
-                                hourHeight: hourHeight)
-                            finishMobileSelection(on: currentDay.date)
-                        },
-                        onCreateCancelled: { mobileDraftSelection = nil },
-                        hourHeight: hourHeight,
-                        hourHeightRange: Self.mobileHourHeights,
-                        onZoomChanged: { mobileLiveHourHeight = $0 },
-                        onZoomEnded: { height in
-                            mobileStoredHourHeight = Double(height)
-                            mobileLiveHourHeight = nil
-                        },
-                        nativeItems: Self.nativeDayViewport ? mobileNativeDayItems(
-                            currentDay, width: dayWidth, gutter: timeWidth, startHour: startHour,
-                            endHour: endHour, hourHeight: hourHeight) : nil,
-                        preservesActiveGesture: draggingEventID != nil,
-                        content: HStack(alignment: .top, spacing: 0) {
-                            mobileTimeGutter(width: timeWidth, startHour: startHour,
-                                             endHour: endHour, hourHeight: hourHeight)
-                            mobileDayColumn(currentDay, width: dayWidth, startHour: startHour,
-                                            endHour: endHour, hourHeight: hourHeight,
-                                            includesEvents: !Self.nativeDayViewport)
+                    Group {
+                        if Self.nativeDayViewport {
+                            mobileNativeCalendarViewport(timeWidth: timeWidth, dayWidth: dayWidth,
+                                hourHeight: hourHeight, gridHeight: gridHeight, visibleDays: 1,
+                                viewportHeight: nil, viewportWidth: geometry.size.width)
+                        } else {
+                            DirectionalDayScrollView(
+                                resetToken: Occurrence.dayKey(currentDay.date),
+                                contentHeight: gridHeight,
+                                initialOffset: mobileDayScrollOffset >= 0
+                                    ? CGFloat(mobileDayScrollOffset)
+                                    : max(0, (CGFloat(GridOpeningHour.current) - 1.5) * hourHeight),
+                                onHorizontalSwipe: { forward in moveMobileWeek(forward ? 1 : -1) },
+                                canBeginSwipe: { draggingEventID == nil },
+                                onVerticalOffset: { mobileDayScrollOffset = Double($0) },
+                                canBeginCreate: { point in
+                                    guard point.x >= timeWidth else { return false }
+                                    let instant = mobileGridDate(
+                                        on: currentDay.date,
+                                        y: point.y,
+                                        startHour: startHour,
+                                        hourHeight: hourHeight)
+                                    return !currentDay.items.contains {
+                                        drawnAmongTheHours($0, on: currentDay)
+                                            && $0.start <= instant && $0.resolvedEnd > instant
+                                    }
+                                },
+                                onCreateChanged: { start, current in
+                                    updateMobileSelection(
+                                        on: currentDay.date,
+                                        startY: start.y,
+                                        currentY: current.y,
+                                        startHour: startHour,
+                                        hourHeight: hourHeight)
+                                },
+                                onCreateEnded: { start, current in
+                                    updateMobileSelection(
+                                        on: currentDay.date,
+                                        startY: start.y,
+                                        currentY: current.y,
+                                        startHour: startHour,
+                                        hourHeight: hourHeight)
+                                    finishMobileSelection(on: currentDay.date)
+                                },
+                                onCreateCancelled: { mobileDraftSelection = nil },
+                                hourHeight: hourHeight,
+                                hourHeightRange: Self.mobileHourHeights,
+                                onZoomChanged: { mobileLiveHourHeight = $0 },
+                                onZoomEnded: { height in
+                                    mobileStoredHourHeight = Double(height)
+                                    mobileLiveHourHeight = nil
+                                },
+                                preservesActiveGesture: draggingEventID != nil,
+                                content: HStack(alignment: .top, spacing: 0) {
+                                    mobileTimeGutter(width: timeWidth, startHour: startHour,
+                                                     endHour: endHour, hourHeight: hourHeight)
+                                    mobileDayColumn(currentDay, width: dayWidth, startHour: startHour,
+                                                    endHour: endHour, hourHeight: hourHeight)
+                                }
+                                .frame(height: gridHeight, alignment: .top)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            )
                         }
-                        .frame(height: gridHeight, alignment: .top)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    )
+                    }
                     // Day has no week header row: the grid fills down to the tab bar.
                     .frame(minHeight: 1, maxHeight: .infinity)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -4849,7 +5104,7 @@ struct WeekView: View {
                         }
                     }
                 } else if Self.nativeWeekViewport {
-                    mobileNativeWeekViewport(timeWidth: timeWidth, dayWidth: dayWidth,
+                    mobileNativeCalendarViewport(timeWidth: timeWidth, dayWidth: dayWidth,
                         hourHeight: hourHeight, gridHeight: gridHeight, visibleDays: visibleDays,
                         viewportHeight: max(1, geometry.size.height - 45), viewportWidth: measured)
                 } else {
@@ -4972,7 +5227,7 @@ struct WeekView: View {
         // The other zone's hour under this one's, while a trip is on screen and the rows are
         // tall enough for two lines.
         let other = hourHeight >= 30 ? mobileSecondaryZone : nil
-        let day = calendarDays.first?.date ?? Date()
+        let day = dayMode ? mobileVisibleWeekStart : calendarDays.first?.date ?? Date()
         return VStack(spacing: 0) {
             ForEach(startHour..<endHour, id: \.self) { hour in
                 VStack(alignment: .trailing, spacing: 0) {
@@ -5065,35 +5320,51 @@ struct WeekView: View {
         return min(selected, max(0, calendarDays.count - visibleDays))
     }
 
-    private func mobileNativeWeekViewport(
+    private func mobileNativeCalendarViewport(
         timeWidth: CGFloat, dayWidth: CGFloat, hourHeight: CGFloat,
-        gridHeight: CGFloat, visibleDays: Int, viewportHeight: CGFloat, viewportWidth: CGFloat
+        gridHeight: CGFloat, visibleDays: Int, viewportHeight: CGFloat?, viewportWidth: CGFloat
     ) -> some View {
         let days = calendarDays
-        let items = days.enumerated().flatMap { index, day in
-            mobileNativeDayItems(day, width: dayWidth, gutter: timeWidth + CGFloat(index) * dayWidth,
-                                 startHour: 0, endHour: 24, hourHeight: hourHeight)
+        let calendar = Calendar.current
+        let columns = days.map { day in
+            let clock = CalendarDayClockGeometry(day: day.date, calendar: calendar, startHour: 0, hourHeight: hourHeight)
+            let placements = mobileDayPlacements(day, clock: clock, endHour: 24)
+            return (day: day, clock: clock, placements: placements)
+        }
+        let items = columns.enumerated().flatMap { index, column in
+            let day = column.day
+            let dayKey = Occurrence.dayKey(day.date)
+            return mobileNativeDayItems(day, placements: column.placements, clock: column.clock,
+                                 width: dayWidth, gutter: timeWidth + CGFloat(index) * dayWidth, endHour: 24)
                 .compactMap {
                     $0.clipped(to: CGRect(x: timeWidth + CGFloat(index) * dayWidth, y: 0,
                                          width: dayWidth, height: gridHeight))?
-                        .namespaced(Occurrence.dayKey(day.date))
+                        .namespaced(dayKey)
                 }
         }
         func dayAt(_ point: CGPoint) -> DayData? {
             let index = Int(floor((point.x - timeWidth) / dayWidth))
             return days.indices.contains(index) ? days[index] : nil
         }
+        let savedOffset: CGFloat? = dayMode
+            ? (mobileDayScrollOffset >= 0 ? CGFloat(mobileDayScrollOffset) : nil)
+            : (mobileWeekScrollY.y > 0 ? mobileWeekScrollY.y : nil)
+        let openingOffset = max(0, (CGFloat(GridOpeningHour.current) - (dayMode ? 1.5 : 1)) * hourHeight)
         return DirectionalDayScrollView(
             resetToken: Occurrence.dayKey(mobileVisibleWeekStart), contentHeight: gridHeight,
-            initialOffset: mobileWeekScrollY.y > 0 ? mobileWeekScrollY.y
-                : max(0, CGFloat(GridOpeningHour.current - 1) * hourHeight),
+            initialOffset: savedOffset ?? openingOffset,
             onHorizontalSwipe: { moveMobileWeek($0 ? 1 : -1, landingAtEdge: true) }, canBeginSwipe: { draggingEventID == nil },
-            onVerticalOffset: { mobileWeekScrollY.y = $0 },
+            onVerticalOffset: { offset in
+                if dayMode {
+                    if mobileDayScrollOffset != Double(offset) { mobileDayScrollOffset = Double(offset) }
+                } else { mobileWeekScrollY.y = offset }
+            },
             canBeginCreate: { point in
                 guard let day = dayAt(point) else { return false }
                 let date = mobileGridDate(on: day.date, y: point.y, startHour: 0, hourHeight: hourHeight)
-                return !day.items.contains {
-                    $0.hasScheduledTime && $0.behavior != .block && $0.start <= date && $0.resolvedEnd > date
+                return !day.items.contains { item in
+                    let timed = dayMode ? drawnAmongTheHours(item, on: day) : item.hasScheduledTime && item.behavior != .block
+                    return timed && item.start <= date && item.resolvedEnd > date
                 }
             },
             onCreateChanged: { start, current in
@@ -5112,24 +5383,32 @@ struct WeekView: View {
             onZoomChanged: { mobileLiveHourHeight = $0 },
             onZoomEnded: { mobileStoredHourHeight = Double($0); mobileLiveHourHeight = nil },
             nativeItems: items,
-            week: CalendarWeekScrollConfiguration(
-                contentWidth: timeWidth + CGFloat(days.count) * dayWidth,
+            week: CalendarColumnScrollConfiguration(
+                pagesBetweenDays: dayMode, contentWidth: timeWidth + CGFloat(days.count) * dayWidth,
                 columnWidth: dayWidth,
-                selectedColumn: mobileVisibleDayID ?? openingWeekColumn(visibleDays: visibleDays),
+                selectedColumn: dayMode ? 1 : mobileVisibleDayID ?? openingWeekColumn(visibleDays: visibleDays),
                 gutterWidth: timeWidth,
                 gutter: AnyView(mobileTimeGutter(width: timeWidth, startHour: 0, endHour: 24,
                                                 hourHeight: hourHeight)),
+                centerDay: mobileVisibleWeekStart, selectDay: { showMobileDay($0) },
                 onHorizontalOffset: { x in
+                    guard !dayMode else { return }
                     let maximum = max(0, timeWidth + CGFloat(days.count) * dayWidth - viewportWidth)
                     headerOffset.set(x: min(maximum, max(0, x)), stretch: min(maximum, max(0, x)) - x)
                 },
-                onColumnSettled: { if mobileVisibleDayID != $0 { mobileVisibleDayID = $0 } }),
+                onColumnSettled: { [center = mobileVisibleWeekStart] index in
+                    if dayMode {
+                        // UIKit has already scrolled the adjacent date into view. Recenter that same
+                        // date at column one, keeping the live hour and fixed ruler in place.
+                        if index != 1, let date = calendar.date(byAdding: .day, value: index - 1, to: center) { showMobileDay(date) }
+                    } else if mobileVisibleDayID != index { mobileVisibleDayID = index }
+                }),
             preservesActiveGesture: draggingEventID != nil,
             content: HStack(alignment: .top, spacing: 0) {
                 Color.clear.frame(width: timeWidth)
-                ForEach(days) { day in
-                    mobileDayColumn(day, width: dayWidth, startHour: 0, endHour: 24,
-                                    hourHeight: hourHeight, includesEvents: false)
+                ForEach(columns, id: \.day.date) { column in
+                    mobileDayColumn(column.day, width: dayWidth, startHour: 0, endHour: 24,
+                                    hourHeight: hourHeight, nativePlacements: column.placements)
                 }
             }.frame(width: timeWidth + CGFloat(days.count) * dayWidth, height: gridHeight, alignment: .topLeading)
         )
@@ -5143,20 +5422,15 @@ struct WeekView: View {
         startHour: Int,
         endHour: Int,
         hourHeight: CGFloat,
-        includesEvents: Bool = true
+        nativePlacements: [GridPlacement]? = nil
     ) -> some View {
+        let includesEvents = nativePlacements == nil
         let calendar = Calendar.current
         let clock = CalendarDayClockGeometry(day: day.date, calendar: calendar,
                                              startHour: startHour, hourHeight: hourHeight)
         let visibleStart = clock.boundary(startHour)
         let visibleEnd = clock.boundary(endHour)
-        let placements = Self.reuseGridLayouts && startHour == 0 && endHour == 24
-            ? day.preparedPlacements : gridPlacements(day.items.filter {
-                drawnAmongTheHours($0, on: day)
-                    && $0.start < visibleEnd && $0.resolvedEnd > visibleStart
-            })
-        if day.items.contains(where: { $0.pendingWriteID != nil }) {
-        }
+        let placements = nativePlacements ?? mobileDayPlacements(day, clock: clock, endHour: endHour)
         let neighbors = includesEvents && Self.prepareMobileNeighbors
             ? mobileNeighborPlan(placements, width: width, visibleStart: visibleStart, clock: clock) : nil
         // A day blocked all day (Busy all-day event), hatched as on the Mac.
@@ -5278,7 +5552,7 @@ struct WeekView: View {
                     let preferred = clock.y(
                         max(outbound.leaveBy, visibleStart))
                     let travelTop = mobileTravelBandTop(
-                        placement, among: placements, clock: clock, preferred: preferred)
+                        placement, among: placements, clock: clock, preferred: preferred, neighbors: neighbors)
                     let travelHeight = max(5, start - travelTop)
                     if travelTop >= 0 {
                         TravelBand(minutes: outbound.minutes, height: travelHeight, detail: outbound.detail)
@@ -5376,28 +5650,28 @@ struct WeekView: View {
         )
     }
 
-    /// Native viewport experiment: use the reference event geometry and action closures.
-    /// Building descriptors does not instantiate the offscreen SwiftUI event subtrees.
-    private func mobileNativeDayItems(
-        _ day: DayData, width: CGFloat, gutter: CGFloat,
-        startHour: Int, endHour: Int, hourHeight: CGFloat
-    ) -> [CalendarViewportItem] {
-        let calendar = Calendar.current
-        let clock = CalendarDayClockGeometry(day: day.date, calendar: calendar,
-                                             startHour: startHour, hourHeight: hourHeight)
-        let visibleStart = clock.boundary(startHour)
+    /// The native cells and the grid's accessibility value describe the same placement snapshot.
+    private func mobileDayPlacements(_ day: DayData, clock: CalendarDayClockGeometry, endHour: Int) -> [GridPlacement] {
+        let visibleStart = clock.boundary(clock.startHour)
         let visibleEnd = clock.boundary(endHour)
         let timed = day.items.filter {
-            drawnAmongTheHours($0, on: day)
-                && $0.start < visibleEnd && $0.resolvedEnd > visibleStart
+            drawnAmongTheHours($0, on: day) && $0.start < visibleEnd && $0.resolvedEnd > visibleStart
         }
-        // A cached day includes every timed reminder. Reallocate when today's reminder
-        // row removes one, so its old lane does not leave empty space in the native grid.
-        let cached = Self.reuseGridLayouts && startHour == 0 && endHour == 24
-            ? day.preparedPlacements : nil
-        let placements: [GridPlacement]
-        if let cached, cached.count == timed.count { placements = cached }
-        else { placements = gridPlacements(timed) }
+        // Today's reminders band can remove an otherwise timed reminder from the grid.
+        if Self.reuseGridLayouts, clock.startHour == 0, endHour == 24, day.preparedPlacements.count == timed.count {
+            return day.preparedPlacements
+        }
+        return gridPlacements(timed)
+    }
+
+    private func mobileNativeDayItems(
+        _ day: DayData, placements: [GridPlacement], clock: CalendarDayClockGeometry,
+        width: CGFloat, gutter: CGFloat, endHour: Int
+    ) -> [CalendarViewportItem] {
+        let startHour = clock.startHour
+        let hourHeight = clock.hourHeight
+        let visibleStart = clock.boundary(startHour)
+        let visibleEnd = clock.boundary(endHour)
         let blockedBy = day.items.first(where: \.blocksWholeDay)
         let neighbors = Self.prepareMobileNeighbors
             ? mobileNeighborPlan(placements, width: width, visibleStart: visibleStart, clock: clock) : nil
@@ -5434,7 +5708,7 @@ struct WeekView: View {
                     let preferred = clock.y(
                         max(outbound.leaveBy, visibleStart))
                     let travelTop = mobileTravelBandTop(
-                        placement, among: placements, clock: clock, preferred: preferred)
+                        placement, among: placements, clock: clock, preferred: preferred, neighbors: neighbors)
                     let travelHeight = max(5, start - travelTop)
                     if travelTop >= 0 {
                         items.append(CalendarViewportItem(id: occurrence.id + ":outbound",
@@ -5774,7 +6048,7 @@ struct WeekView: View {
                 isToday: calendar.isDate(day, inSameDayAs: input.today),
                 items: items,
                 committed: committed,
-                itemsToken: items.hashValue, calendarGrid: true)
+                calendarGrid: true)
         }
     }
 
@@ -5803,7 +6077,7 @@ struct WeekView: View {
                 ProblemReportCenter.shared.noteCalendar(
                     start: rebuilt.first?.date,
                     end: rebuilt.last.flatMap { input.calendar.date(byAdding: .day, value: 1, to: $0.date) },
-                    ids: rebuilt.flatMap { $0.items.map(\.id) })
+                    occurrencesByDay: rebuilt.lazy.map(\.items))
             }
         }
         updateMobileSecondaryZone()
@@ -5891,7 +6165,7 @@ struct WeekView: View {
         // A planning-window refresh publishes new occurrences. That publication rebuilds this
         // view, but it must not initiate the exact same network refresh again or the Day pager
         // spends its life rebuilding and looks visibly laggy.
-        guard !mobileWeekLoading else { return }
+        guard !mobileWeekLoading.active else { return }
         let requestedStart = mobileVisibleWeekStart
         let calendar = Calendar.current
         let requestStart = dayMode
@@ -5899,15 +6173,15 @@ struct WeekView: View {
             : requestedStart
         guard let end = calendar.date(byAdding: .day, value: dayMode ? 3 : 7, to: requestedStart)
         else { return }
-        mobileWeekLoading = true
+        mobileWeekLoading.set(true)
         await occurrences.refreshPlanningWindow(from: requestStart, to: end)
         if requestedStart == mobileVisibleWeekStart {
             rebuildMobileCalendar(mobileWindowOccurrences())
-            mobileWeekLoading = false
+            mobileWeekLoading.set(false)
         } else {
             // Navigation happened while the old window was in flight. Finish it, then fetch the
             // newly visible range once — never run both refresh loops concurrently.
-            mobileWeekLoading = false
+            mobileWeekLoading.set(false)
             await refreshMobileWeek()
         }
     }
@@ -6156,7 +6430,8 @@ struct WeekView: View {
     private func mobileTravelBandTop(_ placement: GridPlacement,
                                      among placements: [GridPlacement],
                                      clock: CalendarDayClockGeometry,
-                                     preferred: CGFloat) -> CGFloat {
+                                     preferred: CGFloat,
+                                     neighbors: [String: CalendarMobileNeighbors.Result]?) -> CGFloat {
         let start = displayStart(placement.occurrence)
         var top = preferred
         for other in placements where other.lane == placement.lane
@@ -6164,8 +6439,8 @@ struct WeekView: View {
             let otherStart = displayStart(other.occurrence)
             guard otherStart < start else { continue }
             let otherTop = clock.y(otherStart)
-            let otherBottom = clock.y(
-                mobileVisualEnd(for: other, among: placements))
+            let end = neighbors?[other.occurrence.id]?.visualEnd ?? mobileVisualEnd(for: other, among: placements)
+            let otherBottom = clock.y(end)
             top = max(top, max(otherTop + 24, otherBottom))
         }
         return top
