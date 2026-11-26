@@ -61,10 +61,7 @@ enum SettingsAdapters {
                         hub?.adoptSynced(value)
                         return .taken
                     },
-                    seedClock: { [weak hub] in
-                        let requests = hub?.syncRequests
-                        return [requests?.watchResync, requests?.backUpNow].compactMap { $0 }.max()
-                    }),
+                    seedClock: { [weak hub] in hub?.syncRequests.watchResync }),
         ])
     }
 }

@@ -94,7 +94,7 @@ struct WellnessView: View {
         .navigationBarTitleDisplayMode(.inline)
         // Anything logged on the Mac since, before you read the day.
         .onAppear {
-            CloudWellnessSync.shared.refresh()
+            SpaceSyncLaunch.sync(reason: "food refresh")
             // `--wellness-taken` opens on Taken: the switch, which reads the shell, says so too.
             if shell.state.nutritionSection == nil, ProcessInfo.processInfo.arguments.contains("--wellness-taken") {
                 shell.state.nutritionSection = Section.supplements.rawValue
@@ -127,8 +127,18 @@ struct WellnessView: View {
     }
 }
 
-private struct NutritionView: View {
+/// The tab-hosted lists can scroll under the compact shell's floating bar. Reserve its
+/// measured height as well as breathing room so the last row clears it at any text size.
+private struct WellnessListClearance: ViewModifier {
     @Environment(\.bottomBarShell) private var bottomBarShell
+    @Environment(\.toastBottomInset) private var shellInset
+
+    func body(content: Content) -> some View {
+        content.contentMargins(.bottom, bottomBarShell ? shellInset + DS.Space.l : 0, for: .scrollContent)
+    }
+}
+
+private struct NutritionView: View {
     @EnvironmentObject private var wellness: WellnessStore
     /// Which "log food" sheet is open, kept in ShellNavigation so a half-typed meal is still
     /// open after switching apps (the iOS tree is rebuilt on return).
@@ -317,7 +327,7 @@ private struct NutritionView: View {
         }
         // The first section has no header: without this it sat a blank band below the date line.
         .contentMargins(.top, DS.Space.s, for: .scrollContent)
-        .contentMargins(.bottom, bottomBarShell ? DS.Space.l : 0, for: .scrollContent)
+        .modifier(WellnessListClearance())
         .sheet(item: Binding(get: { captureMode }, set: { captureMode = $0 })) { mode in
             // One sheet for every way in, the same one the iPad and the Mac open. Scan and
             // "Enter by hand" opened an older sheet here: it had no amount control, and what it
@@ -505,7 +515,6 @@ struct CameraPicker: UIViewControllerRepresentable {
 }
 
 private struct SupplementsView: View {
-    @Environment(\.bottomBarShell) private var bottomBarShell
     @EnvironmentObject private var wellness: WellnessStore
     /// When things are due around a moment (after your workout), and redraws when one comes.
     @ObservedObject private var hub = AnchoredTimingHub.shared
@@ -566,7 +575,7 @@ private struct SupplementsView: View {
                 }
             }
         }
-        .contentMargins(.bottom, bottomBarShell ? DS.Space.l : 0, for: .scrollContent)
+        .modifier(WellnessListClearance())
         .sheet(isPresented: $adding) { SupplementEditor(supplement: nil) }
         // Opens the add sheet straight away, so the editor can be looked at without a tap. Same
         // convention as `--meal-editor-preview`.

@@ -422,17 +422,9 @@ extension MailSource {
 
     // MARK: - Accounts, splits, labels
 
-    func setWantsMail(_ on: Bool, account: String) {
-        MailNotYet.reached(#function)
-    }
-
     func requestPermission(account: String) async -> MailPermissionResult {
         MailNotYet.reached(#function)
         return .failed
-    }
-
-    func forgetPermission(account: String) {
-        MailNotYet.reached(#function)
     }
 
     /// Every split is reported as not saved, because none was. (An empty answer would mean

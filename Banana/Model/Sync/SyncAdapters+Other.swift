@@ -21,11 +21,10 @@ extension SyncAdapters {
     /// | `plan.whereabouts` | `WhereaboutsStore` (`WhereaboutsAdapter`) |
     /// | `plan.taskDuration`, `.reminderAnchor`, `.reminderAnchorUsual`, `.missedRepeat`, `.declinedSuggestion`, `.notNow`, `core.guestPick` | `TaskDurationStore`, `ReminderAnchors`, `MissedRepeats`, `AnchorSuggestionStore`, `GuestPicks` (`KeyValueAdapters`) |
     static func everythingElse(_ stores: SyncStores) -> [any RecordAdapter] {
-        let edited: @MainActor (ControlKind, String) -> Date? = { CloudControlsSync.editedAt($0, id: $1) }
         func control<T: Codable>(_ kind: ControlKind, _ source: CloudControlSource, _ model: T.Type,
                                  _ shape: SyncShape = .fields) -> SyncBinding {
             ControlsAdapter.binding(LegacyInventory.controlKinds[kind.rawValue]!, kind: kind, source: source,
-                                    codec: .model(model, shape: shape), editedAt: edited)
+                                    codec: .model(model, shape: shape), editedAt: { _, _ in nil })
         }
         var adapters: [any RecordAdapter] = [
             BoundAdapter("routines, alarms and wake sounds", [

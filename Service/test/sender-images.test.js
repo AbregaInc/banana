@@ -278,7 +278,7 @@ test("contact photos are read only with the contacts grant, and go with Mail acc
   assert.ok(await s.count("sender_contacts", "account_id = ?", noor.account.id));
   assert.equal((await s.deps.blobs.list(`senders/u/${noor.account.id}/`)).length, 1);
 
-  assert.equal((await s.call("DELETE", "/v1/google/mail", { session: noor.session, body: { email: "noor@plan.example" } })).status, 204);
+  assert.equal((await s.call("DELETE", "/v1/google", { session: noor.session, body: { email: "noor@plan.example" } })).status, 204);
   assert.equal(await s.count("sender_contacts", "account_id = ?", noor.account.id), 0);
   assert.equal((await s.deps.blobs.list(`senders/u/${noor.account.id}/`)).length, 0);
 

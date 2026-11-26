@@ -4,9 +4,11 @@ import Combine
 
 /// Fold only the quoted run; a signature picture after it remains visible.
 enum MailQuoteFolding {
-    static func hiddenRange(in blocks: [MailTextBlock], from start: Int?, expanded: Bool) -> Range<Int>? {
-        guard !expanded, let start, start > 0, blocks.indices.contains(start),
-              case .quote = blocks[start].kind else { return nil }
+    static func hiddenRange(in blocks: [MailTextBlock], from start: Int?, expanded: Bool, entireTail: Bool = false) -> Range<Int>? {
+        guard !expanded, let start, start > 0, blocks.indices.contains(start) else { return nil }
+        // Local outgoing cards append the quote as a separate part with its original block styles.
+        if entireTail { return start..<blocks.count }
+        guard case .quote = blocks[start].kind else { return nil }
         var end = start
         while end < blocks.count {
             guard case .quote = blocks[end].kind else { break }
@@ -30,6 +32,7 @@ final class MailReaderModel: ObservableObject {
     /// Index-aligned with each body's blocks. Opening and complex paragraphs are ready
     /// when the body appears. A nil entry is a small paragraph below the opening pages.
     private(set) var styled: [MailMessageID: [AttributedString?]] = [:]
+    private(set) var timeNotes: [MailMessageID: [Int: [MailReaderTime.Note]]] = [:]
     /// What the details column says about it, prepared when the conversation arrives.
     @Published private(set) var facts: MailConversationFacts?
     /// What each message's card says above its text, and the subject as a row says it. Prepared
@@ -108,6 +111,7 @@ final class MailReaderModel: ObservableObject {
         for message in visible { bodyStates[message.id] = message.body }
         let retained = bodies.filter { id, _ in bodyStates[id] != nil && bodyStates[id] == oldStates[id] }
         styled = styled.filter { retained[$0.key] != nil }
+        timeNotes = timeNotes.filter { retained[$0.key] != nil }
         if bodies != retained { bodies = retained }
         self.conversation = conversation
         if let conversation {
@@ -147,6 +151,7 @@ final class MailReaderModel: ObservableObject {
         guard !missing.isEmpty || needsCode else { return }
         let cachedCodeBody = basis.flatMap { bodies[$0.message] } ?? .notOnDevice
         let source = self.source
+        let dates = Dictionary(visible.map { ($0.id, $0.date) }, uniquingKeysWith: { first, _ in first })
         let read: @MainActor @Sendable () async -> Void = { [weak self] in
             var arrived: [MailMessageID: MailBody] = [:]
             if needsCode {
@@ -172,14 +177,14 @@ final class MailReaderModel: ObservableObject {
             if missing.count > 1, missing.first == firstCard, let first = remaining.popFirst() {
                 guard !Task.isCancelled else { return }
                 if arrived[first] == nil { arrived[first] = await source.body(first) }
-                await self?.publishBodies(arrived, generation: generation)
+                await self?.publishBodies(arrived, dates: dates, generation: generation)
                 arrived.removeAll()
             }
             for message in remaining where arrived[message] == nil {
                 guard !Task.isCancelled else { return }
                 arrived[message] = await source.body(message)
             }
-            await self?.publishBodies(arrived, generation: generation)
+            await self?.publishBodies(arrived, dates: dates, generation: generation)
         }
         // Start reading now instead of queueing behind the screen that is opening: the read
         // then overlaps the transition. On a physical iPhone 14 Pro this moved a prepared
@@ -190,13 +195,41 @@ final class MailReaderModel: ObservableObject {
         if bodyGeneration == generation { loading = started } else { started.cancel() }
     }
 
-    private func publishBodies(_ arrived: [MailMessageID: MailBody], generation: UInt64) async {
+    /// Styles the opening of each arrived body and finds the times its text names, off the main
+    /// thread, then publishes the bodies with them.
+    private func publishBodies(_ arrived: [MailMessageID: MailBody], dates: [MailMessageID: Date],
+                               generation: UInt64) async {
         guard !arrived.isEmpty, !Task.isCancelled, bodyGeneration == generation else { return }
-        let styledNow = await Task.detached(priority: .userInitiated) {
-            arrived.compactMapValues { MailAttributedText.openingBlocks($0) }
+        let (styledNow, notesNow) = await Task.detached(priority: .userInitiated) {
+            let styled = arrived.compactMapValues { MailAttributedText.openingBlocks($0) }
+            var notes: [MailMessageID: [Int: [MailReaderTime.Note]]] = [:]
+            for (id, body) in arrived {
+                guard let sent = dates[id] else { continue }
+                let text: MailText
+                let quoteStart: Int?
+                switch body {
+                case .text(let content, let start, _):
+                    text = content
+                    quoteStart = start
+                case .designed(_, _, _, let plain, _):
+                    text = plain
+                    quoteStart = plain.blocks.firstIndex {
+                        if case .quote = $0.kind { return true }
+                        return false
+                    }
+                case .notOnDevice: continue
+                }
+                for (index, block) in text.blocks.prefix(min(100, quoteStart ?? 100)).enumerated()
+                    where block.kind == .paragraph {
+                    let found = MailReaderTime.notes(in: MailAttributedText.plain(block.runs), sent: sent)
+                    if !found.isEmpty { notes[id, default: [:]][index] = found }
+                }
+            }
+            return (styled, notes)
         }.value
         guard !Task.isCancelled, bodyGeneration == generation else { return }
         styled.merge(styledNow) { _, new in new }
+        timeNotes.merge(notesNow) { _, new in new }
         let updated = bodies.merging(arrived) { _, new in new }
         if bodies != updated { bodies = updated }
         for message in arrived.keys { requestMissingBody(message) }

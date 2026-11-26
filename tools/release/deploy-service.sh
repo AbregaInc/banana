@@ -13,18 +13,22 @@
 #      applied: before the Worker, which may read their columns;
 #   4. wrangler deploy with SOURCE_REVISION and SOURCE_ARCHIVE_URL for this commit;
 #   5. smoke test: /v1/health, /v2/sync answers signed_out, /v1/source names this commit.
-# `prod` refuses to run without --yes-prod. A dry run checks the migrations changed since the last
-# release tag instead of asking D1 which are pending.
+# `prod` refuses to run without --yes-prod, and refuses a commit that does not contain the live
+# revision (production is a curated baseline; --replace-baseline overrides). A dry run checks
+# the migrations changed since the last release tag instead of asking D1 which are pending.
 set -uo pipefail
 cd "$(dirname "$0")/../.."
 . tools/release/lib.sh
+. tools/release/live-baseline.sh
 
 target=${1:-}; shift || true
 yes_prod=0
+replace_baseline=0
 while [ $# -gt 0 ]; do
   case "$1" in
     --yes-prod) yes_prod=1; shift ;;
     --dry-run) DRY_RUN=1; shift ;;
+    --replace-baseline) replace_baseline=1; shift ;;
     *) die "unknown option $1" ;;
   esac
 done
@@ -32,7 +36,7 @@ case "$target" in
   beta) env_args=(--env beta); db=banana-service-beta; host=https://beta-api.bananatheapp.com ;;
   prod) env_args=(--env=""); db=banana-service; host=https://api.bananatheapp.com
         [ "$yes_prod" = 1 ] || die "production deploys need --yes-prod" ;;
-  *) sed -n '2,19p' "$0"; exit 2 ;;
+  *) sed -n '2,21p' "$0"; exit 2 ;;
 esac
 WRANGLER=(npx --yes "wrangler@${WRANGLER_VERSION:-4.158.0}")
 rev=$(git rev-parse HEAD)
@@ -50,6 +54,18 @@ else
   git fetch origin --quiet
   git branch -r --contains "$rev" | grep -q . || die "push ${rev:0:12} first: the source offer must be downloadable"
   curl -fsIL -o /dev/null "$archive" || die "the source archive is not downloadable: $archive"
+fi
+if [ "$target" = prod ]; then
+  live=$(live_revision "$host")
+  if why=$(contains_live_revision "$live"); then
+    say "  contains the live revision ${live:0:12}"
+  elif [ "$replace_baseline" = 1 ]; then
+    say "  replacing the live baseline: $why"
+  elif [ "$DRY_RUN" = 1 ]; then
+    say "  (a real deploy refuses this commit: $why)"
+  else
+    die "$why (or pass --replace-baseline)"
+  fi
 fi
 say "  SOURCE_ARCHIVE_URL=$archive"
 step_done

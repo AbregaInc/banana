@@ -236,7 +236,7 @@ history poll. Silent pushes to the other devices are a later addition; they poll
 
 - Content of a message Gmail deleted goes with its tombstone; content no device has read for
   90 days is dropped and fetched again on demand.
-- **Mail turned off or disconnected** (`DELETE /v1/google/mail`), **the Google account unlinked**
+- **The Google account unlinked**
   (`DELETE /v1/google`) or **the Banana account deleted**: the mailbox is wiped at once — its R2
   objects, then its storage — and its D1 row removed.
 - **Eligibility or grant lost** (expiry, Google refusing the token): the next step finds it and

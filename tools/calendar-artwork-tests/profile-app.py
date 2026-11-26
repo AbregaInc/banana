@@ -30,7 +30,6 @@ def main():
     parser.add_argument('--fixture', choices=['legacy', 'varied-v1'], default='legacy')
     parser.add_argument('--density', type=int, default=100)
     parser.add_argument('--mode', choices=['both', 'day', 'week'], default='both')
-    parser.add_argument('--day-viewport', choices=['reference', 'native'], default='reference')
     args = parser.parse_args()
     if not 1 <= args.trials <= 10:
         parser.error('trials must be in 1...10')
@@ -49,7 +48,7 @@ def main():
     run('xcrun', 'simctl', 'install', args.device, str(args.app))
     container = Path(run('xcrun', 'simctl', 'get_app_container', args.device, bundle, 'data').stdout.strip())
     (args.out / 'identity.json').write_text(json.dumps({'binarySHA256': binary_hash, 'device': matches[0],
-        'dayViewport': args.day_viewport, 'mode': args.mode, 'fixture': args.fixture, 'density': args.density,
+        'dayViewport': 'native', 'mode': args.mode, 'fixture': args.fixture, 'density': args.density,
         'xcode': run('xcodebuild', '-version').stdout.strip(),
         'collectorSHA256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         'scope': 'Main-actor preparation API, not frames or input-to-visible latency'}, indent=2) + '\n')
@@ -72,8 +71,6 @@ def main():
             fixture_report.unlink(missing_ok=True)
             if args.fixture == 'varied-v1':
                 command += ['--stress-calendar-fixture', args.fixture, '--stress-events-per-day', str(args.density)]
-            if mode == 'day' and args.day_viewport == 'reference':
-                command.append('--calendar-reference-day')
             (case / 'command.json').write_text(json.dumps(command, indent=2) + '\n')
             try:
                 with HostMonitor(case / 'host.json'):

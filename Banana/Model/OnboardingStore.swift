@@ -51,8 +51,6 @@ final class OnboardingStore: NSObject, ObservableObject {
     }
     @Published private(set) var copies: CopiesState = .idle
 
-    /// Email on the calendar page: on unless turned off there. Only in builds that have Email.
-    @Published var emailWanted = true
     /// Why the last "Continue with Google" didn't connect, kept until a try succeeds.
     @Published private(set) var connectProblem: String?
     /// Working out Email after a sign-in (waiting for the account's feature access).
@@ -100,14 +98,13 @@ final class OnboardingStore: NSObject, ObservableObject {
 
     // MARK: - Calendar and email
 
-    /// "Continue with Google": one consent for the calendar and, when wanted, Gmail. Then Email is
-    /// settled from what Google granted and what the account is offered.
+    /// "Continue with Google": one consent for every scope. Then Email is settled from the choice
+    /// on the page, what Google granted and what the account is offered.
     func connectCalendarAndEmail() async -> ConnectAttempt {
         connectProblem = nil
-        let extra = EmailSetup.extraScopes(inBuild: Self.emailInBuild, wanted: emailWanted)
         let google = GoogleCalendarService.shared
         await google.restoreIfNeeded()
-        let granted = await google.connect(extraScopes: extra)
+        let granted = await google.connect()
         tick += 1
         guard granted != nil, calendarGranted else {
             let attempt: ConnectAttempt = google.lastError.map { .failed($0) } ?? .cancelled
@@ -127,7 +124,7 @@ final class OnboardingStore: NSObject, ObservableObject {
         defer { settlingEmail = false }
         let gmailGranted = Self.gmailGrantedAccounts.isEmpty == false
         var eligible: Bool? = Self.sampleEligibility
-        if eligible == nil, Self.emailInBuild, emailWanted, gmailGranted {
+        if eligible == nil, Self.emailInBuild, gmailGranted {
             let access = FeatureAccessStore.shared
             let deadline = ContinuousClock.now + timeout
             while !access.policyLoaded, ContinuousClock.now < deadline {
@@ -135,7 +132,7 @@ final class OnboardingStore: NSObject, ObservableObject {
             }
             eligible = access.policyLoaded ? access.emailAvailable : nil
         }
-        let outcome = EmailSetup.outcome(inBuild: Self.emailInBuild, wanted: emailWanted,
+        let outcome = EmailSetup.outcome(inBuild: Self.emailInBuild,
                                          gmailGranted: gmailGranted, eligible: eligible)
         emailOutcome = outcome
         if Self.emailInBuild {
@@ -145,7 +142,6 @@ final class OnboardingStore: NSObject, ObservableObject {
                 ModuleStore.shared.set(modules)
             }
         }
-        if EmailSetup.releasesGrant(outcome, gmailGranted: gmailGranted) { releaseMailGrants() }
     }
 
     /// Accounts whose Google grant on this device includes Gmail.
@@ -167,21 +163,6 @@ final class OnboardingStore: NSObject, ObservableObject {
         if arguments.contains("--onboarding-sample") { return arguments.contains("--onboarding-email-eligible") }
         #endif
         return nil
-    }
-
-    /// An account not offered Email keeps no Mail grant: the service forgets it (Mail only; its
-    /// Google consent is not revoked, which would take the calendar with it).
-    private func releaseMailGrants() {
-        #if !BANANA_PUBLIC
-        guard Self.sampleEligibility == nil else { return }
-        for email in Self.gmailGrantedAccounts {
-            Task {
-                do { try await BananaAccount.shared.disconnectMail(email: email) } catch {
-                    Log.sync.notice("first run: unused Mail grant not released yet: \(error.localizedDescription, privacy: .public)")
-                }
-            }
-        }
-        #endif
     }
 
     // MARK: - Busy copies
@@ -239,9 +220,7 @@ final class OnboardingStore: NSObject, ObservableObject {
         }
     }
 
-    /// A signed-in iCloud backup can prove this person already completed onboarding in the
-    /// predecessor app. Carry that fact across the bundle migration before presenting any
-    /// permission UI; permissions that did not transfer are handled individually by RootView.
+    /// An existing Banana account completed onboarding on another device.
     func completeForReturningUser() {
         guard !completed else { return }
         finish()

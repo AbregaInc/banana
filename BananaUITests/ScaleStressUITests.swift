@@ -560,9 +560,6 @@ final class ScaleStressUITests: XCTestCase {
         capture("podcasts-mark-played-undo")
     }
 
-    func testDenseCalendarScroll() {
-        checkDenseCalendarScroll(extra: ["--calendar-reference-week"])
-    }
 
     func testNativeWeekCalendarScroll() {
         checkDenseCalendarScroll(extra: [])
@@ -657,13 +654,7 @@ final class ScaleStressUITests: XCTestCase {
     func testPhysicalWeekScrollTrace() { checkPhysicalScrollTrace(mode: "Week") }
     func testPhysicalDayScrollTrace() { checkPhysicalScrollTrace(mode: "Day") }
     // The matched comparison for the renderer article: the pre-virtualization Day/Week host,
-    // same fixture, same device, same interaction window, chosen by the DEBUG reference flags.
-    func testPhysicalWeekReferenceScrollTrace() {
-        checkPhysicalScrollTrace(mode: "Week", extra: ["--calendar-reference-week"], reference: true)
-    }
-    func testPhysicalDayReferenceScrollTrace() {
-        checkPhysicalScrollTrace(mode: "Day", extra: ["--calendar-reference-day"], reference: true)
-    }
+    // same fixture, device and interaction window for both native calendar modes.
     func testPhysicalWeekPreservedHostScrollTrace() {
         checkPhysicalScrollTrace(mode: "Week", extra: ["--calendar-preserve-cell-host"])
     }
@@ -686,7 +677,7 @@ final class ScaleStressUITests: XCTestCase {
     func testPhysicalDayDensity10ScrollTrace() { checkPhysicalScrollTrace(mode: "Day", density: 10) }
     func testPhysicalDayDensity30ScrollTrace() { checkPhysicalScrollTrace(mode: "Day", density: 30) }
 
-    private func checkPhysicalScrollTrace(mode: String, density: Int = 100, extra: [String] = [], reference: Bool = false) {
+    private func checkPhysicalScrollTrace(mode: String, density: Int = 100, extra: [String] = []) {
         // The orientation is an input of the trace (STRESS_ORIENTATION=portrait|landscape, from the
         // xctestrun the profiler writes), never an accident of how the device was lying. The device
         // must comply before any scrolling is measured, so a trace cannot be mislabelled.
@@ -711,13 +702,12 @@ final class ScaleStressUITests: XCTestCase {
         }
         let orientation = requested
         if mode == "Day" { app.segmentedControls.buttons["Day"].tap() }
-        // The reference host is a SwiftUI ScrollView; the native viewport is a collection view.
-        let viewport = reference ? app.scrollViews.firstMatch : app.collectionViews.firstMatch
+        let viewport = app.collectionViews.firstMatch
         if !viewport.waitForExistence(timeout: 10) {
             let hierarchy = XCTAttachment(string: app.debugDescription)
             hierarchy.name = "physical-scroll-trace-missing-viewport-hierarchy"
             hierarchy.lifetime = .keepAlways; add(hierarchy)
-            XCTFail("\(reference ? "Reference scroll view" : "Native collection viewport") did not appear")
+            XCTFail("Native collection viewport did not appear")
             return
         }
         let metadata = app.staticTexts["stress.ready"].value as? String ?? ""
@@ -736,10 +726,9 @@ final class ScaleStressUITests: XCTestCase {
         }
         let workload = XCTAttachment(string: metadata)
         workload.name = "physical-scroll-trace-workload"; workload.lifetime = .keepAlways; add(workload)
-        // The reference host does not expose hour labels as elements; record absence instead of failing.
         let tenAM = app.staticTexts["10 AM"].firstMatch
         let tenAMFrame = tenAM.exists ? "\(tenAM.frame)" : "absent"
-        let geometry = XCTAttachment(string: "mode=\(mode) flags=\(extra) viewport=\(reference ? "reference" : "native") orientation=\(orientation) app=\(app.frame) frame=\(viewport.frame) tenAM=\(tenAMFrame) cells=\(reference ? -1 : viewport.cells.count)")
+        let geometry = XCTAttachment(string: "mode=\(mode) flags=\(extra) viewport=native orientation=\(orientation) app=\(app.frame) frame=\(viewport.frame) tenAM=\(tenAMFrame) cells=\(viewport.cells.count)")
         geometry.name = "physical-scroll-trace-initial-geometry"
         geometry.lifetime = .keepAlways; add(geometry)
         for _ in 0..<16 { viewport.swipeUp(); viewport.swipeDown() }
@@ -942,21 +931,9 @@ final class ScaleStressUITests: XCTestCase {
         capture("native-week-rotation")
     }
 
-    func testPreparedDenseCalendarScroll() {
-        checkDenseCalendarScroll(extra: ["--calendar-reference-week", "--calendar-cache-layout"])
-    }
 
-    func testPreparedArtworkDenseCalendarScroll() {
-        checkDenseCalendarScroll(extra: ["--calendar-reference-week", "--calendar-prepared-artwork"])
-    }
 
-    func testPreparedArtworkDayScroll() {
-        checkDenseCalendarScroll(extra: ["--calendar-reference-day", "--calendar-prepared-artwork", "-mobileDayScrollOffset", "560"], mode: "Day")
-    }
 
-    func testDenseDayCalendarScroll() {
-        checkDenseCalendarScroll(extra: ["--calendar-reference-day", "-mobileDayScrollOffset", "560"], mode: "Day")
-    }
 
     func testDayMidnightExtent() {
         let app = launch("--plan", extra: ["-mobileDayScrollOffset", "560"])
@@ -1500,12 +1477,8 @@ final class ScaleStressUITests: XCTestCase {
     }
 
     func testNativeDayEventAccessibility() { checkDayEventAccessibility(extra: []) }
-    func testReferenceDayEventAccessibility() { checkDayEventAccessibility(extra: ["--calendar-reference-day"]) }
     func testPreparedDayEventAccessibility() { checkDayEventAccessibility(extra: ["--calendar-prepared-artwork"]) }
 
-    func testLegacyEventAccessibilityFlagKeepsSingleAnnouncement() {
-        checkDayEventAccessibility(extra: ["--calendar-reference-day", "--calendar-reference-event-accessibility"])
-    }
 
     private func checkDayEventAccessibility(extra: [String]) {
         let app = launch("--plan", extra: ["-mobileDayScrollOffset", "560"] + extra)
@@ -1536,22 +1509,18 @@ final class ScaleStressUITests: XCTestCase {
         checkDenseCalendarScroll(extra: ["-mobileDayScrollOffset", "560", "--calendar-reference-event-accessibility"], mode: "Day")
     }
 
-    func testVariedNativeDayScroll() { checkVariedDay(reference: false) }
+    func testVariedNativeDayScroll() { checkVariedDay() }
     func testCachedVariedNativeDayScroll() {
-        checkVariedDay(reference: false, extra: ["--calendar-cache-layout"])
+        checkVariedDay(extra: ["--calendar-cache-layout"])
     }
-    func testVariedReferenceDayScroll() { checkVariedDay(reference: true) }
 
     func testReferenceNeighborsVariedNativeDayScroll() {
-        checkVariedDay(reference: false, extra: ["--calendar-reference-neighbors"])
-    }
-    func testReferenceNeighborsWeekScroll() {
-        checkDenseCalendarScroll(extra: ["--calendar-reference-week", "--calendar-reference-neighbors"])
+        checkVariedDay(extra: ["--calendar-reference-neighbors"])
     }
 
-    private func checkVariedDay(reference: Bool, extra: [String] = []) {
+    private func checkVariedDay(extra: [String] = []) {
         let app = launch("--plan", extra: ["--stress-calendar-fixture", "varied-v1", "-mobileDayScrollOffset", "560"]
-                         + (reference ? ["--calendar-reference-day"] : []) + extra)
+                         + extra)
         let metadata = app.staticTexts["stress.ready"].value as? String ?? ""
         guard let data = metadata.data(using: .utf8),
               let fixture = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
@@ -1565,7 +1534,7 @@ final class ScaleStressUITests: XCTestCase {
         let attachment = XCTAttachment(string: metadata)
         attachment.name = "varied-calendar-fixture"; attachment.lifetime = .keepAlways; add(attachment)
         app.segmentedControls.buttons["Day"].tap()
-        let viewport = reference ? app.scrollViews.firstMatch : app.collectionViews.firstMatch
+        let viewport = app.collectionViews.firstMatch
         XCTAssertTrue(viewport.waitForExistence(timeout: 10))
         let events = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", " · "))
         XCTAssertTrue(events.allElementsBoundByIndex.contains(where: { $0.isHittable }), "Initial viewport must contain actual varied events")
@@ -1581,7 +1550,7 @@ final class ScaleStressUITests: XCTestCase {
         // or SwiftUI duplicates a descendant accessibility label. Do not weaken identity
         // checking to merely finding an open detail sheet.
         let title = String(event.label[..<suffix.upperBound])
-        capture(reference ? "varied-reference-day" : "varied-native-day")
+        capture("varied-native-day")
         event.tap()
         XCTAssertTrue(app.buttons["eventDetail.edit"].waitForExistence(timeout: 5))
         capture("varied-selected-detail")
@@ -1593,7 +1562,7 @@ final class ScaleStressUITests: XCTestCase {
         let changed = XCTNSPredicateExpectation(predicate: NSPredicate { _, _ in day.label != first }, object: day)
         XCTAssertEqual(XCTWaiter.wait(for: [changed], timeout: 3), .completed)
         XCTAssertTrue(events.allElementsBoundByIndex.contains(where: { $0.isHittable }))
-        capture(reference ? "varied-reference-next-day" : "varied-native-next-day")
+        capture("varied-native-next-day")
     }
 
     func testNativeDayContinuationMove() {
@@ -1727,37 +1696,33 @@ final class ScaleStressUITests: XCTestCase {
         capture("native-week-move-recovery")
     }
 
-    func testReferenceDayMoveFailure() { checkDayMoveFailure(native: false) }
-    func testNativeDayParentMoveControl() { checkDayMoveFailure(native: true, parentFeedback: true) }
-    func testNativeDayParentLongMoveControl() { checkDayMoveFailure(native: true, beyondViewport: true, parentFeedback: true) }
-    func testNativeDayMoveRecovery() { checkDayMoveFailure(native: true, recovery: true) }
-    func testNativeDayMoveFailure() { checkDayMoveFailure(native: true) }
-    func testNativeDayMoveBeyondViewport() { checkDayMoveFailure(native: true, beyondViewport: true) }
-    func testNativeDayExclusiveMoveControl() { checkDayMoveFailure(native: true, exclusive: true) }
-    func testNativeDaySwiftUIMoveControl() { checkDayMoveFailure(native: true, swiftUIControl: true) }
+    func testNativeDayParentMoveControl() { checkDayMoveFailure(parentFeedback: true) }
+    func testNativeDayParentLongMoveControl() { checkDayMoveFailure(beyondViewport: true, parentFeedback: true) }
+    func testNativeDayMoveRecovery() { checkDayMoveFailure(recovery: true) }
+    func testNativeDayMoveFailure() { checkDayMoveFailure() }
+    func testNativeDayMoveBeyondViewport() { checkDayMoveFailure(beyondViewport: true) }
+    func testNativeDayExclusiveMoveControl() { checkDayMoveFailure(exclusive: true) }
+    func testNativeDaySwiftUIMoveControl() { checkDayMoveFailure(swiftUIControl: true) }
 
-    private func checkDayMoveFailure(native: Bool, swiftUIControl: Bool = false, beyondViewport: Bool = false,
+    private func checkDayMoveFailure(swiftUIControl: Bool = false, beyondViewport: Bool = false,
                                      exclusive: Bool = false, parentFeedback: Bool = false, recovery: Bool = false) {
         // Start at noon. The synthetic 12:10 meeting and its drag destination must both
         // fit on screen, including when the landscape grid shows only part of an hour.
         let app = launch("--plan", extra: ["-mobileDayScrollOffset", "672", "--calendar-native-move-audit",
                                          "--calendar-move-render-probe"]
-                         + (native ? [] : ["--calendar-reference-day"])
                          + (swiftUIControl ? ["--calendar-swiftui-day-move"] : [])
                          + (exclusive ? ["--calendar-move-exclusive"] : [])
                          + (parentFeedback ? ["--calendar-parent-move-feedback"] : [])
                          + (recovery ? ["--calendar-recovery-fixture", UUID().uuidString] : []))
         app.segmentedControls.buttons["Day"].tap()
-        let viewport = native ? app.collectionViews.firstMatch
-            : app.scrollViews.firstMatch
+        let viewport = app.collectionViews.firstMatch
         XCTAssertTrue(viewport.waitForExistence(timeout: 10))
-        if native { XCTAssertTrue(app.collectionViews.firstMatch.exists) }
         let event = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Stress event 73,")).firstMatch
         XCTAssertTrue(event.waitForExistence(timeout: 10))
         XCTAssertTrue(event.isHittable)
         let originalFrame = event.frame
         let hour = app.staticTexts["12 PM"].firstMatch
-        let control = swiftUIControl || !native || exclusive
+        let control = swiftUIControl || exclusive
         if control { XCTAssertTrue(hour.exists) }
         let originalHourY = control ? hour.frame.minY - viewport.frame.minY : 0
         let originalEventToHour = control ? originalFrame.minY - hour.frame.minY : 0
@@ -1782,7 +1747,7 @@ final class ScaleStressUITests: XCTestCase {
         let failed = failure.waitForExistence(timeout: 5)
         print("CALENDAR_MOVE_AUDIT=\(viewport.value ?? "missing")")
         print("CALENDAR_MOVE_RENDERS before=\(rendersBefore ?? -1) after=\(probe.value ?? "missing") beyondViewport=\(beyondViewport)")
-        if swiftUIControl || !native {
+        if swiftUIControl {
             XCTAssertFalse(failed, "The retained SwiftUI control must reproduce its lost move")
             XCTAssertTrue(viewport.exists)
             assertControlScrolled()
@@ -1804,7 +1769,7 @@ final class ScaleStressUITests: XCTestCase {
             return
         }
         XCTAssertTrue(failed, "Dragging must reach the existing move-failure path")
-        capture(native ? "native-day-move-failure" : "reference-day-move-failure")
+        capture("native-day-move-failure")
         failure.buttons["OK"].tap()
         XCTAssertEqual(event.frame.minY, originalFrame.minY, accuracy: 2,
                        "Rejected movement must restore its original position")
@@ -1914,22 +1879,8 @@ final class ScaleStressUITests: XCTestCase {
         XCTAssertTrue(app.descendants(matching: .any)[surface].firstMatch.waitForExistence(timeout: 10),
                       "The actual content must change, not just the picker highlight")
         print("CALENDAR_SCROLL_MODE=\(mode)")
-        if mode == "Week" && !extra.contains("--calendar-reference-week") {
-            XCTAssertTrue(app.collectionViews.firstMatch.waitForExistence(timeout: 10),
-                          "The default Week view must install its native viewport without an opt-in flag")
-        } else if mode == "Week" {
-            XCTAssertFalse(app.collectionViews.firstMatch.exists,
-                           "The explicit reference must retain the original host")
-        }
-        if mode == "Day" && !extra.contains("--calendar-reference-day") {
-            // Require the reusable collection viewport, rather than the SwiftUI parent identifier.
-            XCTAssertTrue(app.collectionViews.firstMatch.waitForExistence(timeout: 10),
-                          "The default Day view must install its native reusable viewport without an opt-in flag")
-        } else if mode == "Day" {
-            XCTAssertTrue(app.scrollViews.firstMatch.exists,
-                          "The explicit reference must retain the original scroll host")
-            XCTAssertFalse(app.collectionViews.firstMatch.exists)
-        }
+        XCTAssertTrue(app.collectionViews.firstMatch.waitForExistence(timeout: 10),
+                      "The calendar must install the native viewport without an opt-in flag")
         // The app initially scrolls to the current hour. Late-night runs used to measure
         // empty hours because fixture events end at 16:30; existence alone accepted offscreen
         // rows. Center the same 10:10 fixture event for both renderer policies.

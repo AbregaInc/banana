@@ -158,6 +158,8 @@ final class MoveOver {
         var isHub: Bool
         /// The legacy channels this process runs (`LegacyCloud.channels`).
         var channels: [any LegacyChannel]
+        /// Types that seed from their local adapters without waiting for an iCloud reader.
+        var localTypes: Set<String> = []
         /// Every adapter registered with the engine (`SyncAdapters`).
         var adapters: [any RecordAdapter]
         var modes: LegacyCloudModeStore
@@ -168,8 +170,7 @@ final class MoveOver {
         var stateKey: String
         var now: () -> Date = { Date() }
         var log: (String) -> Void = { _ in }
-        /// A new device's first pull found the space in use (§6): the same as
-        /// `CloudBackup.onReturningUserDetected` today, onboarding done.
+        /// A new device's first pull found the space in use (§6): complete onboarding.
         var returningPerson: @MainActor () -> Void = { MoveOver.onReturningPerson?() }
         /// Background time for a step (on iOS, a background task): a drain goes on with the app in
         /// the background, a podcast playing. `expired` is called if the time runs out; what it
@@ -785,7 +786,7 @@ final class MoveOver {
     }
 
     func tierTypes(_ tier: LegacyTier) -> Set<String> {
-        Set(channels(tier).flatMap(\.types))
+        Set(channels(tier).flatMap(\.types)).union(deps.localTypes.filter { LegacyTier(type: $0) == tier })
     }
 
     private func setMode(_ mode: LegacyCloudMode, _ tier: LegacyTier) {

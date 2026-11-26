@@ -71,8 +71,8 @@ import Combine
                         return try await BananaAccount.shared.mailFeedRequest(kind: kind, reference: reference, body: body)
                     })
                 let source = MailLiveSource(stores: stores, access: access, api: api, cloudFeed: feed,
-                    senderPolicyAPI: CloudMailSenderPolicy(feed: feed), deliveryAllowed: { account in
-                        FeatureAccessStore.shared.allows("email") && AppVariant.current.mayCallGoogle(method: "POST", account: account, testAccounts: BetaTestAccounts.all)
+                    senderPolicyAPI: CloudMailSenderPolicy(feed: feed), deliveryAllowed: { _ in
+                        FeatureAccessStore.shared.allows("email")
                     })
                 try await source.prepareActions(intent: intent)
                 if let scope = FeatureAccessStore.shared.mailContext {

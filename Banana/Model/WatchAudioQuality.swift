@@ -5,7 +5,7 @@ import Foundation
 ///
 /// Split out from AppSettings.swift — same reasoning as `DistanceUnit.swift` there — so
 /// `Podcast.swift` (and BananaTests, which needs `Podcast` for its snapshot decode-and-quarantine
-/// tests) can be sourced without also pulling in AppSettings' LaunchClock/CloudBackup singleton
+/// tests) can be sourced without also pulling in AppSettings' singleton
 /// dependencies, which aren't otherwise part of the test target's dependency chain.
 enum WatchAudioQuality: String, Codable, CaseIterable, Identifiable {
     case original, medium, low

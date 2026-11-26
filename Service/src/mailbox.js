@@ -121,16 +121,12 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     if (!(await featureAllowed(deps, who.account, "email"))) return null;
     const link = await mailLink(deps, who.account, who.email);
     const can = link && googleCapabilities({ ...link, has_token: Boolean(link.refresh_token) });
-    if (!link || link.sub !== who.sub || !can.mailRead) return null;
-    if (link.client_id && link.client_id !== deps.config.googleClientId) return null;
+    if (!link || link.sub !== who.sub || !can.mailModify) return null;
     try {
       const { accessToken } = await deps.google.refresh(await vault.open(link.sub, link.refresh_token));
       return { token: accessToken, sub: link.sub, email: who.email, account: who.account, modify: can.mailModify };
     } catch (error) {
-      if (error instanceof GoogleRefused) {
-        if (link.mailGrant) await deps.db.run("UPDATE mail_grants SET status='refused',updated_at=? WHERE google_sub=? AND refresh_token=?", now(), link.sub, link.refresh_token);
-        return null;
-      }
+      if (error instanceof GoogleRefused) return null;
       throw new Retry(now() + BACKOFF);
     }
   }

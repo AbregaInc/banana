@@ -447,6 +447,7 @@ final class NativeInteractionTests: XCTestCase {
         let grid = app.scrollViews["mac.week.timeGrid"]
         XCTAssertTrue(grid.waitForExistence(timeout: 5))
         let nativeViewport = app.collectionViews["mac.calendar.viewport"].exists
+        XCTAssertTrue(nativeViewport)
         grid.scroll(byDeltaX: 0, deltaY: 10_000)
         let before = Int(count.value as? String ?? count.label)!
         // The first column's two-point right inset is empty even when events fill its lanes.
@@ -464,9 +465,7 @@ final class NativeInteractionTests: XCTestCase {
         evidence.name = "calendar-hover-redraws"
         evidence.lifetime = .keepAlways
         add(evidence)
-        if nativeViewport || mode == "local" {
-            XCTAssertEqual(after, before, "Pointer-only state must not redraw the entire week")
-        }
+        XCTAssertEqual(after, before, "Pointer-only state must not redraw the entire week")
     }
 
     func testPlanDragFailureRecovery() throws {

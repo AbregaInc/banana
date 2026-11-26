@@ -188,7 +188,6 @@ struct MacRootView: View {
     @ObservedObject private var chrome = PageChrome.shared
     #endif
     @ObservedObject private var nav = MacNavigator.shared
-    @ObservedObject private var backup = CloudBackup.shared
     @ObservedObject private var commands = MacCommandCenter.shared
     @ObservedObject private var badges = ActionBadges.shared
     @ObservedObject private var modules = ModuleStore.shared
@@ -315,12 +314,12 @@ struct MacRootView: View {
                             ContentUnavailableView("Email is coming soon", systemImage: "envelope")
                             #endif
                         #if BANANA_MODULE_WORKOUTS
-                        case .workouts:  WideWorkoutsView().syncWaitingNote(.fitness).onAppear { SpaceSyncQuestions.shared.healthUsed() }
+                        case .workouts:  WideWorkoutsView().onAppear { SpaceSyncQuestions.shared.healthUsed() }
                         #endif
                         // Sleep and Trends had rows of their own; both are inside Review.
-                        case .sleep, .trends, .review: macReview.syncWaitingNote(.fitness)
+                        case .sleep, .trends, .review: macReview
                         #if BANANA_MODULE_FOOD
-                        case .nutrition: WideNutritionView(bodyPage: nav.bodyPage).syncWaitingNote(.wellness).onAppear { SpaceSyncQuestions.shared.healthUsed() }
+                        case .nutrition: WideNutritionView(bodyPage: nav.bodyPage).onAppear { SpaceSyncQuestions.shared.healthUsed() }
                         #endif
                         #if BANANA_MODULE_NOTES
                         case .notes:     NotesView()
@@ -338,7 +337,7 @@ struct MacRootView: View {
                         case .routines:  RoutinesView()
                         // Told how much room it has, so a wide window gets the grid of shows.
                         #if BANANA_MODULE_PODCASTS
-                        case .library:   PodcastsView().measuresLayoutClass().syncWaitingNote(.controls)
+                        case .library:   PodcastsView().measuresLayoutClass()
                         #endif
                         // Settings is its own window (the `Settings` scene); a place kept from
                         // before it moved opens Plan.
@@ -375,14 +374,8 @@ struct MacRootView: View {
                             .padding(.bottom, DS.Space.l)
                     }
                     #endif
-                    // Pull listening progress each time the Mac is switched to, as the phone does
-                    // coming forward. Only a launch or playing here used to fetch it, so a Mac left
-                    // running for days kept showing episodes finished on the phone as unplayed.
                     .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
                         guard !Self.isolatedPreview else { return }
-                        #if BANANA_MODULE_PODCASTS
-                        CloudProgressSync.shared.flushNow(reason: "foreground")
-                        #endif
                         Telemetry.shared.calendarConnected = { !GoogleCalendarService.shared.accounts.isEmpty }
                         Telemetry.shared.setup = { await TelemetryState.signals() }
                         Telemetry.shared.session = { BananaAccount.shared.authorization }
@@ -390,11 +383,7 @@ struct MacRootView: View {
                         Telemetry.shared.cameForward()
                         DiagnosticReports.shared.send()                 // crash and performance reports waiting
                         ProblemReporter.shared.flush()                  // problem reports waiting
-                        // Now, then every minute — and it keeps going in the background: a Mac
-                        // left open should keep up with the phone too.
-                        CloudSyncPoll.resume()
                     }
-                    .task { if !Self.isolatedPreview { CloudSyncPoll.resume() } }
                     // Mail's badge on the rail (unread in the Inbox) before Mail has started: the
                     // launch mirror, then one read-only count (`MailBadgeLaunchRead`).
                     .task {
@@ -459,18 +448,6 @@ struct MacRootView: View {
             nav.section = .review
         }
         #endif
-        // The iCloud snapshot restore prompt only lived in the iOS RootView, so on the Mac a backup
-        // found by checkForRestore() was detected but never offered — which is why nothing from the
-        // phone carried over here. Mirror the prompt. Never applied without an explicit yes.
-        .alert("Restore from iCloud?", isPresented: .constant(backup.pendingRestore != nil)) {
-            Button("Restore") { if let snap = backup.pendingRestore { backup.restore(snap) } }
-            Button(backup.restoreDeclineTitle, role: .cancel) { backup.discardPendingRestore() }
-        } message: {
-            if let snap = backup.pendingRestore {
-                let _ = snap
-                Text(backup.restoreQuestion)
-            }
-        }
         // The wake payoff and the workout payoff live in a zero-size child (MacPayoffPresenter):
         // it watches the fitness/health/schedule stores, and those must not invalidate the
         // shell that hosts every section.

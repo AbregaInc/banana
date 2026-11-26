@@ -118,8 +118,6 @@ import GRDB
     private var completed = Set<String>()
     private var failures = Set<String>()
     private var pagingFailures = Set<String>()
-    private var disabled = Set<String>()
-    private var forgettingAccess = Set<String>()
     private var firstPages: [MailScope: MailListSnapshot] = [:]
     private var firstPageOrder: [MailScope] = []
     private var active = false
@@ -213,17 +211,12 @@ import GRDB
         access.connectedAccountIDs.map { account in
             let grant = access.mailGrant(accountID: account)
             let state: MailAccountState
-            if disabled.contains(account) { state = .off }
-            else if forgettingAccess.contains(account) { state = .needsAccess(.notAllowedHere) }
-            else {
-                switch grant {
-                case .none: state = .needsAccess(.notAllowedHere)
-                case .rejected: state = .needsAccess(.withdrawn)
-                case .granted: state = .connected
-                }
+            switch grant {
+            case .none, .rejected: state = .notConnected
+            case .granted: state = .connected
             }
             return MailAccount(id: account, shortName: account.components(separatedBy: "@").first ?? account,
-                wantsMail: !disabled.contains(account), state: state, health: syncHealth[account] ?? (failures.contains(account) ? .offline : .catchingUp),
+                state: state, health: syncHealth[account] ?? (failures.contains(account) ? .offline : .catchingUp),
                 lastSyncAt: lastSync[account], identities: [MailIdentity(account: account, address: account, name: nil, isDefault: true, hasSignature: true)], keptAfterRemoval: keptCounts[account] ?? 0)
         }
     }
@@ -465,7 +458,6 @@ import GRDB
                 value.update(cached)
                 if cached?.pending != true, let senderPolicyAPI {
                     let remote = try await senderPolicyAPI.read(account: account, sender: sender)
-                    guard !disabled.contains(account), !forgettingAccess.contains(account) else { return }
                     try await intentStore?.observeSenderPolicy(account: account.lowercased(), sender: sender.lowercased(),
                         remote: remote, expectedOperation: cached?.operation)
                     await refreshSenderStatus(account: account, sender: sender)
@@ -504,7 +496,7 @@ import GRDB
         let progress = attachmentProgress(id)
         guard attachmentTasks[id] == nil else { return }
         let account = id.message.account.lowercased()
-        guard access.mailGrant(accountID: account) == .granted, !forgettingAccess.contains(account) else {
+        guard access.mailGrant(accountID: account) == .granted else {
             progress.state = .failed(.unavailable)
             return
         }
@@ -702,7 +694,7 @@ import GRDB
         }
     }
     private func loadLabels(_ account: String) {
-        guard active, !disabled.contains(account), !forgettingAccess.contains(account), access.mailGrant(accountID: account) == .granted,
+        guard active, access.mailGrant(accountID: account) == .granted,
               (syncRetryAt[account] ?? .distantPast) <= clock.now,
               labelTasks[account] == nil else { return }
         labelTasks[account] = Task { [weak self] in
@@ -747,7 +739,7 @@ import GRDB
             startSync(account)
             return
         }
-        guard access.mailGrant(accountID: account) == .granted, !disabled.contains(account), !forgettingAccess.contains(account),
+        guard access.mailGrant(accountID: account) == .granted,
               (syncRetryAt[account] ?? .distantPast) <= clock.now, pageTasks[account] == nil, !completed.contains(account) else { return }
         failures.remove(account)
         pagingFailures.remove(account)
@@ -953,7 +945,7 @@ import GRDB
     }
     func fetchBody(_ id: MailMessageID) { enqueue(.body(id), priority: true) }
     private func enqueue(_ item: Download, priority: Bool) {
-        guard access.mailGrant(accountID: item.account) == .granted, !disabled.contains(item.account), !forgettingAccess.contains(item.account),
+        guard access.mailGrant(accountID: item.account) == .granted,
               (syncRetryAt[item.account] ?? .distantPast) <= clock.now, downloads[item] == nil else { return }
         downloadQueue.removeAll { $0 == item }
         if priority { downloadQueue.insert(item, at: 0) } else { downloadQueue.append(item) }
@@ -964,7 +956,7 @@ import GRDB
         guard active else { return }
         while downloads.count < 2, !downloadQueue.isEmpty {
             let item = downloadQueue.removeFirst()
-            guard access.mailGrant(accountID: item.account) == .granted, !disabled.contains(item.account), !forgettingAccess.contains(item.account),
+            guard access.mailGrant(accountID: item.account) == .granted,
                   (syncRetryAt[item.account] ?? .distantPast) <= clock.now else { continue }
             let loader = conversationLoader
             downloads[item] = Task { [weak self] in
@@ -1015,12 +1007,10 @@ import GRDB
     }
 
     func requestPermission(account: String) async -> MailPermissionResult {
-        guard !forgettingAccess.contains(account) else { return .cancelled }
         let outcome = await access.requestMailAccess(accountID: account)
         publishAccounts()
         switch outcome {
         case .granted:
-            disabled.remove(account)
             publishAccounts()
             completed.remove(account); loadPage(account); loadLabels(account); startSync(account); kickDelivery()
             wants(conversationSubscriptions.values.filter { $0.id.account == account }.map(\.id))
@@ -1031,42 +1021,6 @@ import GRDB
         case .noWindow: return .noWindow
         case .failed: return .failed
         }
-    }
-    func forgetPermission(account: String) {
-        guard forgettingAccess.insert(account).inserted else { return }
-        stopSync(account: account)
-        cancelDownloads(account: account)
-        pageTasks[account]?.cancel(); pageTasks[account] = nil
-        labelTasks[account]?.cancel(); labelTasks[account] = nil
-        publishAccounts()
-        Task { [weak self] in
-            guard let self else { return }
-            defer { self.forgettingAccess.remove(account); self.publishAccounts() }
-            do {
-                try await self.access.forgetMailAccess(accountID: account)
-                try await self.intentStore?.forgetSenderPolicies(account: account)
-                self.senderStatuses = self.senderStatuses.filter { !$0.key.hasPrefix(account.lowercased() + "\0") }
-            }
-            catch {
-                self.disabled.insert(account)
-                self.status.value.store = .cannotSave(.unavailable)
-            }
-        }
-    }
-    func setWantsMail(_ on: Bool, account: String) {
-        if on {
-            disabled.remove(account); loadPage(account); loadLabels(account)
-            startSync(account)
-            wants(conversationSubscriptions.values.filter { $0.id.account == account }.map(\.id))
-        }
-        else {
-            stopSync(account: account)
-            disabled.insert(account); cancelDownloads(account: account)
-            pageTasks[account]?.cancel(); pageTasks[account] = nil
-            labelTasks[account]?.cancel(); labelTasks[account] = nil
-        }
-        publishAccounts()
-        kickDelivery()
     }
     private func publishAccounts() {
         let current = readAccounts
@@ -1341,8 +1295,6 @@ extension MailLiveSource {
         return await MailUnsubscribeTransport.post(expected)
     }
 
-    func permitsAccountChanges(_ account: String) -> Bool { deliveryAllowed(account) }
-
     /// UI policy only; delivery independently rechecks permission before every provider write.
     func permitsChanges(to target: MailTarget) -> Bool {
         let accounts: Set<String>
@@ -1358,7 +1310,7 @@ extension MailLiveSource {
     }
 
     private func canDeliver(_ account: String) -> Bool {
-        deliveryRuns && !removalNeedsRepair && !disabled.contains(account) && !forgettingAccess.contains(account) && access.mailGrant(accountID: account) == .granted && deliveryAllowed(account)
+        deliveryRuns && !removalNeedsRepair && access.mailGrant(accountID: account) == .granted && deliveryAllowed(account)
     }
 
     private func kickDelivery() {
@@ -1625,7 +1577,7 @@ extension MailLiveSource {
     }
 
     private func startSync(_ account: String) {
-        guard active, !disabled.contains(account), !forgettingAccess.contains(account), access.mailGrant(accountID: account) == .granted,
+        guard active, access.mailGrant(accountID: account) == .granted,
               syncTasks[account] == nil, let worker = mailboxSync else { return }
         let owner = UUID()
         syncOwners[account] = owner
@@ -1637,7 +1589,7 @@ extension MailLiveSource {
                 }
             }
             var attempts = 0
-            while !Task.isCancelled, self.active, !self.disabled.contains(account),
+            while !Task.isCancelled, self.active,
                   self.access.mailGrant(accountID: account) == .granted {
                 do {
                     while let retry = self.syncRetryAt[account], retry > self.clock.now {

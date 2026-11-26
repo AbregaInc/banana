@@ -314,7 +314,6 @@ final class PlayerController: ObservableObject {
         // reading nextEpisode()/nextInPool mid-playback ("Play next", starting a cue) picked the
         // OLD episode. One publish per switch — the 30 s heartbeat stays quiet.
         library?.commitLiveProgress()
-        CloudProgressSync.shared.flushNow(reason: "switch")
         history?.beginSession(podcastID: podcast.id, episodeID: episode.id,
                               podcastTitle: podcast.title, episodeTitle: episode.title,
                               artworkURL: podcast.artworkURL)
@@ -423,7 +422,6 @@ final class PlayerController: ObservableObject {
         PlaybackDiagnostics.shared.noteAlive(playing: false, at: stoppedAt, episode: "")
         commitProgress()                                // save resume position first
         library?.commitLiveProgress()
-        CloudProgressSync.shared.flushNow(reason: "stop")
         reportProgress(completed: false)
         history?.endSession()
         isPlaying = false        // before pause(): its KVO fires synchronously (see setPlaying)
@@ -477,7 +475,6 @@ final class PlayerController: ObservableObject {
             cancelStallRecovery()
             commitProgress()
             library?.commitLiveProgress()                    // pause = a moment lists should update
-            CloudProgressSync.shared.flushNow(reason: "pause")   // the radio commit point (no-op when sync is off)
             reportProgress(completed: false)
             history?.endSession()
             let pausedAt = preciseTime()
@@ -1261,7 +1258,6 @@ final class PlayerController: ObservableObject {
             currentTime = 0
             clearSkipState()
             updateNowPlaying()
-            CloudProgressSync.shared.flushNow(reason: "finished")   // session over — push the completion
         }
     }
 

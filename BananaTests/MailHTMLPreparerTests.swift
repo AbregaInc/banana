@@ -21,6 +21,55 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertTrue(prepared.text.blocks.contains { $0.kind == .quote(depth: 1) })
         XCTAssertTrue(prepared.shownAsText)
     }
+
+    func testCachedHTMLRepairsOnlyReversibleMojibakeInNativeAndOriginal() throws {
+        let correct = "<html><head><meta charset='utf-8'></head><body><p>Ângela\u{00A0}·\u{00A0}Updates ©</p></body></html>"
+        let damaged = try XCTUnwrap(String(data: Data(correct.utf8), encoding: .isoLatin1))
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: damaged)
+        XCTAssertEqual(text(prepared), "Ângela · Updates ©")
+        let original = try MailOriginalDocument.prepare(damaged)
+        XCTAssertTrue(original.contains("Ângela"))
+        XCTAssertFalse(original.contains("Â\u{00A0}"))
+        XCTAssertFalse(original.contains("Â·"))
+        for input in [
+            "<html><head><meta charset='utf-8'></head><body>Â\u{00A0}example</body></html>",
+            "<html><body>Â\u{00A0}example Â\u{00A0}rest</body></html>",
+            damaged + "雪"
+        ] { XCTAssertEqual(MailCharset.recoverUTF8HTML(input), input) }
+    }
+
+    func testNearbyExactLinksKeepAnActionAndLetTheDigestReadAsProse() throws {
+        let html = """
+        <table role="presentation"><tr><td style="border-width:0;border-bottom-width:1px;border-style:solid">
+        <p><a href="https://plan.example/profile">Noor</a></p>
+        <p><a href="https://plan.example/profile">Program director for community research</a></p>
+        <p><a href="https://plan.example/story">New article</a></p>
+        <p><a href="https://plan.example/story">The study follows families as they make choices about travel over several years.</a>
+        <a href="https://plan.example/story?expand=1">Read more</a></p>
+        </td></tr></table><p>Next section</p>
+        """
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        let runs = prepared.text.blocks.flatMap(\.runs)
+        XCTAssertEqual(runs.first { $0.text == "Noor" }?.link?.path, "/profile")
+        XCTAssertNil(runs.first { $0.text.contains("Program director") }?.link)
+        XCTAssertEqual(runs.first { $0.text == "New article" }?.link?.path, "/story")
+        XCTAssertNil(runs.first { $0.text.contains("The study") }?.link)
+        XCTAssertEqual(runs.first { $0.text == "Read more" }?.link?.query, "expand=1")
+        XCTAssertEqual(prepared.text.blocks.dropLast().last?.kind, .rule)
+    }
+
+    func testDuplicateBackgroundDoesNotForceOriginalLayout() throws {
+        let duplicate = """
+        <table role="presentation"><tr><td style="display:block; background-image:url('https://img.example/art.png')">
+        <img style="display:none" src="https://img.example/art.png" width="400" height="200" alt="A view of the garden">
+        </td></tr></table>
+        """
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: duplicate)
+        XCTAssertFalse(prepared.prefersOriginal == true)
+        XCTAssertTrue(prepared.text.blocks.contains { if case .picture = $0.kind { return true }; return false })
+        let differentImage = duplicate.replacingOccurrences(of: "src=\"https://img.example/art.png", with: "src=\"https://img.example/other.png")
+        XCTAssertTrue(try MailHTMLPreparer.prepare(plain: nil, html: differentImage).prefersOriginal == true)
+    }
     func testUnsafeSchemesCannotBecomeNativeLinks() throws {
         let prepared = try MailHTMLPreparer.prepare(plain: nil, html: #"<a href="javascript:alert(1)">one</a><a href="data:text/html,bad">two</a><a href="ftp://example.com">three</a><a href="jav&#x61;script:alert(1)">four</a>"#)
         XCTAssertTrue(prepared.text.blocks.flatMap(\.runs).allSatisfy { $0.link == nil })
@@ -64,11 +113,14 @@ final class MailHTMLPreparerTests: XCTestCase {
         prepared.text.blocks.lazy.compactMap { if case .table(let table) = $0.kind { return table }; return nil }.first
     }
 
-    func testMeaningfulStatusImageInADataCellKeepsItsLayoutAndTextAlternative() throws {
+    func testDataCellUsesNativeStatusTextWhenTheImageSuppliesIt() throws {
         let html = "<table><tr><th>Status</th><th>Job</th></tr><tr><td><img src='https://img.example/status.png' width='24' height='24' alt='Failed'></td><td>Build</td></tr><tr><td>Passed</td><td>Tests</td></tr></table>"
         let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
-        XCTAssertEqual(prepared.prefersOriginal, true)
-        XCTAssertTrue(text(prepared).contains("Failed"))
+        XCTAssertNotEqual(prepared.prefersOriginal, true)
+        let grid = try XCTUnwrap(table(prepared))
+        XCTAssertEqual(grid.rows[1][0].runs.map(\.text).joined(), "Failed")
+        let noAlternative = html.replacingOccurrences(of: " alt='Failed'", with: "")
+        XCTAssertEqual(try MailHTMLPreparer.prepare(plain: nil, html: noAlternative).prefersOriginal, true)
         let tracker = html.replacingOccurrences(of: "width='24' height='24'", with: "width='1' height='1'")
         let ignored = try MailHTMLPreparer.prepare(plain: nil, html: tracker)
         XCTAssertNotEqual(ignored.prefersOriginal, true)
@@ -89,6 +141,32 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertTrue(text(prepared).contains("Net cash\u{2003}\u{2003}$3,261\u{2003}\u{2003}$8,169"))
         XCTAssertEqual(blockTexts(prepared).first, "Key numbers")
         XCTAssertEqual(blockTexts(prepared).last, "After")
+    }
+
+    func testHeaderOnlyTableRemainsNativeWithoutInventingDataRows() throws {
+        let html = "<h2>Popular pages</h2><table style='width:640px'><thead><tr>"
+            + "<th>Page</th><th>Impressions</th><th>Clicks</th></tr></thead></table>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertFalse(prepared.prefersOriginal == true)
+        XCTAssertNil(table(prepared))
+        for word in ["Popular pages", "Page", "Impressions", "Clicks"] {
+            XCTAssertTrue(text(prepared).contains(word))
+        }
+    }
+
+    func testWideSingleRecordUsesLabelsAndKeepsTheTrailingNote() throws {
+        let header = "<tr><th>Date</th><th>Booking</th><th>Arrival Location</th><th>Time</th></tr>"
+        let record = "<tr><td>Friday</td><td><a href='https://plan.example/booking'>AB1234</a></td><td>Terminal B<br>Door 3</td><td>6:00 PM</td></tr>"
+        let note = "<tr><td colspan='4'>Bring ID to check in.</td></tr>"
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: "<table>" + header + record + note + "</table>")
+        XCTAssertNil(table(prepared))
+        XCTAssertEqual(blockTexts(prepared), ["Date\nFriday", "Booking\nAB1234", "Arrival Location\nTerminal B\nDoor 3",
+                                              "Time\n6:00 PM", "Bring ID to check in."])
+        XCTAssertTrue(try XCTUnwrap(prepared.text.blocks[1].runs.first).style.contains(.bold))
+        XCTAssertEqual(prepared.text.blocks[1].runs.last?.link?.absoluteString, "https://plan.example/booking")
+
+        let comparison = try MailHTMLPreparer.prepare(plain: nil, html: "<table>" + header + record + record + "</table>")
+        XCTAssertEqual(table(comparison)?.rows.count, 3)
     }
 
     func testLayoutTablesStayText() throws {
@@ -216,6 +294,55 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertThrowsError(try MailOriginalDocument.prepare(String(repeating: "<div>", count: 100) + "body" + String(repeating: "</div>", count: 100)))
     }
 
+    func testShortHeadedPanelsKeepEachLabelWithItsValueAndLinkAsNativeText() throws {
+        let html = """
+        <table><tr><td><h2>Expected</h2><p><a href="https://example.com/expected">2 packages</a></p></td>
+        <td></td><td><h2>Delivered</h2><p>1 today</p></td></tr></table>
+        """
+        let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+        XCTAssertEqual(prepared.prefersOriginal, false)
+        XCTAssertEqual(blockTexts(prepared), ["Expected 2 packages", "Delivered 1 today"])
+        XCTAssertEqual(prepared.text.blocks.map(\.kind),
+                       Array(repeating: .item(ordered: false, depth: 0, number: nil), count: 2))
+        XCTAssertEqual(prepared.text.blocks[0].runs.compactMap(\.link).map(\.absoluteString), ["https://example.com/expected"])
+
+        let rich = html.replacingOccurrences(of: "<p>1 today</p>", with: "<ul><li>1 today</li></ul>")
+        XCTAssertEqual(try MailHTMLPreparer.prepare(plain: nil, html: rich).prefersOriginal, true)
+    }
+
+    func testHeadingsWithoutTheirOwnValuesKeepFormattedLayout() throws {
+        let headers = "<tr><td><h2>Address</h2></td><td><h2>Time</h2></td></tr>"
+        for html in [
+            "<table>" + headers + "</table><ul><li>Check in at reception</li></ul>",
+            "<table><tr><td><h2>Address</h2><p hidden>Reception</p></td><td><h2>Time</h2><p>Monday</p></td></tr></table>"
+        ] {
+            let prepared = try MailHTMLPreparer.prepare(plain: nil, html: html)
+            XCTAssertEqual(prepared.prefersOriginal, true)
+            XCTAssertTrue(prepared.text.blocks.contains { if case .heading = $0.kind { return true }; return false })
+        }
+    }
+
+    func testHeadedRecordsPairNativeValuesAndKeepRichContent() throws {
+        let header = "<tr><td><h2>Address</h2></td><td><h2>Time<span class='visually-hidden'>Window</span></h2></td></tr>"
+        let values = "<tr><td>Reception desk</td><td><a href='https://example.com/window'>Monday at nine</a></td></tr>"
+        let tail = "<tr><td>Call on arrival</td></tr>"
+        let result = try MailHTMLPreparer.prepare(plain: nil, html: "<table>" + header + values + tail + "</table>")
+        XCTAssertEqual(result.prefersOriginal, false)
+        XCTAssertEqual(blockTexts(result), ["Address\nReception desk", "Time Window\nMonday at nine", "Call on arrival"])
+        XCTAssertEqual(result.text.blocks[1].runs.last?.link?.absoluteString, "https://example.com/window")
+
+        let separated = """
+        <table><tr><td></td><td><h3>Description</h3></td><td></td><td><h3>Budget</h3></td></tr></table>
+        <table><tr><td></td><td><p>First project</p><ul><li>Draft the outline</li></ul></td><td></td><td>$200</td></tr>
+        <tr><td colspan='4'></td></tr>
+        <tr><td></td><td>Second project</td><td></td><td>$300</td></tr></table>
+        """
+        let rich = try MailHTMLPreparer.prepare(plain: nil, html: separated)
+        XCTAssertEqual(rich.prefersOriginal, false)
+        XCTAssertEqual(blockTexts(rich), ["Description", "First project", "Draft the outline", "Budget\n$200", "Description\nSecond project", "Budget\n$300"])
+        XCTAssertEqual(rich.text.blocks[2].kind, .item(ordered: false, depth: 0, number: nil))
+    }
+
     func testFormattedRenderingRequiresUnrepresentedStructureNotStyling() throws {
         let spanning = "<table><tr><th>Item</th><th>Amount</th></tr><tr><td rowspan='2'>Notebook</td><td>$12</td></tr><tr><td>$4</td></tr></table>"
         XCTAssertEqual(try MailHTMLPreparer.prepare(plain: nil, html: spanning).prefersOriginal, true)
@@ -241,6 +368,8 @@ final class MailHTMLPreparerTests: XCTestCase {
         XCTAssertTrue(page.contains("connect-src 'none'"))
         XCTAssertTrue(page.contains("color-scheme:light"))
         XCTAssertTrue(page.contains("height:auto!important;min-height:0!important"))
+        XCTAssertTrue(page.contains("@media(max-width:360px)"))
+        XCTAssertTrue(page.contains("white-space:normal!important;overflow-wrap:anywhere!important"))
         XCTAssertFalse(MailOriginalDocument.page(fragment).contains("height:auto!important;min-height:0!important"))
         XCTAssertTrue(MailOriginalDocument.page(fragment, remoteImages: true, embedded: true)
             .contains("img-src banana-mail-image: https:;"))

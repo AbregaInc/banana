@@ -253,27 +253,4 @@ enum AppVariant: Equatable {
 
     /// Whether workouts may be saved to Apple Health. Beta's stay in Beta.
     var mayWriteHealth: Bool { self == .production }
-
-    /// Whether a Google Calendar call may be made. Reads always; changes from Beta only in an
-    /// account marked as a test account in Beta's Settings.
-    func mayCallGoogle(method: String, account: String?, testAccounts: Set<String>) -> Bool {
-        if self == .production || method.uppercased() == "GET" { return true }
-        guard let account else { return false }
-        return testAccounts.contains(account.lowercased())
-    }
-}
-
-/// The Google accounts Beta may change, by lowercased email. Kept in Beta's own settings.
-enum BetaTestAccounts {
-    private static let key = "betaTestGoogleAccounts"
-
-    static var all: Set<String> {
-        Set(UserDefaults.standard.stringArray(forKey: key) ?? [])
-    }
-
-    static func set(_ email: String, isTest: Bool) {
-        var accounts = all
-        if isTest { accounts.insert(email.lowercased()) } else { accounts.remove(email.lowercased()) }
-        UserDefaults.standard.set(accounts.sorted(), forKey: key)
-    }
 }

@@ -1,11 +1,10 @@
 #if os(iOS)
 // Catches what iOS delivers only to an app delegate: background-URLSession completion, and the
-// silent pushes that wake the app for the meal backlog. macOS has no such relaunch.
+// silent pushes that wake the app for Banana data. macOS has no such relaunch.
 
 import UIKit
 
-/// Background downloads, the meal backlog's pushes (`MealBacklogWake`), and the Banana service's
-/// pushes when a Google calendar changes (`BananaAccount`).
+/// Background downloads and silent pushes from the Banana service.
 ///
 /// When a transfer finishes while the app is suspended — or after it has been killed outright —
 /// iOS relaunches the process and delivers the news here, and nowhere else. A SwiftUI `App` has no
@@ -30,8 +29,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             #endif
             // The data platform's engine, unless `--no-space-sync` (`SpaceSyncFlag`).
             SpaceSyncLaunch.startIfAsked()
-            // Pushes — the Banana service's (a calendar changed, an alert dismissed elsewhere) and,
-            // with Food, the meal backlog's (`MealBacklogWake`): asked for here, with launch done,
+            // Register for Banana service pushes once launch finishes,
             // and again on each return to the front (a scene app's delegate hears no "became active").
             UIApplication.shared.registerForRemoteNotifications()
             NotificationCenter.default.addObserver(forName: UIApplication.didBecomeActiveNotification,
@@ -60,28 +58,21 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         #endif
     }
 
-    // MARK: - Pushes for the meal backlog
+    // MARK: - Push notifications
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         MainActor.assumeIsolated {
-            #if BANANA_MODULE_FOOD
-            MealBacklogWake.registered()
-            #endif
             BananaAccount.shared.pushTokenArrived(deviceToken)
         }
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         MainActor.assumeIsolated {
-            #if BANANA_MODULE_FOOD
-            MealBacklogWake.registrationFailed(error)
-            #endif
             PlaybackDiagnostics.shared.log("☁️ push", "not available: \(error.localizedDescription)")
         }
     }
 
-    /// iCloud woke the app: the Mac (or the iPad) changed the meal backlog. A few seconds to fetch
-    /// it and ask about anything new, then back to sleep.
+    /// Dispatch a silent push to the corresponding Banana service handler.
     func application(_ application: UIApplication,
                      didReceiveRemoteNotification userInfo: [AnyHashable: Any],
                      fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
@@ -119,16 +110,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             }
             return
         }
-        #if BANANA_MODULE_FOOD
-        guard MealBacklogWake.isMealsPush(userInfo) else { return completionHandler(.noData) }
-        let done = UncheckedSendableBox(completionHandler)
-        Task { @MainActor in
-            let changed = await MealBacklogWake.catchUp(reason: "push")
-            done.value(changed ? .newData : .noData)
-        }
-        #else
         completionHandler(.noData)
-        #endif
     }
 }
 

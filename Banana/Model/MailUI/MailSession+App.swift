@@ -86,7 +86,6 @@ extension MailSession {
                                   defaults: .standard, allowsChanges: true, allowsComposing: true,
                                   supportsAction: { $0.isIntegratedGmailAction },
                                   allowsTarget: { [weak source] in source?.permitsChanges(to: $0) ?? false },
-                                  targetRestriction: "This account is read only in Beta. Mark it as a test account in Settings to enable changes.",
                                   dismissToast: { if let toastID { ToastCenter.shared.dismiss(ifMatching: toastID) } }) { toast, undo in
             ToastCenter.shared.present(toast.text, actionTitle: toast.action?.title ?? "",
                 window: toast.lasts.map { .seconds($0) }, action: toast.action == nil ? nil : undo)

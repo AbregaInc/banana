@@ -7,16 +7,24 @@ import Foundation
 ///
 /// Safe links use the system URL action on iOS, iPadOS and macOS.
 enum MailAttributedText {
+    private static let addresses = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue)
+
+    static func mailbox(for link: URL) -> String? {
+        guard link.scheme?.lowercased() == "mailto",
+              let parts = URLComponents(url: link, resolvingAgainstBaseURL: false), parts.host == nil,
+              MailAddressRules.isValid(parts.path) else { return nil }
+        return parts.path
+    }
 
     /// One block's runs, with their styles.
-    static func make(_ runs: [MailTextRun]) -> AttributedString {
+    static func make(_ runs: [MailTextRun], detectAddresses: Bool = false) -> AttributedString {
         guard let first = runs.first else { return AttributedString() }
-        var out = styled(first)
-        for run in runs.dropFirst() { out.append(styled(run)) }
+        var out = styled(first, detectAddresses: detectAddresses)
+        for run in runs.dropFirst() { out.append(styled(run, detectAddresses: detectAddresses)) }
         return out
     }
 
-    private static func styled(_ run: MailTextRun) -> AttributedString {
+    private static func styled(_ run: MailTextRun, detectAddresses: Bool) -> AttributedString {
         var attributes = AttributeContainer()
         var intent = InlinePresentationIntent()
         if run.style.contains(.bold) { intent.insert(.stronglyEmphasized) }
@@ -26,11 +34,24 @@ enum MailAttributedText {
         if let link = MailBodyHTML.safeLink(run.link) { attributes.link = link }
         if run.style.contains(.underline) { attributes.underlineStyle = .single }
         if run.style.contains(.strikethrough) { attributes.strikethroughStyle = .single }
-        return AttributedString(run.text, attributes: attributes)
+        var piece = AttributedString(run.text, attributes: attributes)
+        if detectAddresses, run.link == nil, run.text.utf8.count <= 4_096, run.text.contains("@"),
+           let addresses {
+            let range = NSRange(run.text.startIndex..<run.text.endIndex, in: run.text)
+            for match in addresses.matches(in: run.text, range: range) {
+                guard let url = match.url, mailbox(for: url) != nil,
+                      let span = Range(match.range, in: run.text),
+                      let lo = AttributedString.Index(span.lowerBound, within: piece),
+                      let hi = AttributedString.Index(span.upperBound, within: piece) else { continue }
+                piece[lo..<hi].link = url
+            }
+        }
+        return piece
     }
 
-    /// Fonts are applied by the view, so styling is independent of pane width and text size.
-    static func blocks(_ text: MailText) -> [AttributedString] { text.blocks.map { make($0.runs) } }
+    /// Every block of a message, styled, with addresses made links. Its fonts are applied by the
+    /// view, so the result does not depend on the pane's width or text size.
+    static func blocks(_ text: MailText) -> [AttributedString] { text.blocks.map { make($0.runs, detectAddresses: true) } }
 
     /// The body's text as the reader draws it: `.text`'s text, or `.designed`'s plain text.
     static func blocks(_ body: MailBody) -> [AttributedString]? {
@@ -42,11 +63,11 @@ enum MailAttributedText {
     static func openingBlocks(_ body: MailBody) -> [AttributedString?]? {
         guard let text = displayText(in: body) else { return nil }
         return text.blocks.enumerated().map { index, block in
-            if index < 64 || block.runs.count > 8 { return make(block.runs) }
+            if index < 64 || block.runs.count > 8 { return make(block.runs, detectAddresses: true) }
             var bytes = 0
             for run in block.runs {
                 bytes += run.text.utf8.count + (run.link?.absoluteString.utf8.count ?? 0)
-                if bytes > 1024 { return make(block.runs) }
+                if bytes > 1024 { return make(block.runs, detectAddresses: true) }
             }
             return nil
         }

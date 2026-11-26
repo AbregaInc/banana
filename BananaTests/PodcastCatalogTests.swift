@@ -14,7 +14,7 @@ final class PodcastCatalogTests: XCTestCase {
         return (directory.appendingPathComponent("catalog.sqlite"), directory.appendingPathComponent("podcasts.json"))
     }
 
-    func testMigrationPagesPlaybackOrderAndPortableBackup() throws {
+    func testMigrationPagesAndPlaybackOrder() throws {
         let (url, legacy) = try paths()
         let original = fixture()
         let data = try JSONEncoder().encode([original])
@@ -38,8 +38,6 @@ final class PodcastCatalogTests: XCTestCase {
         }
         XCTAssertEqual(loaded.episode("e501"), original.episodes[501])
         XCTAssertNil(loaded.episode("missing"))
-        let restored = try JSONDecoder().decode([Podcast].self, from: store.backupJSON(legacyURL: legacy))
-        XCTAssertEqual(restored.first?.episodes, original.episodes)
     }
 
     func testRefreshKeepsOldSnapshotReadableAndSettingsDoNotRewriteEpisodes() throws {

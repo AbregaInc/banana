@@ -177,6 +177,7 @@ struct MailPaneMoreMenu: View {
                 .frame(width: DS.Row.minHeight, height: DS.Row.minHeight)
                 .contentShape(Rectangle())
         }
+        .menuOrder(.fixed)
         .menuIndicator(.hidden)
         .accessibilityLabel("More")
         .accessibilityIdentifier("mail.pane.more")
@@ -217,13 +218,21 @@ struct MailCurrentSenderBlockItem: View {
         _pane = ObservedObject(wrappedValue: session.pane)
     }
     var body: some View {
-        if session.source.supportsSenderBlocking,
-           let message = (navigation.reader ?? pane.reader)?.messages.first(where: { !$0.senderIsMe }),
-           MailAddressRules.isValid(message.senderAddress) {
-            if let domain = MailSenderPolicyTarget.domainKey(for: message.senderAddress) {
-                MailBlockSenderItem(session: session, message: message, sender: domain)
+        if session.source.supportsSenderBlocking, let reader = navigation.reader ?? pane.reader {
+            MailReaderBlockActions(session: session, reader: reader)
+        }
+    }
+}
+
+private struct MailReaderBlockActions: View {
+    let session: MailSession
+    @ObservedObject var reader: MailReaderModel
+
+    var body: some View {
+        if let message = reader.messages.first(where: { !$0.senderIsMe }) {
+            ForEach(MailSenderPolicyTarget.orderedBlockTargets(for: message.senderAddress), id: \.self) { target in
+                MailBlockSenderItem(session: session, message: message, sender: target)
             }
-            MailBlockSenderItem(session: session, message: message, sender: message.senderAddress)
         }
     }
 }

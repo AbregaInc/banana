@@ -1,6 +1,34 @@
 import XCTest
 
 @MainActor final class MailReaderModelTests: XCTestCase {
+    func testReaderConvertsOnlyDatedTimesWithExplicitZones() throws {
+        let iso = ISO8601DateFormatter()
+        let sent = try XCTUnwrap(iso.date(from: "2026-11-25T13:12:00Z"))
+        let phrase = "I could do a call after 3pm CT on Mon, Dec 21."
+        let note = try XCTUnwrap(MailReaderTime.notes(in: phrase, sent: sent).first)
+        XCTAssertEqual(note.date, iso.date(from: "2026-12-21T21:00:00Z"))
+        XCTAssertEqual(phrase.prefix(note.end), "I could do a call after 3pm CT on Mon, Dec 21")
+        let dated = "Dec 21, 2026 at 11:30pm UTC+05:30"
+        XCTAssertEqual(MailReaderTime.notes(in: dated, sent: sent).first?.date, iso.date(from: "2026-12-21T18:00:00Z"))
+        for ambiguous in ["3pm on Mon, Dec 21", "3pm CT", "3pm CST on Mon, Dec 21",
+                          "3pm CT on Fri, Dec 21", "Every week after 3pm CT on Mon, Dec 21",
+                          "2:30am ET on March 8, 2026", "1:30am ET on November 1, 2026"] {
+            XCTAssertTrue(MailReaderTime.notes(in: ambiguous, sent: sent).isEmpty, ambiguous)
+        }
+    }
+
+    func testReaderAddressLinksCopyOnlyOneValidatedMailbox() throws {
+        func mailbox(_ value: String) throws -> String? {
+            MailAttributedText.mailbox(for: try XCTUnwrap(URL(string: value)))
+        }
+        XCTAssertEqual(try mailbox("mailto:Noor%2BWork@plan.example?subject=Review"), "Noor+Work@plan.example")
+        XCTAssertNil(try mailbox("mailto:noor@plan.example,sam@plan.example"))
+        XCTAssertNil(try mailbox("mailto:%0Anoor@plan.example"))
+        XCTAssertNil(try mailbox("https://plan.example/?contact=noor@plan.example"))
+        let text = MailAttributedText.make([.init(text: "Email Noor+Work@plan.example.", link: nil)], detectAddresses: true)
+        XCTAssertEqual(text.runs.compactMap { $0.link.flatMap(MailAttributedText.mailbox(for:)) }, ["Noor+Work@plan.example"])
+    }
+
     func testQuoteFoldingKeepsFollowingContentAndOriginalIndices() {
         let blocks = [MailTextBlock(kind: .paragraph, runs: []),
                       MailTextBlock(kind: .quote(depth: 1), runs: []),
@@ -11,6 +39,15 @@ import XCTest
         for start in [nil, -1, 0, 3, 4] as [Int?] {
             XCTAssertNil(MailQuoteFolding.hiddenRange(in: blocks, from: start, expanded: false))
         }
+    }
+
+    func testOutgoingQuoteFoldsItsEntireTailRegardlessOfBlockStyle() {
+        let blocks = [MailTextBlock(kind: .paragraph, runs: []),
+                      MailTextBlock(kind: .paragraph, runs: []),
+                      MailTextBlock(kind: .item(ordered: false, depth: 0, number: nil), runs: [])]
+        XCTAssertEqual(MailQuoteFolding.hiddenRange(in: blocks, from: 1, expanded: false, entireTail: true), 1..<3)
+        XCTAssertNil(MailQuoteFolding.hiddenRange(in: blocks, from: 1, expanded: true, entireTail: true))
+        XCTAssertNil(MailQuoteFolding.hiddenRange(in: blocks, from: 0, expanded: false, entireTail: true))
     }
 
     private final class Source: MailSource {

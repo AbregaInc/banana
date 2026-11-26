@@ -23,7 +23,7 @@ async function mailbox({ count = 0, labels, config = {}, push = false } = {}) {
   assert.equal(phone.account.id, mac.account.id);
   await s.db.run("INSERT INTO feature_access VALUES (?,?,1,NULL,?)", phone.account.id, "email", s.now());
   s.google.person("mail-noor", "sub-noor", EMAIL, "mail-noor", { scopes: "https://www.googleapis.com/auth/gmail.modify" });
-  assert.equal((await s.call("POST", "/v1/google/mail", { session: phone.session, body: { email: EMAIL, code: "mail-noor" } })).status, 200);
+  assert.equal((await s.signIn("mail-noor", device("device-phone", { capabilities: ["mail"], ...(push ? { push: pushToken(1) } : {}) }), phone.session)).status, 200);
   for (let i = 1; i <= count; i++) gmail.add(`m${i}`, labels?.(i) ?? (i % 3 ? ["INBOX", "UNREAD"] : ["Label_1"]));
   const feed = async (who, { after = null, limit = 500, fresh = false } = {}) =>
     s.call("POST", "/v1/mail/feed", { session: who.session, body: { email: EMAIL, limit, ...(after === null ? {} : { after }), ...(fresh ? { fresh: true } : {}) } });
@@ -256,15 +256,14 @@ test("a device's catch-up check publishes what Gmail still has and what it delet
   assert.ok(entries.has("m1"));
 });
 
-test("turning Mail off, unlinking or deleting the account wipes the mailbox and its stored content", async () => {
-  for (const how of ["mail-off", "unlink", "delete-account", "eligibility"]) {
+test("unlinking Google or deleting the account wipes the mailbox and its stored content", async () => {
+  for (const how of ["unlink", "delete-account", "eligibility"]) {
     const t = await mailbox({ count: 3 });
     await t.feed(t.phone);
     await t.drain(t.settled);
     await t.read(t.phone, "m3");
     const prefix = `mail/${await sha256Hex("sub-noor")}/`;
     assert.ok((await t.s.deps.blobs.list(prefix, 100)).length > 0);
-    if (how === "mail-off") assert.equal((await t.s.call("DELETE", "/v1/google/mail", { session: t.phone.session, body: { email: EMAIL } })).status, 204);
     if (how === "unlink") assert.equal((await t.s.call("DELETE", "/v1/google", { session: t.phone.session, body: { email: EMAIL } })).status, 204);
     if (how === "delete-account") {
       t.s.google.person("delete-code", "sub-noor", EMAIL);
@@ -536,7 +535,9 @@ test("Gmail's push wakes the right mailbox, which reads history, stores the new 
   assert.ok((await t.status()).watchExpires > t.s.now() + 6 * DAY, "recorded");
   // A third device on the account whose build has no Mail (Stable): it takes no mail push.
   const stable = device("device-stable", { platform: "ipad", push: pushToken(3), capabilities: [] });
-  assert.equal((await t.s.signIn("noor", stable, t.phone.session)).status, 200);
+  // Google answers a sign-in with every scope the person has granted Banana, Gmail included.
+  t.s.google.person("noor-stable", "sub-noor", EMAIL, "noor-stable", { scopes: "https://www.googleapis.com/auth/gmail.modify" });
+  assert.equal((await t.s.signIn("noor-stable", stable, t.phone.session)).status, 200);
   t.s.apns.sends.length = 0;
   // A burst of new mail, a notice for each.
   for (const id of ["n1", "n2", "n3"]) t.gmail.add(id, ["INBOX", "UNREAD"]);
@@ -594,7 +595,7 @@ test("with a live watch the idle poll is stretched; without one it is not", asyn
   assert.equal(await run(true), 0, "a watched mailbox waits for the push (and polls every two hours)");
 });
 
-test("the quarter-hour job renews a watch a day before it ends, and turning Mail off stops it", async () => {
+test("the quarter-hour job renews a watch a day before it ends, and disconnecting Google stops it", async () => {
   const { runJob } = await import("../src/job.js");
   const t = await pushed({ count: 1 });
   assert.equal((await t.feed(t.phone)).status, 200);
@@ -607,7 +608,7 @@ test("the quarter-hour job renews a watch a day before it ends, and turning Mail
   assert.equal(t.s.google.mailWatches.length, 2);
   const row = await t.s.db.first("SELECT watch_expires_at FROM mail_mailboxes WHERE google_sub = 'sub-noor'");
   assert.equal(Number(row.watch_expires_at), t.s.now() + 7 * DAY);
-  assert.equal((await t.s.call("DELETE", "/v1/google/mail", { session: t.phone.session, body: { email: EMAIL } })).status, 204);
+  assert.equal((await t.s.call("DELETE", "/v1/google", { session: t.phone.session, body: { email: EMAIL } })).status, 204);
   assert.equal(t.s.google.mailStops.length, 1, "stopped while the grant still worked");
   assert.equal(await t.s.count("mail_mailboxes"), 0);
 });
@@ -769,15 +770,14 @@ test("sender-policy endpoint requires account access and rejects malformed and o
   t.s.google.person("other", "sub-other", "other@plan.example");
   const other = (await t.s.signIn("other", device("device-other"))).json;
   assert.equal((await policyRequest(t, other, sender)).status, 403);
-  await t.s.call("DELETE", "/v1/google/mail", { session: t.phone.session, body: { email: EMAIL } });
+  await t.s.call("DELETE", "/v1/google", { session: t.phone.session, body: { email: EMAIL } });
   assert.equal((await policyRequest(t, t.phone, sender)).status, 403);
 });
 
-test("read-only grants cannot change sender policies", async () => {
+test("a grant without gmail.modify is not connected: no sender policies at all", async () => {
   const t = await mailbox(), sender = "offers@shop.example";
-  await t.s.db.run("UPDATE mail_grants SET scopes=? WHERE google_sub=?", "https://www.googleapis.com/auth/gmail.readonly", "sub-noor");
-  assert.equal((await policyRequest(t, t.phone, sender)).status, 200);
-  assert.equal((await policyRequest(t, t.phone, sender, { blocked: true, revision: 0, operation: policyOperation(1) })).status, 403);
+  await t.s.db.run("UPDATE google_links SET scopes=? WHERE sub=?", "https://www.googleapis.com/auth/gmail.readonly", "sub-noor");
+  assert.equal((await policyRequest(t, t.phone, sender)).status, 403);
 });
 
 test("an acknowledged unblock fences an in-flight content-read spam application", async () => {

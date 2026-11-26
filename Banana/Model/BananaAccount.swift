@@ -531,21 +531,6 @@ final class BananaAccount: ObservableObject {
     private static let mailJournal = CloudProviderOperationJournal(
         directory: AppSupport.directory.appendingPathComponent("mail-cloud-operations", isDirectory: true))
 
-    func mailConsent(email: String, code: String, context: String) async throws -> Int {
-        guard let requestSession = session, FeatureAccessStore.shared.mailContext == context else { throw GmailError.networkDisabled }
-        guard let answer = await send(.connectMail(email: email, code: code)) else { throw GmailError.unknownOutcome }
-        guard session == requestSession, FeatureAccessStore.shared.mailContext == context else { throw GmailError.networkDisabled }
-        if answer.1 == 200 { _ = await refresh() }
-        return answer.1
-    }
-
-    func disconnectMail(email: String) async throws {
-        guard let requestSession = session else { throw GmailError.unauthorized }
-        guard let answer = await send(.disconnectMail(email: email)), answer.1 == 204 else { throw GmailError.unknownOutcome }
-        guard session == requestSession else { throw GmailError.unauthorized }
-        _ = await refresh()
-    }
-
     func mailAttachmentRequest(reference: String, operation: String, hash: String, data: Data) async throws {
         let route = try CloudMailReference(value: reference)
         guard data.count <= 1024 * 1024, UUID(uuidString: operation) != nil,

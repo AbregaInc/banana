@@ -102,7 +102,6 @@ final class ModuleStore: ObservableObject {
             cloud.set(data, forKey: Self.key)
             cloud.synchronize()
         }
-        CloudBackup.shared.schedule()
         SyncReport.changed(Self.syncType, [Self.syncID])
     }
 

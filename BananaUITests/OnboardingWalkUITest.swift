@@ -21,6 +21,17 @@ final class OnboardingWalkUITest: XCTestCase {
     private var walk = ""
     private var step = 0
 
+    func testFirstLaunchGoesStraightToWelcome() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--disable-icloud", "-onboardingCompleted", "NO", "-onboardingStep", "welcome"]
+        app.withoutSpaceSync()
+        app.launch()
+
+        XCTAssertTrue(app.buttons["onboarding.continue"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.staticTexts["Checking iCloud…"].exists)
+        XCTAssertFalse(app.alerts["Restore from iCloud?"].exists)
+    }
+
     override func setUp() {
         continueAfterFailure = true   // a missing step is a finding; the rest is still wanted
         // A prompt the walk before this one asked for, that the system showed late (this Mac is

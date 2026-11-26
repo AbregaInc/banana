@@ -662,7 +662,7 @@ test('unified feed: rolling calendar pages freeze their window, redact busy deta
   f.s.google.events.set('calendar-1', events.slice(1));
   assert.equal((await f.s.app.request(first.next)).status,409);
   f.s.google.failList=true;
-  assert.equal((await f.s.app.request(url)).status,503);
+  assert.equal((await f.s.app.request(url)).headers.get("Banana-Calendar-Unavailable"),"1");
 });
 
 test('unified personal feed cannot reach types outside its selected scope', async () => {
@@ -785,10 +785,14 @@ test('revoked personal connections delete without removing source records and ac
  assert.equal((await f.s.app.request(key.url)).status,404);
 });
 test('calendar failures identify a selected missing calendar without disclosing busy-calendar provenance',async()=>{
- const f=await fixture(),p=policy('nutrition');p.allowFeeds=true;p.calendars=[{sub:'owner-sub',id:'calendar-1',access:'busy'}];const d=await f.draft(p);await f.send(d);const guest=await f.login('trainer',d.id);
- f.s.google.listEvents=async()=>{throw Object.assign(new Error('events 404'),{status:404});};
- const response=await f.call('GET',`/app/api/shared/${d.id}/export-data?types=all&format=json`,null,guest.cookie);assert.equal(response.status,503);const result=await response.json();assert.equal(result.error,'calendar_unavailable');assert.equal(result.issues[0].reason,'unavailable');assert.equal(result.issues[0].calendar,'Shared calendar 1');assert.equal(result.issues[0].ownerCalendarID,undefined);assert.equal(JSON.stringify(result).includes('owner-sub'),false);assert.equal(JSON.stringify(result).includes('Calendar 1'),false);
- const owner=await(await f.call('GET',`/app/api/shared/${d.id}/feed-preview?preview=${d.version}&types=calendar&format=json`)).json();assert.equal(owner.issues[0].ownerCalendarID,'calendar-1');
+ const f=await fixture(),p=policy('nutrition');await f.put('food.meal','meal',{name:'Lunch'});p.allowFeeds=true;p.calendars=[{sub:'owner-sub',id:'calendar-1',access:'busy'},{sub:'owner-sub',id:'calendar-2',access:'details'}];const d=await f.draft(p);await f.send(d);const guest=await f.login('trainer',d.id);
+ const start=new Date(f.s.now()+3600000).toISOString(),end=new Date(f.s.now()+7200000).toISOString();
+ f.s.google.listEvents=async(_token,id)=>{
+   if(id==='calendar-1')throw Object.assign(new Error('events 404'),{status:404});
+   return {events:[{id:'available-event',summary:'Available',start:{dateTime:start},end:{dateTime:end}}]};
+ };
+ const response=await f.call('GET',`/app/api/shared/${d.id}/export-data?types=all&format=json`,null,guest.cookie);assert.equal(response.status,200);const result=await response.json();assert.equal(result.records.some(r=>r.type==='food.meal'),true);assert.equal(result.records.some(r=>r.type==='calendar'),true);assert.equal(result.calendarIssues[0].reason,'unavailable');assert.equal(result.calendarIssues[0].calendar,'Shared calendar 1');assert.equal(result.calendarIssues[0].ownerCalendarID,undefined);assert.equal(JSON.stringify(result).includes('owner-sub'),false);assert.equal(JSON.stringify(result).includes('Calendar 1'),false);
+ const owner=await(await f.call('GET',`/app/api/shared/${d.id}/feed-preview?preview=${d.version}&types=calendar&format=json`)).json();assert.equal(owner.calendarIssues[0].ownerCalendarID,'calendar-1');assert.equal(owner.calendarIssues[0].calendarRef,result.calendarIssues[0].calendarRef);
  const fitness=await f.call('GET',`/app/api/shared/${d.id}/export-data?types=food.meal&format=json`,null,guest.cookie);assert.equal(fitness.status,200);
 });
 test('explicitly selected hidden or unlisted accessible calendars still export; disconnected accounts fail closed',async()=>{
@@ -797,5 +801,5 @@ test('explicitly selected hidden or unlisted accessible calendars still export; 
  const start=f.s.now()+3600000;f.s.google.events.set('calendar-1',[{id:'event',summary:'Shared event',start:{dateTime:new Date(start).toISOString()},end:{dateTime:new Date(start+3600000).toISOString()}}]);
  f.s.google.calendars.set('owner-refresh',[{id:'calendar-1',summary:'Hidden',accessRole:'reader',hidden:true}]);assert.equal((await(await f.call('GET',path,null,guest.cookie)).json()).records.length,1);
  f.s.google.calendars.set('owner-refresh',[]);assert.equal((await(await f.call('GET',path,null,guest.cookie)).json()).records.length,1);
- await f.s.db.run("UPDATE google_links SET status = 'unlinked' WHERE sub = ?",'owner-sub');const response=await f.call('GET',path,null,guest.cookie);assert.equal(response.status,503);assert.equal((await response.json()).issues[0].reason,'reconnect');
+ await f.s.db.run("UPDATE google_links SET status = 'unlinked' WHERE sub = ?",'owner-sub');const response=await f.call('GET',path,null,guest.cookie);assert.equal(response.status,200);assert.equal((await response.json()).calendarIssues[0].reason,'reconnect');
 });

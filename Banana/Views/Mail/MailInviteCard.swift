@@ -12,8 +12,14 @@ struct MailInviteCalendar {
     static let live = MailInviteCalendar(
         find: { account, uid in
             let service = GoogleCalendarService.shared
+            await service.restoreIfNeeded()
+            try Task.checkCancellation()
             let ids = MailInviteLookup.calendarIDs(account: account, calendars: service.calendars)
-            return try await MailInviteLookup.find(uid: uid, calendars: ids) { calendar in
+            return try await MailInviteLookup.find(uid: uid, calendars: ids, cachedAfterFailure: { calendar, error in
+                PlaybackDiagnostics.shared.log("mail invitation",
+                    "lookup failed: " + GoogleCalendarService.invitationLookupFailureReason(error))
+                return service.cachedInvitationEvents(calendarID: calendar, accountEmail: account, after: error)
+            }) { calendar in
                 try await service.events(calendarID: calendar, iCalUID: uid, accountEmail: account)
             }
         },

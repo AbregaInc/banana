@@ -202,7 +202,7 @@ enum SpaceSyncLaunch {
         return task
     }
 
-    /// Every store has loaded (`BananaApp.wireUp`), and every legacy sync has started.
+    /// The stores are available for Banana sync.
     static func storesReady(_ ready: SyncStores) {
         guard SpaceSyncFlag.isOn, stores == nil else { return }
         stores = ready
@@ -222,7 +222,10 @@ enum SpaceSyncLaunch {
         guard self.engine === engine else { return }   // stopped meanwhile
         await seedNewTypes(engine, adapters: joining)
         var deps = MoveOver.Dependencies(
-            engine: engine, isHub: DeviceRole.current.isHub, channels: LegacyCloud.channels, adapters: joining,
+            engine: engine, isHub: DeviceRole.current.isHub, channels: LegacyCloud.channels,
+            localTypes: Set(joining.flatMap(\.types)).subtracting(
+                Set(LegacyCloud.channels.flatMap(\.types)).union(LegacyInventory.withoutLegacy)),
+            adapters: joining,
             modes: LegacyCloud.modes, account: { maxAge in await accountSummary(for: account, maxAge: maxAge) },
             stateKey: MoveOver.stateKey(account: account),
             log: { PlaybackDiagnostics.shared.log("☁️ move", $0) },
@@ -288,14 +291,15 @@ enum SpaceSyncLaunch {
     }
 
     static func sync(reason: String) {
-        Task {
-            // A cold background launch (a refresh) may not have the engine up yet.
-            guard let engine = await engineStarted() else { return }
-            let move = moveOver
-            await engine.syncNow(reason: reason)
-            await move?.advance()
-            askForConsentIfWaiting(move)
-        }
+        Task { await syncAndWait(reason: reason) }
+    }
+
+    static func syncAndWait(reason: String) async {
+        guard let engine = await engineStarted() else { return }
+        let move = moveOver
+        await engine.syncNow(reason: reason)
+        await move?.advance()
+        askForConsentIfWaiting(move)
     }
 
     private static var lastStepAway: Date?
@@ -342,6 +346,9 @@ enum SpaceSyncLaunch {
     static func handlePush() async -> Bool {
         guard let engine = await engineStarted() else { return false }
         await engine.syncNow(reason: "push")
+        #if BANANA_MODULE_FOOD && os(iOS)
+        await MealPhotoNotifications.askAboutNew()
+        #endif
         await moveOver?.advance()   // a drain that waited goes again now
         return true
     }

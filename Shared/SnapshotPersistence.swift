@@ -19,7 +19,7 @@ import Darwin
 // fails to parse AT ALL is copied aside (`SnapshotLoader.quarantine`) before anything downstream
 // gets the chance to overwrite it.
 //
-// Kept free of any one store's dependency chain (CloudBackup, CloudKit, EventKit, …) — Foundation
+// Kept free of any one store's dependency chain (CloudKit, EventKit, …) — Foundation
 // only — so it, and every store's own `Snapshot` type built on it, stay testable against
 // throwaway temp files without dragging in a singleton that touches the real data directory.
 

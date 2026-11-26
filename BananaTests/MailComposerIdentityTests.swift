@@ -22,7 +22,7 @@ final class MailComposerIdentityTests: XCTestCase {
     @MainActor
     private final class OneIdentity: MailSource {
         var accounts: [MailAccount] {
-            [MailAccount(id: "me@example.com", shortName: "me", wantsMail: true, state: .connected,
+            [MailAccount(id: "me@example.com", shortName: "me", state: .connected,
                          health: .live, lastSyncAt: nil,
                          identities: [MailIdentity(account: "me@example.com", address: "me@example.com",
                                                    name: nil, isDefault: true, hasSignature: false)],

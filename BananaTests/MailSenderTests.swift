@@ -6,10 +6,23 @@ import XCTest
 /// A single mailbox or nothing. It answers a mailbox only when Gmail sent exactly one `From`,
 /// its value was not cut, it reads as exactly one mailbox with nothing left over and no group,
 /// the address is one an address may be, and Gmail's own `dmarc=` result, where there is one,
-/// names the same domain. Otherwise there is the unreadable sender, one state however it came
+/// agrees with the From domain. Otherwise there is the unreadable sender, one state however it came
 /// about. **In every shape with more than one mailbox the first is the one a forger chose to put
 /// there**, so no test here, and no code, takes the first of several.
 final class MailSenderTests: XCTestCase {
+
+    func testBlockMenuOrdersPersonalProvidersBeforeDomainAndCustomDomainsAfter() {
+        for domain in ["gmail.com", "GOOGLEMAIL.COM", "outlook.com", "icloud.com", "yahoo.com", "proton.me"] {
+            let address = "sender@" + domain
+            XCTAssertEqual(MailSenderPolicyTarget.orderedBlockTargets(for: address), [address, "@" + domain.lowercased()])
+        }
+        for domain in ["plan.example", "news.plan.example", "notgmail.com"] {
+            let address = "sender@" + domain
+            XCTAssertEqual(MailSenderPolicyTarget.orderedBlockTargets(for: address), ["@" + domain, address])
+        }
+        XCTAssertEqual(MailSenderPolicyTarget.orderedBlockTargets(for: ""), [])
+        XCTAssertEqual(MailSenderPolicyTarget.orderedBlockTargets(for: "not an address"), [])
+    }
 
     private func sender(_ from: String, auth: String? = nil, more: [(String, String)] = []) -> MailAddress? {
         var pairs: [(String, String)] = []
@@ -128,12 +141,13 @@ final class MailSenderTests: XCTestCase {
                        "sam@xn--bcher-kva.de")
     }
 
-    func testOrganizationalDMARCDomainKeepsAnExactlyDKIMAuthenticatedSubdomainSender() {
-        let auth = gmail("dkim=pass header.i=@email.plan.example; dmarc=pass header.from=plan.example")
-        XCTAssertEqual(sender("Planner <noreply@email.plan.example>", auth: auth)?.name, "Planner")
-        XCTAssertEqual(sender("Planner <noreply@email.plan.example>", auth: auth)?.address, "noreply@email.plan.example")
-        for result in ["dkim=fail header.i=@email.plan.example", "dkim=pass header.i=@other.example",
-                       "dkim=pass header.i=@plan.example"] {
+    func testOrganizationalDMARCDomainKeepsAnAlignedDKIMAuthenticatedSubdomainSender() {
+        for signer in ["email.plan.example", "plan.example", "bounce.email.plan.example", "signing.plan.example"] {
+            let auth = gmail("dkim=pass header.i=@\(signer); dmarc=pass header.from=plan.example")
+            XCTAssertEqual(sender("Planner <noreply@email.plan.example>", auth: auth)?.name, "Planner")
+            XCTAssertEqual(sender("Planner <noreply@email.plan.example>", auth: auth)?.address, "noreply@email.plan.example")
+        }
+        for result in ["dkim=fail header.i=@email.plan.example", "dkim=pass header.i=@other.example"] {
             XCTAssertNil(sender("Planner <noreply@email.plan.example>", auth: gmail(result + "; dmarc=pass header.from=plan.example")))
         }
         XCTAssertNil(sender("Planner <noreply@email.plan.example>", auth: gmail("dkim=pass header.i=@email.plan.example; dmarc=fail header.from=plan.example")))
@@ -143,7 +157,7 @@ final class MailSenderTests: XCTestCase {
     func testADMARCResultNamingAnotherDomainMakesTheSenderUnreadable() {
         XCTAssertNil(sender("Sam <sam@plan.example>", auth: gmail("dmarc=pass header.from=evil.example")))
         XCTAssertNil(sender("Sam <sam@plan.example>", auth: gmail("dmarc=none header.from=mail.plan.example")))
-        XCTAssertNil(sender("Sam <sam@mail.plan.example>", auth: gmail("dmarc=pass header.from=plan.example")), "DMARC names the domain exactly")
+        XCTAssertNil(sender("Sam <sam@mail.plan.example>", auth: gmail("dmarc=pass header.from=plan.example")), "An organizational-domain pass requires corroborating authentication")
         XCTAssertNil(sender("Sam <sam@plan.example>", auth: gmail("dmarc=pass")), "a DMARC result that names no domain")
     }
 

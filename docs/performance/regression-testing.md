@@ -54,6 +54,14 @@ Performance is a continuing acceptance requirement. A change must meet the
 or use more memory beyond the declared measurement tolerance. Passing a component benchmark does
 not certify end-to-end UI responsiveness.
 
+## Historical SwiftUI Calendar comparison
+
+The app now has one Calendar renderer per platform. The retired SwiftUI Day and Week controls,
+their UI test scenarios and the same-binary profiling commands are reproducible from
+`28e022b1d25104e3a778073307b03e584f2a7675`. Use a checkout of that revision for both arms of
+those historical comparisons. The current checkout exercises native Days and Weeks with the
+same fixtures and acceptance budgets.
+
 ## One command for the repeatable component suite
 
 ```sh

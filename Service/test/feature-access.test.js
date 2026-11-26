@@ -65,6 +65,9 @@ test('deleting an account removes its feature grants', async () => {
 });
 test('provider capabilities require a server grant and appropriate scopes', () => {
   const link = {has_token: 1, status: 'ok', scopes: 'https://www.googleapis.com/auth/calendar.events.readonly https://www.googleapis.com/auth/gmail.send'};
-  assert.deepEqual(googleCapabilities(link), {calendarRead: true, calendarWrite: false, calendarList: false, mailRead: false, mailModify: false, mailSend: true});
+  assert.deepEqual(googleCapabilities(link), {calendarRead: true, calendarWrite: false, calendarList: false, mailRead: false, mailModify: false, mailSend: false},
+    "Mail is gmail.modify or nothing");
+  assert.deepEqual(googleCapabilities({...link, scopes: 'https://www.googleapis.com/auth/gmail.modify'}),
+    {calendarRead: false, calendarWrite: false, calendarList: false, mailRead: true, mailModify: true, mailSend: true});
   for (const invalid of [{...link, has_token: 0}, {...link, status: 'refused'}]) assert.ok(Object.values(googleCapabilities(invalid)).every(v => v === false));
 });

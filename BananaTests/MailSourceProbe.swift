@@ -43,7 +43,7 @@ enum MailSourceProbe {
         "checkNow()", "askGmail(_:)", "wants(_:)", "onScreen(_:)", "fetchBody(_:)", "fetchAttachment(_:)",
         "showPictures(in:always:)", "pictureRules()",
         "removePictureRule(_:)",
-        "setWantsMail(_:account:)", "requestPermission(account:)", "forgetPermission(account:)",
+        "requestPermission(account:)",
         "saveSplits(_:)", "createLabel(named:account:)", "unsubscribe(_:expected:)",
         "removeDownloadedMail(account:)", "reconsiderKeptMail(account:)",
         "observeEvents(_:)",
@@ -162,9 +162,7 @@ enum MailSourceProbe {
         source.removePictureRule(.domain("example.com"))
 
         // Accounts, splits, labels.
-        source.setWantsMail(false, account: account)
         _ = await source.requestPermission(account: account)
-        source.forgetPermission(account: account)
         source.saveSplits([])
         _ = source.createLabel(named: "probe", account: account)
         _ = await source.unsubscribe(conversation, expected: URL(string: "https://plan.example/unsubscribe")!)

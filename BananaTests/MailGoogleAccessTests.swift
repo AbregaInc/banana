@@ -40,9 +40,6 @@ final class MailGoogleAccessTests: XCTestCase {
         let restored = try await MailGoogleAccess.load(storage: store, accountIDs: { ["a@example.com"] },
             clientID: { "fixture-client" }, consent: { _, _ in throw GoogleConsentError.cancelled })
         XCTAssertEqual(restored.mailGrant(accountID: "a@example.com"), .granted)
-        try await restored.forgetMailAccess(accountID: "a@example.com")
-        XCTAssertEqual(restored.mailGrant(accountID: "a@example.com"), .none)
-        let empty = try await store.load(); XCTAssertTrue(empty.isEmpty)
     }
 
     func testTokenSessionRefusesRedirect() {
@@ -69,18 +66,6 @@ final class MailGoogleAccessTests: XCTestCase {
         XCTAssertEqual(access.mailGrant(accountID: "a@example.com"), .none)
     }
 
-    func testFailedForgetLeavesDurableGrantIntact() async throws {
-        let store = Store(); let response = result()
-        let access = try await MailGoogleAccess.load(storage: store, accountIDs: { ["a@example.com"] },
-            clientID: { "fixture-client" }, consent: { _, _ in response })
-        let granted = await access.requestMailAccess(accountID: "a@example.com"); XCTAssertEqual(granted, .granted)
-        await store.setFailure(true)
-        do { try await access.forgetMailAccess(accountID: "a@example.com"); XCTFail("Expected storage error") }
-        catch { XCTAssertEqual(error as? MailAccessError, .credentialStorage) }
-        XCTAssertEqual(access.mailGrant(accountID: "a@example.com"), .granted)
-        let saved = try await store.load(); XCTAssertEqual(saved.count, 1)
-    }
-
     func testWrongAccountAndMissingScopeNeverPersist() async throws {
         for (response, expected) in [(result(email: "other@example.com"), MailAccessOutcome.differentAccount),
                                      (result(scopes: []), .declined)] {
@@ -98,27 +83,6 @@ final class MailGoogleAccessTests: XCTestCase {
             clientID: { nil }, consent: { _, _ in XCTFail("Must not present"); throw GoogleConsentError.failed })
         let outcome = await access.requestMailAccess(accountID: "a@example.com")
         XCTAssertEqual(outcome, .failed(.notConfigured))
-    }
-
-    func testForgetDuringConsentCannotResurrectCredential() async throws {
-        let store = Store()
-        var continuation: CheckedContinuation<GoogleConsentResult, Error>?
-        let access = try await MailGoogleAccess.load(storage: store, accountIDs: { ["a@example.com"] },
-            clientID: { "fixture-client" }, consent: { _, _ in
-                try await withCheckedThrowingContinuation { continuation = $0 }
-            })
-        let request = Task { await access.requestMailAccess(accountID: "a@example.com") }
-        for _ in 0..<10_000 {
-            if continuation != nil { break }
-            await Task.yield()
-        }
-        let reply = try XCTUnwrap(continuation)
-        try await access.forgetMailAccess(accountID: "a@example.com")
-        reply.resume(returning: result())
-        let outcome = await request.value
-        XCTAssertEqual(outcome, .cancelled)
-        XCTAssertEqual(access.mailGrant(accountID: "a@example.com"), .none)
-        let saved = try await store.load(); XCTAssertTrue(saved.isEmpty)
     }
 
     func testCredentialDecodeAllowsOlderOptionalFields() throws {

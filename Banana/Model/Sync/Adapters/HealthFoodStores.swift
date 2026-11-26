@@ -9,7 +9,7 @@ extension FitnessStore: WorkoutSyncPort {
     func adoptSpaceWorkout(_ summary: FitnessSessionSummary, samples: URL) async -> Bool {
         await adoptCloudWorkout(summary, samplesAssetURL: samples)
     }
-    func editedAt(_ id: UUID) -> Date? { CloudFitnessSync.shared.editedAt(workout: id) }
+    func editedAt(_ id: UUID) -> Date? { nil }
 }
 
 extension HealthKitStore: HealthSnapshotPort {

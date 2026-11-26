@@ -61,29 +61,34 @@ private struct MailUnsubscribeButton: View {
     @State private var result: MailUnsubscribeResult?
 
     var body: some View {
-        if case .asked = result {
-            Label("Asked \(host) to unsubscribe you", systemImage: "checkmark.circle")
-        } else {
-            Button { confirming = true } label: {
-                Label("Unsubscribe…", systemImage: "envelope.badge.minus")
-            }
-            .accessibilityIdentifier("mail.unsubscribe")
-            .disabled(sending)
-            .confirmationDialog("Unsubscribe from this mailing list?", isPresented: $confirming, titleVisibility: .visible) {
-                Button("Unsubscribe") {
-                    sending = true
-                    result = nil
-                    Task {
-                        result = await source.unsubscribe(conversation, expected: url)
-                        sending = false
-                    }
+        VStack(alignment: .trailing, spacing: DS.Space.xs) {
+            if case .asked = result {
+                Label("Asked \(host) to unsubscribe you", systemImage: "checkmark.circle")
+            } else {
+                Button { confirming = true } label: {
+                    Label("Unsubscribe…", systemImage: "envelope.badge.minus")
+                        .labelStyle(.iconOnly)
+                        .frame(minWidth: DS.Row.minHeight, minHeight: DS.Row.minHeight)
+                        .contentShape(Rectangle())
                 }
-            } message: {
-                Text("Banana will send the request to \(host).")
+                .accessibilityIdentifier("mail.unsubscribe")
+                .disabled(sending)
+                .confirmationDialog("Unsubscribe from this mailing list?", isPresented: $confirming, titleVisibility: .visible) {
+                    Button("Unsubscribe") {
+                        sending = true
+                        result = nil
+                        Task {
+                            result = await source.unsubscribe(conversation, expected: url)
+                            sending = false
+                        }
+                    }
+                } message: {
+                    Text("Banana will send the request to \(host).")
+                }
+                if sending { ProgressView("Sending request…") }
+                if result == .failed { Text("Couldn’t confirm the unsubscribe request.").foregroundStyle(.secondary) }
+                if result == .unavailable { Text("This unsubscribe request is unavailable.").foregroundStyle(.secondary) }
             }
-            if sending { ProgressView("Sending request…") }
-            if result == .failed { Text("Couldn’t confirm the unsubscribe request.").foregroundStyle(.secondary) }
-            if result == .unavailable { Text("This unsubscribe request is unavailable.").foregroundStyle(.secondary) }
         }
     }
 }
@@ -126,8 +131,20 @@ struct MailConversationContent: View {
                             Text(reader.title)
                                 .font(.title3.weight(.semibold))
                                 .accessibilityIdentifier(MailID.conversationTitle)
+                            Spacer(minLength: 0)
+                            if case .oneClick(let url) = reader.conversation?.unsubscribe, let host = url.host {
+                                MailUnsubscribeButton(source: session.source, conversation: reader.id, url: url, host: host)
+                                    .id(url)
+                            } else if case .openPage(let url) = reader.conversation?.unsubscribe {
+                                Link(destination: url) {
+                                    Label("Unsubscribe…", systemImage: "envelope.badge.minus")
+                                        .labelStyle(.iconOnly)
+                                        .frame(minWidth: DS.Row.minHeight, minHeight: DS.Row.minHeight)
+                                        .contentShape(Rectangle())
+                                }
+                                .accessibilityIdentifier("mail.unsubscribe")
+                            }
                             if titleMenu {
-                                Spacer(minLength: DS.Space.s)
                                 MailPaneMoreMenu(session: session)
                             }
                         }
@@ -139,15 +156,6 @@ struct MailConversationContent: View {
                             MailInviteCard(account: reader.id.account, invite: invite,
                                            calendar: session.isSample ? .sample : .live)
                         }
-                        if case .oneClick(let url) = reader.conversation?.unsubscribe, let host = url.host {
-                            MailUnsubscribeButton(source: session.source, conversation: reader.id, url: url, host: host)
-                                .id(url)
-                        } else if case .openPage(let url) = reader.conversation?.unsubscribe {
-                            Link(destination: url) {
-                                Label("Unsubscribe…", systemImage: "envelope.badge.minus")
-                            }
-                            .accessibilityIdentifier("mail.unsubscribe")
-                        }
                         // A reply (or the draft left here) above the newest message, which it
                         // answers and which is read first.
                         MailReplySlot(session: session, navigation: session.navigation,
@@ -158,7 +166,8 @@ struct MailConversationContent: View {
                         .id(Self.replySlot)
                         LazyVStack(alignment: .leading, spacing: DS.Space.m) {
                             ForEach(reader.messages) { message in
-                                MailMessageCard(message: message, text: reader.bodies[message.id], styled: reader.styled[message.id], opener: reader.opener,
+                                MailMessageCard(message: message, text: reader.bodies[message.id], styled: reader.styled[message.id],
+                                                timeNotes: reader.timeNotes[message.id] ?? [:], opener: reader.opener,
                                                 load: { reader.fetchBody(message.id) },
                                                 reply: { session.reply($0, to: message.id, in: reader.id) })
                                     .onAppear { reader.revealBody(message.id) }
@@ -323,6 +332,7 @@ private struct MailConversationHeader: View {
                     .frame(width: DS.Row.minHeight, height: DS.Row.minHeight)
                     .contentShape(Circle())
             }
+            .menuOrder(.fixed)
             .menuIndicator(.hidden)
             .glassEffect(.regular.interactive(), in: .circle)
             .accessibilityLabel("More")
@@ -381,6 +391,7 @@ struct MailMessageCard: View {
     /// Nil until the body has arrived.
     let text: MailBody?
     var styled: [AttributedString?]? = nil
+    var timeNotes: [Int: [MailReaderTime.Note]] = [:]
     let opener: MailAttachmentOpener
 
     var load: () -> Void = {}
@@ -418,7 +429,7 @@ struct MailMessageCard: View {
             if !message.files.isEmpty {
                 MailReceivedAttachments(files: message.files, opener: opener)
             }
-            content
+            content.modifier(MailReaderAddressActions())
             if !message.inlineImages.isEmpty {
                 DisclosureGroup("Images (\(message.inlineImages.count))") {
                     MailReceivedAttachments(files: message.inlineImages, opener: opener)
@@ -435,6 +446,7 @@ struct MailMessageCard: View {
             MailOriginalSheet {
                 try await session?.source.originalHTML(message.id)
             }
+            .modifier(MailReaderAddressActions())
         }
     }
 
@@ -454,6 +466,11 @@ struct MailMessageCard: View {
                     .disabled(session == nil)
                     .accessibilityHint("Shows the details")
                     .accessibilityIdentifier("mail.sender." + message.id.message)
+                    .contextMenu {
+                        if MailAddressRules.isValid(message.senderAddress) {
+                            Button("Copy address") { MailReaderAddressActions.copy(message.senderAddress) }
+                        }
+                    }
                     Spacer(minLength: DS.Space.s)
                     Text(message.date)
                         .font(.caption).foregroundStyle(.secondary).monospacedDigit()
@@ -503,17 +520,20 @@ struct MailMessageCard: View {
         case .text(let content, let quoteStart, let notices)?:
             if notices.contains(.designedLayout), let session {
                 MailFormattedBody(id: message.id, source: session.source) {
-                    MailTextView(text: content, styled: styled, foldFrom: quoteStart)
+                    MailTextView(text: content, styled: styled, foldFrom: quoteStart, timeNotes: timeNotes)
                         .environment(\.mailPictureContext, pictureContext)
                 }
             } else {
-                MailTextView(text: content, styled: styled, foldFrom: quoteStart)
+                MailTextView(text: content, styled: styled, foldFrom: quoteStart,
+                             foldEntireTail: MailOutgoingDraft.draftID(message.id) != nil, timeNotes: timeNotes)
                     .environment(\.mailPictureContext, pictureContext)
             }
         case .designed(_, _, _, let plain, _)?:
             if let session {
-                MailFormattedBody(id: message.id, source: session.source) { MailTextView(text: plain, styled: styled) }
-            } else { MailTextView(text: plain, styled: styled) }
+                MailFormattedBody(id: message.id, source: session.source) {
+                    MailTextView(text: plain, styled: styled, timeNotes: timeNotes)
+                }
+            } else { MailTextView(text: plain, styled: styled, timeNotes: timeNotes) }
         case .notOnDevice?, nil:
             // Never a spinner: what the row said, until the body is here.
             VStack(alignment: .leading, spacing: DS.Space.s) {
@@ -522,6 +542,41 @@ struct MailMessageCard: View {
                     .accessibilityIdentifier("mail.body.load." + message.id.message)
             }
         }
+    }
+}
+
+/// Email links in the reader use the same clipboard as the composer. Other links keep their
+/// existing URL action, and Compose forwards the original mailto including its subject.
+private struct MailReaderAddressActions: ViewModifier {
+    private struct AddressLink {
+        let address: String
+        let url: URL
+    }
+    @Environment(\.openURL) private var openURL
+    @State private var selected: AddressLink?
+    @State private var showsActions = false
+
+    func body(content: Content) -> some View {
+        content
+            .environment(\.openURL, OpenURLAction { url in
+                guard let url = MailBodyHTML.safeLink(url) else { return .discarded }
+                guard let address = MailAttributedText.mailbox(for: url) else {
+                    openURL(url)
+                    return .handled
+                }
+                selected = AddressLink(address: address, url: url)
+                showsActions = true
+                return .handled
+            })
+            .confirmationDialog(selected?.address ?? "Email address", isPresented: $showsActions,
+                                titleVisibility: .visible, presenting: selected) { link in
+                Button("Copy address") { Self.copy(link.address) }
+                Button("Compose") { openURL(link.url) }
+            }
+    }
+
+    static func copy(_ address: String) {
+        ToastCenter.shared.notify(MailClipboard.copy(address) ? "Address copied" : "Couldn’t copy address")
     }
 }
 

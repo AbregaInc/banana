@@ -40,4 +40,39 @@ final class MailInviteLookupTests: XCTestCase {
             calendar("other", account: "other@plan.example", role: "owner")])
         XCTAssertEqual(ids, ["noor@plan.example", "owned"])
     }
+
+    func testFailedReadRecoversOnlyAnExactCachedInvitation() async throws {
+        let uid = "meeting@plan.example"
+        func googleEvent(id: String, uid: String) throws -> GoogleEvent {
+            try JSONDecoder().decode(GoogleEvent.self, from: Data("""
+                {"id":"\(id)","iCalUID":"\(uid)","status":"confirmed",
+                 "start":{"date":"2026-11-11"},"end":{"date":"2026-11-12"},
+                 "attendees":[{"email":"noor@plan.example","self":true}]}
+                """.utf8))
+        }
+        let matching = try googleEvent(id: "exact", uid: uid)
+        let unrelated = try googleEvent(id: "different", uid: "other@plan.example")
+        let calendar = "noor@plan.example"
+        let cached = try await MailInviteLookup.find(uid: uid, calendars: [calendar], cachedAfterFailure: { id, error in
+            XCTAssertEqual(id, calendar)
+            XCTAssertEqual((error as? URLError)?.code, .timedOut)
+            return [unrelated, matching]
+        }) { _ in throw URLError(.timedOut) }
+        XCTAssertEqual(cached?.eventID, "exact")
+
+        let missing = try await MailInviteLookup.find(uid: uid, calendars: [calendar], cachedAfterFailure: { _, _ in
+            XCTFail("A successful empty read must not revive an old event")
+            return [matching]
+        }) { _ in [] }
+        XCTAssertNil(missing)
+
+        let live = try await MailInviteLookup.find(uid: uid, calendars: [calendar, "other"], cachedAfterFailure: { _, _ in
+            XCTFail("A later live match takes precedence over the failed calendar's cache")
+            return [matching]
+        }) { id in
+            if id == calendar { throw URLError(.timedOut) }
+            return [matching]
+        }
+        XCTAssertEqual(live?.calendarID, "other")
+    }
 }

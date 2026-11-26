@@ -81,7 +81,7 @@ struct GooglePermissionUpgradePrompt: ViewModifier {
         #endif
         guard modules.choice.includes(.email), access.allows("email") else { return [] }
         let requirement = PermissionRequirement(id: "sender-photos", title: "Contacts", scopes: Set(MailScopes.senderPhotos))
-        return (account.account?.google ?? []).filter { $0.capabilities?.mailRead == true }.flatMap { link in
+        return (account.account?.google ?? []).filter { $0.capabilities?.mailModify == true }.flatMap { link in
             PermissionUpgradePolicy.missing(provider: "google", account: link.email,
                 granted: link.permissionScopes?["mail"], requirements: [requirement])
         }

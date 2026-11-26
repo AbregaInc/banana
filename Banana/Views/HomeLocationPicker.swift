@@ -233,68 +233,6 @@ struct EventLocationField: View {
     }
 }
 
-/// Reuses the same on-device MapKit autocomplete for event locations, while still allowing
-/// private rooms or dial-in instructions that are not map results.
-struct EventLocationPicker: View {
-    @Binding var location: String
-    @Environment(\.dismiss) private var dismiss
-    @StateObject private var model = LocationSearchModel()
-
-    private var cleanQuery: String {
-        model.query.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    var body: some View {
-        List {
-            if !cleanQuery.isEmpty {
-                Section {
-                    Button {
-                        location = cleanQuery
-                        dismiss()
-                    } label: {
-                        Label("Use “\(cleanQuery)”", systemImage: "text.cursor")
-                            .foregroundStyle(.primary)
-                    }
-                }
-            }
-
-            if !model.results.isEmpty {
-                Section("Places") {
-                    ForEach(model.results, id: \.self) { result in
-                        Button {
-                            location = [result.title, result.subtitle]
-                                .filter { !$0.isEmpty }
-                                .joined(separator: ", ")
-                            dismiss()
-                        } label: {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(result.title).foregroundStyle(.primary)
-                                if !result.subtitle.isEmpty {
-                                    Text(result.subtitle)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-            }
-        }
-        .searchable(text: $model.query, prompt: "Address, place, or room")
-        .navigationTitle("Location")
-        .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            if model.query.isEmpty { model.query = location }
-        }
-        #if os(macOS)
-        .frame(minWidth: 520, minHeight: 520)
-        #endif
-    }
-}
-
 /// Which saved place a picker edits.
 enum LocationKind { case home, work }
 

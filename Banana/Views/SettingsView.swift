@@ -49,7 +49,6 @@ struct SettingsView: View {
         .init(title: "Workout cleanup", page: .workouts, keywords: ["duplicates", "duplicate", "health", "swim", "25 yards"]),
         .init(title: "Apple Health", page: .workouts, keywords: ["workouts", "fitness", "import", "health"]),
         .init(title: "Find meal photos automatically", page: .food, keywords: ["photos", "meals", "library", "nutrition", "food"]),
-        .init(title: "Fitness sync", page: .workouts, keywords: ["workouts", "fitness", "icloud", "sync", "mac", "iphone", "raw recording", "waiting", "uploading"]),
         .init(title: "Booking link", page: .booking, keywords: ["booking", "book", "link", "calendly", "schedule", "handle", "share"]),
         .init(title: "Booking types", page: .booking, keywords: ["meeting", "length", "hours", "zoom", "meet", "phone", "in person", "notice", "buffer"]),
         .init(title: "Directions app", page: .calendar, keywords: ["maps", "google maps", "apple maps", "navigation"]),
@@ -71,7 +70,6 @@ struct SettingsView: View {
         .init(title: "Places", page: .travel, keywords: ["gym", "place", "where", "location", "address", "chelsea"]),
         .init(title: "Home", page: .travel, keywords: ["home", "address", "location", "commute"]),
         .init(title: "Watch audio quality", page: .watch, keywords: ["watch", "bitrate", "sync", "quality", "re-sync"]),
-        .init(title: "iCloud backup & restore", page: .icloud, keywords: ["backup", "restore", "snapshot", "icloud"]),
         .init(title: "Permissions", page: .permissions, keywords: ["location", "notifications", "reminders", "health", "music", "alarms", "allow"]),
         .init(title: "Versions", page: .about, keywords: ["version", "build", "watch build"]),
         .init(title: "Playback log", page: .about, keywords: ["diagnostics", "debug", "stall", "log"]),
@@ -81,10 +79,6 @@ struct SettingsView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
-    @StateObject private var backup = CloudBackup.shared
-    #if BANANA_MODULE_WORKOUTS
-    @StateObject private var fitnessCloud = CloudFitnessSync.shared
-    #endif
     @EnvironmentObject var settings: AppSettings
 
     private static func eventReminderFooter(leads: [Int]) -> String? {
@@ -160,7 +154,6 @@ struct SettingsView: View {
     @State private var confirmDisableWriteBack = false
     @State private var confirmDisconnectAll = false
     @State private var accountPendingDisconnect: String?
-    @State private var betaTestAccounts = BetaTestAccounts.all
     /// Permissions whose Connect came back without a yes: their button becomes Open Settings.
     @State private var askedWithoutAnswer: Set<String> = []
     @Environment(\.openURL) private var openURL
@@ -239,7 +232,7 @@ struct SettingsView: View {
             #endif
             // Apple Watch too, as on the phone: here it holds the audio quality the
             // phone syncs at. It was reachable only through the search field.
-            ForEach([SettingsPage.watch, .icloud, .permissions].filter(isShown), id: \.self) { sidebarRow($0) }
+            ForEach([SettingsPage.watch, .permissions].filter(isShown), id: \.self) { sidebarRow($0) }
         }
         Section { sidebarRow(.about) }
     }
@@ -329,8 +322,6 @@ struct SettingsView: View {
 
     /// A page that belongs to a module switched off is hidden with it.
     private func isShown(_ page: SettingsPage) -> Bool {
-        // The backup's page goes once the service is the copy (`CloudBackup.isRetired`).
-        if page == .icloud, backup.retired { return false }
         // Nothing to switch in a build that carries no module (BANANA_MODULES).
         if page == .modules, modules.selectable.isEmpty { return false }
         guard page.isCarried(by: AppModule.carried) else { return false }
@@ -407,7 +398,7 @@ struct SettingsView: View {
     // sections below, so a setting has one home and search can take you straight to it.
 
     enum SettingsPage: String, Hashable {
-        case accounts, modules, calendar, booking, travel, wake, podcasts, workouts, food, watch, icloud, permissions
+        case accounts, modules, calendar, booking, travel, wake, podcasts, workouts, food, watch, permissions
         #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
         case desktopLink
         #endif
@@ -444,7 +435,6 @@ struct SettingsView: View {
             case .workouts: "Workouts"
             case .food: "Food"
             case .watch: "Apple Watch"
-            case .icloud: "iCloud"
             case .permissions: "Permissions"
             #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
             case .desktopLink: "Desktop Link"
@@ -465,7 +455,6 @@ struct SettingsView: View {
             case .workouts: "figure.run"
             case .food: "fork.knife"
             case .watch: "applewatch"
-            case .icloud: "icloud.fill"
             case .permissions: "hand.raised.fill"
             #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
             case .desktopLink: "desktopcomputer"
@@ -483,7 +472,6 @@ struct SettingsView: View {
             case .podcasts: DS.Palette.Feature.podcasts
             case .workouts: DS.Palette.Feature.workouts
             case .food: DS.Palette.Feature.food
-            case .icloud: DS.Palette.Feature.icloud
             case .accounts, .modules, .watch, .permissions, .about: DS.Palette.Feature.system
             #if BANANA_AI && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
             case .desktopLink: DS.Palette.Feature.system
@@ -556,7 +544,6 @@ struct SettingsView: View {
             AnyView(Group {
                 fitnessUnitsSection
                 appleHealthSection
-                fitnessSyncSection
             })
         #endif
         #if BANANA_MODULE_FOOD
@@ -569,11 +556,6 @@ struct SettingsView: View {
                 }
             })
         #endif
-        case .icloud:
-            AnyView(Group {
-                icloudSection
-                SyncStatusSection()
-            })
         case .permissions:
             AnyView(permissionsSection)
         case .about:
@@ -672,7 +654,7 @@ struct SettingsView: View {
         // said on the first screen, where a signed-out person looks; the page says what to do.
         if !bananaAccount.isSignedIn, bananaAccount.lastError != nil { return (.attention, "Couldn\u{2019}t sign in") }
         if !googleCalendar.isConnected { return (.off, "Not connected") }
-        if !googleCalendar.accountsToSignInAgain.isEmpty { return (.attention, "Sign in again") }
+        if !googleCalendar.accountsToSignInAgain.isEmpty { return (.attention, "Reconnect needed") }
         if googleCalendar.isWorking { return (.working, "Syncing") }
         let calendars = googleCalendar.calendars.count
         return (.ok, "Live \u{00B7} \(calendars) calendar\(calendars == 1 ? "" : "s")")
@@ -760,8 +742,6 @@ struct SettingsView: View {
             #endif
             // Only with Podcasts, which is what it sends to the Watch (`isShown`).
             if isShown(.watch) { featureRow(.watch, value: settings.watchAudioQuality.label) }
-            // The backup's job is the Banana service's once this device has moved (§6).
-            if !backup.retired { featureRow(.icloud, value: backup.enabled ? "Backing up" : "Off") }
             featureRow(.permissions, value: missingPermissions == 0 ? "All allowed" : "\(missingPermissions) off")
         }
     }
@@ -1036,18 +1016,15 @@ struct SettingsView: View {
                                 HStack(spacing: DS.Space.xs + 2) {
                                     StatusDot(status: broken ? .attention : .ok)
                                     Text(broken
-                                         ? (owned.isEmpty && !needsReconnect ? "No calendars \u{2014} sign in again" : "Sign in again")
-                                         : "Live \u{00B7} \(owned.count) calendar\(owned.count == 1 ? "" : "s")"
-                                            + (AppVariant.current == .beta
-                                               ? (betaTestAccounts.contains(account.id) ? " \u{00B7} Test account" : " \u{00B7} Read only")
-                                               : ""))
+                                         ? (needsReconnect ? "Reconnect needed" : "No calendars")
+                                         : "Live \u{00B7} \(owned.count) calendar\(owned.count == 1 ? "" : "s")")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
                             }
                             Spacer(minLength: DS.Space.s)
                             if broken {
-                                Button("Sign in") { reconnect(account.email) }
+                                Button("Reconnect") { reconnect(account.email) }
                                     .buttonStyle(.secondary)
                             }
                             Menu {
@@ -1055,16 +1032,6 @@ struct SettingsView: View {
                                 // can start failing between syncs.
                                 Button { reconnect(account.email) } label: {
                                     Label("Reconnect", systemImage: "arrow.clockwise")
-                                }
-                                // Beta only: until an account is marked, Beta reads it and changes nothing.
-                                if AppVariant.current == .beta {
-                                    Toggle("Test account", isOn: Binding(
-                                        get: { betaTestAccounts.contains(account.id) },
-                                        set: {
-                                            BetaTestAccounts.set(account.id, isTest: $0)
-                                            betaTestAccounts = BetaTestAccounts.all
-                                        }))
-                                    .accessibilityIdentifier("settings.google.testAccount")
                                 }
                                 Button(role: .destructive) { accountPendingDisconnect = account.email } label: {
                                     Label("Disconnect", systemImage: "person.crop.circle.badge.minus")
@@ -1400,41 +1367,6 @@ struct SettingsView: View {
             #endif
     }
     #endif
-    @ViewBuilder private var icloudSection: some View {
-            Section {
-                Toggle("Back up to iCloud", isOn: $backup.enabled)
-                if backup.enabled {
-                    HStack {
-                        // The backup is the phone's: on an iPad or the Mac, say when the phone
-                        // last made it. (Each showed a status of its own, "Not backed up yet".)
-                        Text(DeviceRole.current.isHub
-                             ? backup.status
-                             : "On your iPhone: \(AnchorSuggestionStore.lowercasedFirst(BackupRules.restingStatus(lastBackup: hubStatus.status.lastBackup)))")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        if backup.busy { ProgressView() }
-                    }
-                    .font(.footnote)
-                    Button("Back up now") {
-                        if DeviceRole.current.isHub {
-                            Task { await backup.backUpNow(userInitiated: true) }
-                        } else {
-                            // One backup file, the phone's: ask it. (A Mac's or an iPad's own
-                            // snapshot would replace the phone's.)
-                            HubStatusStore.shared.request(.backUpNow)
-                            ToastCenter.shared.notify("Your iPhone will back up next time it's open")
-                        }
-                    }
-                    .disabled(backup.busy)
-                    Button("Restore from iCloud backup…") { Task { await backup.offerRestore() } }
-                        .disabled(backup.busy)
-                }
-            } header: {
-                Text("iCloud")
-            } footer: {
-                Text("Downloaded podcast audio isn\u{2019}t included.")
-            }
-    }
     @ViewBuilder private var diagnosticsSection: some View {
             Section {
                 NavigationLink("Diagnostics") { PlaybackLogView() }
@@ -1475,8 +1407,7 @@ struct SettingsView: View {
     // One place that shows every permission and can ask for any of them.
     //
     // Before this, onboarding was the only code that requested Reminders, Location or
-    // Notifications — and onboarding never runs again once completed, a flag that survives an
-    // iCloud restore. Decline once, or lose a grant to a reinstall, and the feature was gone
+    // Notifications. Decline once, or lose a grant to a reinstall, and the feature was gone
     // with no way back: iOS doesn't even list an app under Settings › Privacy for a permission
     // whose status is still notDetermined, so there was nothing to toggle there either. The
     // failures are silent by nature — tasks simply don't appear — so nothing pointed at the cause.
@@ -1495,92 +1426,6 @@ struct SettingsView: View {
         let build = info?["CFBundleVersion"] as? String ?? "?"
         return "\(short) (\(build))"
     }
-
-    #if BANANA_MODULE_WORKOUTS
-    /// One place to see the whole fitness-sync picture — see `CloudFitnessSync.syncState`
-    /// (`FitnessSyncState`, `Shared/FitnessModels.swift`) for what each state means and why it
-    /// never claims delivery to the OTHER device, only that a recording left this one. This is
-    /// the one place it's shown, matching the "Cross-device sync"/"iCloud backup & restore" entries
-    /// right above it rather than duplicating their content.
-    private var fitnessSyncSection: some View {
-        Section {
-            HStack(alignment: .top, spacing: 10) {
-                fitnessSyncGlyph
-                    .frame(width: 20)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(fitnessSyncTitle)
-                    if let detail = fitnessSyncDetail {
-                        Text(detail)
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-            }
-            if fitnessCloud.pendingWorkoutCount > 0 {
-                LabeledContent("Workouts waiting to sync", value: "\(fitnessCloud.pendingWorkoutCount)")
-            }
-            if fitnessCloud.pendingRawRecordingCount > 0 {
-                LabeledContent("Raw recordings still uploading", value: "\(fitnessCloud.pendingRawRecordingCount)")
-            }
-        } header: {
-            Text("Fitness sync")
-        } footer: {
-            Text("Sent to iCloud isn\u{2019}t yet on every device.")
-        }
-    }
-    #endif
-
-    #if BANANA_MODULE_WORKOUTS
-    @ViewBuilder
-    private var fitnessSyncGlyph: some View {
-        switch fitnessCloud.syncState {
-        case .syncing:
-            ProgressView().controlSize(.small)
-        case .unavailable:
-            Image(systemName: "icloud.slash").foregroundStyle(.secondary)
-        case .upToDate:
-            Image(systemName: "icloud.and.arrow.up.fill").foregroundStyle(DS.Palette.success)
-        case .waiting:
-            Image(systemName: "icloud.and.arrow.up").foregroundStyle(.secondary)
-        }
-    }
-    #endif
-
-    #if BANANA_MODULE_WORKOUTS
-    private var fitnessSyncTitle: String {
-        switch fitnessCloud.syncState {
-        case .unavailable:
-            return "iCloud sync unavailable"
-        case .syncing:
-            return "Syncing…"
-        case .upToDate:
-            return "Up to date"
-        case .waiting(let count, _):
-            return "\(count) item\(count == 1 ? "" : "s") waiting to sync"
-        }
-    }
-    #endif
-
-    #if BANANA_MODULE_WORKOUTS
-    private var fitnessSyncDetail: String? {
-        switch fitnessCloud.syncState {
-        case .unavailable:
-            // Workout sync runs on CloudKit, which needs an iCloud account with Banana enabled
-            // for it. It does NOT need iCloud Drive: that governs the ubiquity container, which
-            // this app reserves for the backup snapshot and note audio (see CloudProgressSync's
-            // own note). Telling someone to toggle iCloud Drive here would send them to a switch
-            // that cannot fix this.
-            return "Banana can't reach iCloud right now. Check that you're signed in to iCloud, and that Banana is switched on under iCloud in System Settings."
-        case .syncing:
-            return nil
-        case .upToDate(let date):
-            return "Last synced \(date.formatted(date: .abbreviated, time: .shortened))"
-        case .waiting(_, let lastSuccess):
-            guard let lastSuccess else { return "Hasn't finished a first sync yet" }
-            return "Last synced \(lastSuccess.formatted(date: .abbreviated, time: .shortened))"
-        }
-    }
-    #endif
 
     private var versionsSection: some View {
         Section {
@@ -1898,7 +1743,7 @@ struct SettingsView: View {
     }
 
     /// What the phone reports about the jobs only it does — Health, alarms, its notifications,
-    /// trip learning, the Watch, backups — so they can be checked from here.
+    /// trip learning and the Watch — so they can be checked from here.
     private var phoneStatus: PhoneStatusText { PhoneStatusText(status: hubStatus.status) }
 
     @ViewBuilder private var phoneStatusSection: some View {
@@ -1908,7 +1753,6 @@ struct SettingsView: View {
             LabeledContent("Alarms", value: text.alarmsLine)
             LabeledContent("Notifications", value: text.notificationsLine)
             LabeledContent("Apple Watch", value: text.watchLine)
-            if !backup.retired { LabeledContent("iCloud backup", value: text.backupLine) }
         } header: {
             Text("Your iPhone")
         } footer: {

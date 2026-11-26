@@ -15,6 +15,19 @@ import Foundation
 /// "- " and "1. " lines, a quote is "> " lines, and a link is "text (address)".
 enum MailBodyHTML {
 
+    static let bananaSignature: MailDraftPart = {
+        let text = MailText(blocks: [
+            MailTextBlock(kind: .paragraph, runs: [
+                MailTextRun(text: "Sent from ", link: nil),
+                MailTextRun(text: "Banana", link: URL(string: "https://bananatheapp.com/")),
+            ]),
+        ])
+        return MailDraftPart(
+            fragment: MailFragment(html: "<div class=\"gmail_signature\">" + html(text) + "</div>"),
+            body: .text(text, quoteStartsAt: nil, notices: [])
+        )
+    }()
+
     /// A message as it goes, in its two forms: what he wrote, then his signature, then the original
     /// he is answering, **each its own part** and none merged into his words. The signature and the
     /// quote are the engine's prepared fragments and are appended exactly as they came; his words are
@@ -36,19 +49,6 @@ enum MailBodyHTML {
         }
         return (html, parts.joined(separator: "\n\n"))
     }
-
-    static let bananaSignature: MailDraftPart = {
-        let text = MailText(blocks: [
-            MailTextBlock(kind: .paragraph, runs: [
-                MailTextRun(text: "Sent from ", link: nil),
-                MailTextRun(text: "Banana", link: URL(string: "https://bananatheapp.com/")),
-            ]),
-        ])
-        return MailDraftPart(
-            fragment: MailFragment(html: "<div class=\"gmail_signature\">" + html(text) + "</div>"),
-            body: .text(text, quoteStartsAt: nil, notices: [])
-        )
-    }()
 
     /// The only schemes a link in a message he writes may have.
     static let allowedSchemes: Set<String> = ["http", "https", "mailto"]
