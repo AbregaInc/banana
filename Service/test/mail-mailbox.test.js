@@ -423,6 +423,24 @@ test("the fill takes only free background slots, at the ceiling less the reserve
   assert.equal(answer.status, 200);
 });
 
+test("a walk finished under a narrower window starts again at once when the window grows", async () => {
+  const t = await mailbox({ count: 30, labels: () => ["Label_1"], config: { mailFillDays: 30 } });
+  t.s.advance(400 * DAY);   // all mail is older than 30 days: the capped walk ends without reading
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  await fillDone(t);
+  assert.ok((await t.status()).fill.done !== null);
+  assert.ok((await t.status()).counts.cached < 30, "the capped walk stopped short");
+  const from = t.gmail.calls.length;
+  delete t.s.deps.config.mailFillDays;   // the cap is lifted (a deploy): every message is wanted
+  t.s.advance(60 * 1000);                 // well inside the six hours a finished walk waits
+  await t.feed(t.phone, { fresh: true });
+  await fillDone(t);
+  const before = (await t.status()).counts.cached;
+  assert.ok(fullReads(t.gmail, from).length > 0, "the walk starts again now");
+  assert.equal(before, 30, "and takes every message");
+});
+
 test("by default the fill takes every message, however old", async () => {
   const t = await mailbox({ count: 30, labels: () => ["Label_1"] });
   t.s.advance(400 * DAY);   // every message is now more than a year old
