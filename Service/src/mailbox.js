@@ -136,7 +136,8 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
   let ready = false;
   const now = () => deps.now();
   // What the attachment-text walk did since the last progress line (counts and times only).
-  let walk = { opened: 0, openMS: 0, reads: 0, readMS: 0, converted: 0, convertMS: 0, waits: 0, stored: 0 };
+  let walk = { opened: 0, openMS: 0, reads: 0, readMS: 0, converted: 0, convertMS: 0, waits: 0, stored: 0, empty: 0, errors: {} };
+  const noteError = (kind) => { walk.errors[kind] = (walk.errors[kind] ?? 0) + 1; };
   const setup = () => { if (!ready) { box.migrate(port); ready = true; } };
 
   async function lock(work, { wait = true } = {}) {
@@ -561,7 +562,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
       const answer = await gmail(who, { resource: "attachment", id, attachmentID: part.attachmentId, query: [] }, { background: true });
       walk.reads++; walk.readMS += Date.now() - started;
       const { bytes: raw, tooLarge } = await answerBytes(answer, Math.ceil(TEXT_FILE_MOST * 1.4) + 4096);
-      if (tooLarge || answer.status !== 200) return "";
+      if (tooLarge || answer.status !== 200) { noteError(tooLarge ? "read:too-large" : `read:${answer.status}`); return ""; }
       const data = parse(raw)?.data;
       if (typeof data !== "string") return "";
       bytes = fromBase64url(data);
@@ -572,6 +573,8 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     const result = await deps.ai.toMarkdown({ name: part.name, blob: new Blob([bytes]) });
     walk.converted++; walk.convertMS += Date.now() - started;
     const one = Array.isArray(result) ? result[0] : result;
+    if (one?.format === "error") noteError(`convert:${part.ext}:${String(one.error ?? "").slice(0, 60)}`);
+    else if (typeof one?.data !== "string") noteError(`convert:${part.ext}:no-data`);
     return one?.format === "error" || typeof one?.data !== "string" ? "" : tidy(one.data).slice(0, TEXT_PART_CHARS);
   }
 
@@ -598,11 +601,12 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
       } catch (error) {
         if (error instanceof Retry) { walk.waits++; return Math.max(now() + 100, await nextMailReadAt(deps, who.sub)); }
         if (error instanceof Unauthorized) throw error;
+        noteError(`throw:${error?.name}:${String(error?.message ?? "").slice(0, 60)}`);
         box.textTried(port, job.id);
         return now();
       }
       const found = parts.filter((p) => p.text).map((p) => ({ partId: p.partId, name: p.name, text: p.text }));
-      if (!found.length) { box.textDone(port, job.id, 2); return now(); }
+      if (!found.length) { walk.empty++; box.textDone(port, job.id, 2); return now(); }
       const sealed = await vault.sealBytes(contentAAD(who.sub, job.id, TEXT_KEY), encoder.encode(JSON.stringify({ version: 1, parts: found })));
       const sha = hex(new Uint8Array(await crypto.subtle.digest("SHA-256", sealed)));
       if (!(await blobs.put(await contentKey(who.sub, job.id, TEXT_KEY), new Blob([sealed]).stream(), { sha256: sha }))) throw new Error("content store refused");
@@ -682,9 +686,10 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     box.setMeta(port, "progress_logged_at", now());
     const st = box.status(port);
     const c = st.counts;
+    const states = Object.fromEntries(port.exec("SELECT state, COUNT(*) AS n FROM text GROUP BY state").map((r) => [`text${r.state}`, Number(r.n)]));
     console.log(`mailbox: progress ${JSON.stringify({ messages: c.messages, cached: c.cached, scan: st.scanning, fillDone: st.fill?.done !== null,
-      verify: c.verify, fetch: c.fetch, textTodo: c.textTodo, textStored: c.textStored, ...walk })}`);
-    walk = { opened: 0, openMS: 0, reads: 0, readMS: 0, converted: 0, convertMS: 0, waits: 0, stored: 0 };
+      verify: c.verify, fetch: c.fetch, textTodo: c.textTodo, ...states, ...walk })}`);
+    walk = { opened: 0, openMS: 0, reads: 0, readMS: 0, converted: 0, convertMS: 0, waits: 0, stored: 0, empty: 0, errors: {} };
   }
 
   /** The earliest pending wake, in D1 too: the quarter-hour job sets an alarm that was lost again. */

@@ -77,6 +77,13 @@ export function migrate(port) {
     port.exec("INSERT OR IGNORE INTO text_todo (id, parts) SELECT id, NULL FROM msg WHERE cached > 0 AND gone = 0");
     setMeta(port, "text_backfilled", 1);
   }
+  // Once: messages settled without text in the first days are looked at again (26 Nov 2026).
+  if (getMeta(port, "text_requeued") === null) {
+    port.exec("INSERT OR IGNORE INTO text_todo (id, parts) SELECT id, NULL FROM text WHERE state IN (2, 3)");
+    port.exec("DELETE FROM text WHERE state IN (2, 3)");
+    port.exec("INSERT OR IGNORE INTO text_todo (id, parts) SELECT id, NULL FROM msg WHERE cached > 0 AND gone = 0 AND id NOT IN (SELECT id FROM text)");
+    setMeta(port, "text_requeued", 1);
+  }
 }
 
 export function getMeta(port, key) { return port.exec("SELECT value FROM meta WHERE key = ?", key)[0]?.value ?? null; }
