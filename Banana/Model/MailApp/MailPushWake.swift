@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 #if os(iOS)
 import UIKit
 #endif
@@ -23,18 +24,30 @@ import UIKit
         let app = MailApplication.shared
         // A push needs live credentials as well as the local session. Keep both inside
         // the same launch window; opening the UI can use saved membership sooner.
+        let deadline = ContinuousClock.now + budget
         app.start()
         if BananaAccount.shared.account == nil {
             Task { await app.refreshAccount() }
         }
-        let start = ContinuousClock.now
-        while (app.session == nil || BananaAccount.shared.account == nil),
-              !app.failed, !Task.isCancelled, ContinuousClock.now - start < .seconds(8) {
-            try? await Task.sleep(for: .milliseconds(100))
+        let readyBy = min(deadline, ContinuousClock.now + .seconds(8))
+        let source = await withTaskGroup(of: MailLiveSource?.self) { group in
+            group.addTask { @MainActor in
+                for await (session, failed, account) in app.$session.combineLatest(app.$failed, BananaAccount.shared.$account).values {
+                    if failed || Task.isCancelled { return nil }
+                    if let session, account != nil { return session.source as? MailLiveSource }
+                }
+                return nil
+            }
+            group.addTask {
+                try? await Task.sleep(until: readyBy, clock: .continuous)
+                return nil
+            }
+            let result = await group.next() ?? nil
+            group.cancelAll()
+            return result
         }
-        guard !Task.isCancelled, BananaAccount.shared.account != nil,
-              let source = app.session?.source as? MailLiveSource else { return false }
-        let ok = await source.catchUpFromPush(budget: budget)
+        guard let source, !Task.isCancelled else { return false }
+        let ok = await source.catchUpFromPush(budget: ContinuousClock.now.duration(to: deadline))
         PlaybackDiagnostics.shared.log("☁️ push", "mail \(ok ? "pulled" : "not pulled")")
         return ok
         #endif
@@ -44,32 +57,39 @@ import UIKit
     /// iOS gives a background push about 30 s: the completion goes at the pass's end or after 25 s,
     /// and the work runs under a background task until then.
     static func handle(completion: @escaping (UIBackgroundFetchResult) -> Void) {
-        let window = Window(completion)
-        Task { @MainActor in
-            let ok = await catchUp(budget: .seconds(20))
-            window.finish(ok ? .newData : .noData)
-            window.end()
-        }
-        Task { @MainActor in
-            try? await Task.sleep(for: .seconds(25))
-            window.finish(.newData)
-        }
+        Window(completion).start()
     }
 
-    /// The push's completion, called once, and the background task that covers the work.
     @MainActor private final class Window {
         private var completion: ((UIBackgroundFetchResult) -> Void)?
-        private var task = UIBackgroundTaskIdentifier.invalid
-        init(_ completion: @escaping (UIBackgroundFetchResult) -> Void) {
-            self.completion = completion
-            task = UIApplication.shared.beginBackgroundTask(withName: "mail-push") { [weak self] in
-                MainActor.assumeIsolated { self?.end() }
+        private var assertion: AppBackgroundTask?
+        private var worker: Task<Void, Never>?
+        private var timeout: Task<Void, Never>?
+
+        init(_ completion: @escaping (UIBackgroundFetchResult) -> Void) { self.completion = completion }
+
+        func start() {
+            assertion = AppBackgroundTask(named: "mail-push") { [weak self] in self?.finish(.failed) }
+            worker = Task {
+                let ok = await MailPushWake.catchUp()
+                finish(ok ? .newData : .noData)
+            }
+            timeout = Task {
+                do { try await Task.sleep(for: .seconds(25)) } catch { return }
+                finish(.failed)
             }
         }
-        func finish(_ result: UIBackgroundFetchResult) { completion?(result); completion = nil }
-        func end() {
-            guard task != .invalid else { return }
-            UIApplication.shared.endBackgroundTask(task); task = .invalid
+
+        private func finish(_ result: UIBackgroundFetchResult) {
+            guard let callback = completion else { return }
+            completion = nil
+            worker?.cancel()
+            worker = nil
+            timeout?.cancel()
+            timeout = nil
+            assertion?.end()
+            assertion = nil
+            callback(result)
         }
     }
     #endif

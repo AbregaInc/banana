@@ -20,7 +20,230 @@ import GRDB
         addTeardownBlock { try? FileManager.default.removeItem(at: root) }
         return try await Task.detached { try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()) }.value
     }
-    private func actionSource(deliveryAPI: (any GmailAPI)? = nil, senderPolicyAPI: (any MailSenderPolicyAPI)? = nil) async throws -> (MailStores, MailIntentStore, MailLiveSource, MailRow) {
+    private actor PushFeed: MailCloudFeedSource {
+        private(set) var requests: [String] = []
+        var failing: String?
+        private var active: [String: Int] = [:]
+        private(set) var maxConcurrentPerAccount = 0
+        private let holdAccount: String?
+        private let gate = AsyncStream<Void>.makeStream()
+        private let onHeld: (@Sendable () -> Void)?
+        func release() { gate.continuation.finish() }
+        func recover() { failing = nil }
+        let delay: Duration
+        init(failing: String? = nil, delay: Duration = .zero, holdAccount: String? = nil,
+             onHeld: (@Sendable () -> Void)? = nil) {
+            self.onHeld = onHeld
+            self.holdAccount = holdAccount
+            self.failing = failing
+            self.delay = delay
+        }
+        func page(account: String, after: String?, limit: Int, fresh: Bool) async throws -> MailCloudFeedPage {
+            requests.append(account)
+            active[account, default: 0] += 1
+            maxConcurrentPerAccount = max(maxConcurrentPerAccount, active[account, default: 0])
+            defer { active[account, default: 0] -= 1 }
+            if account == holdAccount {
+                onHeld?()
+                for await _ in gate.stream {}
+            }
+            try await Task.sleep(for: delay)
+            if account == failing { throw URLError(.timedOut) }
+            return MailCloudFeedPage(epoch: "v1", cursor: "1", more: false, complete: true, entries: [])
+        }
+        func check(account: String, ids: [String]) async throws {}
+    }
+
+    private func pushSource(_ feed: PushFeed, clock: any MailClock = SystemMailClock()) async throws -> (MailLiveSource, MailStores) {
+        let stores = try await stores()
+        let access = Access()
+        access.grant = .granted
+        access.connectedAccountIDs = ["a@example.com", "b@example.com"]
+        let source = MailLiveSource(stores: stores, access: access, api: GmailPageLoaderTests.Provider(count: 0),
+                                    cloudFeed: feed, clock: clock)
+        let intent = try await Task.detached { try MailIntentStore(directories: stores.directories) }.value
+        try await source.prepareActions(intent: intent)
+        return (source, stores)
+    }
+
+    func testRepeatedPushesBackOffFailedFeedAndKeepHealthyAccountCurrent() async throws {
+        let feed = PushFeed(failing: "a@example.com")
+        let clock = ManualMailClock(start: Date())
+        let (source, stores) = try await pushSource(feed, clock: clock)
+        for _ in 0..<4 {
+            let gotThrough = await source.catchUpFromPush(budget: .seconds(2))
+            XCTAssertTrue(gotThrough)
+        }
+        let calls = await feed.requests
+        XCTAssertEqual(calls.filter { $0 == "a@example.com" }.count, 1)
+        XCTAssertEqual(calls.filter { $0 == "b@example.com" }.count, 4)
+        await feed.recover()
+        clock.advance(by: 5)
+        _ = await source.catchUpFromPush(budget: .seconds(2))
+        let cursor = try await stores.index.read { try MailCloudFeedIndex.state(account: "a@example.com", in: $0)?.cursor }
+        XCTAssertEqual(cursor, "1")
+        XCTAssertEqual(source.accounts.first?.health, .live)
+    }
+
+    func testOverlappingPushesServeHealthyAccountWhileFailedAccountIsWaiting() async throws {
+        let failedID = "a@example.com"
+        let healthyID = "b@example.com"
+        let entered = expectation(description: "First feed request reached the provider")
+        let feed = PushFeed(failing: failedID, holdAccount: failedID) { entered.fulfill() }
+        let (source, stores) = try await pushSource(feed)
+        let first = Task { await source.catchUpFromPush(budget: .seconds(15), includeContent: false) }
+        await fulfillment(of: [entered], timeout: 5)
+        let overlap = await withTaskGroup(of: Bool.self) { group in
+            for _ in 0..<8 {
+                group.addTask { await source.catchUpFromPush(budget: .seconds(2), includeContent: false) }
+            }
+            var completed = 0
+            for await ok in group where ok { completed += 1 }
+            return completed
+        }
+        let during = await feed.requests
+        await feed.release()
+        let finished = await first.value
+        XCTAssertTrue(finished)
+        XCTAssertEqual(overlap, 8)
+        XCTAssertEqual(during.filter { $0 == failedID }.count, 1)
+        XCTAssertTrue(during.contains(healthyID), "The other account progresses before the slow response arrives")
+        for _ in 0..<8 { _ = await source.catchUpFromPush(budget: .seconds(2), includeContent: false) }
+        let final = await feed.requests
+        let peak = await feed.maxConcurrentPerAccount
+        XCTAssertEqual(final.filter { $0 == failedID }.count, 1, "All later pushes respect the installed retry deadline")
+        XCTAssertEqual(peak, 1)
+        let cursor = try await stores.index.read { try MailCloudFeedIndex.state(account: healthyID, in: $0)?.cursor }
+        XCTAssertEqual(cursor, "1")
+        let counts = XCTAttachment(string: "overlappingTriggers=8 subsequentTriggers=8 blockedRequests=1 healthyRequests=\(final.filter { $0 == healthyID }.count) peakPerAccount=\(peak)")
+        counts.name = "Mail overlapping push work"
+        counts.lifetime = .keepAlways
+        add(counts)
+    }
+
+    func testOffscreenSessionPullsOnceWithoutStartingForegroundPolling() async throws {
+        for reference in [true, false] {
+            let feed = PushFeed()
+            let clock = ManualMailClock(start: Date())
+            let (_, _, source, row) = try await actionSource(deliveryAPI: GmailIntentDeliveryTests.Provider(),
+                                                             feed: feed, clock: clock)
+            // The former session initializer also activated the foreground engine.
+            if reference { source.activate() }
+            let session = MailSession(source: source, now: clock.now, deviceName: "Test", present: { _, _ in })
+            defer { source.setVisible(false) }
+            // A shell read remains available without a Mail screen.
+            let local = expectation(description: "Read the existing inbox row")
+            var delivered = false
+            let token = source.observeList(MailScope(place: .mailbox(.inbox)), limit: 5) { page in
+                if !delivered && page.rows.contains(where: { $0.id == row.id }) {
+                    delivered = true
+                    local.fulfill()
+                }
+            }
+            await fulfillment(of: [local], timeout: 5)
+            token.cancel()
+            func waitForScheduledPoll() async throws {
+                let deadline = ContinuousClock.now + .seconds(5)
+                while clock.pendingSleeps.isEmpty && ContinuousClock.now < deadline { await Task.yield() }
+                _ = try XCTUnwrap(clock.pendingSleeps.first)
+            }
+            if reference { try await waitForScheduledPoll() }
+            let before = await feed.requests.count
+            let pulled = await source.catchUpFromPush(budget: .seconds(2), includeContent: false)
+            XCTAssertTrue(pulled)
+            let afterPush = await feed.requests.count
+            XCTAssertEqual(afterPush, before + 1)
+            for _ in 0..<4 {
+                if reference { try await waitForScheduledPoll() }
+                clock.advance(by: 30)
+            }
+            if reference { try await waitForScheduledPoll() }
+            let afterIdle = await feed.requests.count
+            XCTAssertEqual(before, reference ? 1 : 0)
+            XCTAssertEqual(afterIdle - afterPush, reference ? 4 : 0)
+            if !reference { XCTAssertTrue(clock.pendingSleeps.isEmpty) }
+            session.enter()
+            try await waitForScheduledPoll()
+            let onScreen = await feed.requests.count
+            XCTAssertEqual(onScreen, afterIdle + (reference ? 0 : 1))
+            session.leave()
+            let evidence = XCTAttachment(string: "reference=\(reference) beforePush=\(before) afterPush=\(afterPush) after120Seconds=\(afterIdle) afterOpeningMail=\(onScreen)")
+            evidence.name = "Foreground Mail ownership"
+            evidence.lifetime = .keepAlways
+            add(evidence)
+        }
+    }
+
+    func testFifteenMinutesOfOfflinePushesKeepTheWriteUntilRecovery() async throws {
+        let offline = "a@example.com", healthy = "b@example.com"
+        let api = GmailIntentDeliveryTests.Provider()
+        let feed = PushFeed(failing: offline)
+        let clock = ManualMailClock(start: Date())
+        let (stores, intent, source, row) = try await actionSource(deliveryAPI: api, feed: feed,
+            clock: clock, accounts: [offline, healthy])
+        let saved = expectation(description: "Optimistic star has a durable receipt")
+        let receiptObservation = source.observeEvents { event in
+            if case .applied = event { saved.fulfill() }
+        }
+        let receipt = source.apply(.star(true), to: .asShown([row]))
+        await fulfillment(of: [saved], timeout: 5)
+        receiptObservation.cancel()
+        for step in 0...180 {
+            if step > 0 { clock.advance(by: 5) }
+            let healthyPass = await source.catchUpFromPush(budget: .seconds(2), includeContent: false)
+            XCTAssertTrue(healthyPass)
+        }
+        let requests = await feed.requests
+        XCTAssertEqual(requests.filter { $0 == offline }.count, 8)
+        XCTAssertEqual(requests.filter { $0 == healthy }.count, 181)
+        let waiting = try await intent.assertions()
+        XCTAssertEqual(waiting.map(\.groupSeq), [Int64(receipt.sequence)])
+        let idleWrites = await api.writes
+        XCTAssertEqual(idleWrites, 0)
+        let healthyCursor = try await stores.index.read { try MailCloudFeedIndex.state(account: healthy, in: $0)?.cursor }
+        XCTAssertEqual(healthyCursor, "1")
+        await feed.recover()
+        clock.advance(by: 15) // The next eligible time after the 615-second attempt.
+        _ = await source.catchUpFromPush(budget: .seconds(2), includeContent: false)
+        let recoveredCursor = try await stores.index.read { try MailCloudFeedIndex.state(account: offline, in: $0)?.cursor }
+        XCTAssertEqual(recoveredCursor, "1")
+        // Recreate the live source before delivery, as after returning to Mail in a new process.
+        let access = Access()
+        access.grant = .granted
+        let reopenedIntent = try await Task.detached { try MailIntentStore(directories: stores.directories) }.value
+        let reopened = MailLiveSource(stores: stores, access: access, api: api, cloudFeed: feed, deliveryAllowed: { _ in true })
+        try await reopened.prepareActions(intent: reopenedIntent)
+        reopened.activate()
+        defer { reopened.setVisible(false) }
+        let deadline = ContinuousClock.now + .seconds(5)
+        var pending = try await reopenedIntent.assertions()
+        while !pending.isEmpty && ContinuousClock.now < deadline {
+            await Task.yield()
+            pending = try await reopenedIntent.assertions()
+        }
+        XCTAssertTrue(pending.isEmpty)
+        let after = try await MailIndexReader(stores: stores).page(PageRequest(view: .unified(.inbox), account: nil,
+            filters: [], before: nil, limit: 50))
+        XCTAssertEqual(after.first?.flags.contains(.starred), true)
+        let recoveredWrites = await api.writes
+        XCTAssertEqual(recoveredWrites, 1)
+    }
+
+    func testExpiredPushStopsFeedAndNextWindowReachesTheOtherAccount() async throws {
+        let feed = PushFeed(delay: .milliseconds(300))
+        let (source, _) = try await pushSource(feed)
+        let first = await source.catchUpFromPush(budget: .milliseconds(50))
+        XCTAssertFalse(first)
+        let expired = await feed.requests
+        XCTAssertEqual(expired, ["a@example.com"])
+        _ = await source.catchUpFromPush(budget: .seconds(2))
+        let calls = await feed.requests
+        XCTAssertEqual(Array(calls.dropFirst()), ["b@example.com", "a@example.com"])
+    }
+
+    private func actionSource(deliveryAPI: (any GmailAPI)? = nil, senderPolicyAPI: (any MailSenderPolicyAPI)? = nil,
+                              feed: PushFeed? = nil, clock: any MailClock = SystemMailClock(),
+                              accounts: [String] = ["a@example.com"]) async throws -> (MailStores, MailIntentStore, MailLiveSource, MailRow) {
         let stores = try await stores()
         let intent = try await Task.detached { try MailIntentStore(directories: stores.directories) }.value
         let wire = GmailMessage(id: "m", threadId: "t", labelIds: ["INBOX"], historyId: 1, internalDate: 1000,
@@ -30,7 +253,10 @@ import GRDB
         }
         let access = Access()
         if deliveryAPI != nil { access.grant = .granted }
-        let source = MailLiveSource(stores: stores, access: access, api: deliveryAPI ?? GmailPageLoaderTests.Provider(count: 0), senderPolicyAPI: senderPolicyAPI, deliveryAllowed: { _ in deliveryAPI != nil })
+        access.connectedAccountIDs = accounts
+        let source = MailLiveSource(stores: stores, access: access, api: deliveryAPI ?? GmailPageLoaderTests.Provider(count: 0),
+                                    cloudFeed: feed, senderPolicyAPI: senderPolicyAPI, clock: clock,
+                                    deliveryAllowed: { _ in deliveryAPI != nil })
         try await source.prepareActions(intent: intent)
         let rows = try await MailIndexReader(stores: stores).page(PageRequest(view: .unified(.inbox), account: nil, filters: [], before: nil, limit: 50))
         let row = MailRowMapper.row(try XCTUnwrap(rows.first), labels: [], reason: nil, in: MailScope(place: .mailbox(.inbox)))

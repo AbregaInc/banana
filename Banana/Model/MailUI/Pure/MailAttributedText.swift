@@ -10,32 +10,52 @@ enum MailAttributedText {
 
     /// One block's runs, with their styles.
     static func make(_ runs: [MailTextRun]) -> AttributedString {
-        var out = AttributedString()
-        for run in runs {
-            var piece = AttributedString(run.text)
-            var intent = InlinePresentationIntent()
-            if run.style.contains(.bold) { intent.insert(.stronglyEmphasized) }
-            if run.style.contains(.italic) { intent.insert(.emphasized) }
-            if run.style.contains(.code) { intent.insert(.code) }
-            if !intent.isEmpty { piece.inlinePresentationIntent = intent }
-            if let link = MailBodyHTML.safeLink(run.link) { piece.link = link }
-            if run.style.contains(.underline) { piece.underlineStyle = .single }
-            if run.style.contains(.strikethrough) { piece.strikethroughStyle = .single }
-            out.append(piece)
-        }
+        guard let first = runs.first else { return AttributedString() }
+        var out = styled(first)
+        for run in runs.dropFirst() { out.append(styled(run)) }
         return out
     }
 
-    /// Every block of a message, styled: made once, off the main thread, when the body arrives
-    /// (`MailReaderModel`), so drawing an open message builds no attributed text. Its fonts are
-    /// applied by the view, so the result does not depend on the pane's width or text size.
+    private static func styled(_ run: MailTextRun) -> AttributedString {
+        var attributes = AttributeContainer()
+        var intent = InlinePresentationIntent()
+        if run.style.contains(.bold) { intent.insert(.stronglyEmphasized) }
+        if run.style.contains(.italic) { intent.insert(.emphasized) }
+        if run.style.contains(.code) { intent.insert(.code) }
+        if !intent.isEmpty { attributes.inlinePresentationIntent = intent }
+        if let link = MailBodyHTML.safeLink(run.link) { attributes.link = link }
+        if run.style.contains(.underline) { attributes.underlineStyle = .single }
+        if run.style.contains(.strikethrough) { attributes.strikethroughStyle = .single }
+        return AttributedString(run.text, attributes: attributes)
+    }
+
+    /// Fonts are applied by the view, so styling is independent of pane width and text size.
     static func blocks(_ text: MailText) -> [AttributedString] { text.blocks.map { make($0.runs) } }
 
     /// The body's text as the reader draws it: `.text`'s text, or `.designed`'s plain text.
     static func blocks(_ body: MailBody) -> [AttributedString]? {
+        displayText(in: body).map { blocks($0) }
+    }
+
+    /// Prepare the beginning and expensive paragraphs off the main thread. A lazy row
+    /// can style a short later paragraph when the reader actually scrolls to it.
+    static func openingBlocks(_ body: MailBody) -> [AttributedString?]? {
+        guard let text = displayText(in: body) else { return nil }
+        return text.blocks.enumerated().map { index, block in
+            if index < 64 || block.runs.count > 8 { return make(block.runs) }
+            var bytes = 0
+            for run in block.runs {
+                bytes += run.text.utf8.count + (run.link?.absoluteString.utf8.count ?? 0)
+                if bytes > 1024 { return make(block.runs) }
+            }
+            return nil
+        }
+    }
+
+    private static func displayText(in body: MailBody) -> MailText? {
         switch body {
-        case .text(let text, _, _): return blocks(text)
-        case .designed(_, _, _, let plain, _): return blocks(plain)
+        case .text(let text, _, _): return text
+        case .designed(_, _, _, let plain, _): return plain
         case .notOnDevice: return nil
         }
     }

@@ -299,6 +299,7 @@ private struct MailScreen: View {
     /// Between appearing and disappearing. Going to the background is not a disappearance to
     /// SwiftUI, so the scene's phase is followed as well.
     @State private var onScreen = false
+    @State private var screenID = UUID()
     @Environment(\.scenePhase) private var scenePhase
 
     init(session: MailSession) {
@@ -355,17 +356,17 @@ private struct MailScreen: View {
         .modifier(MailSenderBlockHost(session: session, navigation: navigation))
         .onAppear {
             onScreen = true
-            session.enter()
+            session.enter(screen: screenID)
             session.finishLaunch()
         }
-        .onDisappear { onScreen = false; session.leave() }
+        .onDisappear { onScreen = false; session.leave(screen: screenID) }
         #if os(iOS)
         // iOS suspends the app: Mail's requests are let go as it goes, rather than left to fail as
         // "timed out" on return and hold the sync back, and taken up at once when it is back (a
         // feed pass and the new mail's text, with the list reading as on entry).
         .onChange(of: scenePhase) { _, phase in
             guard onScreen else { return }
-            if phase == .background { session.leave() } else if phase == .active { session.enter() }
+            if phase == .background { session.leave(screen: screenID) } else if phase == .active { session.enter(screen: screenID) }
         }
         #endif
     }

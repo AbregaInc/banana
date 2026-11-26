@@ -27,9 +27,9 @@ final class MailReaderModel: ObservableObject {
     let id: MailConversationID
     @Published private(set) var conversation: MailConversation?
     @Published private(set) var bodies: [MailMessageID: MailBody] = [:]
-    /// Each body's blocks already styled (`MailAttributedText.blocks`), made off the main thread
-    /// as the body arrives and published with it: drawing never styles text.
-    private(set) var styled: [MailMessageID: [AttributedString]] = [:]
+    /// Index-aligned with each body's blocks. Opening and complex paragraphs are ready
+    /// when the body appears. A nil entry is a small paragraph below the opening pages.
+    private(set) var styled: [MailMessageID: [AttributedString?]] = [:]
     /// What the details column says about it, prepared when the conversation arrives.
     @Published private(set) var facts: MailConversationFacts?
     /// What each message's card says above its text, and the subject as a row says it. Prepared
@@ -110,8 +110,18 @@ final class MailReaderModel: ObservableObject {
         styled = styled.filter { retained[$0.key] != nil }
         if bodies != retained { bodies = retained }
         self.conversation = conversation
-        facts = conversation.map(MailConversationFacts.init)
-        messages = visible.map { MailMessageDisplay($0) }
+        if let conversation {
+            let calendar = Calendar.current, locale = Locale.current, now = Date()
+            let dates = MailDateText.fullFormatter(calendar: calendar, locale: locale)
+            facts = MailConversationFacts(conversation, formatDate: dates.string(from:))
+            messages = visible.map {
+                MailMessageDisplay($0, now: now, calendar: calendar, locale: locale,
+                                   formattedDate: dates.string(from: $0.date))
+            }
+        } else {
+            facts = nil
+            messages = []
+        }
         opener.update(messages)
         title = conversation.map { MailToastText.cleanSubject($0.subject) } ?? ""
         isLoading = false
@@ -130,13 +140,14 @@ final class MailReaderModel: ObservableObject {
         let basis = eligible.map { VerificationBasis(message: $0.id, subject: String(conversation.subject.prefix(512)), body: $0.body, allowSubjectCode: conversation.messages.count == 1) }
         if basis != verificationBasis, verificationCode != nil { verificationCode = nil }
         // In the order they are read: the newest first.
+        let firstCard = visible.first?.id
         let missing = visible.map(\.id)
             .filter { bodies[$0] == nil || bodies[$0] == .notOnDevice }
         let needsCode = basis != verificationBasis || basis.map { missing.contains($0.message) } == true
         guard !missing.isEmpty || needsCode else { return }
         let cachedCodeBody = basis.flatMap { bodies[$0.message] } ?? .notOnDevice
         let source = self.source
-        loading = Task { @MainActor [weak self] in
+        let read: @MainActor @Sendable () async -> Void = { [weak self] in
             var arrived: [MailMessageID: MailBody] = [:]
             if needsCode {
                 if let basis {
@@ -154,20 +165,43 @@ final class MailReaderModel: ObservableObject {
                     if self.verificationCode != code { self.verificationCode = code }
                 } else { self?.verificationBasis = nil }
             }
-            for message in missing where arrived[message] == nil {
+            // Make the first card readable before a slow older body. Batch the rest so a
+            // long conversation doesn't redraw for every message. The code may already
+            // have read the first body; use that same value for the card.
+            var remaining = missing[...]
+            if missing.count > 1, missing.first == firstCard, let first = remaining.popFirst() {
+                guard !Task.isCancelled else { return }
+                if arrived[first] == nil { arrived[first] = await source.body(first) }
+                await self?.publishBodies(arrived, generation: generation)
+                arrived.removeAll()
+            }
+            for message in remaining where arrived[message] == nil {
                 guard !Task.isCancelled else { return }
                 arrived[message] = await source.body(message)
             }
-            let ready = arrived
-            let styledNow = await Task.detached(priority: .userInitiated) {
-                ready.compactMapValues { MailAttributedText.blocks($0) }
-            }.value
-            guard !Task.isCancelled, let self, self.bodyGeneration == generation else { return }
-            self.styled.merge(styledNow) { _, new in new }
-            let updated = self.bodies.merging(arrived) { _, new in new }
-            if self.bodies != updated { self.bodies = updated }
-            for message in arrived.keys { self.requestMissingBody(message) }
+            await self?.publishBodies(arrived, generation: generation)
         }
+        #if DEBUG && STRESS_DEVICE_AUDIT
+        if ProcessInfo.processInfo.arguments.contains("--stress-start-reader-immediately"),
+           #available(iOS 26, macOS 26, *) {
+            let started = Task.immediate(operation: read)
+            if bodyGeneration == generation { loading = started } else { started.cancel() }
+            return
+        }
+        #endif
+        loading = Task(operation: read)
+    }
+
+    private func publishBodies(_ arrived: [MailMessageID: MailBody], generation: UInt64) async {
+        guard !arrived.isEmpty, !Task.isCancelled, bodyGeneration == generation else { return }
+        let styledNow = await Task.detached(priority: .userInitiated) {
+            arrived.compactMapValues { MailAttributedText.openingBlocks($0) }
+        }.value
+        guard !Task.isCancelled, bodyGeneration == generation else { return }
+        styled.merge(styledNow) { _, new in new }
+        let updated = bodies.merging(arrived) { _, new in new }
+        if bodies != updated { bodies = updated }
+        for message in arrived.keys { requestMissingBody(message) }
     }
 }
 

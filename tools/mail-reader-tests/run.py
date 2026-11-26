@@ -6,8 +6,8 @@ root=Path(__file__).resolve().parents[2]
 p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',required=True,type=Path);a=p.parse_args()
 a.out.mkdir(parents=True,exist_ok=False);target=a.out/'Tests';target.mkdir()
 paths=[root/'Banana/Model/Mail'/name for name in ['MailContract.swift','MailSource+NotYet.swift','MailFileName.swift']]
-paths += [root/'Banana/Model/MailUI/Pure'/name for name in ['MailFace.swift','MailSenderImages.swift','MailPictureLoader.swift','MailReaderModel.swift','MailConversationFacts.swift','MailMessageDisplay.swift','MailAttachmentKind.swift','MailAttachmentText.swift','MailRowDisplay.swift','MailScheduleCopy.swift','MailAttributedText.swift','MailBodyHTML.swift']]
-paths += [root/'BananaTests/MailReaderModelTests.swift', root/'BananaTests/MailLinkTests.swift']
+paths += [root/'Banana/Model/MailUI/Pure'/name for name in ['MailFace.swift','MailSenderImages.swift','MailPictureLoader.swift','MailReaderModel.swift','MailVerificationCode.swift','MailConversationFacts.swift','MailMessageDisplay.swift','MailAttachmentKind.swift','MailAttachmentText.swift','MailRowDisplay.swift','MailScheduleCopy.swift','MailAttributedText.swift','MailBodyHTML.swift']]
+paths += [root/'BananaTests/MailReaderModelTests.swift', root/'BananaTests/MailVerificationCodeTests.swift', root/'BananaTests/MailLinkTests.swift']
 paths += [root/'BananaTests/MailSyncProgressTests.swift']
 paths += [root/'Banana/Model/PermissionUpgrade.swift', root/'BananaTests/PermissionUpgradeTests.swift',
           root/'Banana/Model/GoogleReconnectPermissions.swift', root/'BananaTests/GoogleReconnectPermissionsTests.swift', root/'BananaTests/MailSenderImagesTests.swift']

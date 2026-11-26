@@ -58,7 +58,7 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
     nonisolated static let sampleMark = "~sample-"
 
     init(_ message: MailMessage, now: Date = Date(), calendar: Calendar = .current,
-         locale: Locale = .current) {
+         locale: Locale = .current, formattedDate: String? = nil) {
         id = message.id
         canReply = message.canReply
         delivery = message.delivery
@@ -72,7 +72,7 @@ struct MailMessageDisplay: Equatable, Identifiable, Sendable {
             return person.name?.split(separator: " ").first.map(String.init) ?? person.address
         }
         recipients = "to " + names.joined(separator: ", ")
-        date = MailDateText.full(message.date, calendar: calendar, locale: locale)
+        date = formattedDate ?? MailDateText.full(message.date, calendar: calendar, locale: locale)
         firstLine = message.firstLine
         var standalone: [MailAttachment] = []
         var inline: [MailAttachmentDisplay] = []

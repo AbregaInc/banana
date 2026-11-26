@@ -7,7 +7,7 @@ struct MailTextView: View {
     let text: MailText
     /// The blocks already styled off the main thread (`MailReaderModel.styled`); styled here
     /// only when absent.
-    var styled: [AttributedString]? = nil
+    var styled: [AttributedString?]? = nil
     /// The prepared body's `quoteStartsAt`: quoted history waits behind one button.
     var foldFrom: Int? = nil
     @State private var showsQuote = false
@@ -15,7 +15,7 @@ struct MailTextView: View {
     var body: some View {
         let ready = styled?.count == text.blocks.count ? styled : nil
         let hidden = MailQuoteFolding.hiddenRange(in: text.blocks, from: foldFrom, expanded: showsQuote)
-        VStack(alignment: .leading, spacing: DS.Space.s) {
+        LazyVStack(alignment: .leading, spacing: DS.Space.s) {
             ForEach(text.blocks.indices, id: \.self) { index in
                 if hidden?.lowerBound == index { showQuoteButton }
                 if hidden?.contains(index) != true {

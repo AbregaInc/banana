@@ -85,6 +85,7 @@ enum MailFixtureConversations {
         var minute: Int
         var unread = false
         var body: [String]
+        var quoteStartsAt: Int? = nil
         var files: [(name: String, bytes: Int)] = []
         /// For a file that is not what its name says: its name, and the extension of what it is.
         var actually: [String: String] = [:]
@@ -107,9 +108,24 @@ enum MailFixtureConversations {
         var designed = false
     }
 
-    static func stress(days: Int) -> [Sample] {
-        (0..<(days * 2_000)).map { i in
-            Sample(key: "stress-\(i)", subject: "Stress email \(i)", messages: [
+    static func stress(days: Int, includesLongMessage: Bool = false) -> some Sequence<Sample> {
+        (0..<(days * 2_000)).lazy.map { i in
+            if includesLongMessage && i == 0 {
+                let paragraphs = (1...1200).map {
+                    "Section " + String($0) + ". The team reviewed the calendar and travel arrangements."
+                }
+                return Sample(key: "long-reader", subject: "Quarterly planning notes", messages: [
+                    Message(from: sam, day: 1, hour: 9, minute: 0, body: paragraphs)
+                ])
+            }
+            if includesLongMessage && i == 1 {
+                let quoted = (1...250).map { "> Previous note \($0)." }
+                let lines = ["Here is the latest reply."] + quoted + ["Planning team signature"]
+                return Sample(key: "quoted-reader", subject: "Planning thread reply", messages: [
+                    Message(from: sam, day: 1, hour: 8, minute: 0, body: lines, quoteStartsAt: 1)
+                ])
+            }
+            return Sample(key: "stress-\(i)", subject: "Stress email \(i)", messages: [
                 Message(from: sam, day: -(i / 2_000), hour: (i % 2_000) / 84,
                         minute: i % 60, unread: i.isMultiple(of: 3),
                         body: ["Deterministic stress message \(i). Project status and next steps."])

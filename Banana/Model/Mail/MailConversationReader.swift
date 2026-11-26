@@ -15,38 +15,29 @@ struct MailConversationReader: Sendable {
                 WHERE a.email=? AND t.gmail_id=?
                 """, arguments: [account, id.thread]) else { return nil }
             let pk: Int64 = thread["thread_pk"]
-            let facts = try MailMessageImporter.facts(threadPK: pk, in: db)
             let flags = MailThreadFlags(rawValue: thread["flags"])
-            let rows = try Row.fetchAll(db, sql: "SELECT gmail_id,recipients,prep_state FROM message WHERE thread_pk=?", arguments: [pk])
-            var bcc: [String: [String]] = [:], states: [String: Int] = [:]
-            for row in rows {
-                let message: String = row["gmail_id"]
-                states[message] = row["prep_state"]
-                if let json: String = row["recipients"] {
-                    bcc[message] = try JSONDecoder().decode(MailMessageImporter.Recipients.self, from: Data(json.utf8)).bcc
-                }
-            }
             func person(_ address: String, name: String? = nil) -> MailPerson {
                 MailPerson(name: name, address: address, isMe: address.lowercased() == account,
                            isKnown: false, fromTheirMail: false)
             }
-            let labels = Set(facts.flatMap(\.labels))
-            let labelRows = try Row.fetchAll(db, sql: "SELECT gmail_id,name,background_color FROM label WHERE account_pk=? AND kind=1", arguments: [thread["account_pk"] as Int64])
-            let refs: [MailLabelRef] = labelRows.compactMap { row in
-                let label: String = row["gmail_id"]
-                guard labels.contains(label) else { return nil }
-                return MailLabelRef(id: label, name: row["name"], colorHex: row["background_color"])
-            }.sorted { $0.id < $1.id }
-            let messages = facts.map { fact in
-                MailMessage(id: MailMessageID(account: account, message: fact.gmailID),
+            var labels = Set<String>()
+            var allTrash = true
+            var allSpam = true
+            let messages = try MailMessageImporter.mapFacts(threadPK: pk, in: db) { fact, recipients, row in
+                labels.formUnion(fact.labels)
+                allTrash = allTrash && fact.labels.contains("TRASH")
+                allSpam = allSpam && fact.labels.contains("SPAM")
+                let preparation: Int = row["prep_state"]
+                return MailMessage(id: MailMessageID(account: account, message: fact.gmailID),
                     from: person(fact.fromAddress, name: fact.fromName),
                     to: fact.toAddresses.map { person($0) }, cc: fact.ccAddresses.map { person($0) },
-                    bcc: (bcc[fact.gmailID] ?? []).map { person($0) }, replyTo: [], deliveredTo: nil,
+                    bcc: recipients.bcc.map { person($0) }, replyTo: [], deliveredTo: nil,
                     listName: fact.listID, date: Date(timeIntervalSince1970: Double(fact.internalDate) / 1000),
                     isUnread: fact.labels.contains("UNREAD"), isMine: fact.isFromMe, firstLine: MailSnippet.display(fact.snippet),
-                    body: states[fact.gmailID] == 1 ? .preparing : .notOnDevice,
+                    body: preparation == 1 ? .preparing : .notOnDevice,
                     attachments: [], delivery: nil, draft: nil, isUnsentDraft: fact.labels.contains("DRAFT"))
             }
+            let refs = try Self.userLabels(labels, accountPK: thread["account_pk"], in: db)
             // Snoozed until: only while it is away. A conversation back from its snooze keeps the time
             // in `wake_at` for its row ("Back from snooze") and is not snoozed.
             let returned: Int64? = thread["returned_at"]
@@ -55,8 +46,8 @@ struct MailConversationReader: Sendable {
                 labels: refs, inInbox: flags.contains(.inInbox), isStarred: flags.contains(.starred),
                 isImportant: flags.contains(.important), isMuted: flags.contains(.muted),
                 snoozedUntil: wake.map { Date(timeIntervalSince1970: Double($0) / 1000) },
-                system: !facts.isEmpty && facts.allSatisfy { $0.labels.contains("TRASH") } ? .trash
-                    : !facts.isEmpty && facts.allSatisfy { $0.labels.contains("SPAM") } ? .spam : nil,
+                system: !messages.isEmpty && allTrash ? .trash
+                    : !messages.isEmpty && allSpam ? .spam : nil,
                 messages: messages, invite: nil, unsubscribe: nil, draft: nil,
                 newestIsMine: flags.contains(.lastIsMine), appliedThrough: 0)
         }
@@ -122,6 +113,21 @@ struct MailConversationReader: Sendable {
         var ready: Bool
         /// Part id to the relative path of the file kept for it.
         var files: [String: String]
+    }
+
+    /// The effective message labels already include pending edits. Read just their current
+    /// catalog metadata, using the unique account / provider-id index. Binding the IDs as one
+    /// JSON array keeps the statement fixed even for threads with thousands of distinct labels.
+    private static func userLabels(_ ids: Set<String>, accountPK: Int64, in db: Database) throws -> [MailLabelRef] {
+        guard !ids.isEmpty else { return [] }
+        let encoded = String(decoding: try JSONEncoder().encode(ids), as: UTF8.self)
+        let statement = try db.cachedStatement(sql: """
+            SELECT gmail_id,name,background_color FROM label
+            WHERE account_pk=? AND kind=1 AND gmail_id IN (SELECT value FROM json_each(?))
+            """)
+        return try Row.fetchAll(statement, arguments: [accountPK, encoded]).map { row in
+            MailLabelRef(id: row["gmail_id"], name: row["name"], colorHex: row["background_color"])
+        }.sorted { $0.id < $1.id }
     }
 
     /// An attachment kept on this device: only if the file is still there and its path stays in the attachment directory.

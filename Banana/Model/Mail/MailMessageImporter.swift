@@ -97,6 +97,12 @@ enum MailMessageImporter {
     }
 
     static func facts(threadPK: Int64, reuseStatements: Bool = true, in db: Database) throws -> [MessageFacts] {
+        try mapFacts(threadPK: threadPK, reuseStatements: reuseStatements, in: db) { facts, _, _ in facts }
+    }
+
+    /// Project each message while its recipients, effective labels and index row are available.
+    static func mapFacts<Value>(threadPK: Int64, reuseStatements: Bool = true, in db: Database,
+                                _ project: (MessageFacts, Recipients, Row) -> Value) throws -> [Value] {
         func statement(_ sql: String) throws -> Statement {
             try reuseStatements ? db.cachedStatement(sql: sql) : db.makeStatement(sql: sql)
         }
@@ -139,7 +145,7 @@ enum MailMessageImporter {
             for id in effective { if let name = names[id], name.hasPrefix("Banana/") { banana[name] = id } }
             let storedVis: Int = row["vis"]
             let vis = storedVis >= 3 ? storedVis : effective.contains("TRASH") ? 1 : effective.contains("SPAM") ? 2 : 0
-            return MessageFacts(gmailID: row["gmail_id"], rowID: pk, arrivalSequence: row["arrival_seq"], internalDate: row["internal_date"],
+            let facts = MessageFacts(gmailID: row["gmail_id"], rowID: pk, arrivalSequence: row["arrival_seq"], internalDate: row["internal_date"],
                 fetchState: row["fetch_state"], vis: vis, labels: effective, labelsKnown: flags.contains(.labelsKnown),
                 bananaLabels: banana.keys.sorted(),
                 fromName: row["from_name"], fromAddress: row["from_addr"] ?? "", isFromMe: flags.contains(.fromMe),
@@ -147,6 +153,7 @@ enum MailMessageImporter {
                 snippet: row["snippet"] ?? "", hasAttachment: flags.contains(.hasAttachment), hasInvite: flags.contains(.hasInvite),
                 listID: row["list_id"], hasUndeliveredIntent: pending.contains(pk), hasRefusedIntent: refused.contains(pk),
                 bananaLabelIDs: banana)
+            return project(facts, recipients, row)
         }
     }
 

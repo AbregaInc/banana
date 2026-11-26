@@ -43,7 +43,9 @@ extension MailSession {
         #if DEBUG && (targetEnvironment(simulator) || os(macOS) || STRESS_DEVICE_AUDIT)
         let source: MailFixtureSource
         if ScaleStress.days != nil {
-            source = MailFixtureSource(samples: MailFixtureConversations.stress(days: ScaleStress.mailDays), defaults: nil)
+            let samples = MailFixtureConversations.stress(days: ScaleStress.mailDays,
+                includesLongMessage: arguments.contains("--stress-mail-long-body"))
+            source = MailFixtureSource(samples: samples, defaults: nil)
         } else {
             // `--mail-gmail-delay <seconds>` (Debug): searches also ask the sample's Gmail.
             var delay: Duration?

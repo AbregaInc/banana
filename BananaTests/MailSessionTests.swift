@@ -375,8 +375,10 @@ final class MailSessionTests: XCTestCase {
         var failNext = false
         var failed = false
         private var observers: [UUID: (limit: Int, MailScope, @MainActor (MailListSnapshot) -> Void)] = [:]
-        func activate() {}
-        func setVisible(_ visible: Bool) {}
+        var activations = 0
+        var visibility: [Bool] = []
+        func activate() { activations += 1 }
+        func setVisible(_ visible: Bool) { visibility.append(visible) }
         func observeList(_ scope: MailScope, limit: Int,
                          _ onChange: @escaping @MainActor (MailListSnapshot) -> Void) -> MailObservation {
             let token = UUID()
@@ -400,6 +402,27 @@ final class MailSessionTests: XCTestCase {
                                     hasMore: shown.count < rows.count || held < total, stillLoading: 0,
                                     isRebuilding: false, remote: failed ? .failed : nil, coverage: nil, appliedThrough: 0)
         }
+    }
+
+    @MainActor func testOnlyVisibleMailWindowsOwnForegroundWork() {
+        let source = EdgeSource()
+        let session = MailSession(source: source, now: TriageHarness.now, deviceName: "Test",
+                                  defaults: nil, present: { _, _ in })
+        let first = UUID(), second = UUID()
+        XCTAssertEqual(source.activations, 0)
+        XCTAssertTrue(source.visibility.isEmpty)
+        session.enter(screen: first)
+        session.enter(screen: first)
+        session.enter(screen: second)
+        session.leave(screen: first)
+        session.leave(screen: first)
+        XCTAssertEqual(source.activations, 1)
+        XCTAssertEqual(source.visibility, [true])
+        session.leave(screen: second)
+        session.enter(screen: first)
+        session.leave(screen: first)
+        XCTAssertEqual(source.activations, 1)
+        XCTAssertEqual(source.visibility, [true, false, true, false])
     }
 
     func testTheEdgeIsAskedAheadOfTheScreenUntilItHasNoMoreAndRetryFollowsAFailure() throws {
