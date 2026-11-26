@@ -23,4 +23,26 @@ enum KeepAwake {
         if holders == 0 { UIApplication.shared.isIdleTimerDisabled = false }
     }
 }
+
+/// Background execution time that can be ended by the owner or reclaimed by iOS.
+@MainActor
+final class AppBackgroundTask {
+    private var id: UIBackgroundTaskIdentifier = .invalid
+
+    /// `expired`: told when iOS takes the time back, before it's let go.
+    init(named name: String, expired: (@MainActor () -> Void)? = nil) {
+        id = UIApplication.shared.beginBackgroundTask(withName: name) { [weak self] in
+            MainActor.assumeIsolated {
+                expired?()
+                self?.end()
+            }
+        }
+    }
+
+    func end() {
+        guard id != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(id)
+        id = .invalid
+    }
+}
 #endif

@@ -141,8 +141,10 @@ enum TranscriptionService {
     ) async throws -> [TranscriptWord] {
         #if canImport(FluidAudio)
         stage?(.installingModel)
-        let words = try await ParakeetTranscriber.shared.transcribe(fileURL) { progress in
-            stage?(.transcribing(progress))
+        let words = try await ParakeetTranscriber.slot.perform {
+            try await ParakeetTranscriber.shared.transcribe(fileURL) { progress in
+                stage?(.transcribing(progress))
+            }
         }
         stage?(.transcribing(1))
         return words
@@ -205,7 +207,7 @@ enum TranscriptionService {
             .appendingPathComponent("seg-\(UUID().uuidString).caf")
         defer { try? FileManager.default.removeItem(at: tmp) }
 
-        try writeSegment(from: fileURL, startSeconds: startSeconds, seconds: seconds, to: tmp)
+        try AudioSegmentWriter.write(from: fileURL, startSeconds: startSeconds, seconds: seconds, to: tmp)
         @Sendable func rebase(_ words: [TranscriptWord]) -> [TranscriptWord] {
             words.map {
                 TranscriptWord(text: $0.text, start: $0.start + startSeconds,
@@ -217,59 +219,6 @@ enum TranscriptionService {
             checkpoint?(rebase(partial))
         }
         return rebase(words)
-    }
-
-    /// Copy a time range into its own file, downmixed to 16k mono — what speech models want, and
-    /// far smaller than 44.1k stereo float.
-    static func writeSegment(from source: URL, startSeconds: Double, seconds: Double, to url: URL) throws {
-        try? FileManager.default.removeItem(at: url)
-        let input = try AVAudioFile(forReading: source)
-        let inFormat = input.processingFormat
-
-        let settings: [String: Any] = [
-            AVFormatIDKey: kAudioFormatLinearPCM,
-            AVSampleRateKey: 16_000.0,
-            AVNumberOfChannelsKey: 1,
-            AVLinearPCMBitDepthKey: 16,
-            AVLinearPCMIsFloatKey: false,
-            AVLinearPCMIsBigEndianKey: false,
-        ]
-        let output = try AVAudioFile(forWriting: url, settings: settings)
-
-        // Convert to the file's PROCESSING format, not its on-disk format. `write(from:)` demands
-        // Float32 non-interleaved buffers and encodes to 16-bit itself; handing it an Int16 buffer
-        // throws an ObjC exception and kills the process.
-        let outFormat = output.processingFormat
-        guard let converter = AVAudioConverter(from: inFormat, to: outFormat) else {
-            throw NSError(domain: "TranscriptionService", code: 1)
-        }
-
-        input.framePosition = AVAudioFramePosition(startSeconds * inFormat.sampleRate)
-        var remaining = min(AVAudioFramePosition(seconds * inFormat.sampleRate),
-                            input.length - input.framePosition)
-        let step: AVAudioFrameCount = 16_384
-
-        while remaining > 0 {
-            let frames = AVAudioFrameCount(min(AVAudioFramePosition(step), remaining))
-            guard let inBuf = AVAudioPCMBuffer(pcmFormat: inFormat, frameCapacity: frames) else { break }
-            try input.read(into: inBuf, frameCount: frames)
-            if inBuf.frameLength == 0 { break }
-            remaining -= AVAudioFramePosition(inBuf.frameLength)
-
-            let ratio = outFormat.sampleRate / inFormat.sampleRate
-            let capacity = AVAudioFrameCount(Double(inBuf.frameLength) * ratio) + 1024
-            guard let outBuf = AVAudioPCMBuffer(pcmFormat: outFormat, frameCapacity: capacity) else { break }
-            var error: NSError?
-            var supplied = false
-            converter.convert(to: outBuf, error: &error) { _, status in
-                if supplied { status.pointee = .noDataNow; return nil }
-                supplied = true
-                status.pointee = .haveData
-                return inBuf
-            }
-            if let error { throw error }
-            if outBuf.frameLength > 0 { try output.write(from: outBuf) }
-        }
     }
 
     /// Transcribe an audio file to word tokens fully on device.
@@ -370,14 +319,20 @@ enum TranscriptionService {
             return words
         }
 
-        // Let the framework read + format-convert the whole file, then flush.
-        if let lastSample = try await analyzer.analyzeSequence(from: audioFile) {
-            try await analyzer.finalizeAndFinish(through: lastSample)
-        } else {
-            await analyzer.cancelAndFinishNow()
+        defer { collector.cancel() }
+        let words = try await withTaskCancellationHandler {
+            try Task.checkCancellation()
+            if let lastSample = try await analyzer.analyzeSequence(from: audioFile) {
+                try await analyzer.finalizeAndFinish(through: lastSample)
+            } else {
+                await analyzer.cancelAndFinishNow()
+            }
+            return try await collector.value
+        } onCancel: {
+            collector.cancel()
+            Task { await analyzer.cancelAndFinishNow() }
         }
-
-        let words = try await collector.value
+        try Task.checkCancellation()
 
         // Real-time factor: >1 means faster than playback. This is the number that decides whether
         // Apple's model is good enough or we need a different one — measured, not guessed.
@@ -393,17 +348,20 @@ enum TranscriptionService {
 }
 
 #if canImport(FluidAudio)
-/// One model graph per process. The actor is also the concurrency limit: running two 0.6B ASR jobs
+/// One model graph per process. The shared slot also covers awaits: running two 0.6B ASR jobs
 /// together is slower, raises memory pressure, and wastes energy without improving user-perceived
 /// latency because completed transcripts sync to every device.
 private actor ParakeetTranscriber {
     static let shared = ParakeetTranscriber()
+    static let slot = TranscriptionSlot()
     private var manager: AsrManager?
 
     func transcribe(
         _ fileURL: URL, progress: @escaping @Sendable (Double) -> Void
     ) async throws -> [TranscriptWord] {
+        try Task.checkCancellation()
         let manager = try await loadedManager()
+        try Task.checkCancellation()
         var state = TdtDecoderState.make(decoderLayers: await manager.decoderLayerCount)
         progress(0)
         let progressTask = Task {
@@ -416,6 +374,7 @@ private actor ParakeetTranscriber {
         }
         defer { progressTask.cancel() }
         let result = try await manager.transcribe(fileURL, decoderState: &state)
+        try Task.checkCancellation()
         let timings = buildWordTimings(from: result.tokenTimings ?? [])
         if !timings.isEmpty {
             return timings.map {
@@ -436,6 +395,7 @@ private actor ParakeetTranscriber {
     private func loadedManager() async throws -> AsrManager {
         if let manager { return manager }
         let models = try await AsrModels.downloadAndLoad(version: .v3)
+        try Task.checkCancellation()
         let loaded = AsrManager(config: .default)
         try await loaded.loadModels(models)
         manager = loaded

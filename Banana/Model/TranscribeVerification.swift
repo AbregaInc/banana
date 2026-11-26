@@ -113,15 +113,19 @@ enum TranscribeVerification {
             let long = pending.max { ($0.duration ?? 0) < ($1.duration ?? 0) } ?? first
             log("INTERRUPT TEST on \(long.title.prefix(40)) (\(Int((long.duration ?? 0) / 60))m)")
 
-            let deadline = Date().addingTimeInterval(45)
+            func interrupt(after delay: Duration) async {
+                let job = Task { await TranscriptCoordinator.shared.ensureTranscript(for: long, keepAwake: true) }
+                let timeout = Task {
+                    do { try await Task.sleep(for: delay) } catch { return }
+                    job.cancel()
+                }
+                _ = await job.value
+                timeout.cancel()
+            }
             let t1 = Date()
-            _ = await TranscriptCoordinator.shared.ensureTranscript(
-                for: long, keepAwake: true, isCancelled: { Date() > deadline })
+            await interrupt(after: .seconds(45))
             log("cancelled after \(Int(Date().timeIntervalSince(t1)))s — checking the checkpoint…")
-
-            let resumeStart = Date()
-            _ = await TranscriptCoordinator.shared.ensureTranscript(
-                for: long, keepAwake: true, isCancelled: { Date() > resumeStart.addingTimeInterval(30) })
+            await interrupt(after: .seconds(30))
             log("resumed run ended — if it resumed, the log above says 'resuming … at Ns'")
             return
         }

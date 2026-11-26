@@ -310,7 +310,11 @@ struct TranscriptView: View {
         #endif
         // On the Mac there's nothing to hand off TO: the app isn't about to be suspended out from
         // under the work, so it just runs.
-        let produced = await coordinator.ensureTranscript(for: episode, force: force)
+        // The coordinator stops when its task is cancelled (background-task expiry). Closing this
+        // screen cancels the view's `.task`, and that must not throw away the transcription, so
+        // the job runs in its own task and only the wait for it ends with the screen.
+        let job = Task { await coordinator.ensureTranscript(for: episode, force: force) }
+        let produced = await job.value
         // `produced` is already the exact transcript `showTranscript()` would otherwise re-read
         // from disk (ensureTranscript never returns a value that wasn't just persisted — see
         // TranscriptStore.saveAsync). Under `force`, though, saveAsync's quality-rank guard can

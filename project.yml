@@ -718,6 +718,8 @@ targets:
     platform: iOS
     sources:
       - path: BananaTests
+      - path: Banana/Model/AudioSegmentWriter.swift
+      - path: Banana/Model/TranscriptionSlot.swift
       - path: Shared/DateComparisonCompatibility.swift
       - path: Banana/Model/MorningBriefingSchedule.swift
       # The navigation layer's decisions (docs/design/BOTTOM-BAR-SHELL.md).
