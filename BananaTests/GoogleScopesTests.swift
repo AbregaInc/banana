@@ -18,3 +18,22 @@ final class GoogleScopesTests: XCTestCase {
         XCTAssertEqual(EmailSetup.gmailScope, MailScopes.gmailModify)
     }
 }
+
+/// A consent that comes back without a permission is explained and asked again.
+final class GoogleScopesMissingTests: XCTestCase {
+    func testEveryPermissionIsCoveredByTheRequestAndTheRequestByThem() {
+        XCTAssertEqual(Set(GoogleScopes.permissions.flatMap(\.scopes)), Set(GoogleScopes.all))
+        XCTAssertEqual(GoogleScopes.permissions, [.calendar, .gmail, .contacts])
+    }
+    func testAFullGrantMissesNothing() {
+        XCTAssertEqual(GoogleScopes.missing(granted: Set(GoogleScopes.all) .union(["openid", "email"])), [])
+    }
+    func testEachUntickedBoxIsNamedOnce() {
+        let all = Set(GoogleScopes.all)
+        XCTAssertEqual(GoogleScopes.missing(granted: all.subtracting([MailScopes.gmailModify])), [.gmail])
+        XCTAssertEqual(GoogleScopes.missing(granted: all.subtracting([GoogleScopes.calendarList])), [.calendar],
+                       "half of the calendar is the calendar missing")
+        XCTAssertEqual(GoogleScopes.missing(granted: all.subtracting(MailScopes.senderPhotos + [MailScopes.gmailModify])), [.gmail, .contacts])
+        XCTAssertEqual(GoogleScopes.missing(granted: []), [.calendar, .gmail, .contacts])
+    }
+}

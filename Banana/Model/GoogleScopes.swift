@@ -23,3 +23,57 @@ enum GoogleScopes {
     static let all: [String] = ([calendarEvents, calendarList, MailScopes.gmailModify] + MailScopes.senderPhotos).sorted()
     #endif
 }
+
+extension GoogleScopes {
+    /// What Google's screen asks for, grouped the way a person thinks of it. A consent that comes
+    /// back without one of these is explained and asked again (`GoogleConsentRetry`).
+    enum Permission: String, CaseIterable, Identifiable, Sendable {
+        case calendar, gmail, contacts
+        var id: String { rawValue }
+
+        var title: String {
+            switch self {
+            case .calendar: "Calendar"
+            case .gmail: "Gmail"
+            case .contacts: "Contacts"
+            }
+        }
+
+        /// Why Banana needs it, in a few words.
+        var reason: String {
+            switch self {
+            case .calendar: "Shows and plans your day"
+            case .gmail: "Reads, sorts and sends your mail"
+            case .contacts: "Shows the photos you gave people"
+            }
+        }
+
+        var symbol: String {
+            switch self {
+            case .calendar: "calendar"
+            case .gmail: "envelope"
+            case .contacts: "person.crop.circle"
+            }
+        }
+
+        var scopes: [String] {
+            switch self {
+            case .calendar: [GoogleScopes.calendarEvents, GoogleScopes.calendarList]
+            #if BANANA_PUBLIC
+            case .gmail, .contacts: []
+            #else
+            case .gmail: [MailScopes.gmailModify]
+            case .contacts: MailScopes.senderPhotos
+            #endif
+            }
+        }
+    }
+
+    /// The permissions this build asks for, in the order Google's screen lists them.
+    static var permissions: [Permission] { Permission.allCases.filter { !$0.scopes.isEmpty } }
+
+    /// The permissions a grant lacks: any scope of one missing counts it as missing.
+    static func missing(granted: Set<String>) -> [Permission] {
+        permissions.filter { !Set($0.scopes).isSubset(of: granted) }
+    }
+}

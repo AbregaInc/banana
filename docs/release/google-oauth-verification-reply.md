@@ -61,8 +61,8 @@ than `gmail.modify`.
 
 Gmail and Contacts are requested only by the Banana Beta app, which asks for Calendar, Gmail and
 Contacts together on one consent screen whenever the user connects Google, so one grant serves
-every part of the app. Each box can be unticked; Email works fully with the Contacts boxes
-unticked. The App Store and TestFlight builds of Banana are calendar-only and never request these
+every part of the app. If the user leaves a box unticked, Banana says which feature needs it and
+offers to show Google's screen again; "Not now" carries on with what was granted. The App Store and TestFlight builds of Banana are calendar-only and never request these
 scopes (our release check rejects any build that contains them). The Beta app is not publicly
 distributed, and Email is enabled on the server only for accounts marked as test accounts, so no
 production traffic requests unverified scopes.
@@ -160,7 +160,7 @@ payment needed):
 
 Steps:
 1. Open Banana Beta and click **Continue with Google**. Sign in with the test account.
-2. On Google's screen, leave every box ticked and click **Continue**.
+2. On Google's screen, tick **Select all** and click **Continue**.
 3. Choose **Email** in the module list, or open the module switcher at the bottom left and choose
    **Mail**.
 4. Open any conversation. Use the toolbar or keys: `E` Done, `U` read/unread, `S` star, `L` label,
@@ -204,7 +204,7 @@ each section. Captions are enough, but a short voice-over helps.
 |---|---|---|---|---|
 | 1 | 0:00 | Cloud Console | Show the project id, **Google Auth Platform › Data Access** with the full scope list (scroll slowly), then **Clients** with the iOS/macOS client id. | "Scopes configured for verification" |
 | 2 | 0:30 | Banana Beta | Click **Continue with Google**, choose Email. | — |
-| 3 | 0:45 | Google consent | Hold 3 s on the app name and the developer email. Click each scope line, or **Show all** / the expander, so every one is fully readable: Gmail "Read, compose, send…", "See and download contact info…", "See and download contact info automatically saved…". Hold 2 s on each. Point out the Contacts boxes are optional. Leave them ticked; **Continue**. | "Consent screen: all requested scopes" |
+| 3 | 0:45 | Google consent | Hold 3 s on the app name and the developer email. Click each scope line, or **Show all** / the expander, so every one is fully readable: Gmail "Read, compose, send…", "See and download contact info…", "See and download contact info automatically saved…". Hold 2 s on each. Tick **Select all**; **Continue**. | "Consent screen: all requested scopes" |
 | 4 | 1:30 | Banana Mail + Gmail | Inbox loads. Open a conversation, open the PDF, run a search. Send a new mail from the second account (phone) and let it appear in Banana without touching it. | "gmail.modify: read, search, live updates" |
 | 5 | 2:15 | both | For each, act in Banana, then refresh Gmail and show the result in Gmail: **U** unread → bold in Gmail · **S** star → starred in Gmail · **L** "Receipts" → label in Gmail · **E** Done → gone from Gmail Inbox, present in All Mail · **H** snooze → `Banana/Snoozed/…` label in Gmail, out of Inbox · **!** spam → in Gmail Spam, then Not spam → back · **#** trash → in Gmail Trash, then Restore → back in Inbox · one **⌘Z** undo. | "gmail.modify: changes reflected in the user's Gmail" |
 | 6 | 4:30 | both | **R** reply, type a line, pause: show it in Gmail Drafts. **Send**: show it in Gmail Sent (and arriving on the second account). Start another reply, discard it: show it gone from Gmail Drafts. | "gmail.modify: drafts and sending" |

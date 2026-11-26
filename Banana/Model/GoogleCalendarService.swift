@@ -559,7 +559,7 @@ final class GoogleCalendarService: ObservableObject {
     /// A fresh Google sign-in whose one-time code shows the Banana service who is asking
     /// (deleting the account needs one). Nothing connected in the app changes.
     func freshSignInCode(hint: String?) async throws -> String {
-        let result = try await interactiveSignIn(hint: hint)
+        let result = try await interactiveSignIn(hint: hint, askAgain: false)
         guard let code = result.serverAuthCode else { throw GoogleCalendarError.notConnected }
         return code
     }
@@ -2276,8 +2276,21 @@ final class GoogleCalendarService: ObservableObject {
         return error
     }
 
-    /// Every consent asks for every scope (`GoogleScopes.all`), whatever started it.
-    private func interactiveSignIn(hint: String?) async throws -> GIDSignInResult {
+    /// Every consent asks for every scope (`GoogleScopes.all`), whatever started it. When Google's
+    /// screen comes back with boxes unticked, Banana says which and why and, on Continue, shows
+    /// Google's screen again for the same account; Not now carries on with what was granted.
+    /// `askAgain` is off only where the grant is not the point (proving who you are).
+    private func interactiveSignIn(hint: String?, askAgain: Bool = true) async throws -> GIDSignInResult {
+        var hint = hint
+        while true {
+            let result = try await presentGoogleSignIn(hint: hint)
+            let missing = GoogleScopes.missing(granted: Set(result.user.grantedScopes ?? []))
+            guard askAgain, !missing.isEmpty, await GoogleConsentRetry.ask(missing) else { return result }
+            hint = result.user.profile?.email ?? hint
+        }
+    }
+
+    private func presentGoogleSignIn(hint: String?) async throws -> GIDSignInResult {
         let scopes = GoogleScopes.all
         #if os(iOS)
         guard let presenter = Self.presentingViewController() else {
