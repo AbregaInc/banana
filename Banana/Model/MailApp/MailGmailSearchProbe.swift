@@ -7,13 +7,71 @@ import Foundation
 /// Opens no mail store, makes no write, and exits. Input: `[{"topic":0,"query":"…","accounts":["…"]}]`.
 enum MailGmailSearchProbe {
     static let argument = "--mail-gmail-search"
-    static var isRequested: Bool { ProcessInfo.processInfo.arguments.contains(argument) }
+    static var isRequested: Bool {
+        let arguments = ProcessInfo.processInfo.arguments
+        return arguments.contains(argument) || arguments.contains(attachmentsArgument)
+    }
 
     private struct Task_: Decodable { let topic: Int; let query: String; let accounts: [String] }
     private struct Listing: Encodable { let threads: [String]; let estimate: Int?; let ms: Double; let error: String? }
     private struct Result: Encodable { let topic: Int; let accounts: [String]; let gmail: [String: Listing] }
 
+    /// `--mail-gmail-attachments`: READ-ONLY. For each `{"account","message","partID","out"}` in
+    /// `BANANA_GMAIL_ATTACHMENTS_IN`, reads the message (`full`) and that part's bytes through the
+    /// service and writes them to `out` (0600). For measuring attachment text extraction.
+    static let attachmentsArgument = "--mail-gmail-attachments"
+    private struct Wanted: Decodable { let account: String; let message: String; let partID: String; let out: String }
+
+    private static func find(_ part: GmailPart?, _ id: String) -> GmailPart? {
+        guard let part else { return nil }
+        if part.partId == id { return part }
+        for child in part.parts ?? [] { if let hit = find(child, id) { return hit } }
+        return nil
+    }
+    private static func bytes(_ base64url: String) -> Data? {
+        var s = base64url.replacingOccurrences(of: "-", with: "+").replacingOccurrences(of: "_", with: "/")
+        while s.count % 4 != 0 { s += "=" }
+        return Data(base64Encoded: s)
+    }
+
+    private static func downloadAttachments() {
+        Task { @MainActor in
+            let env = ProcessInfo.processInfo.environment
+            guard let input = env["BANANA_GMAIL_ATTACHMENTS_IN"], let data = FileManager.default.contents(atPath: input),
+                  let wanted = try? JSONDecoder().decode([Wanted].self, from: data) else { exit(1) }
+            _ = await BananaAccount.shared.refresh()
+            let access = MailCloudAccess()
+            let api = GmailHTTP(cloudTransport: { path, reference, query, method, body in
+                try await BananaAccount.shared.mailRequest(path: path, reference: reference, query: query, method: method, body: body)
+            }, networkAllowed: { true })
+            var written = 0, failed = 0
+            for item in wanted {
+                do {
+                    let token = try await access.mailAccessToken(accountID: item.account).value
+                    let message = try await MailGmailSearch.paced { try await api.message(token: token, id: item.message, format: .full) }
+                    guard let part = find(message.payload, item.partID) else { failed += 1; continue }
+                    var raw = part.body?.data.flatMap(bytes)
+                    if raw == nil, let id = part.body?.attachmentId {
+                        let body = try await MailGmailSearch.paced {
+                            try await api.attachment(token: token, messageID: item.message, attachmentID: id)
+                        }
+                        raw = body.data.flatMap(bytes)
+                    }
+                    guard let raw else { failed += 1; continue }
+                    PrivateReport.write(raw, toPath: item.out)
+                    written += 1
+                } catch { failed += 1 }
+                if (written + failed) % 25 == 0 {
+                    FileHandle.standardError.write(Data("\(written + failed) of \(wanted.count)\n".utf8))
+                }
+            }
+            FileHandle.standardError.write(Data("wrote \(written), failed \(failed)\n".utf8))
+            exit(0)
+        }
+    }
+
     static func runIfRequested() {
+        if ProcessInfo.processInfo.arguments.contains(attachmentsArgument) { downloadAttachments(); return }
         guard isRequested else { return }
         Task { @MainActor in
             let env = ProcessInfo.processInfo.environment
