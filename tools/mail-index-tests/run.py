@@ -19,16 +19,24 @@ parser.add_argument('--out', required=True, type=Path)
 parser.add_argument('--filter', help='Swift test name filter for focused correctness checks; not full-suite acceptance')
 parser.add_argument('--grdb-checkout', type=Path)
 parser.add_argument('--swiftsoup-checkout', type=Path)
+parser.add_argument('--archive-input', type=Path, action='append', help='Replay input.html fixtures and export native output and sanitized HTML locally')
 parser.add_argument('--scratch-path', type=Path, help='Reuse disposable compiler products; do not share with a concurrent run')
 parser.add_argument('--trec-fixture', type=Path, help='Include the native known-item search replay on a prepared public W3C fixture')
 parser.add_argument('--ranked-fixture', type=Path, help='Disposable migrated Beta mailbox and first-query tasks')
 args = parser.parse_args()
 out = args.out.resolve()
+if args.archive_input:
+    if not out.is_relative_to(root / 'private'):
+        parser.error('Keep archive replay outputs under private/')
+    if any(not directory.is_dir() for directory in args.archive_input):
+        parser.error('--archive-input must name a fixture directory')
+    args.filter = args.filter or 'ArchiveReplayTests'
 out.mkdir(parents=True, exist_ok=False)
 target = out / 'Tests'
 target.mkdir()
 sources = sorted((root / 'Banana/Model/Mail').glob('*.swift')) + [root / "Banana/Model/LiveFilter.swift"]
-sources += [root / 'BananaTests' / (name + '.swift') for name in ['MailSyncProgressTests', 'MailSyncProgressReaderTests', 'MailLegacyMigrationTests', 'MailDraftDriverTests', 'MailReadBackoffTests', 'MailAccessLifecycleTests', 'GmailMailboxSyncTests', 'MailSyncFillTests', 'MailSyncCheckpointTests', 'MailRemovalCoordinatorTests', 'GmailVerificationSyncTests', 'MailVerificationIndexTests', 'GmailReconcileSyncTests', 'MailReconcileIndexTests', 'GmailHistorySyncTests', 'MailHistoryIndexTests', 'MailRemovalRulesTests', 'MailHistoryRulesTests', 'GmailWireTests', 'MailIndexSchemaTests', 'MailIndexReaderTests', 'MailIndexWriterTests', 'MailMessageImporterTests', 'MailMIMETests', 'MailBlobStoreTests', 'MailHTMLPreparerTests', 'GmailPageLoaderTests', 'MailLiveSourceTests', 'MailLocalSearchTests', 'MailLocalSearchReference', 'MailGmailSearchTests', 'MailConversationReaderTests', 'GmailConversationLoaderTests', 'MailIntentStoreTests', 'OutboxRulesTests', 'GmailIntentDeliveryTests', 'MailActionCoordinatorTests', 'MailLabelCatalogTests']]
+sources += [root / 'Banana/Model/Mail/Testing/Hostile/MailHostileMessages.swift']
+sources += [root / 'BananaTests' / (name + '.swift') for name in ['MailSenderTests', 'MailAuthRulesTests', 'MailSyncProgressTests', 'MailSyncProgressReaderTests', 'MailLegacyMigrationTests', 'MailDraftDriverTests', 'MailReadBackoffTests', 'MailAccessLifecycleTests', 'GmailMailboxSyncTests', 'MailSyncFillTests', 'MailSyncCheckpointTests', 'MailRemovalCoordinatorTests', 'GmailVerificationSyncTests', 'MailVerificationIndexTests', 'GmailReconcileSyncTests', 'MailReconcileIndexTests', 'GmailHistorySyncTests', 'MailHistoryIndexTests', 'MailRemovalRulesTests', 'MailHistoryRulesTests', 'GmailWireTests', 'MailIndexSchemaTests', 'MailIndexReaderTests', 'MailIndexWriterTests', 'MailMessageImporterTests', 'MailMIMETests', 'MailBlobStoreTests', 'MailHTMLPreparerTests', 'GmailPageLoaderTests', 'MailLiveSourceTests', 'MailLocalSearchTests', 'MailLocalSearchReference', 'MailGmailSearchTests', 'MailConversationReaderTests', 'GmailConversationLoaderTests', 'MailIntentStoreTests', 'OutboxRulesTests', 'GmailIntentDeliveryTests', 'MailActionCoordinatorTests', 'MailLabelCatalogTests']]
 # Keep the standalone target's presentation and cost-budget dependencies aligned with
 # the native target. These helpers remain pure Foundation/system type projections.
 sources += [root / 'Banana/Model/MailUI/Pure' / name for name in [
@@ -40,6 +48,8 @@ if args.trec_fixture:
     sources.append(root / 'tools/search-eval/TRECMailTests.swift')
 if args.ranked_fixture:
     sources.append(root / "tools/search-eval/RankedMailReplayTests.swift")
+if args.archive_input:
+    sources += [root / 'tools/reports/mail-review/ArchiveReplayTests.swift']
 identities = {}
 for source in sources:
     destination = target / source.name
@@ -70,7 +80,7 @@ import PackageDescription
 let package = Package(name: "MailIndexChecks", platforms: [.macOS(.v14)],
     dependencies: [DEPENDENCY, SOUP_DEPENDENCY, MAIL_TANTIVY],
     targets: [.testTarget(name: "MailIndexChecks", dependencies: [.product(name: "MailTantivy", package: "MailTantivy"), .product(name: "GRDB", package: "GRDB.swift"), .product(name: "SwiftSoup", package: "SwiftSoup")],
-        path: "Tests", swiftSettings: [.swiftLanguageMode(.v5)])])
+        path: "Tests", swiftSettings: [.swiftLanguageMode(.v5), .define("MAIL_FIXTURES")])])
 '''.replace('MAIL_TANTIVY', f'.package(path: {json.dumps(str(root / "Packages/MailTantivy"))})').replace('SOUP_DEPENDENCY', soup_dependency).replace('DEPENDENCY', dependency))
 command = ['swift', 'test', '--package-path', str(out), '-c', 'release', '--jobs', os.environ.get('BUILD_JOBS') or str(os.cpu_count() or 4)]
 if args.scratch_path:
@@ -95,6 +105,9 @@ with (out / 'test.log').open('w') as log:
                            TREC_MAIL_RESULTS=str(out / 'trec-native.json'))
     if args.ranked_fixture:
         environment.update(RANKED_MAIL_FIXTURE=str(args.ranked_fixture.resolve()), RANKED_MAIL_RESULTS=str(out / 'ranked-results.json'), TREC_MAIL_RULES=str(root / 'Shared/LiveFilterRules.json'))
+    if args.archive_input:
+        environment['MAIL_ARCHIVE_INPUTS'] = json.dumps([str(directory.resolve()) for directory in args.archive_input])
+        environment['MAIL_ARCHIVE_OUTPUT'] = str(out / 'snapshots')
     process = subprocess.Popen(command, cwd=root, env=environment, stdout=log, stderr=subprocess.STDOUT)
     with HostMonitor(out / 'host.json', workload_pid=process.pid):
         exit_code = process.wait()

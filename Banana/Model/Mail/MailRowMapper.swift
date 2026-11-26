@@ -13,6 +13,8 @@ enum MailRowMapper {
         default: useRecipients = false
         }
         let people = useRecipients ? stored.recipients : stored.people
+        // The provider can report a reply draft before its editor snapshot is imported.
+        let providerDraft: MailRowReason? = stored.flags.contains(.hasDraft) ? .draft(firstLine: "") : nil
         return MailRow(id: MailConversationID(account: stored.account, thread: stored.thread),
             key: MailOrderKey(group: 0, sortKey: stored.sortKey, tie: stored.tie),
             date: Date(timeIntervalSince1970: Double(stored.lastDate) / 1_000),
@@ -29,7 +31,7 @@ enum MailRowMapper {
             isMuted: stored.flags.contains(.muted), hasPendingChange: stored.pending != 0,
             fromGmailSearch: false, labels: labels,
             reason: reason ?? (stored.pending == 2 ? .changeRefused(.other) : stored.flags.contains(.keptAfterRemoval) ? .keptAfterRemoval
-                : snoozeReason(stored)),
+                : snoozeReason(stored) ?? providerDraft),
             isOnDevice: true, actionBoundary: stored.actionBoundary)
     }
 

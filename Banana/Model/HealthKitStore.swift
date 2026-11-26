@@ -163,7 +163,6 @@ final class HealthKitStore: ObservableObject {
                     self.workoutAnchorData = payload.workoutAnchor
                     self.snapshotChangedAt = (try? FileManager.default.attributesOfItem(atPath: url.path))?[.modificationDate] as? Date
                     self.refreshVisibleWorkouts()
-                    CloudFitnessSync.shared.seedLocalHealthIfPresent()
                 }
             }
         }
@@ -1140,13 +1139,6 @@ final class HealthKitStore: ObservableObject {
         let url = fileURL
         snapshotChangedAt = Date()
         if publish { onSnapshotChange?(urgent) }
-        // Trigger the CloudKit publish synchronously, on the same call stack as persist(), before
-        // the disk write is even scheduled: pushHealthSnapshot()'s markDirty()/engine.state.add()
-        // must land before this function returns so a background/terminate race can't skip both
-        // the async disk write and the async publish hop and lose the dirty bit for this edit.
-        if publish {
-            CloudFitnessSync.shared.pushHealthSnapshot()
-        }
         Self.persistenceQueue.async {
             guard let data = try? JSONEncoder().encode(payload) else { return }
             try? HealthFileProtection.write(data, to: url)

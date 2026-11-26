@@ -180,8 +180,6 @@ enum BananaService {
         /// Sender images (MAIL-UX "Sender images"): which picture each address has, and an image's bytes.
         case mailSenders(Data)
         case mailSenderImage(id: String)
-        case connectMail(email: String, code: String)
-        case disconnectMail(email: String)
         case serverCalendars(email: String, ids: [String])
         /// Deleting needs a fresh Google sign-in's one-time code: a session alone never deletes.
         case deleteAccount(code: String)
@@ -355,8 +353,6 @@ enum BananaService {
             case .mailSenderPolicy(let body): return ("POST", "/v1/mail/sender-policy", body)
             case .mailSenders(let body): return ("POST", "/v1/mail/senders", body)
             case .mailSenderImage(let id): return ("GET", "/v1/mail/sender-image/\(id)", nil)
-            case .connectMail(let email, let code): return ("POST", "/v1/google/mail", encode(["email":email,"code":code]))
-            case .disconnectMail(let email): return ("DELETE", "/v1/google/mail", encode(["email":email]))
             case .calendarOperation(let body):
                 return ("POST", "/v1/calendar/operation", body)
             case .calendarRead(let read):

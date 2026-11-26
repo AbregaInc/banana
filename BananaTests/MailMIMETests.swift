@@ -24,6 +24,15 @@ final class MailMIMETests: XCTestCase {
         XCTAssertEqual(MIMEStructure.extract(payload).plain, "Café")
         XCTAssertEqual(MIMEStructure.extract(part("utf", "text/plain", "雪🙂")).plain, "雪🙂")
     }
+    func testNormalizedHTMLWithAnOldMIMECharsetKeepsItsPunctuation() throws {
+        let html = "<html><head><meta charset='utf-8'></head><body>Start\u{00A0}·\u{00A0}End ©</body></html>"
+        for bytes in [Data(html.utf8), try XCTUnwrap(html.data(using: .isoLatin1))] {
+            let payload = GmailPart(partId: "html", mimeType: "text/html",
+                headers: [GmailHeader(name: "Content-Type", value: "text/html; charset=iso-8859-1")],
+                body: GmailPartBody(data: bytes.base64EncodedString()))
+            XCTAssertEqual(MIMEStructure.extract(payload).html, html)
+        }
+    }
     func testMissingBodyAndMalformedDataAreNotEmptySuccess() {
         let absent = MIMEStructure.extract(GmailPart(partId: "p", mimeType: "text/plain", body: GmailPartBody(attachmentId: "remote", size: 100)))
         XCTAssertNil(absent.plain)

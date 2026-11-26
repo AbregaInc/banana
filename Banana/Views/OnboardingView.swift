@@ -171,12 +171,12 @@ struct OnboardingView: View {
         let withEmail = OnboardingStore.emailInBuild
         return FirstRunPage(title: withEmail ? "Bring in your calendar and email" : "Bring in your calendars", onBack: back) {
             ArtCanvas(top: FirstRunArt.connect.top, bottom: FirstRunArt.connect.bottom) { art in
-                ConnectScene(art: art, mail: withEmail && onboarding.emailWanted)
+                ConnectScene(art: art, mail: withEmail)
             }
             // No line under the calendar-only page: Banana edits events too (calendar.events), so
             // "only reads" was untrue beside Google's own consent screen.
             if withEmail {
-                ConnectRows(emailWanted: $onboarding.emailWanted, locked: !emails.isEmpty)
+                ConnectRows()
             }
             if !emails.isEmpty {
                 AccountRows(emails: emails, adding: connecting) { Task { await addAccount() } }
@@ -792,11 +792,8 @@ private struct ModuleChooser: View {
     }
 }
 
-/// What the one Google sign-in brings in: Calendar, always, and Email, on unless turned off.
-/// Once an account is in, Email is already decided and the switch only shows it.
+/// What the one Google sign-in brings in: Calendar and Email, together.
 private struct ConnectRows: View {
-    @Binding var emailWanted: Bool
-    let locked: Bool
 
     var body: some View {
         VStack(spacing: 0) {
@@ -809,8 +806,10 @@ private struct ConnectRows: View {
             }
             Divider()
             row("Email", symbol: "envelope", tint: FirstRun.mint.dot) {
-                Toggle("Email", isOn: $emailWanted).labelsHidden().disabled(locked)
-                    .accessibilityIdentifier("onboarding.email")
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(FirstRun.ink)
+                    .accessibilityLabel("Always on")
             }
         }
         .tint(FirstRun.ink)

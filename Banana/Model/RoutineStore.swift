@@ -161,11 +161,9 @@ final class RoutineStore: ObservableObject {
             return
         }
         if let data = try? JSONEncoder().encode(routines) { try? data.write(to: fileURL, options: .atomic) }
-        CloudBackup.shared.schedule()
         onChange?()
     }
     /// Re-read from disk (an iCloud restore rewrites the file underneath us).
-    func reloadFromDisk() { load() }
 
     /// `try? JSONDecoder().decode([Routine].self, ...) else { return }` used to treat ANY decode
     /// failure — one corrupt routine among a customized day of cues, or a future field added

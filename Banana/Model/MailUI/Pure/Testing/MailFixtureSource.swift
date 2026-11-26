@@ -167,6 +167,14 @@ final class MailFixtureSource: MailSource {
             }
             threads[id] = stored
         }
+        if args.contains("--mail-reader-actions"),
+           let id = threads.keys.first(where: { $0.thread == "newsletter" }), var stored = threads[id],
+           let first = stored.conversation.messages.indices.first {
+            stored.conversation.messages[first].date = Date(timeIntervalSince1970: 1_795_612_320)
+            let body = Self.text(from: ["I could call after 3pm CT on Mon, Dec 21.", "Noor+Work@plan.example"])
+            bodies[stored.conversation.messages[first].id] = .text(body, quoteStartsAt: nil, notices: [])
+            threads[id] = stored
+        }
         if args.contains("--mail-unknown-sender"),
            let id = threads.keys.first(where: { $0.thread == "newsletter" }), var stored = threads[id] {
             let unknown = MailPerson(name: nil, address: "", isMe: false, isKnown: false, fromTheirMail: false)
@@ -196,6 +204,15 @@ final class MailFixtureSource: MailSource {
             bodies[id] = try? MailHTMLPreparer.prepare(plain: nil, html: html).body
             originalFragments[id] = try? MailOriginalDocument.prepare(html)
         }
+        if arguments.contains("--mail-summary-panels") {
+            let html = """
+            <table><tr><td><h2>Expected</h2><p>2 packages</p></td>
+            <td></td><td><h2>Delivered</h2><p>1 today</p></td></tr></table>
+            """
+            let id = MailMessageID(account: MailFixtureConversations.account, message: "receipt~1")
+            bodies[id] = try? MailHTMLPreparer.prepare(plain: nil, html: html).body
+            originalFragments[id] = try? MailOriginalDocument.prepare(html)
+        }
         #endif
         restoreSchedules()
         publishCounts()
@@ -210,11 +227,11 @@ final class MailFixtureSource: MailSource {
 
     /// Two accounts, and a second "send as" address on the first (`MailFixtureSource+Schedule.swift`).
     var accounts: [MailAccount] {
-        [MailAccount(id: MailFixtureConversations.account, shortName: "z0", wantsMail: true,
+        [MailAccount(id: MailFixtureConversations.account, shortName: "z0",
                      state: .connected, health: .live, lastSyncAt: MailFixtureConversations.now,
                      identities: Self.identities.filter { $0.account == MailFixtureConversations.account },
                      keptAfterRemoval: 0),
-         MailAccount(id: MailFixtureConversations.secondAccount, shortName: "abrega", wantsMail: true,
+         MailAccount(id: MailFixtureConversations.secondAccount, shortName: "abrega",
                      state: .connected, health: .live, lastSyncAt: MailFixtureConversations.now,
                      identities: Self.identities.filter { $0.account == MailFixtureConversations.secondAccount },
                      keptAfterRemoval: 0)]

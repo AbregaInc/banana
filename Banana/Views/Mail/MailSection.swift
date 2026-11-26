@@ -95,9 +95,9 @@ struct MailAccountsMenuItems: View {
         ForEach(accounts, id: \.id) { account in
             Section(account.id) {
                 if account.state != .connected {
-                    Button("Allow Mail") { MailAccountActions.shared.allow(account.id, source: source) }
+                    Button("Connect") { MailAccountActions.shared.allow(account.id, source: source) }
                 } else {
-                    Text(source.permitsAccountChanges(account.id) ? "Connected" : "Read only")
+                    Text("Connected")
                     if let text = MailConnectionBar.healthText(account.health) { Text(text) }
                 }
             }
@@ -138,7 +138,7 @@ private struct MailConnectionBar: View {
                 MailRemovalNotice(source: source, status: source.status)
                 MailDraftNotice(session: session, status: source.status)
                 if actions.busy { ProgressView() }
-                if actions.failed { Text("Mail access wasn’t granted. Try Allow Mail again.").font(.caption) }
+                if actions.failed { Text("Mail isn’t connected. Try Connect again.").font(.caption) }
             }
             .padding(.vertical, bottomBarShell ? DS.Space.xs : 0)
         }

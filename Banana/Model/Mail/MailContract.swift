@@ -513,6 +513,15 @@ struct MailIdentity: Hashable, Codable, Sendable {
 struct MailDraftPart: Equatable, Sendable {
     let fragment: MailFragment
     var body: MailBody
+
+    /// What the quote says, as text; nil for a part with no body to show.
+    var text: MailText? {
+        switch body {
+        case .text(let text, _, _): return text
+        case .designed(_, _, _, let plain, _): return plain
+        case .notOnDevice: return nil
+        }
+    }
 }
 
 struct MailDraftAttachment: Identifiable, Equatable, Codable, Sendable {
@@ -579,21 +588,13 @@ struct MailDraft: Identifiable, Equatable, Sendable {
 
 /// What is true of one account's mail on this device (the rules are MAIL-ENGINE 3.4).
 enum MailAccountState: Equatable, Sendable {
-    /// Mail is not turned on for this account.
-    case off
-    /// Turned on, but this device has not opened Mail yet: nothing has been fetched.
+    /// The account's Google grant does not include Gmail, or Google refused it. Connecting the
+    /// Google account again is the way back.
+    case notConnected
+    /// Connected, but this device has not opened Mail yet: nothing has been fetched.
     case waitingForFirstOpen
-    /// Turned on, but this device cannot reach its mail.
-    case needsAccess(MailAccessGap)
     /// Usable. How sync is going is `MailSyncHealth`.
     case connected
-}
-
-enum MailAccessGap: Equatable, Sendable {
-    /// Never allowed on this device.
-    case notAllowedHere
-    /// Google refused the stored credential, or the scope.
-    case withdrawn
 }
 
 enum MailSyncHealth: Equatable, Codable, Sendable {
@@ -609,8 +610,6 @@ struct MailAccount: Identifiable, Equatable, Sendable {
     /// The address, lower-cased.
     var id: String
     var shortName: String
-    /// The synced choice.
-    var wantsMail: Bool
     /// What is true on this device.
     var state: MailAccountState
     /// Meaningful when `state == .connected`.
@@ -1216,11 +1215,8 @@ enum MailLinkRules {}
 
     // MARK: Accounts, splits, labels
 
-    func setWantsMail(_ on: Bool, account: String)
-    /// The one interactive call: Google's consent for this account's mail, on this device.
+    /// The one interactive call: connects the Google account again, asking for every scope.
     func requestPermission(account: String) async -> MailPermissionResult
-    /// This device's credential. Revokes nothing at Google.
-    func forgetPermission(account: String)
     /// Returns the ids of splits whose query cannot be kept as a view (free text); they are
     /// not saved.
     @discardableResult func saveSplits(_ splits: [MailSplit]) -> [String]

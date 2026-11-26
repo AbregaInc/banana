@@ -269,7 +269,7 @@ private enum TranscriptCloudFiles {
     /// Nil once transcripts no longer come from iCloud (`LegacyCloud`, off).
     private static var root: URL? {
         guard LegacyCloud.mayRead(.personal), let container = FileManager.default.url(
-            forUbiquityContainerIdentifier: CloudBackup.containerID) else { return nil }
+            forUbiquityContainerIdentifier: AppCloud.containerID) else { return nil }
         let directory = container
             .appendingPathComponent("Documents", isDirectory: true)
             .appendingPathComponent("Transcripts", isDirectory: true)

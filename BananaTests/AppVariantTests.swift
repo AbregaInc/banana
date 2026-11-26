@@ -45,21 +45,8 @@ final class AppVariantTests: XCTestCase {
         XCTAssertTrue(AppVariant.production.mayWriteHealth)
     }
 
-    func testBetaReadsAnyGoogleAccountAndChangesOnlyTestAccounts() {
-        let tests: Set<String> = ["sam@test.example"]
-        XCTAssertTrue(AppVariant.beta.mayCallGoogle(method: "GET", account: "sam@work.example", testAccounts: tests))
-        XCTAssertTrue(AppVariant.beta.mayCallGoogle(method: "GET", account: nil, testAccounts: tests))
-        for method in ["POST", "PATCH", "PUT", "DELETE", "patch"] {
-            XCTAssertFalse(AppVariant.beta.mayCallGoogle(method: method, account: "sam@work.example", testAccounts: tests), method)
-            XCTAssertTrue(AppVariant.beta.mayCallGoogle(method: method, account: "Sam@Test.example", testAccounts: tests), method)
-            // An account that can't be told is not a test account.
-            XCTAssertFalse(AppVariant.beta.mayCallGoogle(method: method, account: nil, testAccounts: tests), method)
-            XCTAssertTrue(AppVariant.production.mayCallGoogle(method: method, account: "sam@work.example", testAccounts: []), method)
-        }
-    }
-
     func testThisBuildIsStable() {
-        // The tests run in the Stable app. A Beta flag leaking into it would turn its writes off.
+        // The tests run in the Stable app. A Beta flag leaking into it would select the Beta app identity.
         XCTAssertEqual(AppVariant.current, .production)
     }
 

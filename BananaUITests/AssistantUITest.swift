@@ -10,11 +10,11 @@ final class PiLaunchUITest: XCTestCase {
         let add = app.buttons["Ask or add"].firstMatch
         XCTAssertTrue(add.waitForExistence(timeout: 25), app.debugDescription)
         XCTAssertFalse(app.descendants(matching: .any)["assistant.input"].firstMatch.exists, app.debugDescription)
-        XCTAssertFalse(app.otherElements["returning-user-check"].exists)
+        XCTAssertFalse(app.alerts["Restore from iCloud?"].exists)
         XCTAssertFalse(app.buttons["onboarding.continue"].exists)
         app.terminate()
         app.launch()
-        XCTAssertFalse(app.otherElements["returning-user-check"].exists)
+        XCTAssertFalse(app.alerts["Restore from iCloud?"].exists)
         XCTAssertTrue(add.waitForExistence(timeout: 25), app.debugDescription)
     }
 }

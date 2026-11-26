@@ -30,9 +30,6 @@ extension SyncAdapters {
                 guard let engine = await MainActor.run(body: { SpaceSyncLaunch.engine }) else { return }
                 await engine.replay(types: types)
             })
-        let controlsEditedAt: (ControlKind, String) -> Date? = { kind, id in
-            CloudControlsSync.editedAt(kind, id: id)   // an offer's 1970 counts as none (`HealthFood.ownTime`)
-        }
         let directory = AppSupport.directory.appendingPathComponent("SpaceSync", isDirectory: true)
 
         let snapshot = HealthSnapshotAdapter(port: stores.health, isHub: isHub, directory: directory)
@@ -58,11 +55,11 @@ extension SyncAdapters {
 
         let adapters: [any RecordAdapter] = [
             WellnessAdapter(port: stores.wellness),
-            HealthFood.ControlSourceAdapter(source: stores.wellness, kinds: FoodKinds.wellnessControls, editedAt: controlsEditedAt),
-            HealthFood.ControlSourceAdapter(source: stores.myFoods, kinds: [FoodKinds.myFood], editedAt: controlsEditedAt),
-            HealthFood.ControlSourceAdapter(source: stores.mealInbox, kinds: [FoodKinds.mealInbox], editedAt: controlsEditedAt),
-            MealPhotoAdapter(photos: stores.mealPhotos, editedAt: controlsEditedAt),
-            HealthFood.ControlSourceAdapter(source: stores.mealPhotoLedger, kinds: [FoodKinds.mealPhotoFound], editedAt: controlsEditedAt),
+            HealthFood.ControlSourceAdapter(source: stores.wellness, kinds: FoodKinds.wellnessControls, editedAt: { _, _ in nil }),
+            HealthFood.ControlSourceAdapter(source: stores.myFoods, kinds: [FoodKinds.myFood], editedAt: { _, _ in nil }),
+            HealthFood.ControlSourceAdapter(source: stores.mealInbox, kinds: [FoodKinds.mealInbox], editedAt: { _, _ in nil }),
+            MealPhotoAdapter(photos: stores.mealPhotos, editedAt: { _, _ in nil }),
+            HealthFood.ControlSourceAdapter(source: stores.mealPhotoLedger, kinds: [FoodKinds.mealPhotoFound], editedAt: { _, _ in nil }),
             HealthFood.KeyedValuesAdapter(type: FoodSearchPicks.spaceType, port: FoodSearchPicksPort(), whole: false),
             HealthFood.KeyedValuesAdapter(type: MealEstimators.spaceType, port: MealEstimatorsPort(stores.mealEstimators),
                                           whole: true) { $0.at },

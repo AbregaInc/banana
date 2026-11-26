@@ -183,7 +183,6 @@ final class ExceptionStore: ObservableObject {
         return d.appendingPathComponent("timeline-exceptions.json")
     }
     /// Re-read from disk (an iCloud restore rewrites the file underneath us).
-    func reloadFromDisk() { load() }
 
     private func save() {
         // See `load()`/`saveIsUnsafe`: only set when timeline-exceptions.json failed to decode
@@ -196,7 +195,6 @@ final class ExceptionStore: ObservableObject {
         if let data = try? JSONEncoder().encode(Persisted(overrides: overrides, extras: extras)) {
             try? data.write(to: url, options: .atomic)
         }
-        CloudBackup.shared.schedule()
     }
 
     /// `try? JSONDecoder().decode(Persisted.self, ...) else { return }` used to treat ANY decode

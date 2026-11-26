@@ -24,7 +24,6 @@ export async function mailOperation(deps,vault,account,request) {
  if(!await featureAllowed(deps,account,'email'))return failure(403,'Email access is unavailable.');
  const link=await mailLink(deps,account,request.email);
  if(!link||!googleCapabilities({...link,has_token:Boolean(link.refresh_token)}).mailModify)return failure(403,'Connect Email for this Google account.');
- if(link.client_id&&link.client_id!==deps.config.googleClientId)return failure(403,'Reconnect Email for this service.');
  let token;
  const enabled=async()=>{
   if(!await featureAllowed(deps,account,'email'))return false;

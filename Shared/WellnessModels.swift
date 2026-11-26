@@ -217,7 +217,7 @@ struct MealEntry: Codable, Hashable, Identifiable, Sendable {
     /// length-capped name/serving with a sensible fallback when empty, macros clamped to
     /// finite/non-negative, confidence clamped to 0...1. Pulled out as a pure function — rather
     /// than left inline in `WellnessStore` — so it, and everything built on it below, is testable
-    /// without that store's CloudBackup/CloudKit dependency chain (the same reasoning
+    /// without that store's persistence and sync dependencies (the same reasoning
     /// `FoodCorrectionBook` was split out for).
     static func sanitizedItem(_ item: MealItem) -> MealItem {
         var item = item
@@ -403,7 +403,7 @@ struct FoodCorrection: Codable, Hashable, Sendable {
 /// Pure decision logic behind "the app remembers, but only after the second matching
 /// correction" (natural-language food entry, §5). Kept separate from `WellnessStore` — which
 /// owns the actual `[String: FoodCorrection]` dictionary and its on-disk persistence — so this
-/// logic is testable without `WellnessStore`'s CloudBackup/CloudKit dependency chain, the same
+/// logic is testable without `WellnessStore`'s persistence and sync dependencies, the same
 /// reasoning `DistanceUnit`/`HealthWorkout` were split out of their heavier owners for.
 enum FoodCorrectionBook {
     /// A correction counts as "learned" — i.e. it outranks the catalog — only once the same food
@@ -944,7 +944,7 @@ enum DeterministicWorkoutBuilder {
 // `ListenHistoryStore`/`PodcastLibrary`/`VoiceNoteStore`/`RoutineStore`/`CalendarWriteBack`/
 // `ExceptionStore` didn't have to duplicate it six more times. `WellnessSnapshotLoader` below is
 // now a thin, type-specific wrapper around `SnapshotLoader`, kept so `WellnessStore` (and its
-// tests) don't need to change. Still free of `WellnessStore`'s `AppSupport`/`CloudBackup`/
+// tests) don't need to change. Still free of `WellnessStore`'s `AppSupport`/
 // CloudKit dependency chain — same reasoning `FoodCorrectionBook` and `MealEntry.applyingUpdate`
 // were split out for — so it can be exercised in tests against a throwaway temp file.
 

@@ -3,11 +3,8 @@ import Foundation
 import CoreLocation
 
 /// Split out from ListenHistory.swift — same reasoning as `Podcast.swift`/`VoiceNote.swift`: the
-/// pure, storage-shaped model lives separately from its store (`ListenHistoryStore`, which pulls
-/// in `CloudBackup`'s CloudKit/`FitnessStore` dependency chain via `save()`'s
-/// `CloudBackup.shared.schedule()`), so BananaTests can exercise the decode-and-quarantine
-/// behavior of `listen_history.json` — every listen ever recorded, unbounded, feeding the Listen
-/// Map's GPS routes — without dragging that chain in.
+/// storage model lives separately from `ListenHistoryStore` so tests can exercise the decoding
+/// and quarantine rules for `listen_history.json` directly.
 struct ListenRoutePoint: Codable, Hashable, Sendable {
     var lat: Double
     var lon: Double

@@ -26,8 +26,7 @@ async function readableLink(deps, account, email) {
   if (typeof email !== "string" || email.length > 320) return { refusal: fail(400, "bad_request") };
   if (!(await featureAllowed(deps, account, "email"))) return { refusal: fail(403, "Email access is unavailable.") };
   const link = await mailLink(deps, account, email);
-  if (!link || !googleCapabilities({ ...link, has_token: Boolean(link.refresh_token) }).mailRead) return { refusal: fail(403, "Connect Email for this Google account.") };
-  if (link.client_id && link.client_id !== deps.config.googleClientId) return { refusal: fail(403, "Reconnect Email for this service.") };
+  if (!link || !googleCapabilities({ ...link, has_token: Boolean(link.refresh_token) }).mailModify) return { refusal: fail(403, "Connect Email for this Google account.") };
   return { link };
 }
 

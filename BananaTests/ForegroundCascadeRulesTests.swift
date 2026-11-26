@@ -125,7 +125,7 @@ final class ForegroundCascadeRulesTests: XCTestCase {
 
     /// A backgrounded audio app keeps its process alive for hours; the Google change poll used to
     /// wake it every two minutes to skip its own work. Starting it again is not the rule's to say:
-    /// the app resumes it on every activation, and `CalendarChangePollTests` covers that.
+    /// the app resumes it on every activation.
     func testTheBackgroundStopsThePollAndNothingElseDoes() {
         var rules = settled()
         XCTAssertFalse(rules.phaseChanged(from: .active, to: .inactive).stopsPolling,

@@ -152,8 +152,8 @@ struct GoogleWindowFetch {
 final class GoogleCalendarService: ObservableObject {
     static let shared = GoogleCalendarService()
 
-    static let eventsScope = "https://www.googleapis.com/auth/calendar.events"
-    static let calendarListScope = "https://www.googleapis.com/auth/calendar.calendarlist.readonly"
+    static let eventsScope = GoogleScopes.calendarEvents
+    static let calendarListScope = GoogleScopes.calendarList
     private static let requiredScopes = [eventsScope, calendarListScope]
     private static let accountHintKey = "googleCalendar.accountHint.v1"
     private static let log = Logger(subsystem: "com.boris.banana", category: "google")
@@ -309,12 +309,6 @@ final class GoogleCalendarService: ObservableObject {
         return accounts.first { $0.id == email.lowercased() }
     }
 
-    /// Whether this build may change anything in `email`'s account: always in Stable, and in
-    /// Beta only an account marked as a test account. `send` refuses the rest.
-    private func mayChange(account email: String) -> Bool {
-        AppVariant.current.mayCallGoogle(method: "POST", account: email, testAccounts: BetaTestAccounts.all)
-    }
-
     var writableCalendarInfos: [CalendarSourceInfo] {
         calendars
             .filter(\.isWritable)
@@ -325,7 +319,7 @@ final class GoogleCalendarService: ObservableObject {
     /// Every calendar busy blocks could be written to, with what write-back needs to decide
     /// whether it should be.
     var writeBackCandidates: [WriteBackDestinations.Calendar] {
-        calendars.filter { $0.isWritable && !$0.isDeleted && mayChange(account: $0.accountEmail) }.map {
+        calendars.filter { $0.isWritable && !$0.isDeleted }.map {
             WriteBackDestinations.Calendar(
                 infoID: Self.calendarInfoID($0.id),
                 titles: [$0.summaryOverride, $0.summary].compactMap { $0 }.filter { !$0.isEmpty },
@@ -397,12 +391,11 @@ final class GoogleCalendarService: ObservableObject {
         restorationTask = nil
     }
 
-    /// Connect a Google account. `extraScopes` joins further scopes to the calendar's in the same
-    /// Google screen (the first run asks for Gmail with Calendar, `EmailSetup`); the calendar is
+    /// Connect a Google account, asking for every scope (`GoogleScopes.all`). The calendar is
     /// accepted on its own scopes, so unticking the others on Google's screen still connects it.
     /// - Returns: the scopes Google granted, or nil when nothing was connected.
     @discardableResult
-    func connect(extraScopes: [String] = []) async -> Set<String>? {
+    func connect() async -> Set<String>? {
         guard isConfigured else {
             lastError = "Google Calendar isn’t configured for this Banana build."
             return nil
@@ -414,12 +407,11 @@ final class GoogleCalendarService: ObservableObject {
         do {
             // Only hint when there is nothing connected yet: that is the case the hint helps,
             // and the case where preselecting cannot hide an account you are trying to add.
-            let result = try await interactiveSignIn(
-                hint: accounts.isEmpty ? suggestedAccountEmail : nil,
-                scopes: extraScopes.isEmpty ? nil : Self.requiredScopes + extraScopes)
+            let result = try await interactiveSignIn(hint: accounts.isEmpty ? suggestedAccountEmail : nil)
             try accept(result.user)
             // Cloud reads need the newly granted server credential before the first list request.
             await BananaAccount.shared.googleSignedIn(code: result.serverAuthCode)
+            if let email = result.user.profile?.email { await grantChanged(email: email) }
             try await loadCalendars()
             Telemetry.shared.record(.feature(.calendarConnected))
             return Set(result.user.grantedScopes ?? [])
@@ -442,48 +434,59 @@ final class GoogleCalendarService: ObservableObject {
     ///
     /// The login hint IS right here, unlike when adding: this is a request to re-authorise one
     /// named account, so preselecting it is exactly what is wanted.
-    func reconnect(email: String) async {
+    /// How a reconnect ended, for callers that act on it (Mail's Connect). Settings only shows
+    /// `lastError`.
+    enum ReconnectOutcome: Equatable {
+        /// Connected again, with the scopes Google granted.
+        case connected(Set<String>)
+        case cancelled
+        case differentAccount
+        case failed
+    }
+
+    @discardableResult
+    func reconnect(email: String) async -> ReconnectOutcome {
         guard isConfigured else {
             lastError = "Google Calendar isn’t configured for this Banana build."
-            return
+            return .failed
         }
         isWorking = true
         lastError = nil
         defer { isWorking = false }
         do {
-            var scopes = Self.requiredScopes
-            #if !BANANA_PUBLIC
-            let link = BananaAccount.shared.account?.google.first { $0.email.lowercased() == email.lowercased() }
-            scopes = GoogleReconnectPermissions.scopes(calendar: scopes,
-                mail: link?.permissionScopes?["mail"] ?? [], readable: link?.capabilities?.mailRead == true,
-                modifiable: link?.capabilities?.mailModify == true,
-                enabled: ModuleStore.shared.choice.includes(.email) && FeatureAccessStore.shared.allows("email"),
-                additional: MailScopes.senderPhotos)
-            #endif
-            let result = try await interactiveSignIn(hint: email, scopes: Array(Set(scopes)).sorted())
+            let result = try await interactiveSignIn(hint: email)
             guard let signedIn = result.user.profile?.email,
                   signedIn.lowercased() == email.lowercased() else {
                 // Signing in as someone else here would silently swap which account is connected.
                 lastError = "That signed in as \(result.user.profile?.email ?? "another account"). Use “Add another Google account” for a different one."
-                return
+                return .differentAccount
             }
             try accept(result.user)
             accountsNeedingReconnect.remove(email.lowercased())
             reconnectReasons[email.lowercased()] = nil
             tokenCache[email.lowercased()] = nil
             await BananaAccount.shared.googleSignedIn(code: result.serverAuthCode)
-            #if !BANANA_PUBLIC
-            if ModuleStore.shared.choice.includes(.email), FeatureAccessStore.shared.allows("email"),
-               BananaAccount.shared.account?.google.first(where: { $0.email.lowercased() == email.lowercased() })?.capabilities?.mailRead == true {
-                await MailSenderImages.shared.permissionsDidChange()
-                NotificationCenter.default.post(name: MailSenderImages.permissionsChanged, object: nil)
-            }
-            #endif
-            try await loadCalendars()
+            await grantChanged(email: email)
+            do { try await loadCalendars() } catch { lastError = Self.friendlyMessage(for: error) }
+            return .connected(Set(result.user.grantedScopes ?? []))
         } catch is CancellationError {
+            return .cancelled
         } catch {
             lastError = Self.friendlyMessage(for: error)
+            return .failed
         }
+    }
+
+    /// A consent for `email` finished and the service has its code: every surface that reads
+    /// Google's grant reads it again. The calendar is reloaded by the caller.
+    func grantChanged(email: String) async {
+        #if !BANANA_PUBLIC
+        guard ModuleStore.shared.choice.includes(.email), FeatureAccessStore.shared.allows("email"),
+              BananaAccount.shared.account?.google.first(where: { $0.email.lowercased() == email.lowercased() })?.capabilities?.mailModify == true
+        else { return }
+        await MailSenderImages.shared.permissionsDidChange()
+        NotificationCenter.default.post(name: MailSenderImages.permissionsChanged, object: nil)
+        #endif
     }
 
     /// Google's identity token for a connected account, minted with the refresh token already held:
@@ -499,7 +502,7 @@ final class GoogleCalendarService: ObservableObject {
     }
 
     /// Asks Google to tell the Banana service when a calendar changes (`events.watch`), with this
-    /// device's own access. Changes nothing in the calendar, so Beta may do it for any account.
+    /// device's own access. The watch registration changes no events.
     func openWatch(calendarID: String, email: String, channelID: String, token: String,
                    address: String, ttlSeconds: Int) async throws -> (resourceID: String, expiration: Date) {
         guard let account = accounts.first(where: { $0.id == email.lowercased() }) else { throw GoogleCalendarError.notConnected }
@@ -550,7 +553,7 @@ final class GoogleCalendarService: ObservableObject {
     /// A fresh Google sign-in whose one-time code shows the Banana service who is asking
     /// (deleting the account needs one). Nothing connected in the app changes.
     func freshSignInCode(hint: String?) async throws -> String {
-        let result = try await interactiveSignIn(hint: hint)
+        let result = try await interactiveSignIn(hint: hint, askAgain: false)
         guard let code = result.serverAuthCode else { throw GoogleCalendarError.notConnected }
         return code
     }
@@ -2014,6 +2017,35 @@ final class GoogleCalendarService: ObservableObject {
         }
     }
 
+    #if !BANANA_PUBLIC
+    /// Fixed categories for in-app reports. Provider text can contain private calendar details.
+    static func invitationLookupFailureReason(_ error: Error) -> String {
+        switch error as? GoogleCalendarError {
+        case .notConnected: return "calendar account disconnected"
+        case .permissionMissing: return "calendar permission missing"
+        case .malformedResponse: return "malformed response"
+        case .api(let status, _): return "HTTP \(status)"
+        default:
+            if let transport = error as? URLError { return "transport \(transport.code.rawValue)" }
+            return "calendar request failed"
+        }
+    }
+
+    /// A temporary read failure can reuse the timeline's event. Permission and account failures
+    /// keep their error state. RSVP always fetches the provider event again before writing.
+    func cachedInvitationEvents(calendarID: String, accountEmail: String, after error: Error) -> [GoogleEvent] {
+        let email = accountEmail.lowercased()
+        guard accounts.contains(where: { $0.id == email }),
+              MailInviteLookup.calendarIDs(account: email, calendars: calendars).contains(calendarID) else { return [] }
+        if let error = error as? GoogleCalendarError {
+            guard case .api(let status, _) = error, (500..<600).contains(status) else { return [] }
+        } else if let network = error as? URLError {
+            guard [.notConnectedToInternet, .networkConnectionLost, .timedOut, .cannotConnectToHost].contains(network.code) else { return [] }
+        } else { return [] }
+        return eventCache[calendarID]?.events ?? []
+    }
+    #endif
+
     /// Events on one calendar carrying an iCalendar UID — how a block written through Apple
     /// Calendar is found again through the API. Read-only.
     func events(calendarID: String, iCalUID: String, accountEmail: String? = nil) async throws -> [GoogleEvent] {
@@ -2238,8 +2270,22 @@ final class GoogleCalendarService: ObservableObject {
         return error
     }
 
-    private func interactiveSignIn(hint: String?, scopes requestedScopes: [String]? = nil) async throws -> GIDSignInResult {
-        let scopes = requestedScopes ?? Self.requiredScopes
+    /// Every consent asks for every scope (`GoogleScopes.all`), whatever started it. When Google's
+    /// screen comes back with boxes unticked, Banana says which and why and, on Continue, shows
+    /// Google's screen again for the same account; Not now carries on with what was granted.
+    /// `askAgain` is off only where the grant is not the point (proving who you are).
+    private func interactiveSignIn(hint: String?, askAgain: Bool = true) async throws -> GIDSignInResult {
+        var hint = hint
+        while true {
+            let result = try await presentGoogleSignIn(hint: hint)
+            let missing = GoogleScopes.missing(granted: Set(result.user.grantedScopes ?? []))
+            guard askAgain, !missing.isEmpty, await GoogleConsentRetry.ask(missing) else { return result }
+            hint = result.user.profile?.email ?? hint
+        }
+    }
+
+    private func presentGoogleSignIn(hint: String?) async throws -> GIDSignInResult {
+        let scopes = GoogleScopes.all
         #if os(iOS)
         guard let presenter = Self.presentingViewController() else {
             throw GoogleCalendarError.noPresentationContext
@@ -2604,11 +2650,6 @@ final class GoogleCalendarService: ObservableObject {
     /// with a fresh one before giving up.
     private func send(url: URL, method: String, body: Data?,
                       account: GoogleAccountCredential?, ifMatch: String? = nil) async throws -> Data {
-        // Beta changes only accounts marked as test accounts (`AppVariant`).
-        guard AppVariant.current.mayCallGoogle(method: method, account: owner(of: url, account: account)?.id,
-                                               testAccounts: BetaTestAccounts.all) else {
-            throw GoogleCalendarError.betaReadOnly
-        }
         if let context = FeatureAccessStore.shared.calendarReadContext {
             guard let email = owner(of: url, account: account)?.id else { throw GoogleCalendarError.notConnected }
             if method == "GET" {
@@ -2819,8 +2860,6 @@ private enum GoogleCalendarError: LocalizedError {
     case changedElsewhere
     /// An invitation someone else organizes.
     case notYours
-    /// Beta, and the account isn't marked as a test account.
-    case betaReadOnly
     case api(status: Int, message: String?)
 
     var errorDescription: String? {
@@ -2828,7 +2867,7 @@ private enum GoogleCalendarError: LocalizedError {
         case .notConnected:
             return "Connect Google Calendar in Banana Settings and try again."
         case .permissionMissing:
-            return "Google Calendar permission wasn’t granted. Connect again and allow both calendar permissions."
+            return "Google Calendar permission wasn’t granted. Reconnect the account in Settings and allow both calendar permissions."
         case .noPresentationContext:
             return "Banana couldn’t open Google sign-in. Bring the app window forward and try again."
         case .malformedResponse:
@@ -2839,8 +2878,6 @@ private enum GoogleCalendarError: LocalizedError {
             return "Banana keeps this block up to date itself, so it can\u{2019}t be edited."
         case .notYours:
             return "Only the organizer can change this event\u{2019}s time."
-        case .betaReadOnly:
-            return "Banana Beta only changes test accounts. Mark this one in Settings \u{203A} Google Calendar."
         case .changedElsewhere:
             return "This event changed in Google Calendar since you opened it. Open it again to see the change, then make yours."
         case .api(let status, let message):
@@ -2899,13 +2936,21 @@ extension MeetingInfo {
 
 #if BANANA_UNRELEASED
 extension GoogleCalendarService {
-    /// Reuse Google's platform presenter without accepting a Calendar account or changing its grant.
-    func googleConsent(hint: String, scopes: [String]) async throws -> GoogleConsentResult {
+    /// Consent started by Mail. It asks for every scope like any other, so a grant that carries the
+    /// calendar's also renews the calendar here, as reconnecting would; the caller hands the code
+    /// to the service, which stores both grants from it.
+    func googleConsent(hint: String) async throws -> GoogleConsentResult {
         guard clientID != nil else { throw GoogleConsentError.notConfigured }
         do {
-            let result = try await interactiveSignIn(hint: hint, scopes: scopes)
+            let result = try await interactiveSignIn(hint: hint)
             defer { GIDSignIn.sharedInstance.signOut() }
             guard let email = result.user.profile?.email else { throw GoogleConsentError.failed }
+            if (try? accept(result.user)) != nil {
+                accountsNeedingReconnect.remove(email.lowercased())
+                reconnectReasons[email.lowercased()] = nil
+                tokenCache[email.lowercased()] = nil
+                Task { try? await self.loadCalendars() }
+            }
             return GoogleConsentResult(email: email,
                 refreshToken: result.user.refreshToken.tokenString,
                 grantedScopes: result.user.grantedScopes ?? [], serverAuthCode: result.serverAuthCode)

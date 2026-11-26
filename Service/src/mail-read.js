@@ -26,8 +26,7 @@ export async function mailRead(deps,vault,account,request) {
  const fail=(status,message)=>({status,body:{error:{code:status,message}}});
  if(!await featureAllowed(deps,account,'email'))return fail(403,'Email access is unavailable.');
  const link=await mailLink(deps,account,request.email);
- if(!link||!googleCapabilities({...link,has_token:Boolean(link.refresh_token)}).mailRead)return fail(403,'Connect Email for this Google account.');
- if(link.client_id&&link.client_id!==deps.config.googleClientId)return fail(403,'Reconnect Email for this service.');
+ if(!link||!googleCapabilities({...link,has_token:Boolean(link.refresh_token)}).mailModify)return fail(403,'Connect this Google account.');
  try {
   // An account with a shared cloud mailbox reads content and its profile from there (MAIL-CLOUD-SYNC.md §5).
   const served=await mailboxRead(deps,vault,link,request);
@@ -38,15 +37,13 @@ export async function mailRead(deps,vault,account,request) {
    await deps.sleep(reservation.waitMS);
    const current=await mailLink(deps,account,request.email);
    if(!await featureAllowed(deps,account,'email')||!current||current.refresh_token!==link.refresh_token||
-      !googleCapabilities({...current,has_token:Boolean(current.refresh_token)}).mailRead||
-      (current.client_id&&current.client_id!==deps.config.googleClientId))return fail(403,'Email access changed.');
+      !googleCapabilities({...current,has_token:Boolean(current.refresh_token)}).mailModify)return fail(403,'Email access changed.');
   }
   const {accessToken}=await deps.google.refresh(await vault.open(link.sub,link.refresh_token));
   return await deps.google.mailRead(accessToken,request);
  } catch(error) {
   // The kind of failure only (no address, id or content), so `wrangler tail` says which upstream failed.
   if(!(error instanceof GoogleRefused))console.log(`mail read failed: ${request.resource} ${error?.name??'Error'} ${error?.status??''}`.trim());
-  if(error instanceof GoogleRefused&&link.mailGrant)await deps.db.run("UPDATE mail_grants SET status='refused',updated_at=? WHERE google_sub=? AND refresh_token=?",deps.now(),link.sub,link.refresh_token);
-  return fail(error instanceof GoogleRefused?403:502,error instanceof GoogleRefused?'Reconnect Email for this Google account.':'Email temporarily unavailable.');
+  return fail(error instanceof GoogleRefused?403:502,error instanceof GoogleRefused?'Reconnect this Google account.':'Email temporarily unavailable.');
  }
 }

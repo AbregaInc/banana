@@ -42,20 +42,20 @@ local AI; Stable excludes both. Neither a separate Beta app record nor a Beta Te
 is required. Local Beta and Cloud Dev are installed with the local scripts; neither is a public
 release channel. See [build presets](design/FEATURE-ACCESS.md#build-presets).
 
-**Beta changes nothing Stable can see unless it was marked as Beta's** (`AppVariant` in
+**Beta fences Reminders and Health writes** (`AppVariant` in
 `Banana/Model/AppSupport.swift`, held by `AppVariantTests`). Both apps are on the same devices
 and read the same real calendar, reminders and Health, so what Beta may *change* is fenced:
 
 | Outside the app | Stable | Beta |
 |---|---|---|
-| Google Calendar | every connected account | reads every account; changes only one marked **Test account** in Settings › Google Calendar (busy blocks included) |
+| Google Calendar | connected accounts with Google write permission | connected accounts with Google write permission |
+| Gmail | Email disabled | account-level Email access and a Gmail modify grant from Google |
 | Google sign-ins (keychain) | `com.boris.banana.google-accounts` | `com.boris.banana.beta.google-accounts`: signing in or out of one never touches the other |
 | Apple Reminders | every list | reads every list; changes only its own list, "Banana Beta", made when first needed |
 | Apple Health | reads and saves | reads; saves nothing |
 | Nearby devices | `_banana-audio._tcp` | `_banana-beta._tcp` |
 
-A new thing that writes outside the app gets a rule on `AppVariant` and a line in that test,
-before it ships.
+App-specific write rules are covered by `AppVariantTests`. Reconnect in Settings › Accounts renews Google permissions.
 
 **Beta uses a separate staging iCloud namespace.** iPhone Beta and Mac Beta share
 `iCloud.com.boris.banana.beta` and the matching KVS identity, so settings, progress, backups, voice

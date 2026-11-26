@@ -141,7 +141,8 @@ final class MailCloudPullTests: XCTestCase {
     /// HTML with more pieces than preparation walks, and no plain part: shown as its words, "deep".
     /// (Depth alone is no bound: deep content is read flat.)
     static func tooComplex(_ id: String, date: Int64, labels: [String] = ["INBOX"]) -> GmailMessage {
-        let html = "<html><body>" + String(repeating: "<i></i>", count: MailHTMLPreparer.maximumNodes) + "deep</body></html>"
+        // Void elements fill the node budget while keeping the entire fixture under the tag limit.
+        let html = "<html><body>" + String(repeating: "<br>", count: MailHTMLPreparer.maximumNodes) + "deep</body></html>"
         let data = Data(html.utf8).base64EncodedString().replacingOccurrences(of: "+", with: "-").replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: "=", with: "")
         let json = """
         {"id":"\(id)","threadId":"t-\(id)","historyId":"100","internalDate":"\(date)","labelIds":\(String(decoding: try! JSONEncoder().encode(labels), as: UTF8.self)),
@@ -534,7 +535,6 @@ final class MailCloudPullTests: XCTestCase {
         func mailAccessToken(accountID: String) async throws -> MailAccessToken { MailAccessToken(value: "fixture", scopes: [MailScopes.gmailModify]) }
         func dropMailAccessToken(accountID: String) {}
         func requestMailAccess(accountID: String) async -> MailAccessOutcome { .granted }
-        func forgetMailAccess(accountID: String) async throws {}
         func cancelMailTokenRequests() {}
     }
     private func source(cloud: MailCloudPullTests.Cloud?, gmail: MailCloudPullTests.Gmail) async throws -> (MailStores, MailLiveSource) {
@@ -774,7 +774,6 @@ final class MailCloudPullTests: XCTestCase {
         func mailAccessToken(accountID: String) async throws -> MailAccessToken { MailAccessToken(value: "fixture", scopes: [MailScopes.gmailModify]) }
         func dropMailAccessToken(accountID: String) {}
         func requestMailAccess(accountID: String) async -> MailAccessOutcome { .granted }
-        func forgetMailAccess(accountID: String) async throws {}
         func cancelMailTokenRequests() {}
     }
     private func id(_ m: String) -> MailMessageID { MailMessageID(account: Self.account, message: m) }

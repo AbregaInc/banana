@@ -283,7 +283,7 @@ private struct ShellSidebarMailPlaces: View {
         }
         .onAppear {
             observation = session.source.observeAccounts { new in
-                let usable = new.filter(\.wantsMail)
+                let usable = new.filter { $0.state != .notConnected }
                 if accounts != usable { accounts = usable }
             }
         }

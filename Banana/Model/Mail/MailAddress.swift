@@ -1018,6 +1018,20 @@ enum MailCharset {
         return unknownCharsetText(bytes)
     }
 
+    /// A provider can normalize HTML bytes to UTF-8 while retaining a legacy MIME charset.
+    /// Recover only repeated misdecoded spaces in an HTML document declaring UTF-8, and only
+    /// when the entire conversion round-trips through Latin-1 without loss.
+    static func recoverUTF8HTML(_ html: String) -> String {
+        let misplacedSpace = "Â\u{00A0}"
+        guard let first = html.range(of: misplacedSpace, options: .literal),
+              html.range(of: misplacedSpace, options: .literal, range: first.upperBound..<html.endIndex) != nil,
+              html.prefix(4_096).range(of: #"(?i)<meta\s+[^<>]{0,512}\bcharset\s*=\s*["']?utf-?8\b"#,
+                                       options: .regularExpression) != nil,
+              let bytes = html.data(using: .isoLatin1),
+              let repaired = String(data: bytes, encoding: .utf8) else { return html }
+        return repaired
+    }
+
     /// UTF-8 if the bytes are valid UTF-8, else Windows-1252 with U+FFFD for what it leaves
     /// undefined.
     static func unknownCharsetText(_ bytes: [UInt8]) -> String {

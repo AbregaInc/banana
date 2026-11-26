@@ -295,9 +295,18 @@ final class HubRequestsTests: XCTestCase {
         var handled = HubRequests()
         handled.watchResync = t
         XCTAssertTrue(asked.pending(after: handled).isEmpty, "already done")
-        asked.backUpNow = t.addingTimeInterval(60)
         asked.watchResync = t.addingTimeInterval(120)
-        XCTAssertEqual(Set(asked.pending(after: handled)), [.watchResync, .backUpNow])
+        XCTAssertEqual(asked.pending(after: handled), [.watchResync])
+    }
+
+    func testLegacyBackupRequestsAreIgnoredWithoutDroppingWatchResync() throws {
+        let decoder = JSONDecoder()
+        let old = try decoder.decode(HubRequests.self, from: Data(#"{"backUpNow":60,"watchResync":120}"#.utf8))
+        XCTAssertEqual(old.watchResync, Date(timeIntervalSinceReferenceDate: 120))
+        XCTAssertEqual(old.pending(after: HubRequests()), [.watchResync])
+        let backupOnly = try decoder.decode(HubRequests.self, from: Data(#"{"backUpNow":60}"#.utf8))
+        XCTAssertEqual(backupOnly, HubRequests())
+        XCTAssertTrue(backupOnly.pending(after: HubRequests()).isEmpty)
     }
 
     func testANewerPhoneStatusStillDecodesOnAnOlderDevice() throws {

@@ -49,7 +49,6 @@ struct RootView: View {
     /// half of the foreground cascade — see ForegroundCascadeRules.
     @State private var foregroundCascade = ForegroundCascadeRules()
 
-    @StateObject private var backup = CloudBackup.shared
     @ObservedObject private var visibility = AppVisibility.shared
     /// The selected tab and each tab's open screen. Held outside the tree because `gatedContent`
     /// throws the whole tree away in the background — see ShellNavigation.
@@ -347,17 +346,6 @@ struct RootView: View {
         }
         #endif
         // (dummy-health branch above bypasses the gate for layout checks)
-        // A fresh install found a backup in iCloud. Never applied without a yes — a deliberate
-        // clean slate is a legitimate thing to want.
-        .alert("Restore from iCloud?", isPresented: .constant(backup.pendingRestore != nil)) {
-            Button("Restore") { if let snap = backup.pendingRestore { backup.restore(snap) } }
-            Button(backup.restoreDeclineTitle, role: .cancel) { backup.discardPendingRestore() }
-        } message: {
-            if let snap = backup.pendingRestore {
-                let _ = snap
-                Text(backup.restoreQuestion)
-            }
-        }
         // Leaving onboarding is the one transition guaranteed to have changed permissions, and
         // it never raises a scenePhase event — the system prompts arrive as `.inactive`, which
         // is deliberately ignored. MacRootView already refreshes here; iOS did not.
@@ -472,7 +460,6 @@ struct RootView: View {
                     await WorkoutHealthFollow.shared.settle()
                 }
                 #endif
-                CloudSyncPoll.resume()                          // other devices' changes, now and every minute
                 }
                 #if BANANA_MODULE_PODCASTS
                 HubStatusStore.shared.update { $0.watchEpisodesPending = downloads.watchPendingCount }
@@ -502,9 +489,6 @@ struct RootView: View {
                 if plan.runsNetworkAndSync {
                     Task { await smart.recomputeIfStale() }   // keep the wake plan fresh; skip when it already is
                     #if BANANA_MODULE_PODCASTS
-                    // Manual-cadence sync fetches only when told to — foreground is when another
-                    // device's session is worth picking up. No-op while sync is off.
-                    CloudProgressSync.shared.flushNow(reason: "foreground")
                     // Keep feeds and auto-downloads moving on the app people actually open.
                     // Throttled inside (4h) so this is free on rapid app switches.
                     Task { await downloads.refreshFeedsAndReconcile() }
@@ -514,13 +498,12 @@ struct RootView: View {
                 // Still on screen. `.inactive` fires for Control Center, notification center,
                 // permission alerts (including onboarding's own), the app switcher, and incoming
                 // call banners — treating it as "invisible" blanked the app to black behind every
-                // one of those and paid a full tree rebuild (+ a progress commit + a backup pass)
+                // one of those and paid a full tree rebuild (and a progress commit)
                 // per glance. Only `.background` means nobody can see us. In particular, the
                 // return path may be background → inactive → active; restore at inactive so the
                 // app-switcher transition never exposes our deliberate black CPU guard.
                 AppVisibility.shared.set(active: true)
             case .background:
-                CloudSyncPoll.pause()
                 Telemetry.shared.send()
                 // Stamped so a gap in the journal is legible: if the app is suspended mid-episode,
                 // the last line before the silence is this one.
@@ -534,12 +517,8 @@ struct RootView: View {
                 player.setInterfaceActive(false)
                 PlaybackDiagnostics.shared.log("app → background", "playing=\(player.isPlaying)")
                 player.commitProgress()
-                CloudProgressSync.shared.flushNow(reason: "background")
+                SpaceSyncLaunch.sync(reason: "playback background")
                 #endif
-                // Progress saves during playback deliberately skip the iCloud upload (they run
-                // every 30s and each one re-reads and uploads the whole library). Leaving the app
-                // is the natural point to push the latest state up.
-                Task { await CloudBackup.shared.backUpNow(userInitiated: false) }
                 // Keep a calendar write-back window on the books so a meeting Calendly books (or
                 // a return-home hold it creates room for) while the app is closed still gets a
                 // busy block before the person is back to open Banana themselves.
@@ -577,8 +556,6 @@ struct RootView: View {
             // The same app whichever way the phone is held. Landscape used to swap it for a
             // bedside clock, so nothing could be used on its side.
             mainTabs
-        } else if !backup.initialRestoreCheckFinished {
-            ReturningUserCheckView()
         } else {
             OnboardingView()
         }
@@ -760,7 +737,7 @@ struct RootView: View {
         // its own column and lays itself out for it (docs/design/ADAPTIVE-LAYOUT.md).
         TabView(selection: tabSelection) {
             Tab(AppSection.plan.title, systemImage: AppSection.plan.symbol, value: ShellTab.section(.plan)) {
-                // The shell legitimately observes playback, permissions, backup, and sync state.
+                // The shell legitimately observes playback, permissions and sync state.
                 // None of those changes the calendar subtree. Keep their launch-time publication
                 // bursts from rebuilding the expensive day grid.
                 PlannerTab().equatable()
@@ -788,18 +765,16 @@ struct RootView: View {
                         if bodyShowing == .nutrition {
                             NutritionSection()
                                 .measuresLayoutClass()
-                                .syncWaitingNote(.wellness)
                                 .toastHost()
                         } else {
                             WorkoutsSection(path: $shell.state.workouts)
                                 .measuresLayoutClass()
-                                .syncWaitingNote(.fitness)
                                 .toastHost()
                         }
                         #elseif BANANA_MODULE_FOOD
-                        NutritionSection().measuresLayoutClass().syncWaitingNote(.wellness).toastHost()
+                        NutritionSection().measuresLayoutClass().toastHost()
                         #else
-                        WorkoutsSection(path: $shell.state.workouts).measuresLayoutClass().syncWaitingNote(.fitness).toastHost()
+                        WorkoutsSection(path: $shell.state.workouts).measuresLayoutClass().toastHost()
                         #endif
                     }
                     .shellPage(bottomBar: bottomBarShell).erasedTab()
@@ -816,7 +791,6 @@ struct RootView: View {
                     Tab(AppSection.workouts.title, systemImage: AppSection.workouts.symbol, value: ShellTab.section(.workouts)) {
                         WorkoutsSection(path: $shell.state.workouts)
                             .measuresLayoutClass()
-                            .syncWaitingNote(.fitness)
                             .toastHost()
                             .shellPage(bottomBar: bottomBarShell).erasedTab()
                     }
@@ -827,7 +801,6 @@ struct RootView: View {
                     Tab(AppSection.nutrition.title, systemImage: AppSection.nutrition.symbol, value: ShellTab.section(.nutrition)) {
                         NutritionSection()
                             .measuresLayoutClass()
-                            .syncWaitingNote(.wellness)
                             .toastHost()
                             .shellPage(bottomBar: bottomBarShell).erasedTab()
                     }
@@ -862,7 +835,6 @@ struct RootView: View {
                 Tab(AppSection.library.title, systemImage: AppSection.library.symbol, value: ShellTab.section(.library)) {
                     PodcastsView()
                         .measuresLayoutClass()
-                        .syncWaitingNote(.controls)
                         .toastHost()
                         .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
@@ -875,7 +847,6 @@ struct RootView: View {
                 Tab(AppSection.review.title, systemImage: AppSection.review.symbol, value: ShellTab.section(.review)) {
                     ReviewView(from: chrome.reviewFrom)
                         .measuresLayoutClass()
-                        .syncWaitingNote(.fitness)
                         .toastHost()
                         .shellPage(bottomBar: bottomBarShell).erasedTab()
                 }
@@ -1140,26 +1111,6 @@ private struct FlightBoardingVerificationView: View {
     }
 }
 #endif
-
-/// A returning install may need a moment to discover the predecessor's iCloud snapshot. Keeping
-/// the new-user tour behind this small launch state prevents it from appearing and then vanishing.
-private struct ReturningUserCheckView: View {
-    var body: some View {
-        VStack(spacing: 18) {
-            BrandMark()
-            ProgressView()
-            Text("Checking iCloud…")
-                .font(.headline)
-            Text("If you use Banana on another device, your setup comes across.")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemGroupedBackground))
-        .accessibilityIdentifier("returning-user-check")
-    }
-}
 
 #endif
 

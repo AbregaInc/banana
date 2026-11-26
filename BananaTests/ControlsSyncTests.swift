@@ -378,110 +378,11 @@ final class ZoomTapGateTests: XCTestCase {
 /// A build lists, and asks about, only the data its modules have: the calendar-only App Store
 /// app shows no Workouts, Meals or Listening sync and no Health consent.
 final class ModuleSyncScopeTests: XCTestCase {
-    func testOnlyTheCarriedModulesKindsOfDataAreListed() {
-        XCTAssertEqual(SyncDomain.carried([]), [.controls])
-        XCTAssertEqual(SyncDomain.carried([.food]), [.wellness, .controls, .meals])
-        XCTAssertEqual(SyncDomain.carried(Set(AppModule.allCases)), SyncDomain.allCases)
-    }
-
     func testTheHealthConsentBelongsToBuildsWithHealthOrFood() {
         XCTAssertFalse(AppModule.healthConsentApplies([]))
         XCTAssertFalse(AppModule.healthConsentApplies([.notes, .podcasts]))
         XCTAssertTrue(AppModule.healthConsentApplies([.food]))
         XCTAssertTrue(AppModule.healthConsentApplies([.workouts]))
-    }
-}
-
-/// What a page and Settings say while data is still arriving.
-final class SyncActivityTests: XCTestCase {
-    private let t0 = Date(timeIntervalSinceReferenceDate: 800_000_000)
-
-    private func running() -> SyncActivity {
-        var activity = SyncActivity()
-        activity.running = true
-        return activity
-    }
-
-    func testANewDeviceSaysItIsGettingTheData() {
-        var activity = running()
-        activity.willFetch()
-        XCTAssertEqual(activity.waitingLine(.fitness), "Getting your workouts and Health data from iCloud\u{2026}")
-        activity.received(120)
-        activity.received(192)
-        XCTAssertEqual(activity.waitingLine(.fitness), "Getting your workouts and Health data from iCloud\u{2026} 312 so far")
-        XCTAssertEqual(activity.statusLine(now: t0), "Downloading\u{2026} 312 so far")
-    }
-
-    func testOnceAFirstDownloadFinishesThePageSaysNothing() {
-        var activity = running()
-        activity.willFetch()
-        activity.didFetch(at: t0)
-        XCTAssertNil(activity.waitingLine(.fitness))
-        XCTAssertEqual(activity.statusLine(now: t0.addingTimeInterval(10)), "Up to date")
-        // Later fetches don't bring the note back.
-        activity.willFetch()
-        activity.received(3)
-        XCTAssertNil(activity.waitingLine(.fitness))
-    }
-
-    func testAFailureIsSaid() {
-        var activity = running()
-        activity.willFetch()
-        activity.failed("not signed in to iCloud")
-        XCTAssertEqual(activity.statusLine(now: t0), "Couldn\u{2019}t sync \u{2014} not signed in to iCloud")
-        XCTAssertTrue(activity.waitingLine(.wellness)?.contains("not signed in") == true)
-    }
-
-    func testNothingYetReadsAsNotSynced() {
-        XCTAssertEqual(running().statusLine(now: t0), "Not synced yet")
-    }
-
-    func testASyncThatIsOffHereNeverClaimsToBeDownloading() {
-        // The Simulator, a build without iCloud: no perpetual "Getting…" note.
-        let off = SyncActivity()
-        XCTAssertNil(off.waitingLine(.fitness))
-        XCTAssertEqual(off.statusLine(now: t0), "Off on this device")
-    }
-}
-
-
-@MainActor
-final class CoalescingRunTests: XCTestCase {
-    func testARequestDuringAPassWaitsForThePassAfterIt() async {
-        let runs = CoalescingRun()
-        var passes = 0
-        var release: CheckedContinuation<Void, Never>?
-        let first = Task { @MainActor in
-            await runs.run {
-                passes += 1
-                if passes == 1 { await withCheckedContinuation { release = $0 } }
-                return 1
-            }
-        }
-        while release == nil { await Task.yield() }
-        // Two asks while the first pass waits: neither starts a pass of its own, and neither
-        // returns before the pass that serves them has run.
-        var answered = 0
-        let during = Task { @MainActor in let total = await runs.run { passes += 100; return 100 }; answered += 1; return total }
-        let duringAgain = Task { @MainActor in let total = await runs.run { passes += 100; return 100 }; answered += 1; return total }
-        for _ in 0..<20 { await Task.yield() }
-        XCTAssertEqual(answered, 0, "still waiting for their pass")
-        release?.resume()
-        let total = await first.value
-        let waited = await during.value
-        let waitedAgain = await duringAgain.value
-        XCTAssertEqual(passes, 2, "one more pass, not one per request")
-        XCTAssertEqual(total, 2)
-        XCTAssertEqual(waited, 2)
-        XCTAssertEqual(waitedAgain, 2)
-    }
-
-    func testRunsAgainAfterFinishing() async {
-        let runs = CoalescingRun()
-        let one = await runs.run { 3 }
-        let two = await runs.run { 4 }
-        XCTAssertEqual(one, 3)
-        XCTAssertEqual(two, 4)
     }
 }
 

@@ -39,13 +39,13 @@ import Foundation
 final class ICloudPurge {
     /// The private database's zones (DATA-INVENTORY.md "CloudKit").
     static let zones = ["Controls", "Meals", "Wellness", "Settings", "Fitness", "Progress"]
-    /// The meals zone's push (`MealBacklogWake.subscriptionID`).
+    /// The retired meals-zone push subscription.
     static let mealsSubscriptionID = "meals-zone-changes"
     /// The moved key-value keys: the inventory's, which leaves out the two that stay.
     static var keys: [String] { LegacyInventory.keys.keys.filter { !LegacyKVS.keptKeys.contains($0) }.sorted() }
     /// Under the container's `Documents/`.
     static let driveItems = ["backup.plist", "previous-backup.plist", "Transcripts", "VoiceNotes"]
-    /// Under the legacy container's `Documents/`: what `CloudBackup`'s restore reads there.
+    /// Under the legacy container's `Documents/`: retired snapshot files.
     static let legacyDriveItems = ["backup.plist", "previous-backup.plist"]
     static let repeatInterval: TimeInterval = 7 * 86_400
 

@@ -3,7 +3,7 @@ import Foundation
 // DistanceUnit now lives in DistanceUnit.swift, and WatchAudioQuality in WatchAudioQuality.swift —
 // the types from this file that WorkoutComparison.swift and Podcast.swift (and BananaTests)
 // actually need, split out so BananaTests can source them without also pulling in AppSettings'
-// LaunchClock/CloudBackup dependencies, which aren't otherwise part of the test target's
+// LaunchClock dependencies, which aren't otherwise part of the test target's
 // dependency chain.
 
 /// Pool length for swim workouts.
@@ -53,9 +53,6 @@ final class AppSettings: ObservableObject {
     /// Pool length for swim workouts, pushed to the Watch so a swim needs no setup on the wrist.
     @Published var poolLength: PoolLength { didSet { save() } }
     @Published var watchAudioQuality: WatchAudioQuality { didSet { save() } }
-    /// Back up to iCloud: one setting for every device; the phone makes the backups. Nil until a
-    /// device that knows seeds it (see `CloudBackup.bind`).
-    @Published var backupEnabled: Bool? { didSet { save() } }
     @Published var recordListenLocation: Bool { didSet { save() } }
     /// Skip podcast ads Banana is confident about. On by default: the detectors that reach this
     /// switch are the ones measured at no false positives, so the cost of being wrong here is a
@@ -129,7 +126,6 @@ final class AppSettings: ObservableObject {
         var autoSleepTimer: Bool?
         var autoSleepAfterHour: Int?
         var macMorningBriefing: Bool?
-        var backupEnabled: Bool?
         var mealPhotoScanEnabled: Bool?
         var mealPhotoScanSince: Date?
         var mealPhotoAskEnabled: Bool?
@@ -140,7 +136,6 @@ final class AppSettings: ObservableObject {
         distanceUnit = snapshot?.distanceUnit ?? Self.localeDefault()
         poolLength = snapshot?.poolLength ?? .yards25
         watchAudioQuality = snapshot?.watchAudioQuality ?? .original
-        backupEnabled = snapshot?.backupEnabled
         #if BANANA_MODULE_WORKOUTS
         MetricKind.imperial = (snapshot?.distanceUnit ?? Self.localeDefault()) == .miles
         #endif
@@ -220,7 +215,6 @@ final class AppSettings: ObservableObject {
                                 mapsProvider: mapsProvider,
                                 sleepTimerMinutes: sleepTimerMinutes, autoSleepTimer: autoSleepTimer,
                                 autoSleepAfterHour: autoSleepAfterHour, macMorningBriefing: macMorningBriefing,
-                                backupEnabled: backupEnabled,
                                 mealPhotoScanEnabled: mealPhotoScanEnabled,
                                 mealPhotoScanSince: mealPhotoScanSince,
                                 mealPhotoAskEnabled: mealPhotoAskEnabled)
@@ -230,7 +224,6 @@ final class AppSettings: ObservableObject {
             cloud.set(data, forKey: key)
             cloud.synchronize()
         }
-        CloudBackup.shared.schedule()   // the snapshot digests UserDefaults — a settings change dirties it
         SyncReport.changed(Self.syncType, [Self.syncID])
         onChange?()
     }
@@ -245,7 +238,6 @@ final class AppSettings: ObservableObject {
         if let v = snap.distanceUnit, v != distanceUnit { distanceUnit = v; changed = true }
         if let v = snap.poolLength, v != poolLength { poolLength = v; changed = true }
         if let v = snap.watchAudioQuality, v != watchAudioQuality { watchAudioQuality = v; changed = true }
-        if let v = snap.backupEnabled, v != backupEnabled { backupEnabled = v; changed = true }
         if let v = snap.recordListenLocation, v != recordListenLocation { recordListenLocation = v; changed = true }
         if let v = snap.automaticAdSkip, v != automaticAdSkip { automaticAdSkip = v; changed = true }
         if let v = snap.eventAlertLeads, v != eventAlertLeads { eventAlertLeads = v; changed = true }
@@ -280,7 +272,7 @@ final class AppSettings: ObservableObject {
                  eventAlertLeads: eventAlertLeads, mapsProvider: mapsProvider,
                  sleepTimerMinutes: sleepTimerMinutes, autoSleepTimer: autoSleepTimer,
                  autoSleepAfterHour: autoSleepAfterHour, macMorningBriefing: macMorningBriefing,
-                 backupEnabled: backupEnabled, mealPhotoScanEnabled: mealPhotoScanEnabled,
+                 mealPhotoScanEnabled: mealPhotoScanEnabled,
                  mealPhotoScanSince: mealPhotoScanSince, mealPhotoAskEnabled: mealPhotoAskEnabled)
     }
 
@@ -289,7 +281,7 @@ final class AppSettings: ObservableObject {
         Snapshot(distanceUnit: localeDefault(), poolLength: .yards25, watchAudioQuality: .original,
                  recordListenLocation: false, automaticAdSkip: true, eventAlertLeads: EventAlertPlan.defaultLeads,
                  mapsProvider: nil, sleepTimerMinutes: 45, autoSleepTimer: true, autoSleepAfterHour: 21,
-                 macMorningBriefing: true, backupEnabled: nil, mealPhotoScanEnabled: false,
+                 macMorningBriefing: true, mealPhotoScanEnabled: false,
                  mealPhotoScanSince: nil, mealPhotoAskEnabled: true)
     }
 
@@ -302,7 +294,6 @@ final class AppSettings: ObservableObject {
         distanceUnit = fresh.distanceUnit ?? Self.localeDefault()
         poolLength = fresh.poolLength ?? .yards25
         watchAudioQuality = fresh.watchAudioQuality ?? .original
-        backupEnabled = nil
         recordListenLocation = fresh.recordListenLocation ?? false
         automaticAdSkip = fresh.automaticAdSkip ?? true
         eventAlertLeads = fresh.eventAlertLeads ?? EventAlertPlan.defaultLeads
@@ -334,7 +325,6 @@ final class AppSettings: ObservableObject {
         take(snap.distanceUnit, &distanceUnit)
         take(snap.poolLength, &poolLength)
         take(snap.watchAudioQuality, &watchAudioQuality)
-        take(snap.backupEnabled, &backupEnabled, "backupEnabled")
         take(snap.recordListenLocation, &recordListenLocation)
         take(snap.automaticAdSkip, &automaticAdSkip)
         take(snap.eventAlertLeads, &eventAlertLeads)

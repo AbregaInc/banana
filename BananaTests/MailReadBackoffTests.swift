@@ -10,7 +10,6 @@ import GRDB
         }
         func dropMailAccessToken(accountID: String) {}
         func requestMailAccess(accountID: String) async -> MailAccessOutcome { .granted }
-        func forgetMailAccess(accountID: String) async throws {}
         func cancelMailTokenRequests() {}
     }
 

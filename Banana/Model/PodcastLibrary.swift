@@ -834,14 +834,11 @@ final class PodcastLibrary: ObservableObject {
             pushToCloud: false)
     }
 
-    /// Hand the accumulated local changes to CloudKit and clear the queue. No-op if sync is off.
+    /// Report accumulated local progress changes to Banana sync.
     private func flushCloudPush() {
         guard !pendingCloudPush.isEmpty else { return }
         let ids = Array(pendingCloudPush)
         pendingCloudPush.removeAll()
-        CloudProgressSync.shared.enqueue(ids)
-        // And to the data platform (docs/design/DATA-PLATFORM.md): the legacy sync's mode
-        // decides whether iCloud still gets it.
         SyncReport.changed(PodcastProgressAdapter.type, ids)
     }
 
@@ -878,7 +875,6 @@ final class PodcastLibrary: ObservableObject {
         // heartbeat is not: feeding CKSyncEngine twice a minute still makes it persist engine
         // bookkeeping even though its radio cadence is manual.
         if enqueueCloud { flushCloudPush() }
-        CloudBackup.shared.schedule()   // dirty-mark only
         return true
     }
 
@@ -1116,32 +1112,6 @@ final class PodcastLibrary: ObservableObject {
         var syncedAt: [String: Date]?                        // episodeID → LWW stamp (nil in old files)
     }
 
-    /// Re-read from disk, synchronously (an iCloud restore rewrites the files underneath us —
-    /// rare, user-initiated, and the caller wants the result now). Same transactional import
-    /// treatment as `init()`'s background load, so a corrupt file encountered mid-session (e.g.
-    /// mid-restore) is preserved rather than risking getting overwritten by the very next save().
-    func reloadFromDisk() {
-        progressEpoch += 1
-        do {
-            // A valid restore can also recover a catalog whose first import failed.
-            let opened = try catalog ?? PodcastCatalog.open(at: fileURL.deletingLastPathComponent().appendingPathComponent("podcast-catalog.sqlite"))
-            let restored = try opened.load(legacyURL: fileURL, forceImport: true)
-            catalog = opened
-            podcasts = restored
-            catalogLoadFailed = false
-            catalogSaveIsUnsafe = false
-        } catch {
-            errorMessage = "The restored podcast library could not be opened. Existing data was preserved. \(error.localizedDescription)"
-            return
-        }
-        let stored = (try? Data(contentsOf: progressURL))
-            .flatMap { try? JSONDecoder().decode(StoredProgress.self, from: $0) }
-        live = nil
-        applyStoredProgress(stored)
-        adoptSyncStamps(stored)
-        applyCheckpoints(Self.readCheckpoints(checkpointURL))
-    }
-
     /// Overlay the progress file onto the catalogue. Absent file → keep whatever the catalogue had.
     private func applyStoredProgress(_ stored: StoredProgress?) {
         guard let stored else { return }
@@ -1196,8 +1166,7 @@ final class PodcastLibrary: ObservableObject {
     /// Another account signed in on this device and the person said to clear it first
     /// (docs/design/DATA-PLATFORM.md §2): the other account's listening state leaves this device —
     /// positions, finishes, which episode each show is on, and their stamps. This device only:
-    /// nothing is reported to any sync, nothing waiting for CloudKit goes, and no backup is
-    /// scheduled. Only the account-change clear calls this.
+    /// nothing is reported to sync. Only the account-change clear calls this.
     func clearProgressForAccountChange() {
         live = nil
         for index in podcasts.indices {
@@ -1212,7 +1181,7 @@ final class PodcastLibrary: ObservableObject {
     }
 
     /// Write ONLY the progress file. This is the hot path. `reporting: false` (the account-change
-    /// clear only): nothing is handed to CloudKit and no backup is scheduled.
+    /// clear only): nothing is handed to sync.
     private func saveProgress(reporting: Bool = true) {
         #if PERFORMANCE_TESTING
         guard !usesPerformanceCatalogue else { return }
@@ -1245,7 +1214,6 @@ final class PodcastLibrary: ObservableObject {
         } catch {}
         guard reporting else { return }
         flushCloudPush()
-        CloudBackup.shared.schedule()   // dirty-mark only — the snapshot itself runs on background
     }
 
     private struct ProgressEntry: Sendable {

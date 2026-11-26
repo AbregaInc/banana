@@ -13,12 +13,12 @@ final class MailCorrespondentsTests: XCTestCase {
         return try await Task.detached { try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()) }.value
     }
 
-    private func message(_ id: String, from: String, to: String, cc: String? = nil, date: Int64) -> GmailMessage {
+    private func message(_ id: String, from: String, to: String, cc: String? = nil, date: Int64, label: String = "INBOX") -> GmailMessage {
         var headers = [GmailHeader(name: "From", value: from), GmailHeader(name: "To", value: to),
                        GmailHeader(name: "Subject", value: "Subject \(id)"), GmailHeader(name: "Date", value: "Mon, 5 Oct 2026 09:12:00 +0000"),
                        GmailHeader(name: "Message-ID", value: "<\(id)@plan.example>")]
         if let cc { headers.append(GmailHeader(name: "Cc", value: cc)) }
-        return GmailMessage(id: id, threadId: "t-\(id)", labelIds: ["INBOX"], historyId: 1, internalDate: date,
+        return GmailMessage(id: id, threadId: "t-\(id)", labelIds: [label], historyId: 1, internalDate: date,
                             payload: GmailPart(headers: headers))
     }
 
@@ -44,7 +44,7 @@ final class MailCorrespondentsTests: XCTestCase {
         let day: Int64 = 86_400_000, now: Int64 = 1_794_042_000_000
         try await importing([
             message("a", from: "Jane Park <jane@parkdesign.example>", to: "Noor Haddad <\(me)>", cc: "Janet Ruiz <janet@ruiz.example>", date: now - day),
-            message("b", from: "Noor Haddad <\(me)>", to: "Jane Park <jane@parkdesign.example>", date: now - 2 * day),
+            message("b", from: "Noor Haddad <\(me)>", to: "Jane Park <jane@parkdesign.example>", date: now - 2 * day, label: "SENT"),
             message("c", from: "Jan Okafor <jan@okafor.example>", to: "Noor Haddad <\(me)>", date: now - day),
         ], into: stores)
         let found = try await search("ja", stores)
@@ -59,7 +59,7 @@ final class MailCorrespondentsTests: XCTestCase {
 
     func testFoundByAnyWordTheAddressAndTheDomain() async throws {
         let stores = try await stores()
-        try await importing([message("b", from: "Noor Haddad <\(me)>", to: "Jane Park <jane@parkdesign.example>", date: 1_794_000_000_000)], into: stores)
+        try await importing([message("b", from: "Noor Haddad <\(me)>", to: "Jane Park <jane@parkdesign.example>", date: 1_794_000_000_000, label: "SENT")], into: stores)
         for typed in ["Park", "jane@", "parkdes", "JANE PA"] {
             let found = try await search(typed, stores)
             XCTAssertEqual(found.map(\.address), ["jane@parkdesign.example"], typed)
@@ -70,7 +70,7 @@ final class MailCorrespondentsTests: XCTestCase {
 
     func testAMessageReadAgainIsCountedOnce() async throws {
         let stores = try await stores()
-        let sent = message("b", from: "Noor Haddad <\(me)>", to: "Jane Park <jane@parkdesign.example>", date: 1_794_000_000_000)
+        let sent = message("b", from: "Noor Haddad <\(me)>", to: "Jane Park <jane@parkdesign.example>", date: 1_794_000_000_000, label: "SENT")
         try await importing([sent], into: stores)
         try await importing([sent], into: stores)
         let count = try await stores.index.read { try Int.fetchOne($0, sql: "SELECT sent FROM correspondent WHERE addr='jane@parkdesign.example'") }
@@ -81,8 +81,8 @@ final class MailCorrespondentsTests: XCTestCase {
         let stores = try await stores()
         let now: Int64 = 1_794_042_000_000, day: Int64 = 86_400_000
         var messages: [GmailMessage] = []
-        for n in 0..<5 { messages.append(message("s\(n)", from: "Noor Haddad <\(me)>", to: "Sam Lee <sam@lee.example>", date: now - Int64(n) * day)) }
-        messages.append(message("o", from: "Noor Haddad <\(me)>", to: "Sam Ortiz <sam@ortiz.example>", date: now - 200 * day))
+        for n in 0..<5 { messages.append(message("s\(n)", from: "Noor Haddad <\(me)>", to: "Sam Lee <sam@lee.example>", date: now - Int64(n) * day, label: "SENT")) }
+        messages.append(message("o", from: "Noor Haddad <\(me)>", to: "Sam Ortiz <sam@ortiz.example>", date: now - 200 * day, label: "SENT"))
         try await importing(messages, into: stores)
         let found = try await search("sam", stores)
         XCTAssertEqual(found.map(\.address), ["sam@lee.example", "sam@ortiz.example"])

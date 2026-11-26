@@ -122,7 +122,10 @@ extension MIMEStructure {
             let canSelect = bodyAllowed && !attached
             var selection = MIMEBodySelection()
             if canSelect && mime == "text/plain" { selection.plain = text(part, id: id); selection.plainID = id }
-            if canSelect && mime == "text/html" { selection.html = text(part, id: id); selection.htmlID = id }
+            if canSelect && mime == "text/html" {
+                selection.html = text(part, id: id).map(MailCharset.recoverUTF8HTML)
+                selection.htmlID = id
+            }
             let children = part.parts ?? []
             var relatedRoot = 0
             if canSelect && mime == "multipart/related", let type = headers.value("Content-Type") {
