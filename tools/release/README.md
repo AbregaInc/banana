@@ -5,10 +5,10 @@ They replace the per-build scripts that were copied with `sed` from the previous
 
 | Command | What it does |
 |---|---|
-| `tools/preflight.sh [--channel beta\|stable] [--build N --version V] [Class …]` | Everything a rollout can fail on, with the rollout's own builds; the rollout adopts its archives. Must pass first. |
+| `tools/preflight.sh [--channel beta\|stable] [--build N --version V] [Class …]` | Everything a rollout can fail on, with the rollout's own builds; the rollout adopts its archives. Must pass before an app rollout; a Service deploy does not need it. |
 | `tools/release/ship-beta.sh N --notes-file F [--install-mac]` | iOS Beta on the iPhone and iPad; Mac Beta build, tag, draft, notarize, publish; site feed; site commit. |
 | `tools/release/ship-stable.sh N --notes-file F [--public-beta --what-to-test F --review-notes F]` | TestFlight iOS and Mac (upload; the public beta group, What to Test and Beta App Review only with `--public-beta`); Mac direct; site; Stable on the iPhone and iPad. |
-| `tools/release/deploy-service.sh beta\|prod [--yes-prod]` | Service tests, additive migrations, deploy with the source offer, smoke test. |
+| `tools/release/deploy-service.sh beta\|prod [--yes-prod]` | Service tests, additive migrations, deploy with the source offer, smoke test. For prod, deploy a branch made from the live revision (`/v1/source`) with the change cherry-picked. |
 | `tools/release/install-mac.sh beta\|stable DMG` | Verify a released DMG, back up the installed app, install it, relaunch. |
 | `tools/release/devices.py list\|find\|run` | The owner's iPhone and iPad by kind, waiting out locked or unreachable devices. |
 | `python3 tools/mac-release-tests.py build` | Build only the Mac release UI runner, in the background; no app target or launch. |

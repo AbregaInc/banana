@@ -16,6 +16,6 @@ export async function exportFeed(url,{images=true,onProgress=()=>{},...options}=
   await collected.verify();
   result.collection.bytes=collected.bytes;
   result.collection.verifiedAt=new Date().toISOString();
-  onProgress({stage:'packaging',records:result.collection.records});
+  onProgress({stage:'packaging',records:result.collection.records,calendarIncomplete:Boolean(result.calendarIssues?.length)});
   return buildArchive(result,files);
 }

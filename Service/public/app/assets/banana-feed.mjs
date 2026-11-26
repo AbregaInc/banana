@@ -273,7 +273,7 @@ async function collectFeed(url, { fetcher = fetch, signal, onProgress = () => {
   first.searchParams.set("format", "json");
   if (token) first.searchParams.delete("signature");
   let bytes = 0, requests = 0, pages = 0, expected = null, initial = null;
-  const seen = /* @__PURE__ */ new Set(), ids = /* @__PURE__ */ new Set(), records = [];
+  const seen = /* @__PURE__ */ new Set(), ids = /* @__PURE__ */ new Set(), records = [], calendarIssues = /* @__PURE__ */ new Map();
   async function request(target, binary = false) {
     const u = new URL(target);
     if (u.origin !== first.origin || u.username || u.password) throw new FeedImportError("The feed returned an unexpected URL origin.");
@@ -377,6 +377,7 @@ async function collectFeed(url, { fetcher = fetch, signal, onProgress = () => {
       initial = page;
       expected = signature(page);
     } else if (signature(page) !== expected) throw new FeedImportError(messages[409], 409);
+    for (const issue of page.calendarIssues ?? []) calendarIssues.set(issue.calendarRef ?? issue.calendarIndex, issue);
     for (const record of page.records) {
       if (!page.types.includes(record.type) || typeof record.id !== "string" || !record.data || typeof record.data !== "object" || Array.isArray(record.data)) throw new FeedImportError("The feed returned an invalid record.");
       const id = JSON.stringify([record.type, record.id]);
@@ -404,6 +405,10 @@ async function collectFeed(url, { fetcher = fetch, signal, onProgress = () => {
   result.types = initial.types;
   result.calendarWindow = initial.calendarWindow ?? null;
   result.contentVersion = initial.contentVersion;
+  if (calendarIssues.size) {
+    result.calendarIssues = [...calendarIssues.values()];
+    result.warnings.push("Calendar is incomplete. Preserve existing data for unavailable calendars when reconciling this export.");
+  }
   result.collection = { pages, records: records.length, bytes, verifiedAt: result.generatedAt };
   return { result, request, verify: async () => {
     const page = await request(verifyURL.href);
@@ -1126,7 +1131,7 @@ function zipSync(data, opts) {
 // public/app/assets/feed-archive.js
 function buildArchive(result, images = {}) {
   const counts = Object.fromEntries(Object.entries(result.tables).map(([name, rows]) => [name, rows.length]));
-  const files = { "analysis.json": strToU8(JSON.stringify(result)), "schema.json": strToU8(JSON.stringify(analysisSchema, null, 2)), "manifest.json": strToU8(JSON.stringify({ schema: result.schema, generatedAt: result.generatedAt, access: result.access, types: result.types, calendarWindow: result.calendarWindow, collection: result.collection, rows: counts, warnings: result.warnings }, null, 2)), ...images };
+  const files = { "analysis.json": strToU8(JSON.stringify(result)), "schema.json": strToU8(JSON.stringify(analysisSchema, null, 2)), "manifest.json": strToU8(JSON.stringify({ schema: result.schema, generatedAt: result.generatedAt, access: result.access, types: result.types, calendarWindow: result.calendarWindow, collection: result.collection, rows: counts, calendarIssues: result.calendarIssues, warnings: result.warnings }, null, 2)), ...images };
   for (const [name, rows] of Object.entries(result.tables)) files[`tables/${name}.csv`] = strToU8(tableCSV(name, rows));
   files["README.txt"] = strToU8(`Banana analysis export \u2014 ${result.schema}
 
@@ -1138,7 +1143,7 @@ analysis.json contains the same normalized tables plus every fetched source reco
 
 Photos: assets.csv lists private expiring URLs and local image paths when included. meal_photos.csv links meal IDs to assets.id. When a local path is blank, an image was not included. Credential-based remote links expire within one hour. Links with null expiry require the current signed-in browser session and stop working when that session or share access ends; they cannot be used by an external system. Source attachments other than meal photos remain remote. Keep this entire archive private. Downloaded copies survive access revocation.
 
-manifest.json contains counts, scope, selected types, collection time and warnings. The collector reads every page and verifies synced content/access again after image downloads. If data changed or a request failed, no archive is saved. Calendar is a live external window, not an atomic snapshot with synced records. This file is a complete replacement for the selected scope at collection time; reconcile deletions by IDs.
+manifest.json contains counts, scope, selected types, collection time and warnings. The collector reads every page and verifies synced content/access again after image downloads. If data changed or a request failed, no archive is saved. Calendar is a live external window, not an atomic snapshot with synced records. For complete datasets, reconcile deletions by ID. If calendarIssues is present, preserve existing calendar data for the affected window because some calendars were unreadable.
 
 Warnings:
 ${result.warnings.length ? result.warnings.map((w) => "- " + w).join("\n") : "None"}
@@ -1168,7 +1173,7 @@ async function exportFeed(url, { images = true, onProgress = () => {
   await collected.verify();
   result.collection.bytes = collected.bytes;
   result.collection.verifiedAt = (/* @__PURE__ */ new Date()).toISOString();
-  onProgress({ stage: "packaging", records: result.collection.records });
+  onProgress({ stage: "packaging", records: result.collection.records, calendarIncomplete: Boolean(result.calendarIssues?.length) });
   return buildArchive(result, files);
 }
 
