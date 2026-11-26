@@ -346,11 +346,22 @@ struct RootView: View {
                 || ProcessInfo.processInfo.arguments.contains("--storm-selftest")
                 || ProcessInfo.processInfo.arguments.contains("--smart-publish-regression")
                 || ProcessInfo.processInfo.arguments.contains("--offscreen-recompute-regression")
+                || ProcessInfo.processInfo.arguments.contains("--hidden-plan-recompute-regression")
                 || ProcessInfo.processInfo.arguments.contains("--calendar-move-render-probe")
                 || ProcessInfo.processInfo.arguments.contains("--calendar-artwork-test-probe")
                 || ProcessInfo.processInfo.arguments.contains("--tab-reentry-probe")
                 || ProcessInfo.processInfo.arguments.contains("--perf-trace") {
                 DayPerformanceRenderProbe()
+            }
+        }
+        // `--hidden-plan-recompute-regression`: twenty timeline publications from six seconds
+        // after launch, from the shell, so they arrive whichever section is in front.
+        .task {
+            guard ProcessInfo.processInfo.arguments.contains("--hidden-plan-recompute-regression") else { return }
+            try? await Task.sleep(for: .seconds(6))
+            for round in 0..<20 where !Task.isCancelled {
+                OccurrenceStore.shared.republishWithOffscreenChange(round: round)
+                try? await Task.sleep(for: .milliseconds(150))
             }
         }
         #endif
@@ -773,6 +784,7 @@ struct RootView: View {
                 // None of those changes the calendar subtree. Keep their launch-time publication
                 // bursts from rebuilding the expensive day grid.
                 PlannerTab().equatable()
+                    .environment(\.sectionInFront, tabSelection.wrappedValue == .section(.plan))
                     .measuresLayoutClass()
                     .toastHost()
                     .shellPage(bottomBar: bottomBarShell).erasedTab()

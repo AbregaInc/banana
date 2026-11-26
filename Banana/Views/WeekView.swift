@@ -4160,6 +4160,9 @@ struct WeekView: View {
     /// Only visible Smart Schedule fields advance this revision. Status, authorization, wake-plan,
     /// and error publications no longer invalidate the 24-hour calendar.
     @State private var mobileVisibleSmartRevision = 0
+    /// Plan is behind another section: changes are noted, and drawn once Plan is back in front.
+    @Environment(\.sectionInFront) private var sectionInFront
+    @State private var mobileRebuildOwed = false
 
 
     struct DayData: Identifiable, Equatable {
@@ -4560,15 +4563,21 @@ struct WeekView: View {
             DispatchQueue.main.async { rebuildMobileCalendar(mobileWindowOccurrences()) }
         }
         .onReceive(smart.$calendarColorHex.removeDuplicates().dropFirst()) { _ in
-            mobileVisibleSmartRevision &+= 1
+            smartChangedWhileMobile()
         }
         .onReceive(smart.$commuteLegs.removeDuplicates().dropFirst()) { _ in
-            mobileVisibleSmartRevision &+= 1
+            smartChangedWhileMobile()
         }
         .onReceive(smart.$flightLegs.removeDuplicates().dropFirst()) { _ in
-            mobileVisibleSmartRevision &+= 1
+            smartChangedWhileMobile()
             // `@Published` announces before it stores.
             DispatchQueue.main.async { updateMobileSecondaryZone() }
+        }
+        .onChange(of: sectionInFront) { _, inFront in
+            guard inFront, mobileRebuildOwed else { return }
+            mobileRebuildOwed = false
+            mobileVisibleSmartRevision &+= 1
+            rebuildMobileCalendar(mobileWindowOccurrences())
         }
         #if DEBUG
         .overlay(alignment: .topLeading) {
@@ -6063,7 +6072,20 @@ struct WeekView: View {
         }
     }
 
-    private func rebuildMobileCalendar(_ all: [Occurrence]) {
+    /// A visible Smart Schedule field changed: redraw now in front, or once Plan is back.
+    private func smartChangedWhileMobile() {
+        if sectionInFront { mobileVisibleSmartRevision &+= 1 } else if !mobileRebuildOwed { mobileRebuildOwed = true }
+    }
+
+    private func rebuildMobileCalendar(_ source: @autoclosure () -> [Occurrence]) {
+        // Behind Mail or another section the grid is not drawn: preparing its days then took the
+        // main thread from the screen being opened (the owner's phone, 26 Nov 2026). Its input is
+        // not even read until Plan is in front.
+        guard sectionInFront else {
+            if !mobileRebuildOwed { mobileRebuildOwed = true }
+            return
+        }
+        let all = source()
         // Everything outstanding, including reminders outside the visible days.
         let overdue = occurrences.occurrences.filter(\.isOverdueReminder)
         if overdue != mountedOverdueTasks { mountedOverdueTasks = overdue }

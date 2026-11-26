@@ -4,7 +4,18 @@ private struct CalendarNativeCellKey: EnvironmentKey {
     static let defaultValue = false
 }
 
+private struct SectionInFrontKey: EnvironmentKey {
+    static let defaultValue = true
+}
+
 extension EnvironmentValues {
+    /// Whether this page's section is the one on screen. The shell keeps the sections it has
+    /// shown alive behind the one in front; a section that is not in front defers its expensive
+    /// rebuilds until it is (the owner's rule, 26 Nov 2026: the screen in front comes first).
+    var sectionInFront: Bool {
+        get { self[SectionInFrontKey.self] }
+        set { self[SectionInFrontKey.self] = newValue }
+    }
     /// Native reusable cells have no SwiftUI scroll ancestor to report visibility.
     var calendarNativeCell: Bool {
         get { self[CalendarNativeCellKey.self] }
