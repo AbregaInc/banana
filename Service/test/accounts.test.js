@@ -350,21 +350,21 @@ test("Google refusing one identity ends the sessions it proved, not the others",
   assert.equal((await s.call("GET", "/v1/account", { session: ann.session })).status, 200);
 });
 
-test("disconnecting a Google account forgets its Mail grant; signing in again does not bring Mail back", async () => {
+test("Mail is connected exactly when the Google account is, with gmail.modify", async () => {
   const s = setup();
   const scopes = "openid email https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.modify";
   s.google.person("c1", "sub-1", "ann@example.com", "refresh-sub-1", { scopes });
   const ann = (await s.signIn("c1", device("phone-0001"))).json;
   await s.db.run("INSERT INTO feature_access VALUES (?,?,1,NULL,?)", ann.account.id, "email", s.now());
-  s.google.person("m1", "sub-1", "ann@example.com", "mail-refresh", { scopes });
-  assert.equal((await s.call("POST", "/v1/google/mail", { session: ann.session, body: { email: "ann@example.com", code: "m1" } })).status, 200);
-  assert.equal((await s.db.first("SELECT status FROM mail_grants")).status, "ok");
+  const on = (await s.call("GET", "/v1/account", { session: ann.session })).json.google[0].capabilities;
+  assert.deepEqual([on.calendarRead, on.mailRead, on.mailModify, on.mailSend], [true, true, true, true]);
   assert.equal((await s.call("DELETE", "/v1/google", { body: { email: "ann@example.com" }, session: ann.session })).status, 204);
-  assert.deepEqual(await s.db.first("SELECT status, refresh_token FROM mail_grants"), { status: "unlinked", refresh_token: null });
   s.google.person("c2", "sub-1", "ann@example.com", "refresh-sub-1-new", { scopes });
   const back = (await s.signIn("c2", device("phone-0001"))).json;
-  assert.equal(back.account.google[0].capabilities.mailRead, false);
-  assert.deepEqual(await s.db.first("SELECT status, refresh_token FROM mail_grants"), { status: "unlinked", refresh_token: null });
+  assert.equal(back.account.google[0].capabilities.mailModify, true, "connected again: Mail with it");
+  s.google.person("c3", "sub-1", "ann@example.com", "refresh-sub-1-3", { scopes: "openid email https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.readonly" });
+  const read = (await s.signIn("c3", device("phone-0001"), back.session ?? ann.session)).json;
+  assert.deepEqual([read.account.google[0].capabilities.mailRead, read.account.google[0].capabilities.mailModify], [false, false], "no read-only Mail");
 });
 
 test("an ended session tells the app to prove itself again; a deleted account just says signed out", async () => {

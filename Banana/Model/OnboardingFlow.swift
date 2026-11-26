@@ -230,23 +230,17 @@ struct DayAnchors: Equatable {
 
 /// The calendar page brings in Calendar and, where the build has Email, Email too: one Google
 /// screen for both (6 Nov 2026, the owner: "calendar + Email should be a single onboarding").
-/// Whether Email then starts is the account's eligibility, which is known only after sign-in.
+/// Like every consent it asks for every scope (`GoogleScopes.all`). Whether Email then starts is
+/// the choice on the page and the account's eligibility, known only after sign-in. A Gmail grant
+/// Email doesn't use yet is kept: it starts Email the moment the account is offered it.
 enum EmailSetup {
     #if BANANA_PUBLIC
-    /// Stable has no Email, so it carries no Gmail or contacts scope (tools/check-release.sh refuses one).
+    /// Stable has no Email, so it carries no Gmail scope (tools/check-release.sh refuses one).
     static let gmailScope = ""
-    static let senderScopes: [String] = []
     #else
     /// What Mail reads and acts with (`MailScopes.gmailModify`).
     static let gmailScope = "https://www.googleapis.com/auth/gmail.modify"
-    /// Read with Mail, for senders' photos (`MailScopes.senderPhotos`); optional on Google's screen.
-    static let senderScopes = MailScopes.senderPhotos
     #endif
-
-    /// What the one consent asks for beyond the calendar's own scopes.
-    static func extraScopes(inBuild: Bool, wanted: Bool) -> [String] {
-        inBuild && wanted && !gmailScope.isEmpty ? [gmailScope] + senderScopes : []
-    }
 
     enum Outcome: Equatable {
         case on
@@ -256,8 +250,6 @@ enum EmailSetup {
     enum Reason: Equatable {
         /// A build without Email (Stable): nothing about it is shown.
         case notInBuild
-        /// Turned off on the calendar page.
-        case notWanted
         /// Gmail unticked on Google's screen: Calendar alone, a success.
         case notGranted
         /// The account isn't offered Email. Never shown as an error.
@@ -267,21 +259,14 @@ enum EmailSetup {
     }
 
     /// `eligible`: nil while feature access hasn't loaded.
-    static func outcome(inBuild: Bool, wanted: Bool, gmailGranted: Bool, eligible: Bool?) -> Outcome {
+    static func outcome(inBuild: Bool, gmailGranted: Bool, eligible: Bool?) -> Outcome {
         guard inBuild else { return .off(.notInBuild) }
-        guard wanted else { return .off(.notWanted) }
         guard gmailGranted else { return .off(.notGranted) }
         switch eligible {
         case true?: return .on
         case false?: return .off(.notEligible)
         case nil: return .off(.eligibilityUnknown)
         }
-    }
-
-    /// A Gmail grant that will not be used is handed back (the service forgets its Mail grant).
-    /// Not while eligibility is unknown: the account may yet be offered Email.
-    static func releasesGrant(_ outcome: Outcome, gmailGranted: Bool) -> Bool {
-        gmailGranted && outcome == .off(.notEligible)
     }
 }
 

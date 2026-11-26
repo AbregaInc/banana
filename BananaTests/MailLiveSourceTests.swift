@@ -12,7 +12,6 @@ import GRDB
         }
         func dropMailAccessToken(accountID: String) {}
         func requestMailAccess(accountID: String) async -> MailAccessOutcome { grant = .granted; return .granted }
-        func forgetMailAccess(accountID: String) async throws { grant = .none }
         func cancelMailTokenRequests() {}
     }
     private func stores() async throws -> MailStores {
@@ -798,7 +797,7 @@ import GRDB
         }
         defer { observation.cancel(); source.setVisible(false) }
         source.activate() // Starts with no eligible grant, so no requests are started.
-        XCTAssertEqual(source.accounts.first?.state, .needsAccess(.notAllowedHere))
+        XCTAssertEqual(source.accounts.first?.state, .notConnected)
         access.grant = .granted
         source.accessChanged()
         await fulfillment(of: [arrived], timeout: 5)
@@ -806,7 +805,7 @@ import GRDB
         XCTAssertEqual(source.cachedFirstPage(MailScope(place: .mailbox(.inbox)))?.rows.count, 3)
         access.grant = .none
         source.accessChanged()
-        XCTAssertEqual(source.accounts.first?.state, .needsAccess(.notAllowedHere))
+        XCTAssertEqual(source.accounts.first?.state, .notConnected)
         let requests = await api.requested
         source.setVisible(false)
         access.grant = .granted
@@ -819,7 +818,7 @@ import GRDB
     func testConsentDrivesControlledProviderToObservedList() async throws {
         let stores = try await stores(), access = Access(), api = GmailPageLoaderTests.Provider(count: 3)
         let source = MailLiveSource(stores: stores, access: access, api: api)
-        XCTAssertEqual(source.accounts.first?.state, .needsAccess(.notAllowedHere))
+        XCTAssertEqual(source.accounts.first?.state, .notConnected)
         let scope = MailScope(place: .mailbox(.inbox))
         let arrived = expectation(description: "Imported rows reached source observer")
         var delivered = false

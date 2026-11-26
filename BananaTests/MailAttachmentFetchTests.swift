@@ -13,7 +13,6 @@ import Combine
         }
         func dropMailAccessToken(accountID: String) {}
         func requestMailAccess(accountID: String) async -> MailAccessOutcome { grant = .granted; return .granted }
-        func forgetMailAccess(accountID: String) async throws { grant = .none }
         func cancelMailTokenRequests() {}
     }
 

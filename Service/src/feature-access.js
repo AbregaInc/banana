@@ -33,19 +33,18 @@ export function googleCapabilities(link) {
     calendarRead: connected && ['calendar', 'calendar.readonly', 'calendar.events', 'calendar.events.readonly'].some(has),
     calendarWrite: connected && ['calendar', 'calendar.events'].some(has),
     calendarList: connected && ['calendar', 'calendar.readonly', 'calendar.calendarlist', 'calendar.calendarlist.readonly'].some(has),
-    mailRead: connected && (has('gmail.modify') || has('gmail.readonly') || scopes.has('https://mail.google.com/')),
-    mailModify: connected && (has('gmail.modify') || scopes.has('https://mail.google.com/')),
-    mailSend: connected && (has('gmail.modify') || has('gmail.send') || has('gmail.compose') || scopes.has('https://mail.google.com/')),
+    // Mail is connected or not: the grant has gmail.modify, or it doesn't. The three fields stay
+    // for the devices' wire format and are always equal.
+    mailRead: connected && has('gmail.modify'),
+    mailModify: connected && has('gmail.modify'),
+    mailSend: connected && has('gmail.modify'),
   };
 }
 
 
-/** Mail may have a separate server grant so incremental consent cannot replace Calendar access. */
+/** One Google account, one grant: Calendar and Mail both read it. */
 export function linkedGoogleCapabilities(link) {
-  const calendar = googleCapabilities(link);
-  if (link.mail_status == null) return calendar;
-  const mail = googleCapabilities({status:link.mail_status,scopes:link.mail_scopes,has_token:link.mail_has_token});
-  return {...calendar,mailRead:mail.mailRead,mailModify:mail.mailModify,mailSend:mail.mailSend};
+  return googleCapabilities(link);
 }
 
 
@@ -53,10 +52,8 @@ export async function providerDevicesReady(deps, account) {
   return !(await deps.db.first('SELECT 1 AS legacy FROM devices WHERE account_id=? AND provider_protocol<1 LIMIT 1',account));
 }
 
-/** Recorded grant scopes for reconnect planning; capabilities remain the usable-access authority. */
+/** The grant's scopes. `calendar` and `mail` are the same one grant, kept as two keys for the devices. */
 export function linkedGoogleScopes(link) {
- const scopes=(value)=>[...new Set(String(value??'').split(/\s+/).filter(Boolean))].sort();
- const calendar=scopes(link.scopes);
- const mail=link.mail_status==null?calendar:link.mail_status==='unlinked'?[]:scopes(link.mail_scopes);
- return {calendar,mail};
+ const scopes=[...new Set(String(link.scopes??'').split(/\s+/).filter(Boolean))].sort();
+ return {calendar:scopes,mail:scopes};
 }

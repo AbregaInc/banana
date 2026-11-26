@@ -150,38 +150,23 @@ final class OnboardingFlowTests: XCTestCase {
     // MARK: - Calendar and email, one consent
 
     func testBothGrantedAndEligibleTurnsEmailOn() {
-        XCTAssertEqual(EmailSetup.extraScopes(inBuild: true, wanted: true), [EmailSetup.gmailScope] + MailScopes.senderPhotos, "one Google screen for both, contacts' photos with Mail")
-        let outcome = EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: true, eligible: true)
-        XCTAssertEqual(outcome, .on)
-        XCTAssertFalse(EmailSetup.releasesGrant(outcome, gmailGranted: true))
+        XCTAssertEqual(EmailSetup.outcome(inBuild: true, gmailGranted: true, eligible: true), .on)
     }
 
-    func testBothGrantedButNotEligibleLeavesEmailOffQuietlyAndHandsTheGrantBack() {
-        let outcome = EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: true, eligible: false)
-        XCTAssertEqual(outcome, .off(.notEligible))
-        XCTAssertTrue(EmailSetup.releasesGrant(outcome, gmailGranted: true), "an unused Gmail grant is not kept")
+    func testBothGrantedButNotEligibleLeavesEmailOffQuietly() {
+        XCTAssertEqual(EmailSetup.outcome(inBuild: true, gmailGranted: true, eligible: false), .off(.notEligible))
     }
 
     func testGmailUntickedIsACalendarSuccessWithEmailOff() {
-        let outcome = EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: false, eligible: true)
-        XCTAssertEqual(outcome, .off(.notGranted))
-        XCTAssertFalse(EmailSetup.releasesGrant(outcome, gmailGranted: false))
+        XCTAssertEqual(EmailSetup.outcome(inBuild: true, gmailGranted: false, eligible: true), .off(.notGranted))
     }
 
     func testEligibilityNotLoadedSkipsRatherThanBlocks() {
-        let outcome = EmailSetup.outcome(inBuild: true, wanted: true, gmailGranted: true, eligible: nil)
-        XCTAssertEqual(outcome, .off(.eligibilityUnknown))
-        XCTAssertFalse(EmailSetup.releasesGrant(outcome, gmailGranted: true), "the account may yet be offered Email")
+        XCTAssertEqual(EmailSetup.outcome(inBuild: true, gmailGranted: true, eligible: nil), .off(.eligibilityUnknown))
     }
 
-    func testEmailTurnedOffAsksForTheCalendarAlone() {
-        XCTAssertEqual(EmailSetup.extraScopes(inBuild: true, wanted: false), [])
-        XCTAssertEqual(EmailSetup.outcome(inBuild: true, wanted: false, gmailGranted: false, eligible: true), .off(.notWanted))
-    }
-
-    func testAStableBuildNeverAsksForOrMentionsEmail() {
-        XCTAssertEqual(EmailSetup.extraScopes(inBuild: false, wanted: true), [])
-        XCTAssertEqual(EmailSetup.outcome(inBuild: false, wanted: true, gmailGranted: true, eligible: true), .off(.notInBuild))
+    func testAStableBuildNeverMentionsEmail() {
+        XCTAssertEqual(EmailSetup.outcome(inBuild: false, gmailGranted: true, eligible: true), .off(.notInBuild))
         XCTAssertNil(OnboardingReceipt(choices: [], copies: .off, accounts: ["noor@plan.example"], email: nil).emailLine,
                      "no Email line in a build without Email")
     }
