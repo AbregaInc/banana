@@ -1,0 +1,108 @@
+{
+ "tasks": 210,
+ "metric": "intended conversation found at rank k",
+ "methods": {
+  "banana": "integrated ranked search, body indexed",
+  "nobody": "same, with the target conversations' bodies removed",
+  "gmail": "Gmail search via Banana's service, target's account",
+  "chron": "previous chronological search"
+ },
+ "summary": {
+  "all": {
+   "tasks": 210,
+   "bananaTop1": 56,
+   "bananaTop5": 102,
+   "bananaTop50": 144,
+   "nobodyTop1": 27,
+   "nobodyTop5": 61,
+   "nobodyTop50": 103,
+   "gmailTop1": 40,
+   "gmailTop5": 76,
+   "gmailTop50": 129,
+   "chronTop1": 37,
+   "chronTop5": 74,
+   "chronTop50": 132
+  },
+  "age=last30d": {
+   "tasks": 70,
+   "bananaTop1": 16,
+   "bananaTop5": 35,
+   "bananaTop50": 48,
+   "nobodyTop1": 9,
+   "nobodyTop5": 24,
+   "nobodyTop50": 36,
+   "gmailTop1": 17,
+   "gmailTop5": 34,
+   "gmailTop50": 52,
+   "chronTop1": 16,
+   "chronTop5": 31,
+   "chronTop50": 54
+  },
+  "age=31to180d": {
+   "tasks": 70,
+   "bananaTop1": 13,
+   "bananaTop5": 27,
+   "bananaTop50": 43,
+   "nobodyTop1": 5,
+   "nobodyTop5": 17,
+   "nobodyTop50": 29,
+   "gmailTop1": 10,
+   "gmailTop5": 22,
+   "gmailTop50": 38,
+   "chronTop1": 9,
+   "chronTop5": 21,
+   "chronTop50": 39
+  },
+  "age=older": {
+   "tasks": 70,
+   "bananaTop1": 27,
+   "bananaTop5": 40,
+   "bananaTop50": 53,
+   "nobodyTop1": 13,
+   "nobodyTop5": 20,
+   "nobodyTop50": 38,
+   "gmailTop1": 13,
+   "gmailTop5": 20,
+   "gmailTop50": 39,
+   "chronTop1": 12,
+   "chronTop5": 22,
+   "chronTop50": 39
+  },
+  "bodyOnlyWords": {
+   "tasks": 60,
+   "bananaTop1": 13,
+   "bananaTop5": 28,
+   "bananaTop50": 35,
+   "nobodyTop1": 7,
+   "nobodyTop5": 12,
+   "nobodyTop50": 18,
+   "gmailTop1": 12,
+   "gmailTop5": 24,
+   "gmailTop50": 37,
+   "chronTop1": 10,
+   "chronTop5": 24,
+   "chronTop50": 38
+  },
+  "wordsAlsoInHeaders": {
+   "tasks": 150,
+   "bananaTop1": 43,
+   "bananaTop5": 74,
+   "bananaTop50": 109,
+   "nobodyTop1": 20,
+   "nobodyTop5": 49,
+   "nobodyTop50": 85,
+   "gmailTop1": 28,
+   "gmailTop5": 52,
+   "gmailTop50": 92,
+   "chronTop1": 27,
+   "chronTop5": 50,
+   "chronTop50": 94
+  }
+ },
+ "gmailMisses": {
+  "did not match": 11,
+  "matched, ranks 6-50": 53,
+  "older target pushed past 50": 67,
+  "no results": 3
+ }
+}
