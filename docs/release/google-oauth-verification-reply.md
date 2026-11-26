@@ -142,6 +142,7 @@ https://bananatheapp.com/privacy
   trash, restore
 - `<t>` Drafts in Gmail Drafts, sending, deleting a draft
 - `<t>` Contacts: contact photo and Other-contacts photo shown beside the sender
+- `<t>` Calendar: the calendar list, and an event created, moved and deleted in Google Calendar
 - `<t>` Turning Email off, and removing access in the Google Account
 
 **6. Test access**
@@ -204,6 +205,7 @@ each section. Captions are enough, but a short voice-over helps.
 | 5 | 2:15 | both | For each, act in Banana, then refresh Gmail and show the result in Gmail: **U** unread → bold in Gmail · **S** star → starred in Gmail · **L** "Receipts" → label in Gmail · **E** Done → gone from Gmail Inbox, present in All Mail · **H** snooze → `Banana/Snoozed/…` label in Gmail, out of Inbox · **!** spam → in Gmail Spam, then Not spam → back · **#** trash → in Gmail Trash, then Restore → back in Inbox · one **⌘Z** undo. | "gmail.modify: changes reflected in the user's Gmail" |
 | 6 | 4:30 | both | **R** reply, type a line, pause: show it in Gmail Drafts. **Send**: show it in Gmail Sent (and arriving on the second account). Start another reply, discard it: show it gone from Gmail Drafts. | "gmail.modify: drafts and sending" |
 | 7 | 5:30 | Banana + Contacts | Show Alex Rivera in Google Contacts with the orange photo, then the same photo on Alex's rows in Banana. Show the Other-contacts sender (contacts.google.com › Other contacts) and their photo in Banana. Show the sender in neither, with initials. | "contacts.readonly / contacts.other.readonly: sender photos" |
+| 7b | 6:15 | Banana + Google Calendar | The calendar scopes are on the same consent screen, so show them in use too: Banana's calendar list with every Google calendar (`calendar.calendarlist.readonly`). Create an event in Banana, move it, delete it, and show each change in Google Calendar on the web (`calendar.events`). Keep it under a minute. | "calendar.events, calendar.calendarlist.readonly" |
 | 8 | 6:30 | Banana + Google Account | Banana Settings: turn Email off; Mail is gone from Banana. Then Google Account › Third-party connections: open Banana, show Gmail and Contacts listed, **Remove all access**. | "Turning Email off and revoking access" |
 
 ### Don'ts
