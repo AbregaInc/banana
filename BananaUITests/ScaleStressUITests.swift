@@ -51,9 +51,6 @@ final class ScaleStressUITests: XCTestCase {
         if route == "--plan", ProcessInfo.processInfo.environment["STRESS_CALENDAR_PRESS"] == "race" {
             app.launchArguments.append("--stress-calendar-press-race")
         }
-        if route == "--mail", ProcessInfo.processInfo.environment["STRESS_READER_START"] == "immediate" {
-            app.launchArguments.append("--stress-start-reader-immediately")
-        }
         // Mail uses the same isolated fixture and provider-write guards as Calendar.
         if route == "--mail" { app.launchArguments += ["--stress-actionable-calendar"] }
         // Preserve the email/calendar-focused physical review workload. Individual

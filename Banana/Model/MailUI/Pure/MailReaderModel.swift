@@ -181,15 +181,13 @@ final class MailReaderModel: ObservableObject {
             }
             await self?.publishBodies(arrived, generation: generation)
         }
-        #if DEBUG && STRESS_DEVICE_AUDIT
-        if ProcessInfo.processInfo.arguments.contains("--stress-start-reader-immediately"),
-           #available(iOS 26, macOS 26, *) {
-            let started = Task.immediate(operation: read)
-            if bodyGeneration == generation { loading = started } else { started.cancel() }
-            return
-        }
-        #endif
-        loading = Task(operation: read)
+        // Start reading now instead of queueing behind the screen that is opening: the read
+        // then overlaps the transition. On a physical iPhone 14 Pro this moved a prepared
+        // body's first readable frame from 145 to 91 ms median after the tap (6 runs each).
+        // Starting can deliver a newer conversation synchronously; only the current
+        // generation keeps its task.
+        let started = Task.immediate(operation: read)
+        if bodyGeneration == generation { loading = started } else { started.cancel() }
     }
 
     private func publishBodies(_ arrived: [MailMessageID: MailBody], generation: UInt64) async {
