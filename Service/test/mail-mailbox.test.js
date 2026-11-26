@@ -482,6 +482,8 @@ test("attachment text is read once, sealed, published again and handed to the de
   const t = await mailbox({ count: 4, labels: () => ["INBOX"] });
   const converted = [];
   t.s.deps.ai = { async toMarkdown(doc) {
+    // As Workers AI: a file without a media type is refused.
+    if (!doc.blob.type) throw Object.assign(new Error("Too small: expected string to have >=1 characters"), { name: "AiInternalError" });
     converted.push(doc.name);
     return { name: doc.name, format: "markdown", data: `# ${doc.name}\n\n${await doc.blob.text()}` };
   } };
@@ -521,25 +523,24 @@ test("attachment text is read once, sealed, published again and handed to the de
   assert.deepEqual(converted, ["Lease Final.pdf"]);
 });
 
-test("without Workers AI only text attachments are read, and a failing conversion is not retried forever", async () => {
+test("without Workers AI only text attachments are read, and a refused file costs nothing else", async () => {
   const t = await mailbox({ count: 3, labels: () => ["INBOX"] });
   t.gmail.messages.get("m1").attachments = [{ filename: "notes.txt", text: "gate code 4417" }, { filename: "plan.pdf", text: "pdf words" }];
   assert.equal((await t.feed(t.phone)).status, 200);
   await textDone(t);
   let pull = await t.s.call("POST", "/v1/mail/content", { session: t.mac.session, body: { email: EMAIL, ids: ["m1"] } });
   assert.deepEqual(pull.json.messages[0].attachmentText.map((a) => a.name), ["notes.txt"]);
-  // A converter that keeps throwing: three tries, then the message is settled without text.
+  // A file the converter refuses: asked once, and the message keeps its other files' text.
   let calls = 0;
   t.s.deps.ai = { async toMarkdown() { calls++; throw new Error("conversion failed"); } };
   t.gmail.add("m9", ["INBOX", "UNREAD"]);
-  t.gmail.messages.get("m9").attachments = [{ filename: "broken.docx", text: "?" }];
+  t.gmail.messages.get("m9").attachments = [{ filename: "broken.docx", text: "?" }, { filename: "list.csv", text: "eggs,milk" }];
   t.s.advance(11_000);
-  await t.feed(t.phone, { fresh: true });   // new mail: its content is fetched, then its attachment
+  await t.feed(t.phone, { fresh: true });   // new mail: its content is fetched, then its attachments
   await textDone(t);
-  assert.ok(calls >= 1 && calls <= 3, String(calls));
+  assert.equal(calls, 1);
   pull = await t.s.call("POST", "/v1/mail/content", { session: t.mac.session, body: { email: EMAIL, ids: ["m9"] } });
-  assert.ok(pull.json.messages[0].message, pull.text);
-  assert.equal(pull.json.messages[0].attachmentText, undefined);
+  assert.deepEqual(pull.json.messages[0].attachmentText.map((a) => a.name), ["list.csv"]);
 });
 
 test("content stored before attachment text existed is queued to be looked at once", () => {
