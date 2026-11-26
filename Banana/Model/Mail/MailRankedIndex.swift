@@ -14,7 +14,7 @@ actor MailRankedIndex {
     private var working = false
     private var revision: UInt64 = 0
     private(set) var ready = false
-    private static let fields = ["subject", "sender", "recipients", "snippet", "body", "filename"]
+    private static let fields = ["subject", "sender", "recipients", "snippet", "body", "filename", "attachments"]
     init(_ stores: MailStores, writer: MailWriter? = nil) {
         self.stores = stores
         self.writer = writer ?? MailWriter(stores: stores, sink: nil)
@@ -24,6 +24,8 @@ actor MailRankedIndex {
         let id, account, date: Int64
         let subject, sender, recipients, snippet, body: String
         let files: [String]
+        /// What the message's attached files say (MailCloudText), when the cloud has read them.
+        var attachments = ""
 
         var native: TantivyDocumentFields {
             var fields = [
@@ -31,7 +33,7 @@ actor MailRankedIndex {
                 DocumentField(name: "account", value: .u64(UInt64(account))),
             ]
             for (name, value) in zip(
-                MailRankedIndex.fields, [subject, sender, recipients, snippet, body, files.joined(separator: " ")])
+                MailRankedIndex.fields, [subject, sender, recipients, snippet, body, files.joined(separator: " "), attachments])
             {
                 fields.append(DocumentField(name: name, value: .text(value)))
             }
@@ -85,11 +87,12 @@ actor MailRankedIndex {
                 SELECT m.msg_pk,m.account_pk,coalesce(m.internal_date,0),h.subject,h.sender,h.recipients,h.snippet,
                   CASE WHEN m.fts_state=2 THEN p.text END,
                   (SELECT json_group_object(x.part_id,x.filename) FROM blobs.attachment x WHERE x.account=a.email AND x.gmail_id=m.gmail_id
-                   AND x.inline=0 AND length(x.filename)>0),c.structure
+                   AND x.inline=0 AND length(x.filename)>0),c.structure,at.text
                 FROM idx.message m JOIN idx.account a ON a.account_pk=m.account_pk
                 JOIN idx.mail_header_search h ON h.rowid=m.msg_pk
                 LEFT JOIN blobs.content c ON c.account=a.email AND c.gmail_id=m.gmail_id
                 LEFT JOIN blobs.prepared p ON p.account=a.email AND p.gmail_id=m.gmail_id
+                LEFT JOIN blobs.attachment_text at ON at.account=a.email AND at.gmail_id=m.gmail_id
                 WHERE \(condition)
                 """, arguments: arguments
         ).map { row in
@@ -112,10 +115,14 @@ actor MailRankedIndex {
             for file in original?.attachments ?? [] {
                 parts[file.partID] = file.isInline || file.name.isEmpty ? nil : file.name
             }
-            return Document(
+            let attached: Data? = row[10]
+            var document = Document(
                 id: row[0], account: row[1], date: row[2], subject: row[3] ?? "", sender: row[4] ?? "",
                 recipients: row[5] ?? "", snippet: row[6] ?? "", body: String(text.prefix(16_000)),
                 files: Array(Set(parts.values)).sorted())
+            document.attachments = attached.flatMap { try? MailBlobCodec.decode($0) }
+                .map { String(String(decoding: $0, as: UTF8.self).prefix(MailCloudText.charactersMost)) } ?? ""
+            return document
         }
     }
 
@@ -132,7 +139,9 @@ actor MailRankedIndex {
     private func openOrBuild() async throws {
         let directory = stores.directories.cache.appendingPathComponent("RankedMail.noindex", isDirectory: true)
         try lock(directory)
-        let path = directory.appendingPathComponent("v1", isDirectory: true)
+        // v2: the attachments field. An index of another version is rebuilt (and its files go).
+        let path = directory.appendingPathComponent("v2", isDirectory: true)
+        let retired = directory.appendingPathComponent("v1", isDirectory: true)
         let marker = directory.appendingPathComponent("complete")
         let epoch = try await stores.searchReader.read { db in
             guard
@@ -141,7 +150,7 @@ actor MailRankedIndex {
                     sql:
                         "SELECT idx.ranked_epoch.id || blobs.ranked_epoch.id FROM idx.ranked_epoch,blobs.ranked_epoch")
             else { throw CocoaError(.fileReadCorruptFile) }
-            return "1:" + value
+            return "2:" + value
         }
         let fm = FileManager.default
         if (try? String(contentsOf: marker, encoding: .utf8)) == epoch,
@@ -151,6 +160,7 @@ actor MailRankedIndex {
             return
         }
         if fm.fileExists(atPath: marker.path) { try fm.removeItem(at: marker) }
+        if fm.fileExists(atPath: retired.path) { try fm.removeItem(at: retired) }
         if fm.fileExists(atPath: path.path) { try fm.removeItem(at: path) }
         let index = try Self.open(path)
         try await writer.maintainSearchIndex {

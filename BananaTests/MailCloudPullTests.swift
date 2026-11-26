@@ -25,6 +25,9 @@ final class MailCloudPullTests: XCTestCase {
         func configureFeed(complete: Bool = true, unavailable: Bool = false) { enumerationComplete = complete; feedUnavailable = unavailable }
         var accountEntries: [String: [Entry]] = [:]
         var held: [String: GmailMessage] = [:]
+        var texts: [String: [MailCloudText.Part]] = [:]
+        func holdText(_ id: String, _ parts: [MailCloudText.Part]) { texts[id] = parts }
+        func append(_ more: [Entry]) { entries += more }
         var asked: [[String]] = []
         var askedAccounts: [String] = []
         /// Every bulk request, failed ones included.
@@ -54,7 +57,7 @@ final class MailCloudPullTests: XCTestCase {
             attempts += 1
             if let failure, failuresLeft > 0 { failuresLeft -= 1; throw failure }
             asked.append(ids); askedAccounts.append(account)
-            return ids.map { held[$0].map(MailCloudContent.message) ?? .missing($0) }
+            return ids.map { id in held[id].map { MailCloudContent.message($0, text: texts[id]) } ?? .missing(id) }
         }
     }
 
@@ -109,8 +112,8 @@ final class MailCloudPullTests: XCTestCase {
         return try await Task.detached { try MailStores.open(MailDirectories(root: root), migrations: MailSlices.migrations()) }.value
     }
     private func entry(_ id: String, date: Int64, content: Bool = true, thread: String? = nil,
-                       labels: [String] = ["INBOX"]) -> Entry {
-        Entry(id: id, thread: thread ?? "t-" + id, history: "100", date: date, labels: labels, deleted: nil, content: content)
+                       labels: [String] = ["INBOX"], text: Bool? = nil) -> Entry {
+        Entry(id: id, thread: thread ?? "t-" + id, history: "100", date: date, labels: labels, deleted: nil, content: content, text: text)
     }
 
     private final class ProgressCounts: @unchecked Sendable {
@@ -178,6 +181,35 @@ final class MailCloudPullTests: XCTestCase {
         XCTAssertNil(MailCloudPull.plan(opened: [], screen: [], fill: [], inFlight: [], blocked: []))
         let many = (1...60).map { id("f\($0)") }
         XCTAssertEqual(MailCloudPull.plan(opened: [], screen: [], fill: many, inFlight: [], blocked: [])?.ids.count, MailCloudPull.batch)
+    }
+
+    func testAttachmentTextComesWithTheMessageOrAloneWithoutPreparingTheBodyAgain() async throws {
+        let cloud = Cloud()
+        await cloud.set([entry("m1", date: 1000), entry("m2", date: 2000, text: true)])
+        await cloud.hold([Self.full("m1", date: 1000), Self.full("m2", date: 2000)])
+        await cloud.holdText("m2", [.init(partId: "1", name: "lease.pdf", text: "monthly rent 2400")])
+        let (stores, pull) = try await setup(cloud)
+        while try await pull.step(fill: true).worked {}
+        let m2 = try await stores.blobs.read { try MailCloudText.text(account: Self.account, gmailID: "m2", in: $0) }
+        XCTAssertTrue(m2.contains("monthly rent 2400") && m2.contains("lease.pdf"), "with the message")
+        // The cloud reads m1's attachment after this device stored m1: the feed says so again.
+        let prepared = { try await stores.blobs.read { try Row.fetchOne($0, sql: "SELECT made_at, bytes FROM prepared WHERE gmail_id='m1'") } }
+        let before = try await prepared()
+        await cloud.holdText("m1", [.init(partId: "2", name: "invoice.docx", text: "hetzner invoice")])
+        await cloud.append([entry("m1", date: 1000, text: true)])
+        let feed = MailCloudFeedSync(stores: stores, writer: MailWriter(stores: stores, sink: nil), source: cloud, recover: { _ in })
+        _ = try await feed.pass(account: Self.account, nowMS: 2)
+        let owed = try await stores.index.read { try Int.fetchOne($0, sql: "SELECT count(*) FROM message WHERE cloud_text=1") }
+        XCTAssertEqual(owed, 1)
+        while try await pull.step(fill: true).worked {}
+        let m1 = try await stores.blobs.read { try MailCloudText.text(account: Self.account, gmailID: "m1", in: $0) }
+        XCTAssertTrue(m1.contains("hetzner invoice"), "alone, for a message already here")
+        let after = try await prepared()
+        XCTAssertEqual(before, after, "the body is not prepared again")
+        let asked = await cloud.asked
+        XCTAssertEqual(asked.last, ["m1"])
+        let left = try await stores.index.read { try Int.fetchOne($0, sql: "SELECT count(*) FROM message WHERE cloud_text=1") }
+        XCTAssertEqual(left, 0)
     }
 
     func testVisibleRowsArePulledBeforeTheFillAndTheFillGoesNewestFirst() async throws {

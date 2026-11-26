@@ -174,10 +174,21 @@ actor MailCloudPull {
                     """, arguments: [owner, limit]) {
                     out.append((id: MailMessageID(account: account, message: item[0]), date: item[1], pk: item[2]))
                 }
+                // Attachment text the cloud read for a message this device already holds whole:
+                // pulled with the same request, stored without preparing the body again.
+                for item in try Row.fetchAll(db, sql: """
+                    SELECT m.gmail_id, m.internal_date, m.msg_pk FROM message m INDEXED BY message_cloud_text
+                    WHERE m.account_pk=? AND m.cloud_text=1 AND m.vis!=4
+                      AND NOT EXISTS(SELECT 1 FROM held_removal h WHERE h.msg_pk=m.msg_pk)
+                    ORDER BY m.internal_date DESC, m.msg_pk DESC LIMIT ?
+                    """, arguments: [owner, limit]) {
+                    out.append((id: MailMessageID(account: account, message: item[0]), date: item[1], pk: item[2]))
+                }
             }
             return out
         }
-        return found.sorted { ($0.date, $0.pk) > ($1.date, $1.pk) }.map(\.id)
+        var seen = Set<MailMessageID>()
+        return found.sorted { ($0.date, $0.pk) > ($1.date, $1.pk) }.map(\.id).filter { seen.insert($0).inserted }
     }
 
     /// New mail in the Inbox this device knows only by id (no sender, no subject, so not listed),
@@ -273,19 +284,31 @@ actor MailCloudPull {
             return step
         }
         var messages: [GmailMessage] = [], missing: [MailMessageID] = [], gone: [MailMessageID] = [], done = Set<MailMessageID>()
+        var texts: [String: [MailCloudText.Part]] = [:]
         for answer in answers {
             let id = MailMessageID(account: account, message: answer.id)
             switch answer {
-            case .message(let message): messages.append(message)
+            case .message(let message, let text):
+                messages.append(message)
+                if let text, let messageID = message.id { texts[messageID] = text }
             case .missing: missing.append(id); done.insert(id)
             case .gone: gone.append(id); done.insert(id)
             case .later: break
             }
         }
         let started = ContinuousClock.now
+        // A message this device already holds whole came only for its attachment text.
+        let whole = try await stores.index.read { db in
+            Set(try messages.compactMap(\.id).filter { id in
+                try Bool.fetchOne(db, sql: """
+                    SELECT m.fetch_state=2 AND m.prep_state!=0 FROM message m JOIN account a ON a.account_pk=m.account_pk
+                    WHERE a.email=? AND m.gmail_id=?
+                    """, arguments: [account, id]) == true
+            })
+        }
         let result: GmailConversationLoader.CloudStored
         do {
-            result = try await loader.storeCloud(messages, account: account)
+            result = try await loader.storeCloud(messages.filter { !whole.contains($0.id ?? "") }, account: account)
         } catch is CancellationError {
             throw CancellationError()
         } catch {
@@ -300,12 +323,29 @@ actor MailCloudPull {
             let work = started.duration(to: .now).components
             if let pause = pace().pause(afterWorking: Double(work.seconds) + Double(work.attoseconds) / 1e18), pause > 0 { try await sleep(pause) }
         }
+        // The text of every message that is here now; a message the cloud no longer has text for is
+        // no longer owed it.
+        let held = Set(result.stored).union(whole)
+        let answered = messages.compactMap(\.id).filter { held.contains($0) }
+        if !answered.isEmpty {
+            try await stores.blobs.write { db in
+                try MailCloudText.store(answered.compactMap { id in texts[id].map { (account, id, $0) } }, in: db)
+            }
+            try await stores.index.write { db in
+                for id in answered {
+                    try db.execute(sql: """
+                        UPDATE message SET cloud_text=? WHERE gmail_id=? AND account_pk=(SELECT account_pk FROM account WHERE email=?)
+                        """, arguments: [texts[id] == nil ? 0 : 2, id, account])
+                }
+            }
+        }
         let stored = result.stored.map { MailMessageID(account: account, message: $0) }
         let headed = Set(result.headersOnly.map { MailMessageID(account: account, message: $0) })
         step.stored = stored
         if !stored.isEmpty { self.stored(account, stored.count) }
         step.problems = result.problems
         done.formUnion(stored)
+        done.formUnion(whole.map { MailMessageID(account: account, message: $0) })
         // A message the cloud sent that could not be stored here (malformed, too large) goes the
         // per-message way, which has its own rules for those.
         let unstored = messages.compactMap(\.id).map { MailMessageID(account: account, message: $0) }.filter { !done.contains($0) }

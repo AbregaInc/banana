@@ -101,6 +101,11 @@ enum MailCloudFeedIndex {
             if entry.content == true {
                 try db.execute(sql: "UPDATE message SET cloud_content=1 WHERE account_pk=? AND gmail_id=? AND cloud_content=0",
                                arguments: [owner, entry.id])
+                if entry.text == true {
+                    // Owed unless this device already holds it (a later entry for the same message).
+                    try db.execute(sql: "UPDATE message SET cloud_text=1 WHERE account_pk=? AND gmail_id=? AND cloud_text=0",
+                                   arguments: [owner, entry.id])
+                }
             }
             try seen(entry.id)
         }

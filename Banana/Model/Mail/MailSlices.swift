@@ -32,6 +32,7 @@ enum MailSlices {
         MailBlobSchema.register(in: &migrations.blobs)
         MailBodySearchSchema.register(in: &migrations.search)
         MailRankedSchema.register(in: &migrations)
+        MailCloudText.register(in: &migrations)
         return migrations
     }
 

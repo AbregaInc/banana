@@ -50,6 +50,26 @@ final class MailLocalSearchTests: XCTestCase {
         XCTAssertEqual(replacement?.first?.threadPK,4)
     }
 
+    func testAttachmentTextIsSearchableAndFollowsItsChanges() async throws {
+        let stores = try await makeReader(count: 4).stores
+        let index = MailRankedIndex(stores)
+        try await index.synchronize()
+        let before = try await index.top("hetzner invoice", allowed: ["a@example.com"])
+        XCTAssertEqual(before?.count, 0)
+        try await stores.blobs.write { db in
+            try MailCloudText.store([("A@example.com", "m2", [MailCloudText.Part(partId: "1", name: "statement.pdf", text: "Hetzner invoice for November")])], in: db)
+        }
+        try await index.synchronize()
+        let found = try await index.top("hetzner invoice", allowed: ["a@example.com"])
+        XCTAssertEqual(found?.first?.threadPK, 2)
+        let otherAccount = try await index.top("hetzner", allowed: ["b@example.com"])
+        XCTAssertEqual(otherAccount?.count, 0)
+        try await stores.blobs.write { db in try db.execute(sql: "DELETE FROM attachment_text") }
+        try await index.synchronize()
+        let gone = try await index.top("hetzner", allowed: ["a@example.com"])
+        XCTAssertEqual(gone?.count, 0)
+    }
+
     func testOriginalMIMEFilenameSupersedesCachedPartMetadata() async throws {
         let stores = try await makeReader(count: 4).stores
         let index = MailRankedIndex(stores)

@@ -19,6 +19,7 @@ import XCTest
             if FileManager.default.fileExists(atPath: root.appendingPathComponent("public-replay").path) {
                 migrations = MailMigrations()
                 MailRankedSchema.register(in: &migrations)
+                MailCloudText.register(in: &migrations)
             }
             if FileManager.default.fileExists(atPath: root.appendingPathComponent("fixture-migrations.json").path) {
                 // The read-only export may come from a later Beta. Its source schema is already materialized.
@@ -31,6 +32,7 @@ import XCTest
                 for id in applied["blobs.sqlite"] ?? [] { migrations.blobs.registerMigration(id) { _ in } }
                 for id in applied["search.sqlite"] ?? [] { migrations.search.registerMigration(id) { _ in } }
                 MailRankedSchema.register(in: &migrations)
+                MailCloudText.register(in: &migrations)
             }
             return try MailStores.open(MailDirectories(root: root), migrations: migrations)
         }.value
