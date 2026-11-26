@@ -196,10 +196,17 @@ import GRDB
         let requests = await feed.requests
         XCTAssertEqual(requests.filter { $0 == offline }.count, 8)
         XCTAssertEqual(requests.filter { $0 == healthy }.count, 181)
-        let waiting = try await intent.assertions()
-        XCTAssertEqual(waiting.map(\.groupSeq), [Int64(receipt.sequence)])
+        // Delivery does not wait for Mail to be shown: the star reached Gmail during the outage,
+        // once, while the failing feed kept backing off.
+        var waiting = try await intent.assertions()
+        let deliveredBy = ContinuousClock.now + .seconds(5)
+        while !waiting.isEmpty && ContinuousClock.now < deliveredBy {
+            try await Task.sleep(for: .milliseconds(5))
+            waiting = try await intent.assertions()
+        }
+        XCTAssertTrue(waiting.isEmpty, "Receipt \(receipt.sequence) still waiting")
         let idleWrites = await api.writes
-        XCTAssertEqual(idleWrites, 0)
+        XCTAssertEqual(idleWrites, 1)
         let healthyCursor = try await stores.index.read { try MailCloudFeedIndex.state(account: healthy, in: $0)?.cursor }
         XCTAssertEqual(healthyCursor, "1")
         await feed.recover()
@@ -793,9 +800,11 @@ import GRDB
         observation.cancel()
     }
 
-    func testReactivationWhileCancelledDeliveryUnwindsResumesPendingIntent() async throws {
+    /// Leaving Mail, or leaving and coming back at once, does not interrupt a write already on
+    /// its way to Gmail or send it twice.
+    func testLeavingMailDoesNotInterruptDelivery() async throws {
         let api = GmailIntentDeliveryTests.Provider()
-        await api.configure(onWrite: { try await Task.sleep(for: .seconds(30)) })
+        await api.configure(onWrite: { try await Task.sleep(for: .milliseconds(300)) })
         let (_, intent, source, row) = try await actionSource(deliveryAPI: api)
         source.activate()
         defer { source.setVisible(false) }
@@ -806,10 +815,9 @@ import GRDB
             try await Task.sleep(for: .milliseconds(5))
         }
         XCTAssertTrue(started)
-        await api.configure()
-        // No suspension between hiding and reopening: the cancelled task is still owned.
         source.setVisible(false)
         source.setVisible(true)
+        source.setVisible(false)
         var confirmed = false
         for _ in 0..<400 {
             let pending = try await intent.assertions()
@@ -818,7 +826,7 @@ import GRDB
         }
         XCTAssertTrue(confirmed)
         let writes = await api.writes
-        XCTAssertEqual(writes, 2, "Reactivation must wake delivery after cancellation releases its claim")
+        XCTAssertEqual(writes, 1, "The write in flight finishes; nothing is sent twice")
     }
 
     func testDeliveryRefusalIsVisibleAndRetryConfirmsProviderState() async throws {

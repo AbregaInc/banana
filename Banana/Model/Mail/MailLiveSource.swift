@@ -123,6 +123,10 @@ import GRDB
     private var firstPages: [MailScope: MailListSnapshot] = [:]
     private var firstPageOrder: [MailScope] = []
     private var active = false
+    /// Delivery runs once the engine is prepared, whether or not Mail is on screen: what was
+    /// sent or queued goes out without Mail having to stay open. With nothing queued it sleeps.
+    private var delivering = false
+    private var deliveryRuns: Bool { active || delivering }
     private var mailboxSync: GmailMailboxSync?
     private var syncTasks: [String: Task<Void, Never>] = [:]
     private var syncOwners: [String: UUID] = [:]
@@ -294,11 +298,9 @@ import GRDB
                 reprepareTask?.cancel(); reprepareTask = nil
             }
             active = false
-            draftWake?.cancel(); draftWake = nil
             draftReadTask?.cancel()
             for task in labelTasks.values { task.cancel() }
             labelTasks.removeAll(); labelReadTask?.cancel()
-            deliveryTask?.cancel(); deliveryWake?.cancel(); deliveryWake = nil
         }
     }
     func observeAccounts(_ onChange: @escaping @MainActor ([MailAccount]) -> Void) -> MailObservation {
@@ -1173,6 +1175,7 @@ extension MailLiveSource {
             if Task.isCancelled { throw error }
             status.value.store = .unavailable(.unavailable)
         }
+        delivering = true
         kickDelivery()
     }
 
@@ -1355,12 +1358,13 @@ extension MailLiveSource {
     }
 
     private func canDeliver(_ account: String) -> Bool {
-        active && !removalNeedsRepair && !disabled.contains(account) && !forgettingAccess.contains(account) && access.mailGrant(accountID: account) == .granted && deliveryAllowed(account)
+        deliveryRuns && !removalNeedsRepair && !disabled.contains(account) && !forgettingAccess.contains(account) && access.mailGrant(accountID: account) == .granted && deliveryAllowed(account)
     }
 
     private func kickDelivery() {
         deliveryWake?.cancel(); deliveryWake = nil
-        guard active, delivery != nil else { return }
+        guard deliveryRuns, delivery != nil else { return }
+        MailOutgoingMirror.record(true)
         if deliveryTask != nil { deliveryDirty = true; return }
         deliveryTask = Task { [weak self] in await self?.runDelivery() }
     }
@@ -1371,9 +1375,9 @@ extension MailLiveSource {
             deliveryTask = nil
             // Reactivation can arrive while a cancelled HTTP pass is unwinding.
             // Its queued wake must survive until this pass releases the worker.
-            if active && deliveryDirty { kickDelivery() }
+            if deliveryRuns && deliveryDirty { kickDelivery() }
         }
-        while active && !Task.isCancelled {
+        while deliveryRuns && !Task.isCancelled {
             deliveryDirty = false
             let now = Int64(Date().timeIntervalSince1970 * 1000)
             let eligible = access.connectedAccountIDs.filter { canDeliver($0) }
@@ -1400,8 +1404,9 @@ extension MailLiveSource {
                     failures.insert(account); publishAccounts()
                 }
             }
-            if Task.isCancelled || !active { return }
+            if Task.isCancelled || !deliveryRuns { return }
             if worked || deliveryDirty { continue }
+            await recordOutgoingWork()
             if let next {
                 let delay = max(0.05, Double(next - now) / 1000)
                 deliveryWake = Task { [weak self] in
@@ -2137,8 +2142,14 @@ extension MailLiveSource {
             }
         }
     }
+    /// What the outgoing store says now, for the next launch (`MailOutgoingMirror`).
+    private func recordOutgoingWork() async {
+        guard let intentStore else { return }
+        if let waiting = try? await intentStore.hasOutgoingWork() { MailOutgoingMirror.record(waiting) }
+    }
     private func resumeDraftDelivery() {
-        guard active, let driver = draftDriver else { return }
+        guard deliveryRuns, let driver = draftDriver else { return }
+        MailOutgoingMirror.record(true)
         if draftDeliveryTask != nil { draftDeliveryDirty = true; return }
         draftWake?.cancel(); draftWake = nil
         draftDeliveryTask = Task { [weak self, clock] in
@@ -2149,7 +2160,8 @@ extension MailLiveSource {
             guard let self else { return }
             self.draftDeliveryTask = nil
             if self.draftDeliveryDirty { self.draftDeliveryDirty = false; self.resumeDraftDelivery(); return }
-            guard self.active, let nextWake else { return }
+            await self.recordOutgoingWork()
+            guard self.deliveryRuns, let nextWake else { return }
             let deadline = max(nextWake, clock.now.addingTimeInterval(0.1))
             self.draftWake = Task { [weak self] in
                 do { try await clock.sleep(until: deadline) }

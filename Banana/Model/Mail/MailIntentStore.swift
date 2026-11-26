@@ -229,6 +229,18 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
             try Data.fetchAll(db, sql: "SELECT payload FROM draft_outbox WHERE scope=? AND account=? AND remote_id IS NOT NULL AND (last_seen_scan IS NULL OR last_seen_scan<>?) AND local_id>? AND state NOT IN ('sent','deleted') ORDER BY local_id LIMIT 50", arguments: [scope, account, scan, after]).map { try JSONDecoder().decode(MailDraftRecord.self, from: $0) }
         }
     }
+    /// Whether anything here is still to be sent to Gmail: a send, an edited draft, a queued
+    /// action or a sender-policy change. Read after each delivery pass for the launch mirror
+    /// (`MailOutgoingMirror`).
+    func hasOutgoingWork() async throws -> Bool {
+        try await queue.read { db in
+            try Bool.fetchOne(db, sql: """
+                SELECT EXISTS(SELECT 1 FROM draft_outbox WHERE dirty=1 OR state IN ('held','sending','uncertain'))
+                    OR EXISTS(SELECT 1 FROM label_intent WHERE state=0)
+                    OR EXISTS(SELECT 1 FROM sender_policy_intent WHERE pending=1)
+                """) ?? false
+        }
+    }
     func hasPendingDraftSends(scope: String) async throws -> Bool {
         try await queue.read { db in
             try Bool.fetchOne(db, sql: "SELECT EXISTS(SELECT 1 FROM draft_outbox WHERE scope=? AND state IN ('held','sending','uncertain'))", arguments: [scope]) ?? false

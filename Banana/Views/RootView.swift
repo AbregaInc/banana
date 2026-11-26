@@ -647,6 +647,7 @@ struct RootView: View {
         #if DEBUG
         LaunchTiming.note("mail_badge_read_ms", Date().timeIntervalSince(began) * 1000)
         #endif
+        MailApplication.shared.startIfOutgoingWorkWaits()
     }
     #endif
 
