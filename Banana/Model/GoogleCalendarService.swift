@@ -152,8 +152,8 @@ struct GoogleWindowFetch {
 final class GoogleCalendarService: ObservableObject {
     static let shared = GoogleCalendarService()
 
-    static let eventsScope = "https://www.googleapis.com/auth/calendar.events"
-    static let calendarListScope = "https://www.googleapis.com/auth/calendar.calendarlist.readonly"
+    static let eventsScope = GoogleScopes.calendarEvents
+    static let calendarListScope = GoogleScopes.calendarList
     private static let requiredScopes = [eventsScope, calendarListScope]
     private static let accountHintKey = "googleCalendar.accountHint.v1"
     private static let log = Logger(subsystem: "com.boris.banana", category: "google")
@@ -456,9 +456,7 @@ final class GoogleCalendarService: ObservableObject {
             let link = BananaAccount.shared.account?.google.first { $0.email.lowercased() == email.lowercased() }
             scopes = GoogleReconnectPermissions.scopes(calendar: scopes,
                 mail: link?.permissionScopes?["mail"] ?? [], readable: link?.capabilities?.mailRead == true,
-                modifiable: link?.capabilities?.mailModify == true,
-                enabled: ModuleStore.shared.choice.includes(.email) && FeatureAccessStore.shared.allows("email"),
-                additional: MailScopes.senderPhotos)
+                enabled: ModuleStore.shared.choice.includes(.email) && FeatureAccessStore.shared.allows("email"))
             #endif
             let result = try await interactiveSignIn(hint: email, scopes: Array(Set(scopes)).sorted())
             guard let signedIn = result.user.profile?.email,
@@ -2268,7 +2266,12 @@ final class GoogleCalendarService: ObservableObject {
     }
 
     private func interactiveSignIn(hint: String?, scopes requestedScopes: [String]? = nil) async throws -> GIDSignInResult {
-        let scopes = requestedScopes ?? Self.requiredScopes
+        let wanted = requestedScopes ?? Self.requiredScopes
+        let scopes = GoogleScopes.allowed(wanted)
+        if scopes.count != Set(wanted).count {
+            Self.log.fault("Dropped a Google scope that is not submitted for verification")
+            assertionFailure("Asked Google for a scope outside GoogleScopes.submitted")
+        }
         #if os(iOS)
         guard let presenter = Self.presentingViewController() else {
             throw GoogleCalendarError.noPresentationContext
