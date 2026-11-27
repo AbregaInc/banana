@@ -120,6 +120,9 @@ import GRDB
         add(counts)
     }
 
+    // Needs MailSession (Mail UI models), which tools/mail-index-tests, the engine-only harness,
+    // does not compile. The app's BananaTests runs it.
+    #if !MAIL_ENGINE_HARNESS
     func testOffscreenSessionPullsOnceWithoutStartingForegroundPolling() async throws {
         for reference in [true, false] {
             let feed = PushFeed()
@@ -172,6 +175,7 @@ import GRDB
             add(evidence)
         }
     }
+    #endif
 
     func testFifteenMinutesOfOfflinePushesKeepTheWriteUntilRecovery() async throws {
         let offline = "a@example.com", healthy = "b@example.com"
