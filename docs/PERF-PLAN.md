@@ -42,6 +42,9 @@ Use the current [component measurements](performance/scale-results/benchmark-rev
 - [ ] **Mail can store a blank body on first import.** A valid HTML-only message with many empty formatting elements before its first word fails the cloud-pull correctness test. Four bounded streaming candidates were evaluated. The last differed from existing reader text in seven of 48 cases. Compare a bounded HTML5 parser on these cases and the large-message time and memory fixtures, then measure selective recovery of affected prepared bodies already on disk. [Corpus, output comparisons and peak memory](performance/scale-results/mail-calendar-20261126/mail-overlimit-text-experiment.json)
 - [x] **Mail body storage.** Tested both experimental Swift representation changes separately and together on the disk-backed reader. Across plain, mixed and image-heavy mail there was no consistent reduction in live-reader memory or open time. Keep the existing representation. Revisit if retained production readers show storage pressure. [Fresh, warm and eviction measurements](performance/scale-results/mail-calendar-20261126/mail-body-representation.json)
 
+- [ ] **Background CPU during podcast playback.** Once in four days (main app, 24 Nov, about 23:19), CPU stayed at 35–56% for four minutes after an episode change with the app in the background: system calls rose from about 190,000 to 1,000,000 a minute, no view drew, no transcription or download ran, and it stopped when playback paused. Capture a Time Profiler trace if it recurs.
+- [ ] **Setup work in background launches.** Launches iOS makes in the background run the whole setup (5–8 s on the main app) while nobody looks. Defer what only the screen needs until the app comes forward, and measure the energy saved.
+
 The [benchmark review](performance/benchmark-review-20261125.md) records the experiments behind these backlog items.
 
 ## 19 Jul re-audit and hardening pass

@@ -2650,6 +2650,16 @@ final class GoogleCalendarService: ObservableObject {
     /// with a fresh one before giving up.
     private func send(url: URL, method: String, body: Data?,
                       account: GoogleAccountCredential?, ifMatch: String? = nil) async throws -> Data {
+        // At launch the saved feature policy has usually expired, so the cloud path is closed
+        // until the service describes the account again. An account that only the service can read
+        // waits for that (one shared refresh) instead of failing: every Beta launch read no
+        // calendar list at first and had to read them all again.
+        if FeatureAccessStore.shared.calendarReadContext == nil, BananaAccount.shared.isSignedIn,
+           let owner = owner(of: url, account: account) {
+            var onlyThroughService = owner.cloudOnly == true
+            if !onlyThroughService { onlyThroughService = try await BananaAccount.requiresCloudCalendar(email: owner.id) }
+            if onlyThroughService { await BananaAccount.shared.refreshShared() }
+        }
         if let context = FeatureAccessStore.shared.calendarReadContext {
             guard let email = owner(of: url, account: account)?.id else { throw GoogleCalendarError.notConnected }
             if method == "GET" {

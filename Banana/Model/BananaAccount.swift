@@ -137,7 +137,7 @@ final class BananaAccount: ObservableObject {
                 if let again = self.passAgain { self.passAgain = nil; self.runPass(reason: again) }
             }
             self.transportFailed = false
-            if self.isSignedIn { await self.refresh() }     // which Google accounts are linked already
+            if self.isSignedIn { await self.refreshShared() }     // which Google accounts are linked already
             await self.signInByIdentity()
             if self.isSignedIn {
                 await self.registerDevice()
@@ -264,6 +264,24 @@ final class BananaAccount: ObservableObject {
         }
         _ = await send(.unlink(email: email))
         await refresh()
+    }
+
+    private var sharedRefresh: Task<Bool, Never>?
+    private var sharedRefreshFailedAt: Date?
+
+    /// One refresh for everyone waiting on the account at the same moment: at launch the account
+    /// pass, Mail and Calendar each needed it, and each asked the service on its own. For a minute
+    /// after one fails it answers at once, so work that waits on it offline is not held each time.
+    @discardableResult
+    func refreshShared() async -> Bool {
+        if let sharedRefresh { return await sharedRefresh.value }
+        if let failed = sharedRefreshFailedAt, Date().timeIntervalSince(failed) < 60 { return false }
+        let task = Task { await self.refresh() }
+        sharedRefresh = task
+        let answered = await task.value
+        sharedRefresh = nil
+        sharedRefreshFailedAt = answered ? nil : Date()
+        return answered
     }
 
     /// True when the service answered with the account.
