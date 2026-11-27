@@ -15,14 +15,41 @@ enum MailCloudText {
     /// What one message keeps, at most (the cloud keeps the same).
     static let charactersMost = 200_000
 
-    /// The index's text for a message: each file's name and words.
+    /// Between a file's name and its words, and between files: never in extracted text, and a word
+    /// break to the index's tokenizer.
+    private static let nameEnd: Character = "\u{1F}", partEnd: Character = "\u{1E}"
+
+    /// What is stored and indexed for a message: each file's name and words.
     static func indexed(_ parts: [Part]) -> String {
-        var out = ""
-        for part in parts where out.count < charactersMost {
-            out += part.name + "\n" + part.text + "\n\n"
-        }
-        return String(out.prefix(charactersMost))
+        let clean = { (text: String) in text.filter { $0 != nameEnd && $0 != partEnd } }
+        return String(parts.map { clean($0.name) + String(nameEnd) + clean($0.text) }
+            .joined(separator: String(partEnd)).prefix(charactersMost))
     }
+
+    /// The words around the first match and the file they are in, as a search row's excerpt
+    /// ("…monthly rent is 2,400 dollars… · lease.pdf"): the words first, since a row shows one line
+    /// and the paperclip already says there is a file. Starts a couple of words before the match, on
+    /// a word boundary. nil when no word is in any file.
+    static func excerpt(_ stored: String, words: [String], before: Int = 18, after: Int = 110) -> String? {
+        let options: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
+        for part in stored.split(separator: partEnd, omittingEmptySubsequences: true) {
+            let fields = part.split(separator: nameEnd, maxSplits: 1, omittingEmptySubsequences: false)
+            guard fields.count == 2 else { continue }
+            let name = String(fields[0]), text = fields[1]
+            let found = words.compactMap { text.range(of: $0, options: options) }.min { $0.lowerBound < $1.lowerBound }
+            guard let found else { continue }
+            var start = text.index(found.lowerBound, offsetBy: -before, limitedBy: text.startIndex) ?? text.startIndex
+            if start > text.startIndex, let space = text[start..<found.lowerBound].firstIndex(where: \.isWhitespace) {
+                start = text.index(after: space)
+            }
+            var end = text.index(found.upperBound, offsetBy: after, limitedBy: text.endIndex) ?? text.endIndex
+            if end < text.endIndex, let space = text[found.upperBound..<end].lastIndex(where: \.isWhitespace) { end = space }
+            let shown = text[start..<end].split(whereSeparator: \.isWhitespace).joined(separator: " ")
+            return (start > text.startIndex ? "…" : "") + shown + (end < text.endIndex ? "…" : "") + " · " + name
+        }
+        return nil
+    }
+
 
     static func register(in migrations: inout MailMigrations) {
         migrations.index.registerMigration("v16-cloud-text") { db in

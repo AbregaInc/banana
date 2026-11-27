@@ -44,6 +44,8 @@ final class MailFixtureSource: MailSource {
     struct Stored: Equatable {
         var row: MailRow
         var conversation: MailConversation
+        /// Its files' words, as MailCloudText stores them; searched, and excerpted when they matched.
+        var fileText = ""
         var excludedMailbox: MailMailbox? = nil
         var mailboxBeforeTrash: MailMailbox? = nil
         var inboxBeforeTrash = false
@@ -522,10 +524,10 @@ final class MailFixtureSource: MailSource {
             let haystack = ([row.subject, row.snippet] + row.people.flatMap { [$0.name ?? "", $0.address] })
                 .joined(separator: " ").folding(options: [.caseInsensitive, .diacriticInsensitive], locale: Locale(identifier: "en_US_POSIX"))
                 .components(separatedBy: CharacterSet.alphanumerics.inverted)
-            inPlace = (!words.isEmpty || definition?.isEmpty == false) && words.allSatisfy { term in
+            inPlace = (!words.isEmpty || definition?.isEmpty == false) && (words.allSatisfy { term in
                 let folded = term.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: Locale(identifier: "en_US_POSIX"))
                 return haystack.contains { $0.hasPrefix(folded) }
-            }
+            } || (!words.isEmpty && Self.filesMatch(stored.fileText, words: words)))
         default: inPlace = false
         }
         guard inPlace else { return false }
@@ -543,7 +545,7 @@ final class MailFixtureSource: MailSource {
         }
         if let cached = memberCache[scope] { return cached }
         let result = threads.values.filter { !Self.isUnsent($0) && belongs($0, to: scope) }
-            .map(\.row).sorted { $0.key > $1.key }
+            .map { Self.searchRow($0, scope: scope) }.sorted { $0.key > $1.key }
         if memberCache.count >= 4 { memberCache.removeAll(keepingCapacity: true) }
         memberCache[scope] = result
         return result
@@ -565,7 +567,7 @@ final class MailFixtureSource: MailSource {
                 var total = 0
                 for stored in threads.values where !Self.isUnsent(stored) && belongs(stored, to: scope) {
                     total += 1
-                    top.insert(stored.row)
+                    top.insert(Self.searchRow(stored, scope: scope))
                 }
                 page = (top.sorted, total)
                 if pageCache.count >= 4 { pageCache.removeAll(keepingCapacity: true) }
@@ -637,6 +639,26 @@ final class MailFixtureSource: MailSource {
         for observer in Array(placeObservers.values) { observer(current) }
     }
 
+    /// Every word of the search is in the files' text (the engine's all-words attachment query).
+    static func filesMatch(_ fileText: String, words: [String]) -> Bool {
+        guard !fileText.isEmpty else { return false }
+        let found = Set(MailRankedIndex.words(fileText))
+        return words.allSatisfy { found.contains(MailRankedIndex.folded($0)) }
+    }
+
+    /// The engine's rule for a search row (MailRankedIndex.page): a row whose subject and snippet lack a
+    /// searched word shows the file and the words around the match.
+    static func searchRow(_ stored: Stored, scope: MailScope) -> MailRow {
+        guard case .search(let text) = scope.place, !stored.fileText.isEmpty else { return stored.row }
+        let words = MailRankedIndex.words(LiveFilter.fromSearchExpression(text, scope: "mail")?.text ?? text)
+        let shown = Set(MailRankedIndex.words(stored.row.subject + " " + stored.row.snippet))
+        guard !words.isEmpty, !words.allSatisfy(shown.contains), filesMatch(stored.fileText, words: words),
+              let excerpt = MailCloudText.excerpt(stored.fileText, words: words) else { return stored.row }
+        var row = stored.row
+        row.snippet = excerpt
+        return row
+    }
+
     // MARK: - Building the mailbox
 
     /// A sample as the contract's row, conversation and bodies.
@@ -688,7 +710,12 @@ final class MailFixtureSource: MailSource {
             snoozedUntil: nil, system: nil, messages: messages, invite: sample.invite,
             unsubscribe: sample.unsubscribe, draft: nil, newestIsMine: newest.isMine,
             appliedThrough: 0)
-        return (Stored(row: row, conversation: conversation), bodies)
+        let fileText = MailCloudText.indexed(sample.messages.enumerated().flatMap { index, message in
+            message.files.compactMap { file in
+                message.fileText[file.name].map { MailCloudText.Part(partId: "\(index + 1)", name: file.name, text: $0) }
+            }
+        })
+        return (Stored(row: row, conversation: conversation, fileText: fileText), bodies)
     }
 
     /// A body line starting with ">" is a quote, one level for each; "• " is a list item.

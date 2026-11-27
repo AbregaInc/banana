@@ -401,7 +401,21 @@ actor MailRankedIndex {
                     FROM idx.thread t JOIN idx.account a ON a.account_pk=t.account_pk
                     WHERE t.thread_pk IN (\(visible.map { _ in "?" }.joined(separator:",")))
                     """, arguments: StatementArguments(visible))
-            let hydrated = try rows.map(MailIndexReader.decode)
+            var hydrated = try rows.map(MailIndexReader.decode)
+            // A row whose subject and snippet lack a searched word shows where the words are, when
+            // that is a file's text (MailRow.snippet: "in a search, the excerpt around the match").
+            for index in hydrated.indices {
+                let shown = Set(Self.words(hydrated[index].subject + " " + hydrated[index].snippet))
+                guard !tokens.allSatisfy(shown.contains),
+                      let message = attachIDs.first(where: { byMessage[$0] == hydrated[index].threadPK }),
+                      let blob = try Data.fetchOne(db, sql: """
+                          SELECT at.text FROM idx.message m JOIN idx.account a ON a.account_pk=m.account_pk
+                          JOIN blobs.attachment_text at ON at.account=a.email AND at.gmail_id=m.gmail_id WHERE m.msg_pk=?
+                          """, arguments: [message]),
+                      let excerpt = MailCloudText.excerpt(String(decoding: try MailBlobCodec.decode(blob), as: UTF8.self), words: tokens)
+                else { continue }
+                hydrated[index].snippet = excerpt
+            }
             let byThread = Dictionary(uniqueKeysWithValues: hydrated.map { ($0.threadPK, $0) })
             return Page(ids: result, rows: visible.compactMap { byThread[$0] }, offset: offset)
         }
