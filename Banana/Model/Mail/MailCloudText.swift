@@ -15,13 +15,33 @@ enum MailCloudText {
     /// What one message keeps, at most (the cloud keeps the same).
     static let charactersMost = 200_000
 
-    /// The index's text for a message: each file's name and words.
+    /// Between a file's name and its words, and between files: never in extracted text, and a word
+    /// break to the index's tokenizer.
+    private static let nameEnd: Character = "\u{1F}", partEnd: Character = "\u{1E}"
+
+    /// What is stored and indexed for a message: each file's name and words.
     static func indexed(_ parts: [Part]) -> String {
-        var out = ""
-        for part in parts where out.count < charactersMost {
-            out += part.name + "\n" + part.text + "\n\n"
+        let clean = { (text: String) in text.filter { $0 != nameEnd && $0 != partEnd } }
+        return String(parts.map { clean($0.name) + String(nameEnd) + clean($0.text) }
+            .joined(separator: String(partEnd)).prefix(charactersMost))
+    }
+
+    /// The file a search's words were found in and the words around the first of them, as a search
+    /// row's excerpt ("lease.pdf · …monthly rent 2,400…"); nil when no word is in any file.
+    static func excerpt(_ stored: String, words: [String], before: Int = 50, after: Int = 110) -> String? {
+        let options: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
+        for part in stored.split(separator: partEnd, omittingEmptySubsequences: true) {
+            let fields = part.split(separator: nameEnd, maxSplits: 1, omittingEmptySubsequences: false)
+            guard fields.count == 2 else { continue }
+            let name = String(fields[0]), text = fields[1]
+            let found = words.compactMap { text.range(of: $0, options: options) }.min { $0.lowerBound < $1.lowerBound }
+            guard let found else { continue }
+            let start = text.index(found.lowerBound, offsetBy: -before, limitedBy: text.startIndex) ?? text.startIndex
+            let end = text.index(found.upperBound, offsetBy: after, limitedBy: text.endIndex) ?? text.endIndex
+            let words = text[start..<end].split(whereSeparator: \.isWhitespace).joined(separator: " ")
+            return name + " · " + (start > text.startIndex ? "…" : "") + words + (end < text.endIndex ? "…" : "")
         }
-        return String(out.prefix(charactersMost))
+        return nil
     }
 
     static func register(in migrations: inout MailMigrations) {

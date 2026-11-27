@@ -62,12 +62,28 @@ final class MailLocalSearchTests: XCTestCase {
         try await index.synchronize()
         let found = try await index.top("hetzner invoice", allowed: ["a@example.com"])
         XCTAssertEqual(found?.first?.threadPK, 2)
+        XCTAssertEqual(found?.first?.snippet, "statement.pdf · Hetzner invoice for November",
+                       "a row found by its file shows the file and its words")
+        let bySubject = try await index.top("summary", allowed: ["a@example.com"])
+        XCTAssertFalse(bySubject?.contains { $0.snippet.contains("statement.pdf") } ?? true, "a row its own text explains keeps its snippet")
         let otherAccount = try await index.top("hetzner", allowed: ["b@example.com"])
         XCTAssertEqual(otherAccount?.count, 0)
         try await stores.blobs.write { db in try db.execute(sql: "DELETE FROM attachment_text") }
         try await index.synchronize()
         let gone = try await index.top("hetzner", allowed: ["a@example.com"])
         XCTAssertEqual(gone?.count, 0)
+    }
+
+    func testAttachmentExcerptNamesTheFileAndCutsAroundTheFirstMatch() {
+        let long = String(repeating: "terms and conditions ", count: 10) + "Monthly rent is 2,400 dollars, due on the first." + String(repeating: " filler", count: 40)
+        let stored = MailCloudText.indexed([.init(partId: "1", name: "notes.txt", text: "grocery list"),
+                                            .init(partId: "2", name: "Lease Final.pdf", text: long)])
+        let excerpt = MailCloudText.excerpt(stored, words: ["rent"])
+        XCTAssertTrue(excerpt?.hasPrefix("Lease Final.pdf · …") == true, excerpt ?? "nil")
+        XCTAssertTrue(excerpt?.contains("Monthly rent is 2,400 dollars") == true)
+        XCTAssertTrue(excerpt?.hasSuffix("…") == true)
+        XCTAssertEqual(MailCloudText.excerpt(stored, words: ["grocery"]), "notes.txt · grocery list")
+        XCTAssertNil(MailCloudText.excerpt(stored, words: ["passport"]))
     }
 
     func testOriginalMIMEFilenameSupersedesCachedPartMetadata() async throws {
