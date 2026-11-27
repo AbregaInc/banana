@@ -281,4 +281,23 @@ final class BananaServiceTests: XCTestCase {
         let bundle = Bundle(for: Self.self)
         XCTAssertNil(BananaService.configured("NoSuchKey", in: bundle))
     }
+
+    /// The device is told to the service when something it holds changed, not on every pass:
+    /// launches sent the same registration two or three times within a second.
+    func testDeviceRegistrationIsSentOnlyWhenSomethingChangedOrADayPassed() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        XCTAssertTrue(BananaService.registrationDue(device, session: "s1", last: nil, now: now), "never told")
+        let told = (device: device, session: "s1", at: now)
+        XCTAssertFalse(BananaService.registrationDue(device, session: "s1", last: told, now: now.addingTimeInterval(5)),
+                       "the same description a moment later")
+        var withPush = device
+        withPush.push = "abcd"
+        XCTAssertTrue(BananaService.registrationDue(withPush, session: "s1", last: told, now: now.addingTimeInterval(5)),
+                      "a push token arrived")
+        XCTAssertTrue(BananaService.registrationDue(device, session: "s2", last: told, now: now.addingTimeInterval(5)),
+                      "signed in again")
+        XCTAssertTrue(BananaService.registrationDue(device, session: "s1", last: told,
+                                                    now: now.addingTimeInterval(BananaService.registrationLasts)),
+                      "a day later, well inside the service's 30 days")
+    }
 }
