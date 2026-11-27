@@ -13,6 +13,12 @@ import Foundation
         return link.capabilities?.mailModify == true ? .granted : .none
     }
     func mailAccessToken(accountID: String) async throws -> MailAccessToken {
+        // At launch Mail opens from the cached account list before the service has described the
+        // account (it is not kept between launches). Not described yet is not unknown: wait for
+        // the one shared refresh instead of failing the first reads.
+        if BananaAccount.shared.account == nil, BananaAccount.shared.isSignedIn {
+            await MailApplication.shared.refreshAccount()
+        }
         guard let link = linked(accountID) else { throw MailAccessError.unknownAccount }
         guard let context = FeatureAccessStore.shared.mailContext else { throw MailAccessError.notGranted }
         guard link.capabilities?.mailModify == true else { throw MailAccessError.notGranted }
