@@ -11,14 +11,9 @@ import Combine
     private var startup: Task<Void, Never>?
     private var accessObservation: AnyCancellable?
     private var accessRefresh: Task<Void, Never>?
-    private var accountRefresh: Task<Void, Never>?
 
     func refreshAccount() async {
-        if let accountRefresh { await accountRefresh.value; return }
-        let task = Task { _ = await BananaAccount.shared.refresh() }
-        accountRefresh = task
-        await task.value
-        accountRefresh = nil
+        await BananaAccount.shared.refreshShared()
     }
 
     /// At launch, after the first frame: when the last run left sends or actions queued
