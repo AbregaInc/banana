@@ -1,0 +1,71 @@
+{
+  "scope": "Physical M1 iPad on its 8 W adapter, Calendar Week on the isolated stress fixture, same signed build for all three windows (built before the change that reports a hang ending as the app leaves the foreground; that change does not touch the idle path). Process counters from the device sampler every 5 s; the first 90 s after launch are excluded. The paused window turns the detector off as a measurement control only. A fourth (paused) window was cut short by a host restart and is omitted.",
+  "result": "With the run-loop monitor running, idle Calendar woke 0.46 and 0.33 times per second against 0.32 paused. The half-second heartbeat it replaced measured 2.19 running and 0.26-0.27 paused in the same setup. Window 1 contains one 1.28 s CPU burst; window 2 has none.",
+  "hangCapture": "Physical iPhone 14 Pro, same build: a deliberate 2.8 s main-thread stall was reported with a captured stack in 2 of 2 runs.",
+  "runs": [
+    {
+      "window": "resumeNormal1",
+      "detector": "run-loop monitor",
+      "build": "final",
+      "startUTC": "2026-11-26T16:17:58+00:00",
+      "settledSeconds": 330,
+      "samples": 64,
+      "interruptWakeupsPerSecond": 0.46,
+      "contextSwitchesPerSecond": 2.309,
+      "processCPUSeconds": 1.32,
+      "cpuBurstsOver50msSeconds": [
+        1.275
+      ]
+    },
+    {
+      "window": "resumePaused1",
+      "detector": "paused",
+      "build": "final",
+      "startUTC": "2026-11-26T16:26:13+00:00",
+      "settledSeconds": 330,
+      "samples": 64,
+      "interruptWakeupsPerSecond": 0.315,
+      "contextSwitchesPerSecond": 1.212,
+      "processCPUSeconds": 0.062,
+      "cpuBurstsOver50msSeconds": []
+    },
+    {
+      "window": "resumeNormal2",
+      "detector": "run-loop monitor",
+      "build": "final",
+      "startUTC": "2026-11-26T16:34:25+00:00",
+      "settledSeconds": 330,
+      "samples": 63,
+      "interruptWakeupsPerSecond": 0.33,
+      "contextSwitchesPerSecond": 0.945,
+      "processCPUSeconds": 0.039,
+      "cpuBurstsOver50msSeconds": []
+    }
+  ],
+  "heartbeatReference": [
+    {
+      "window": "calendar13",
+      "requestedMode": "running",
+      "interruptWakeupsPerSecond": 2.194149547927718,
+      "processCPUPercent": 0.052782416672168375
+    },
+    {
+      "window": "calendar14",
+      "requestedMode": "paused",
+      "interruptWakeupsPerSecond": 0.25454403058367875,
+      "processCPUPercent": 0.013850591911417376
+    },
+    {
+      "window": "calendar15",
+      "requestedMode": "paused",
+      "interruptWakeupsPerSecond": 0.2697470624780684,
+      "processCPUPercent": 0.013104125593846938
+    },
+    {
+      "window": "calendar16",
+      "requestedMode": "running",
+      "interruptWakeupsPerSecond": 2.1909778743524075,
+      "processCPUPercent": 0.05688950053142041
+    }
+  ]
+}

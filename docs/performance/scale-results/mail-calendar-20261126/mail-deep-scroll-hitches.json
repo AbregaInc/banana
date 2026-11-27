@@ -1,0 +1,761 @@
+{
+  "scope": "Five measured native XCTest iterations. Keep each provider identifier and its unit. The process and scroll signpost hitch counters use different measurement intervals and may disagree. A missing counter is unavailable. All conditions and failed attempts are retained.",
+  "runs": [
+    {
+      "build": "diskClock",
+      "condition": "phone-functional-deep-mail-1",
+      "hardware": "iPhone 14 Pro",
+      "passed": true,
+      "binarySHA256": "e22624e34db4986f34f3aa733fab2a436ed86456c1ac1a0402e821bdce430b17",
+      "metrics": [
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.time.ratio",
+          "name": "Hitch Time Ratio (Scroll_DraggingAndDeceleration)",
+          "unit": "ms per s",
+          "samples": [
+            7.06201081792935,
+            0,
+            0,
+            0,
+            17.29523145415583
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_CPU-com.boris.banana.app.time",
+          "name": "CPU Time (app)",
+          "unit": "s",
+          "samples": [
+            4.35821677,
+            4.376333686000001,
+            4.311634251,
+            4.286230118000001,
+            4.306820851
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.total.duration",
+          "name": "Hitches Total Duration (app)",
+          "unit": "s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.time.ratio",
+          "name": "Hitch Time Ratio (app)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.number",
+          "name": "Number of Hitches (Scroll_DraggingAndDeceleration)",
+          "unit": "hitches",
+          "samples": [
+            1,
+            0,
+            0,
+            0,
+            3
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Memory-com.boris.banana.app.physical_peak",
+          "name": "Memory Peak Physical (app)",
+          "unit": "kB",
+          "samples": [
+            515115.256,
+            515262.712,
+            521914.616,
+            510183.672,
+            515623.16
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Memory-com.boris.banana.app.physical",
+          "name": "Memory Physical (app)",
+          "unit": "kB",
+          "samples": [
+            81.92,
+            -16.384,
+            -65.536,
+            32.768,
+            -16.384
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitches.total.duration",
+          "name": "Hitches Total Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "ms",
+          "samples": [
+            16.670166,
+            0,
+            0,
+            0,
+            41.68499799999999
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.count",
+          "name": "Frame Count (Scroll_DraggingAndDeceleration)",
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.number",
+          "name": "Number of Hitches (app)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_CPU-com.boris.banana.app.cycles",
+          "name": "CPU Cycles (app)",
+          "unit": "kC",
+          "samples": [
+            13041058.501,
+            13052394.12,
+            12982272.306,
+            12876449.612,
+            12869243.626
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Memory-com.boris.banana.app.physical_absolute",
+          "name": "Absolute Memory Physical (app)",
+          "unit": "kB",
+          "samples": [
+            464308.472,
+            464292.088,
+            464226.552,
+            464259.32,
+            464242.936
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_CPU-com.boris.banana.app.instructions_retired",
+          "name": "CPU Instructions Retired (app)",
+          "unit": "kI",
+          "samples": [
+            46345040.178,
+            46693065.303,
+            46345223.584,
+            45893368.544,
+            46056829.676
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.rate",
+          "name": "Frame Rate (Scroll_DraggingAndDeceleration)",
+          "unit": "fps",
+          "samples": [
+            83.4554443359375,
+            81.46797943115234,
+            83.5555191040039,
+            81.0565414428711,
+            82.56570434570312
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.duration",
+          "name": "Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "s",
+          "samples": [
+            2.3605410840000003,
+            2.3935785000000003,
+            2.393618125,
+            2.393391125,
+            2.410201917
+          ]
+        }
+      ]
+    },
+    {
+      "build": "diskClock",
+      "condition": "phone-functional-deep-mail-2",
+      "hardware": "iPhone 14 Pro",
+      "passed": true,
+      "binarySHA256": "e22624e34db4986f34f3aa733fab2a436ed86456c1ac1a0402e821bdce430b17",
+      "metrics": [
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.time.ratio",
+          "name": "Hitch Time Ratio (Scroll_DraggingAndDeceleration)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            14.025922842104265,
+            17.29192193081997,
+            0,
+            6.915608570235385
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_CPU-com.boris.banana.app.time",
+          "name": "CPU Time (app)",
+          "unit": "s",
+          "samples": [
+            4.3816427760000005,
+            4.271995779,
+            4.3041305130000005,
+            4.246085993,
+            4.3636529600000005
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.total.duration",
+          "name": "Hitches Total Duration (app)",
+          "unit": "s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.time.ratio",
+          "name": "Hitch Time Ratio (app)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.number",
+          "name": "Number of Hitches (Scroll_DraggingAndDeceleration)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            2,
+            3,
+            0,
+            1
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Memory-com.boris.banana.app.physical_peak",
+          "name": "Memory Peak Physical (app)",
+          "unit": "kB",
+          "samples": [
+            512264.416,
+            512444.64,
+            511330.528,
+            516704.48,
+            509790.432
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Memory-com.boris.banana.app.physical",
+          "name": "Memory Physical (app)",
+          "unit": "kB",
+          "samples": [
+            32.768,
+            -442.368,
+            425.984,
+            16.384,
+            -16.384
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitches.total.duration",
+          "name": "Hitches Total Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "ms",
+          "samples": [
+            0,
+            33.340332,
+            41.68499799999999,
+            0,
+            16.670166
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.count",
+          "name": "Frame Count (Scroll_DraggingAndDeceleration)",
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.number",
+          "name": "Number of Hitches (app)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_CPU-com.boris.banana.app.cycles",
+          "name": "CPU Cycles (app)",
+          "unit": "kC",
+          "samples": [
+            13144199.503,
+            12838632.792,
+            12967300.3,
+            12863590.575,
+            13068428.58
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Memory-com.boris.banana.app.physical_absolute",
+          "name": "Absolute Memory Physical (app)",
+          "unit": "kB",
+          "samples": [
+            463735.008,
+            463292.64,
+            463718.624,
+            463735.008,
+            463718.624
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_CPU-com.boris.banana.app.instructions_retired",
+          "name": "CPU Instructions Retired (app)",
+          "unit": "kI",
+          "samples": [
+            46911477.668,
+            45752773.664,
+            46359653.227,
+            46014463.547,
+            46784667.845
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.rate",
+          "name": "Frame Rate (Scroll_DraggingAndDeceleration)",
+          "unit": "fps",
+          "samples": [
+            82.87396240234375,
+            82.034423828125,
+            82.9647216796875,
+            81.61336517333984,
+            84.21442413330078
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.duration",
+          "name": "Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "s",
+          "samples": [
+            2.377103709,
+            2.3770509580000003,
+            2.410663209,
+            2.377061667,
+            2.4105133330000004
+          ]
+        }
+      ]
+    },
+    {
+      "build": "openingStyles",
+      "condition": "phone-functional-deep-mail-1",
+      "hardware": "iPhone 14 Pro",
+      "passed": true,
+      "binarySHA256": "8475e85ec9f7f4c3cf55aa51a08061ba68d023fe5af7c0c07b2086580fe17b98",
+      "metrics": [
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.time.ratio",
+          "name": "Hitch Time Ratio (Scroll_DraggingAndDeceleration)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            6.964149453873789,
+            0,
+            7.013455996297673,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_CPU-com.boris.banana.app.time",
+          "name": "CPU Time (app)",
+          "unit": "s",
+          "samples": [
+            4.199196507,
+            4.3280534390000005,
+            4.220678293000001,
+            4.2509378920000005,
+            4.302545986
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.total.duration",
+          "name": "Hitches Total Duration (app)",
+          "unit": "s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.time.ratio",
+          "name": "Hitch Time Ratio (app)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.number",
+          "name": "Number of Hitches (Scroll_DraggingAndDeceleration)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            1,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Memory-com.boris.banana.app.physical_peak",
+          "name": "Memory Peak Physical (app)",
+          "unit": "kB",
+          "samples": [
+            510068.984,
+            514181.368,
+            510347.512,
+            512018.68,
+            515721.464
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Memory-com.boris.banana.app.physical",
+          "name": "Memory Physical (app)",
+          "unit": "kB",
+          "samples": [
+            32.768,
+            -540.672,
+            98.304,
+            -16.384,
+            -16.384
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitches.total.duration",
+          "name": "Hitches Total Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "ms",
+          "samples": [
+            0,
+            16.670166,
+            0,
+            16.670166,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.count",
+          "name": "Frame Count (Scroll_DraggingAndDeceleration)",
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.number",
+          "name": "Number of Hitches (app)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_CPU-com.boris.banana.app.cycles",
+          "name": "CPU Cycles (app)",
+          "unit": "kC",
+          "samples": [
+            12590304.044,
+            13042495.507,
+            12713385.483,
+            12685326.645,
+            12905592.052
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Memory-com.boris.banana.app.physical_absolute",
+          "name": "Absolute Memory Physical (app)",
+          "unit": "kB",
+          "samples": [
+            460638.456,
+            460097.784,
+            460196.088,
+            460179.704,
+            460163.32
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_CPU-com.boris.banana.app.instructions_retired",
+          "name": "CPU Instructions Retired (app)",
+          "unit": "kI",
+          "samples": [
+            45140284.155,
+            46773516.078,
+            45718406.393,
+            45529352.79,
+            46329952.852
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.rate",
+          "name": "Frame Rate (Scroll_DraggingAndDeceleration)",
+          "unit": "fps",
+          "samples": [
+            80.07695770263672,
+            83.13448333740234,
+            81.03941345214844,
+            82.88163757324219,
+            81.03893280029297
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.duration",
+          "name": "Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "s",
+          "samples": [
+            2.360229333,
+            2.3937117910000003,
+            2.3938967090000003,
+            2.3768833330000003,
+            2.3939111250000003
+          ]
+        }
+      ]
+    },
+    {
+      "build": "openingStyles",
+      "condition": "phone-functional-deep-mail-2",
+      "hardware": "iPhone 14 Pro",
+      "passed": true,
+      "binarySHA256": "8475e85ec9f7f4c3cf55aa51a08061ba68d023fe5af7c0c07b2086580fe17b98",
+      "metrics": [
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.time.ratio",
+          "name": "Hitch Time Ratio (Scroll_DraggingAndDeceleration)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            10.597007382775738,
+            10.677112650193472,
+            0,
+            10.377651404325592
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_CPU-com.boris.banana.app.time",
+          "name": "CPU Time (app)",
+          "unit": "s",
+          "samples": [
+            4.257615931,
+            4.256724591,
+            4.338127262,
+            4.369476272,
+            4.2829678300000005
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.total.duration",
+          "name": "Hitches Total Duration (app)",
+          "unit": "s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.time.ratio",
+          "name": "Hitch Time Ratio (app)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.number",
+          "name": "Number of Hitches (Scroll_DraggingAndDeceleration)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            2,
+            2,
+            0,
+            2
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Memory-com.boris.banana.app.physical_peak",
+          "name": "Memory Peak Physical (app)",
+          "unit": "kB",
+          "samples": [
+            509397.192,
+            514230.472,
+            509102.28,
+            511543.496,
+            514033.864
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Memory-com.boris.banana.app.physical",
+          "name": "Memory Physical (app)",
+          "unit": "kB",
+          "samples": [
+            114.688,
+            -147.456,
+            98.304,
+            -114.688,
+            49.152
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitches.total.duration",
+          "name": "Hitches Total Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "ms",
+          "samples": [
+            0,
+            25.014832,
+            25.014832,
+            0,
+            25.014789999999998
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.count",
+          "name": "Frame Count (Scroll_DraggingAndDeceleration)",
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.number",
+          "name": "Number of Hitches (app)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_CPU-com.boris.banana.app.cycles",
+          "name": "CPU Cycles (app)",
+          "unit": "kC",
+          "samples": [
+            12729161.415,
+            12755288.318,
+            12775879.503,
+            13127312.47,
+            12854058.305
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Memory-com.boris.banana.app.physical_absolute",
+          "name": "Absolute Memory Physical (app)",
+          "unit": "kB",
+          "samples": [
+            462473.416,
+            462325.96,
+            462424.264,
+            462309.576,
+            462358.728
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_CPU-com.boris.banana.app.instructions_retired",
+          "name": "CPU Instructions Retired (app)",
+          "unit": "kI",
+          "samples": [
+            45560392.916,
+            45819242.86,
+            45729666.983,
+            46821235.313,
+            46192858.373
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.rate",
+          "name": "Frame Rate (Scroll_DraggingAndDeceleration)",
+          "unit": "fps",
+          "samples": [
+            82.61260223388672,
+            82.6076431274414,
+            80.67111206054688,
+            81.34727478027344,
+            82.55726623535156
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.duration",
+          "name": "Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "s",
+          "samples": [
+            2.3604147920000003,
+            2.3605563750000003,
+            2.34284625,
+            2.4094230000000003,
+            2.41044825
+          ]
+        }
+      ]
+    }
+  ]
+}

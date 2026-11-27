@@ -1,0 +1,30 @@
+{
+  "environment": "Integrated optimized iOS Simulator model tests using the actual Mail session, SQLite stores, live source and draft driver with deterministic fake providers.",
+  "resultBundle": "session-wake/integrated.xcresult",
+  "testTotals": {
+    "passedTests": 146,
+    "failedTests": 0,
+    "skippedTests": 0
+  },
+  "attachments": [
+    "simulatedSeconds=3600 emptyPasses=121,1 heldPasses=121,1 providerWrites=1",
+    "reference=false beforePush=0 afterPush=1 after120Seconds=1 afterOpeningMail=2",
+    "reference=true beforePush=1 afterPush=2 after120Seconds=6 afterOpeningMail=6"
+  ],
+  "foreground": {
+    "method": "Cold session used by a shell read and one push. The reference activates the live source when constructing the session. Each source uses an independent disk store. Advance the same injected clock through four 30-second intervals, then enter and leave a Mail window. The separate session test keeps polling active with two visible windows until the last leaves.",
+    "elapsedSimulatedSeconds": 120
+  },
+  "outage": {
+    "method": "The failing account faces a push every five simulated seconds for 15 minutes while the other account remains healthy. A local starred edit is durable during the outage. After the retry deadline, the feed recovers. Reopening the intent store and live source confirms the star.",
+    "pushes": 181,
+    "offlineRequests": 8,
+    "healthyRequests": 181,
+    "providerWritesBeforeOpening": 0,
+    "confirmedWritesAfterReopen": 1
+  },
+  "outbox": {
+    "method": "Former fixed 30-second scheduler and current deadline scheduler query the same SQLite store across a simulated hour. Count the initial scan and every wake through the inclusive endpoint. Repeat with a saved draft held beyond the window. A separate test covers the due send, lost provider response and same-operation retry after reopening the store.",
+    "seconds": 3600
+  }
+}

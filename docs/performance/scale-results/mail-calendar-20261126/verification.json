@@ -1,0 +1,93 @@
+{
+  "toolRepoSuite": {
+    "caseCount": 145,
+    "succeeded": false,
+    "failures": [
+      {
+        "test": "test_date_comparison_binary",
+        "cause": "Release comparison fixture timed out while compiling through the shared build queue."
+      },
+      {
+        "test": "test_mac_release_tests.PipelineTests.test_upload_cannot_export_without_launch_evidence_even_without_preflight",
+        "subtestFailures": 3,
+        "cause": "Release-script temporary checkout lacks project.yml."
+      },
+      {
+        "test": "test_store_listing_tools.ListingTests.test_calendar_only_has_no_watch_and_its_own_folders",
+        "cause": "Current store listing includes watch in the expected phone/tablet/Mac comparison."
+      }
+    ]
+  },
+  "daySwipeAnalysisUnitTests": {
+    "passed": 5,
+    "exitCode": 0
+  },
+  "macFullAppCompileAfterViewportQuery": {
+    "passed": true
+  },
+  "diskRepresentationDriverReplay": {
+    "matchedOutputFiles": 72,
+    "validatedReaderOpens": 360
+  },
+  "mailIntegratedCorrectness": {
+    "result": "Passed",
+    "passedTests": 481,
+    "failedTests": 0,
+    "skippedTests": 0,
+    "totalTestCount": 481,
+    "failedCaseNames": []
+  },
+  "latestIntegratedMacCompile": {
+    "passed": true,
+    "exitCode": 0
+  },
+  "isolatedDateComparisonGuardRetry": {
+    "passed": true,
+    "exitCode": 0
+  },
+  "mailOutageAndCloudPull": {
+    "result": "Failed",
+    "passedTests": 54,
+    "failedTests": 1,
+    "skippedTests": 0,
+    "totalTestCount": 55,
+    "failedCaseNames": [
+      "MailCloudPullTests/testAMessageTooComplexToMakeNativeIsStoredOnceWithItsWords()"
+    ]
+  },
+  "liveMailListAndIndex": {
+    "result": "Passed",
+    "passedTests": 53,
+    "failedTests": 0,
+    "skippedTests": 0,
+    "totalTestCount": 53
+  },
+  "retainedHistoryListBenchmark": {
+    "result": "Passed",
+    "passedTests": 1,
+    "failedTests": 0,
+    "skippedTests": 0,
+    "totalTestCount": 1
+  },
+  "integratedSnapshotAndReaderChecks": {
+    "failedTests": 0,
+    "passedTests": 47,
+    "result": "Passed",
+    "skippedTests": 0,
+    "totalTestCount": 47
+  },
+  "productionViewportQueryVerification": {
+    "macLayoutChecks": 267,
+    "appKitTrials": 624,
+    "stockIPadSimulatorTrials": 624,
+    "nativeObjectIdentityAndOrderChecked": true,
+    "integratedMacBuildExit": 0,
+    "compilerDiagnostic": "Xcode printed a SwiftCompile diagnostic about exit code 0 and returned success."
+  },
+  "openingStylesReaderModel": {
+    "hostChecksPassed": 64,
+    "diskReplaySamples": 176,
+    "correctedPresentationClockTests": 4,
+    "calendarRecordingRegistrationTests": 2
+  }
+}

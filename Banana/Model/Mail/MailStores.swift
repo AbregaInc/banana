@@ -99,6 +99,25 @@ struct MailStores: Sendable {
                           searchReader: searchReader, directories: directories)
     }
 
+    /// Empties a store's log that is over the limit (`MailKnobs.checkpointOverBytes`), for logs
+    /// left long by an older version or by a reader that held a checkpoint back. Run once Mail
+    /// has started, off the way to the first rows: copying a large log back takes a while, once.
+    /// Blocking, and not for the main thread.
+    func checkpointOversizedLogs() {
+        MailMainQueueGuard.requireOffMainQueue("MailStores.checkpointOversizedLogs", store: nil)
+        let writers: [(String, any DatabaseWriter)] = [
+            (directories.indexDatabase.path, index), (directories.blobsDatabase.path, blobs),
+            (directories.searchDatabase.path, searchWriter),
+        ]
+        for (path, writer) in writers {
+            var info = stat()
+            guard stat(path + "-wal", &info) == 0, Int64(info.st_size) > MailKnobs.checkpointOverBytes else { continue }
+            if (try? writer.writeWithoutTransaction({ try $0.checkpoint(.truncate) })) == nil {
+                _ = try? writer.writeWithoutTransaction { try $0.checkpoint(.passive) }
+            }
+        }
+    }
+
     /// `index.sqlite`, read only, for one count at launch — the shell's Mail badge before Mail has
     /// started (`MailBadgeLaunchRead`). No migrations, no writes, no file made: a store that is
     /// missing or older than the code is not read, and the badge waits for Mail's own start.
@@ -183,8 +202,15 @@ struct MailStores: Sendable {
         var readonly = false
         var incrementalAutoVacuum = false
         var fullSync = false
+        /// Its writer runs `MailLogCheckpointer` after each piece of work (the index through
+        /// `MailWriter`, the intent store itself). The others have no such writer: SQLite
+        /// checkpoints them after a commit once the log passes the same limit. Without that their
+        /// logs only grew: a phone's `search.sqlite` held everything in a 1.48 GB log, and every
+        /// launch read all of it before Mail could open.
+        var checkpointsItself = false
 
-        static let index = Settings(label: "mail.index", file: .index, qos: .userInitiated, cacheKiB: 4096, readers: 2)
+        static let index = Settings(label: "mail.index", file: .index, qos: .userInitiated, cacheKiB: 4096, readers: 2,
+                                    checkpointsItself: true)
         // Utility, not userInitiated, as the table says. The table adds that reads for an open
         // conversation are userInitiated; GRDB gives a pool one quality of service, so that
         // elevation is the blob store's to arrange (P07).
@@ -204,7 +230,7 @@ struct MailStores: Sendable {
         static let indexCount = Settings(label: "mail.index.count", file: .index, qos: .utility, cacheKiB: 256,
                                          readonly: true)
         static let intent = Settings(label: "mail.intent", file: .intent, qos: .userInitiated, cacheKiB: 1024,
-                                     fullSync: true)
+                                     fullSync: true, checkpointsItself: true)
     }
 
     private enum Pragmas {
@@ -250,8 +276,14 @@ struct MailStores: Sendable {
             try db.execute(sql: "PRAGMA busy_timeout = \(Pragmas.busyTimeoutMilliseconds)")
             try db.execute(sql: "PRAGMA cache_size = -\(settings.cacheKiB)")
             if !db.configuration.readonly {
-                // Checkpoints are the writer's, between pieces of work (invariant 12).
-                try db.execute(sql: "PRAGMA wal_autocheckpoint = 0")
+                // Checkpoints are the writer's, between pieces of work (invariant 12): by its
+                // `MailLogCheckpointer`, or by SQLite after the writer's commit at the same limit.
+                if settings.checkpointsItself {
+                    try db.execute(sql: "PRAGMA wal_autocheckpoint = 0")
+                } else {
+                    let pageBytes = try Int64.fetchOne(db, sql: "PRAGMA page_size") ?? 4096
+                    try db.execute(sql: "PRAGMA wal_autocheckpoint = \(MailKnobs.checkpointOverBytes / max(512, pageBytes))")
+                }
                 // So that the log's file is as long as what the log holds: when a checkpoint has
                 // copied the log back and SQLite starts it again, the file is cut to this. It is
                 // what makes "the log holds more than 8 MiB" mean "the file is longer than 8 MiB"

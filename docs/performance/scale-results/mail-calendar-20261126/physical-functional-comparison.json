@@ -1,0 +1,1108 @@
+{
+  "scope": "Completed hardware XCTest bundles from the isolated Calendar and Mail fixture. Each case retains its recorded verdict and assertion line in the runner at that build. A failed precondition can prevent subsequent interactions. The regular swipe geometry bundles are separately reported.",
+  "runs": [
+    {
+      "build": "anchored",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "device": "iPhone 14 Pro",
+      "condition": "bands1",
+      "tests": [
+        {
+          "name": "testDaySwipesAcrossAllDayBandsInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 21.441457986831665,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesAcrossAllDayBandsInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 17.993358969688416,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeDayCreateGesture()",
+          "outcome": "Passed",
+          "durationSeconds": 11.257138013839722,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "anchored",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "device": "iPhone 14 Pro",
+      "condition": "bands2",
+      "tests": [
+        {
+          "name": "testDaySwipesAcrossAllDayBandsInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 23.853459000587463,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesAcrossAllDayBandsInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 18.812078952789307,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeDayCreateGesture()",
+          "outcome": "Passed",
+          "durationSeconds": 12.297989010810852,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "anchored",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "device": "iPhone 14 Pro",
+      "condition": "clip-proof",
+      "tests": [
+        {
+          "name": "testWeekEventAccessibilityFramesStayInsideTheirDay()",
+          "outcome": "Failed",
+          "durationSeconds": 15.256001949310303,
+          "assertionLines": [
+            1325
+          ]
+        }
+      ]
+    },
+    {
+      "build": "anchored",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "device": "iPhone 14 Pro",
+      "condition": "clip-snapshot",
+      "tests": [
+        {
+          "name": "testWeekEventAccessibilityFramesStayInsideTheirDay()",
+          "outcome": "Passed",
+          "durationSeconds": 7.300629019737244,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "anchored",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "device": "iPhone 14 Pro",
+      "condition": "clipped-events",
+      "tests": [
+        {
+          "name": "testDefaultVariedDayArtwork()",
+          "outcome": "Passed",
+          "durationSeconds": 16.80153799057007,
+          "assertionLines": []
+        },
+        {
+          "name": "testDefaultVariedWeekArtwork()",
+          "outcome": "Passed",
+          "durationSeconds": 20.363507986068726,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeDayMoveRecovery()",
+          "outcome": "Passed",
+          "durationSeconds": 41.25956094264984,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeWeekMoveRecovery()",
+          "outcome": "Passed",
+          "durationSeconds": 32.840972900390625,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "anchored",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "device": "iPhone 14 Pro",
+      "condition": "landscape-zoom-scales",
+      "tests": [
+        {
+          "name": "testDayZoomTracksTheDeliveredPinch()",
+          "outcome": "Passed",
+          "durationSeconds": 11.794657945632935,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "anchored",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "device": "iPhone 14 Pro",
+      "condition": "portrait-zoom-scales",
+      "tests": [
+        {
+          "name": "testDayZoomTracksTheDeliveredPinch()",
+          "outcome": "Passed",
+          "durationSeconds": 11.631914973258972,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "anchored",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "device": "iPhone 14 Pro",
+      "condition": "snap1-1",
+      "tests": [
+        {
+          "name": "testDaySwipesKeepTheTimeInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 17.92889702320099,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesKeepTheTimeInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 14.81838309764862,
+          "assertionLines": []
+        },
+        {
+          "name": "testShortDayFlickMovesOneDateAndReturns()",
+          "outcome": "Passed",
+          "durationSeconds": 10.503839015960693,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "anchored",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "device": "iPhone 14 Pro",
+      "condition": "snap10-0",
+      "tests": [
+        {
+          "name": "testDaySwipesKeepTheTimeInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 23.270089030265808,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesKeepTheTimeInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 18.873914003372192,
+          "assertionLines": []
+        },
+        {
+          "name": "testShortDayFlickMovesOneDateAndReturns()",
+          "outcome": "Passed",
+          "durationSeconds": 12.73735797405243,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "anchored",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "device": "iPhone 14 Pro",
+      "condition": "snap7-0",
+      "tests": [
+        {
+          "name": "testDaySwipesKeepTheTimeInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 23.37028396129608,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesKeepTheTimeInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 18.718667030334473,
+          "assertionLines": []
+        },
+        {
+          "name": "testShortDayFlickMovesOneDateAndReturns()",
+          "outcome": "Passed",
+          "durationSeconds": 12.752730011940002,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "anchored",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "device": "iPhone 14 Pro",
+      "condition": "snap8-1",
+      "tests": [
+        {
+          "name": "testDaySwipesKeepTheTimeInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 18.025289058685303,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesKeepTheTimeInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 14.870187044143677,
+          "assertionLines": []
+        },
+        {
+          "name": "testShortDayFlickMovesOneDateAndReturns()",
+          "outcome": "Passed",
+          "durationSeconds": 10.517758965492249,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "anchored",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "device": "iPhone 14 Pro",
+      "condition": "snap9-1",
+      "tests": [
+        {
+          "name": "testDaySwipesKeepTheTimeInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 17.63587498664856,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesKeepTheTimeInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 14.7954660654068,
+          "assertionLines": []
+        },
+        {
+          "name": "testShortDayFlickMovesOneDateAndReturns()",
+          "outcome": "Passed",
+          "durationSeconds": 10.520730018615723,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "bands",
+      "appSHA256": "6a7a1316ebc7c64e7019ddcb1fa546c4847b739b07c6ef589f284bc15133d0ef",
+      "device": "M1 iPad Pro",
+      "condition": "bands2",
+      "tests": []
+    },
+    {
+      "build": "bands",
+      "appSHA256": "6a7a1316ebc7c64e7019ddcb1fa546c4847b739b07c6ef589f284bc15133d0ef",
+      "device": "M1 iPad Pro",
+      "condition": "snap5-0",
+      "tests": []
+    },
+    {
+      "build": "bands",
+      "appSHA256": "6a7a1316ebc7c64e7019ddcb1fa546c4847b739b07c6ef589f284bc15133d0ef",
+      "device": "M1 iPad Pro",
+      "condition": "snap6-1",
+      "tests": []
+    },
+    {
+      "build": "bands",
+      "appSHA256": "6a7a1316ebc7c64e7019ddcb1fa546c4847b739b07c6ef589f284bc15133d0ef",
+      "device": "iPhone 14 Pro",
+      "condition": "bands1",
+      "tests": [
+        {
+          "name": "testDaySwipesAcrossAllDayBandsInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 22.778690934181213,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesAcrossAllDayBandsInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 18.261783003807068,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeDayCreateGesture()",
+          "outcome": "Passed",
+          "durationSeconds": 11.147385001182556,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "bands",
+      "appSHA256": "6a7a1316ebc7c64e7019ddcb1fa546c4847b739b07c6ef589f284bc15133d0ef",
+      "device": "iPhone 14 Pro",
+      "condition": "clip-proof",
+      "tests": [
+        {
+          "name": "testWeekEventAccessibilityFramesStayInsideTheirDay()",
+          "outcome": "Failed",
+          "durationSeconds": 12.644448041915894,
+          "assertionLines": [
+            1325
+          ]
+        }
+      ]
+    },
+    {
+      "build": "bands",
+      "appSHA256": "6a7a1316ebc7c64e7019ddcb1fa546c4847b739b07c6ef589f284bc15133d0ef",
+      "device": "iPhone 14 Pro",
+      "condition": "clip-snapshot",
+      "tests": [
+        {
+          "name": "testWeekEventAccessibilityFramesStayInsideTheirDay()",
+          "outcome": "Failed",
+          "durationSeconds": 7.341767072677612,
+          "assertionLines": [
+            1334
+          ]
+        }
+      ]
+    },
+    {
+      "build": "bands",
+      "appSHA256": "6a7a1316ebc7c64e7019ddcb1fa546c4847b739b07c6ef589f284bc15133d0ef",
+      "device": "iPhone 14 Pro",
+      "condition": "portrait-rollback",
+      "tests": [
+        {
+          "name": "testNativeDayMoveRecovery()",
+          "outcome": "Passed",
+          "durationSeconds": 40.881078004837036,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeWeekMoveRecovery()",
+          "outcome": "Failed",
+          "durationSeconds": 24.278113961219788,
+          "assertionLines": [
+            1250
+          ]
+        }
+      ]
+    },
+    {
+      "build": "bands",
+      "appSHA256": "6a7a1316ebc7c64e7019ddcb1fa546c4847b739b07c6ef589f284bc15133d0ef",
+      "device": "iPhone 14 Pro",
+      "condition": "snap1-0",
+      "tests": [
+        {
+          "name": "testDaySwipesKeepTheTimeInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 23.29943597316742,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesKeepTheTimeInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 18.79306197166443,
+          "assertionLines": []
+        },
+        {
+          "name": "testShortDayFlickMovesOneDateAndReturns()",
+          "outcome": "Passed",
+          "durationSeconds": 13.020110964775085,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "bands",
+      "appSHA256": "6a7a1316ebc7c64e7019ddcb1fa546c4847b739b07c6ef589f284bc15133d0ef",
+      "device": "iPhone 14 Pro",
+      "condition": "snap2-1",
+      "tests": [
+        {
+          "name": "testDaySwipesKeepTheTimeInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 17.774787068367004,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesKeepTheTimeInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 15.036738991737366,
+          "assertionLines": []
+        },
+        {
+          "name": "testShortDayFlickMovesOneDateAndReturns()",
+          "outcome": "Failed",
+          "durationSeconds": 13.926103949546814,
+          "assertionLines": [
+            1021
+          ]
+        }
+      ]
+    },
+    {
+      "build": "bands",
+      "appSHA256": "6a7a1316ebc7c64e7019ddcb1fa546c4847b739b07c6ef589f284bc15133d0ef",
+      "device": "iPhone 14 Pro",
+      "condition": "snap3-1",
+      "tests": [
+        {
+          "name": "testDaySwipesKeepTheTimeInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 17.937833070755005,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesKeepTheTimeInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 15.049669981002808,
+          "assertionLines": []
+        },
+        {
+          "name": "testShortDayFlickMovesOneDateAndReturns()",
+          "outcome": "Failed",
+          "durationSeconds": 13.847379088401794,
+          "assertionLines": [
+            1021
+          ]
+        }
+      ]
+    },
+    {
+      "build": "bands",
+      "appSHA256": "6a7a1316ebc7c64e7019ddcb1fa546c4847b739b07c6ef589f284bc15133d0ef",
+      "device": "iPhone 14 Pro",
+      "condition": "snap4-0",
+      "tests": [
+        {
+          "name": "testDaySwipesKeepTheTimeInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 23.271677017211914,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesKeepTheTimeInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 18.982492923736572,
+          "assertionLines": []
+        },
+        {
+          "name": "testShortDayFlickMovesOneDateAndReturns()",
+          "outcome": "Passed",
+          "durationSeconds": 12.473152995109558,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "bands-before",
+      "appSHA256": "2c4c18ec669ded40c1cf6252f115ce0fe8a6c10c1ff614746f4b8871d212579d",
+      "device": "M1 iPad Pro",
+      "condition": "bands2",
+      "tests": []
+    },
+    {
+      "build": "bands-before",
+      "appSHA256": "2c4c18ec669ded40c1cf6252f115ce0fe8a6c10c1ff614746f4b8871d212579d",
+      "device": "iPhone 14 Pro",
+      "condition": "bands1",
+      "tests": [
+        {
+          "name": "testDaySwipesAcrossAllDayBandsInLandscape()",
+          "outcome": "Failed",
+          "durationSeconds": 10.616557955741882,
+          "assertionLines": [
+            980
+          ]
+        },
+        {
+          "name": "testDaySwipesAcrossAllDayBandsInPortrait()",
+          "outcome": "Failed",
+          "durationSeconds": 11.066064953804016,
+          "assertionLines": [
+            980
+          ]
+        },
+        {
+          "name": "testNativeDayCreateGesture()",
+          "outcome": "Passed",
+          "durationSeconds": 11.227368950843811,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "final",
+      "appSHA256": "c1909bcb3ad29774ce52a48c7c899500ab3b46be334e8e3b0dbf47e170931128",
+      "device": "iPhone 14 Pro",
+      "condition": "1",
+      "tests": [
+        {
+          "name": "testDayMidnightExtent()",
+          "outcome": "Failed",
+          "durationSeconds": 8.20394504070282,
+          "assertionLines": [
+            783
+          ]
+        },
+        {
+          "name": "testNativeDayContinuationMove()",
+          "outcome": "Passed",
+          "durationSeconds": 13.374235033988953,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeDayCreateGesture()",
+          "outcome": "Failed",
+          "durationSeconds": 12.73566198348999,
+          "assertionLines": [
+            1005
+          ]
+        },
+        {
+          "name": "testNativeDayEventAccessibility()",
+          "outcome": "Passed",
+          "durationSeconds": 14.044602036476135,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeDayMoveRecovery()",
+          "outcome": "Failed",
+          "durationSeconds": 16.942631006240845,
+          "assertionLines": [
+            1215
+          ]
+        },
+        {
+          "name": "testNativeDayPagingAndZoom()",
+          "outcome": "Failed",
+          "durationSeconds": 31.25225794315338,
+          "assertionLines": [
+            845
+          ]
+        },
+        {
+          "name": "testNativeWeekCreateGesture()",
+          "outcome": "Passed",
+          "durationSeconds": 11.533779978752136,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeWeekEdgePullPagesAndReturnsWithoutChangingTheTime()",
+          "outcome": "Passed",
+          "durationSeconds": 14.147818922996521,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeWeekMoveRecovery()",
+          "outcome": "Failed",
+          "durationSeconds": 40.099058985710144,
+          "assertionLines": [
+            1154
+          ]
+        },
+        {
+          "name": "testNativeWeekNavigation()",
+          "outcome": "Passed",
+          "durationSeconds": 14.155813097953796,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeWeekRotation()",
+          "outcome": "Passed",
+          "durationSeconds": 15.561056017875671,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "flick",
+      "appSHA256": "4fd6db87c0c0c2804ebcb229d03cda78bcb04b3f181d4dcbd06ae1f2fc739bfe",
+      "device": "M1 iPad Pro",
+      "condition": "snap1-1",
+      "tests": []
+    },
+    {
+      "build": "flick",
+      "appSHA256": "4fd6db87c0c0c2804ebcb229d03cda78bcb04b3f181d4dcbd06ae1f2fc739bfe",
+      "device": "iPhone 14 Pro",
+      "condition": "snap1-1",
+      "tests": [
+        {
+          "name": "testDaySwipesKeepTheTimeInLandscape()",
+          "outcome": "Failed",
+          "durationSeconds": 9.2917799949646,
+          "assertionLines": [
+            972
+          ]
+        },
+        {
+          "name": "testDaySwipesKeepTheTimeInPortrait()",
+          "outcome": "Failed",
+          "durationSeconds": 7.910520911216736,
+          "assertionLines": [
+            972
+          ]
+        },
+        {
+          "name": "testShortDayFlickMovesOneDateAndReturns()",
+          "outcome": "Passed",
+          "durationSeconds": 10.424931049346924,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "mail-eager",
+      "appSHA256": "0ace3940a8153001ea0d60e9203d465fd6676faaa0c0ccf04b8e29e2784dea5f",
+      "device": "iPhone 14 Pro",
+      "condition": "mailpages1",
+      "tests": [
+        {
+          "name": "PhysicalStressUITests-Runner encountered an error",
+          "outcome": "Failed",
+          "durationSeconds": null,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "mail-eager",
+      "appSHA256": "0ace3940a8153001ea0d60e9203d465fd6676faaa0c0ccf04b8e29e2784dea5f",
+      "device": "iPhone 14 Pro",
+      "condition": "mailpages2",
+      "tests": [
+        {
+          "name": "testLongMailBodyOpensAndScrollsBackToItsBeginning()",
+          "outcome": "Passed",
+          "durationSeconds": 48.661291003227234,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "mail-eager",
+      "appSHA256": "0ace3940a8153001ea0d60e9203d465fd6676faaa0c0ccf04b8e29e2784dea5f",
+      "device": "iPhone 14 Pro",
+      "condition": "mailpages4",
+      "tests": [
+        {
+          "name": "testLongMailBodyOpensAndScrollsBackToItsBeginning()",
+          "outcome": "Passed",
+          "durationSeconds": 49.9990109205246,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "mail-eager",
+      "appSHA256": "0ace3940a8153001ea0d60e9203d465fd6676faaa0c0ccf04b8e29e2784dea5f",
+      "device": "iPhone 14 Pro",
+      "condition": "week-move-audit",
+      "tests": [
+        {
+          "name": "testNativeWeekMoveRecovery()",
+          "outcome": "Failed",
+          "durationSeconds": 20.098037004470825,
+          "assertionLines": [
+            1289
+          ]
+        }
+      ]
+    },
+    {
+      "build": "mail-lazy",
+      "appSHA256": "7a4e58eb90f74c1a3cb6b67376dfc2afaa3da15c919628c19953d2207184b4ca",
+      "device": "iPhone 14 Pro",
+      "condition": "mailpages2",
+      "tests": [
+        {
+          "name": "testLongMailBodyOpensAndScrollsBackToItsBeginning()",
+          "outcome": "Passed",
+          "durationSeconds": 32.465206027030945,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "mail-lazy",
+      "appSHA256": "7a4e58eb90f74c1a3cb6b67376dfc2afaa3da15c919628c19953d2207184b4ca",
+      "device": "iPhone 14 Pro",
+      "condition": "mailpages3",
+      "tests": [
+        {
+          "name": "testLongMailBodyOpensAndScrollsBackToItsBeginning()",
+          "outcome": "Passed",
+          "durationSeconds": 32.353657960891724,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "mail-lazy",
+      "appSHA256": "7a4e58eb90f74c1a3cb6b67376dfc2afaa3da15c919628c19953d2207184b4ca",
+      "device": "iPhone 14 Pro",
+      "condition": "mailpages5",
+      "tests": [
+        {
+          "name": "testLongMailBodyOpensAndScrollsBackToItsBeginning()",
+          "outcome": "Passed",
+          "durationSeconds": 32.45971095561981,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "optimized",
+      "appSHA256": "e8d0f502d288652b4aaa556c67994d3f8489cf216aa9298597d2ad559ef2b044",
+      "device": "iPhone 14 Pro",
+      "condition": "mail1",
+      "tests": [
+        {
+          "name": "testMailScrollAndOpen()",
+          "outcome": "Failed",
+          "durationSeconds": 36.86111795902252,
+          "assertionLines": [
+            172
+          ]
+        },
+        {
+          "name": "testMailScrollCrossesSlidingWindowsAndComesBack()",
+          "outcome": "Passed",
+          "durationSeconds": 98.7898359298706,
+          "assertionLines": []
+        },
+        {
+          "name": "testMailScrollThroughPagesHitches()",
+          "outcome": "Passed",
+          "durationSeconds": 79.90000796318054,
+          "assertionLines": []
+        },
+        {
+          "name": "testMailScrollThroughSlidingWindowsHitches()",
+          "outcome": "Passed",
+          "durationSeconds": 79.52178299427032,
+          "assertionLines": []
+        },
+        {
+          "name": "testMailSearchScrollsThroughItsPagesAndOpens()",
+          "outcome": "Failed",
+          "durationSeconds": 67.66147100925446,
+          "assertionLines": [
+            236
+          ]
+        }
+      ]
+    },
+    {
+      "build": "reference",
+      "appSHA256": "215bf06cb8f5416fabd59717b0a15814d5d13e46938811d14d1eb84a1024d23e",
+      "device": "iPhone 14 Pro",
+      "condition": "1",
+      "tests": [
+        {
+          "name": "testDayMidnightExtent()",
+          "outcome": "Failed",
+          "durationSeconds": 9.579025983810425,
+          "assertionLines": [
+            783
+          ]
+        },
+        {
+          "name": "testNativeDayContinuationMove()",
+          "outcome": "Passed",
+          "durationSeconds": 13.408353090286255,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeDayCreateGesture()",
+          "outcome": "Passed",
+          "durationSeconds": 10.849277973175049,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeDayEventAccessibility()",
+          "outcome": "Passed",
+          "durationSeconds": 13.997207999229431,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeDayMoveRecovery()",
+          "outcome": "Failed",
+          "durationSeconds": 17.030974984169006,
+          "assertionLines": [
+            1200
+          ]
+        },
+        {
+          "name": "testNativeDayPagingAndZoom()",
+          "outcome": "Failed",
+          "durationSeconds": 23.352097988128662,
+          "assertionLines": [
+            845
+          ]
+        },
+        {
+          "name": "testNativeWeekCreateGesture()",
+          "outcome": "Passed",
+          "durationSeconds": 11.595617055892944,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeWeekEdgePullPagesAndReturnsWithoutChangingTheTime()",
+          "outcome": "Passed",
+          "durationSeconds": 14.081797003746033,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeWeekMoveRecovery()",
+          "outcome": "Failed",
+          "durationSeconds": 39.79481101036072,
+          "assertionLines": [
+            1139
+          ]
+        },
+        {
+          "name": "testNativeWeekNavigation()",
+          "outcome": "Passed",
+          "durationSeconds": 13.949023962020874,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeWeekRotation()",
+          "outcome": "Passed",
+          "durationSeconds": 15.685433030128479,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "reference",
+      "appSHA256": "215bf06cb8f5416fabd59717b0a15814d5d13e46938811d14d1eb84a1024d23e",
+      "device": "iPhone 14 Pro",
+      "condition": "portrait-recovery",
+      "tests": [
+        {
+          "name": "testNativeDayMoveRecovery()",
+          "outcome": "Failed",
+          "durationSeconds": 12.485324025154114,
+          "assertionLines": [
+            1305
+          ]
+        },
+        {
+          "name": "testNativeWeekMoveRecovery()",
+          "outcome": "Failed",
+          "durationSeconds": 24.168995022773743,
+          "assertionLines": [
+            1203
+          ]
+        }
+      ]
+    },
+    {
+      "build": "review",
+      "appSHA256": "d2f084f5da279fdbd88daf8b6c6db50a2e5e39b5023d0c831ea277954138bb5c",
+      "device": "M1 iPad Pro",
+      "condition": "day-zoom",
+      "tests": [
+        {
+          "name": "testNativeDayPagingAndZoom()",
+          "outcome": "Passed",
+          "durationSeconds": 41.90686094760895,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "review",
+      "appSHA256": "d2f084f5da279fdbd88daf8b6c6db50a2e5e39b5023d0c831ea277954138bb5c",
+      "device": "M1 iPad Pro",
+      "condition": "default-artwork",
+      "tests": [
+        {
+          "name": "testDefaultVariedDayArtwork()",
+          "outcome": "Passed",
+          "durationSeconds": 19.727720022201538,
+          "assertionLines": []
+        },
+        {
+          "name": "testDefaultVariedWeekArtwork()",
+          "outcome": "Passed",
+          "durationSeconds": 23.247886896133423,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "review",
+      "appSHA256": "d2f084f5da279fdbd88daf8b6c6db50a2e5e39b5023d0c831ea277954138bb5c",
+      "device": "M1 iPad Pro",
+      "condition": "experimental-artwork",
+      "tests": [
+        {
+          "name": "testPreparedVariedDayArtwork()",
+          "outcome": "Passed",
+          "durationSeconds": 18.971473932266235,
+          "assertionLines": []
+        },
+        {
+          "name": "testPreparedVariedWeekArtwork()",
+          "outcome": "Passed",
+          "durationSeconds": 22.37676501274109,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "review",
+      "appSHA256": "d2f084f5da279fdbd88daf8b6c6db50a2e5e39b5023d0c831ea277954138bb5c",
+      "device": "iPhone 14 Pro",
+      "condition": "default-artwork",
+      "tests": [
+        {
+          "name": "testDefaultVariedDayArtwork()",
+          "outcome": "Passed",
+          "durationSeconds": 16.875478982925415,
+          "assertionLines": []
+        },
+        {
+          "name": "testDefaultVariedWeekArtwork()",
+          "outcome": "Passed",
+          "durationSeconds": 20.161756992340088,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "review",
+      "appSHA256": "d2f084f5da279fdbd88daf8b6c6db50a2e5e39b5023d0c831ea277954138bb5c",
+      "device": "iPhone 14 Pro",
+      "condition": "landscape-day",
+      "tests": [
+        {
+          "name": "testDayMidnightExtent()",
+          "outcome": "Failed",
+          "durationSeconds": 9.616453051567078,
+          "assertionLines": [
+            813
+          ]
+        },
+        {
+          "name": "testNativeDayMoveRecovery()",
+          "outcome": "Failed",
+          "durationSeconds": 18.38967800140381,
+          "assertionLines": [
+            1252
+          ]
+        },
+        {
+          "name": "testNativeDayPagingAndZoom()",
+          "outcome": "Failed",
+          "durationSeconds": 32.46109902858734,
+          "assertionLines": [
+            882
+          ]
+        },
+        {
+          "name": "testNativeWeekMoveRecovery()",
+          "outcome": "Failed",
+          "durationSeconds": 41.47967195510864,
+          "assertionLines": [
+            1191
+          ]
+        }
+      ]
+    },
+    {
+      "build": "review",
+      "appSHA256": "d2f084f5da279fdbd88daf8b6c6db50a2e5e39b5023d0c831ea277954138bb5c",
+      "device": "iPhone 14 Pro",
+      "condition": "landscape-mail",
+      "tests": [
+        {
+          "name": "testMailScrollAndOpen()",
+          "outcome": "Passed",
+          "durationSeconds": 34.6987509727478,
+          "assertionLines": []
+        },
+        {
+          "name": "testMailSearchScrollsThroughItsPagesAndOpens()",
+          "outcome": "Passed",
+          "durationSeconds": 68.17866802215576,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "review",
+      "appSHA256": "d2f084f5da279fdbd88daf8b6c6db50a2e5e39b5023d0c831ea277954138bb5c",
+      "device": "iPhone 14 Pro",
+      "condition": "portrait-day",
+      "tests": [
+        {
+          "name": "testDayMidnightExtent()",
+          "outcome": "Passed",
+          "durationSeconds": 9.428059935569763,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeDayMoveRecovery()",
+          "outcome": "Failed",
+          "durationSeconds": 13.51045298576355,
+          "assertionLines": [
+            1305
+          ]
+        },
+        {
+          "name": "testNativeDayPagingAndZoom()",
+          "outcome": "Passed",
+          "durationSeconds": 26.662109971046448,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeWeekMoveRecovery()",
+          "outcome": "Failed",
+          "durationSeconds": 24.29476499557495,
+          "assertionLines": [
+            1203
+          ]
+        }
+      ]
+    },
+    {
+      "build": "review",
+      "appSHA256": "d2f084f5da279fdbd88daf8b6c6db50a2e5e39b5023d0c831ea277954138bb5c",
+      "device": "iPhone 14 Pro",
+      "condition": "portrait-mail",
+      "tests": [
+        {
+          "name": "testMailScrollAndOpen()",
+          "outcome": "Passed",
+          "durationSeconds": 32.85966503620148,
+          "assertionLines": []
+        },
+        {
+          "name": "testMailSearchScrollsThroughItsPagesAndOpens()",
+          "outcome": "Passed",
+          "durationSeconds": 58.69569396972656,
+          "assertionLines": []
+        }
+      ]
+    },
+    {
+      "build": "ruler-trace",
+      "appSHA256": "3262933dc4d96f7d081fcfbfe9805faf4c70077211a2cf5ee0a09ec3c7b07f91",
+      "device": "iPhone 14 Pro",
+      "condition": "bands1",
+      "tests": [
+        {
+          "name": "testDaySwipesAcrossAllDayBandsInLandscape()",
+          "outcome": "Passed",
+          "durationSeconds": 22.11870801448822,
+          "assertionLines": []
+        },
+        {
+          "name": "testDaySwipesAcrossAllDayBandsInPortrait()",
+          "outcome": "Passed",
+          "durationSeconds": 18.204429030418396,
+          "assertionLines": []
+        },
+        {
+          "name": "testNativeDayCreateGesture()",
+          "outcome": "Passed",
+          "durationSeconds": 11.251212000846863,
+          "assertionLines": []
+        }
+      ]
+    }
+  ]
+}

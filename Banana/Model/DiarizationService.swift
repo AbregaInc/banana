@@ -64,9 +64,11 @@ private actor FluidDiarizerHost {
     private var manager: OfflineDiarizerManager?
 
     func diarize(_ url: URL, progress: (@Sendable (Double) -> Void)?) async throws -> [SpeakerTurn] {
+        try Task.checkCancellation()
         let manager = self.manager ?? OfflineDiarizerManager()
         try await manager.prepareModels()   // downloads and compiles the models the first time
         self.manager = manager
+        try Task.checkCancellation()
         let result = try await manager.process(url) { done, total in
             progress?(total > 0 ? Double(done) / Double(total) : 0)
         }

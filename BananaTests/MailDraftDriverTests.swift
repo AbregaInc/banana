@@ -411,6 +411,91 @@ final class MailDraftDriverTests: XCTestCase {
         let other = try await driver(reopened, api, scope: "different-account").record(value.id)
         XCTAssertNil(other)
     }
+    func testEmptyAndHeldDraftDeliveryWorkAcrossAnHour() async throws {
+        let (_, store, api) = try await setup()
+        let source = driver(store, api)
+        let start = Date(timeIntervalSince1970: 100)
+        let end = start.addingTimeInterval(3600)
+        // The former live pass refreshed the pending index at least every 30 seconds.
+        // Both schedules read the same SQLite store and advance from the wake they return.
+        func countPasses(reference: Bool) async throws -> Int {
+            var due: Date? = start, passes = 0
+            while let now = due, now <= end {
+                passes += 1
+                guard passes <= 130 else { throw MailDraftDriver.Failure.changed }
+                if reference {
+                    var cursor = "", wake = now.addingTimeInterval(30)
+                    while true {
+                        let records = try await source.pendingRecords(after: cursor)
+                        guard let last = records.last else { break }
+                        for record in records {
+                            if record.state == .held, let date = record.sendAt, date > now { wake = min(wake, date) }
+                            try await source.flush(record.snapshot.id, now: now)
+                        }
+                        cursor = last.snapshot.id.raw
+                    }
+                    due = wake
+                } else {
+                    due = try await source.deliverPending(at: now)
+                }
+            }
+            return passes
+        }
+        let emptyReference = try await countPasses(reference: true)
+        let empty = try await countPasses(reference: false)
+        XCTAssertEqual(emptyReference, 121)
+        XCTAssertEqual(empty, 1)
+        let value = draft()
+        try await source.create(value)
+        try await source.flush(value.id, now: start)
+        try await source.queueSend(value.id, options: .init(hold: 7200, thenDone: false), now: start)
+        let held = try await countPasses(reference: false)
+        let heldReference = try await countPasses(reference: true)
+        XCTAssertEqual(heldReference, 121)
+        XCTAssertEqual(held, 1)
+        let requests = await api.requests
+        XCTAssertEqual(requests.map(\.action), [.create])
+        let evidence = XCTAttachment(string: "simulatedSeconds=3600 emptyPasses=\(emptyReference),\(empty) heldPasses=\(heldReference),\(held) providerWrites=\(requests.count)")
+        evidence.name = "Draft delivery scheduler work"
+        evidence.lifetime = .keepAlways
+        add(evidence)
+    }
+
+    func testDeliverySleepsUntilHeldSendAndStopsForAnEmptyOutbox() async throws {
+        let (directories, store, api) = try await setup()
+        let source = driver(store, api)
+        let now = Date(timeIntervalSince1970: 100)
+        let empty = try await source.deliverPending(at: now)
+        XCTAssertNil(empty)
+        let value = draft()
+        try await source.create(value)
+        _ = try await source.deliverPending(at: now)
+        let quiet = try await source.deliverPending(at: now)
+        XCTAssertNil(quiet)
+        try await source.queueSend(value.id, options: .init(hold: 90, thenDone: false), now: now)
+        let due = now.addingTimeInterval(90)
+        let wake = try await source.deliverPending(at: now)
+        XCTAssertEqual(wake, due)
+        let beforeSend = await api.requests
+        XCTAssertEqual(beforeSend.map(\.action), [.create])
+        await api.setLost(true)
+        let retry = try await source.deliverPending(at: due)
+        XCTAssertEqual(retry, due.addingTimeInterval(30))
+        let attempted = await api.requests
+        XCTAssertEqual(attempted.map(\.action), [.create, .send])
+        let reopened = try await Task.detached { try MailIntentStore(directories: directories) }.value
+        let afterRelaunch = driver(reopened, api)
+        await api.setLost(false)
+        _ = try await afterRelaunch.deliverPending(at: try XCTUnwrap(retry))
+        let recovered = try await afterRelaunch.record(value.id)
+        let final = await api.requests
+        XCTAssertEqual(recovered?.state, .sent)
+        XCTAssertEqual(final.count, 3)
+        XCTAssertEqual(final.last, attempted.last, "Retry the persisted operation after a lost response")
+        let drained = try await afterRelaunch.deliverPending(at: due.addingTimeInterval(60))
+        XCTAssertNil(drained)
+    }
+
     func testAcknowledgementCannotEraseAnEditMadeDuringUpload() async throws {
         let (_, store, api) = try await setup(); let source = driver(store, api); var value = draft()
         try await source.create(value); value.subject = "Newer edit"; let edited = value

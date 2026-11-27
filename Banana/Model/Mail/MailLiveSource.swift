@@ -95,6 +95,8 @@ import GRDB
     /// The pull's next try, when something waits on a retry time (MailCloudPull.nextRetry).
     private var cloudWake: Task<Void, Never>?
     private var screenWork: Task<Void, Never>?
+    private var lastPushAccount: String?
+    private var pushFeedFailures: [String: Int] = [:]
     private var pushCatchUp = 0
     let status = MailStatus(MailNotYet.emptyStatus)
     let badges = MailBadges(MailBadgeCounts(unreadInFirstSplit: 0, needsAnswer: 0))
@@ -119,6 +121,10 @@ import GRDB
     private var firstPages: [MailScope: MailListSnapshot] = [:]
     private var firstPageOrder: [MailScope] = []
     private var active = false
+    /// Delivery runs once the engine is prepared, whether or not Mail is on screen: what was
+    /// sent or queued goes out without Mail having to stay open. With nothing queued it sleeps.
+    private var delivering = false
+    private var deliveryRuns: Bool { active || delivering }
     private var mailboxSync: GmailMailboxSync?
     private var syncTasks: [String: Task<Void, Never>] = [:]
     private var syncOwners: [String: UUID] = [:]
@@ -157,6 +163,7 @@ import GRDB
     private var deliveryDirty = false
     private var deliveryRetryAt: [String: Int64] = [:]
     private var refusalTask: Task<Void, Never>?
+    private let clock: any MailClock
     private var draftDriver: MailDraftDriver?
     private var draftWork: Task<Void, Never>?
     private var draftWake: Task<Void, Never>?
@@ -187,10 +194,11 @@ import GRDB
 
     init(stores: MailStores, access: any MailAccountAccess, api: any GmailAPI,
          cloudFeed: (any MailCloudFeedSource)? = nil,
-         senderPolicyAPI: (any MailSenderPolicyAPI)? = nil,
+         senderPolicyAPI: (any MailSenderPolicyAPI)? = nil, clock: any MailClock = SystemMailClock(),
          deliveryAllowed: @escaping @MainActor @Sendable (String) -> Bool = { _ in false }) {
         self.stores = stores; self.access = access; self.api = api; self.cloudFeed = cloudFeed
         self.senderPolicyAPI = senderPolicyAPI
+        self.clock = clock
         self.deliveryAllowed = deliveryAllowed
         self.observedReadAccounts = Set(access.connectedAccountIDs.map { $0.lowercased() })
         status.value.store = .ready
@@ -284,11 +292,9 @@ import GRDB
                 reprepareTask?.cancel(); reprepareTask = nil
             }
             active = false
-            draftWake?.cancel(); draftWake = nil
             draftReadTask?.cancel()
             for task in labelTasks.values { task.cancel() }
             labelTasks.removeAll(); labelReadTask?.cancel()
-            deliveryTask?.cancel(); deliveryWake?.cancel(); deliveryWake = nil
         }
     }
     func observeAccounts(_ onChange: @escaping @MainActor ([MailAccount]) -> Void) -> MailObservation {
@@ -604,17 +610,8 @@ import GRDB
             }
             do {
                 let request = PageRequest(view: view, account: Self.account(for: scope), filters: scope.filters, before: scope.before, limit: subscription.limit, allowedAccounts: allowedAccounts)
-                let rows = try await reader.page(request)
-                let counts = try await reader.counts(request)
-                let localMore: Bool
-                if scope.before != nil {
-                    if rows.count == subscription.limit, let last = rows.last {
-                        localMore = !(try await reader.page(PageRequest(view: view, account: request.account,
-                            filters: scope.filters,
-                            before: MailOrderKey(group: 0, sortKey: last.sortKey, tie: last.tie), limit: 1, allowedAccounts: allowedAccounts))).isEmpty
-                    } else { localMore = false }
-                } else { localMore = rows.count < counts.total.value }
-                var mapped = rows.map { row in
+                let window = try await reader.listWindow(request)
+                var mapped = window.rows.map { row in
                     MailRowMapper.row(row, labels: row.labelPKs.compactMap { self.labelCatalog.refs[$0] },
                                       reason: nil, in: scope)
                 }
@@ -637,8 +634,8 @@ import GRDB
                 let failed = connected.contains { self.pagingFailures.contains($0.id) }
                 self.deliver(MailListSnapshot(scope: scope,
                     rows: mapped,
-                    total: MailCount(value: counts.total.value, isAtLeast: counts.total.isAtLeast || more),
-                    hasMore: localMore || more, stillLoading: counts.stillLoading,
+                    total: MailCount(value: window.total.value, isAtLeast: window.total.isAtLeast || more),
+                    hasMore: window.hasMore || more, stillLoading: window.stillLoading,
                     isRebuilding: false, remote: pending ? .pending : failed ? .failed : nil, coverage: nil, appliedThrough: through), to: id)
             } catch {
                 guard !Task.isCancelled else { return }
@@ -699,7 +696,7 @@ import GRDB
     }
     private func loadLabels(_ account: String) {
         guard active, access.mailGrant(accountID: account) == .granted,
-              (syncRetryAt[account] ?? .distantPast) <= Date(),
+              (syncRetryAt[account] ?? .distantPast) <= clock.now,
               labelTasks[account] == nil else { return }
         labelTasks[account] = Task { [weak self] in
             guard let self else { return }
@@ -744,7 +741,7 @@ import GRDB
             return
         }
         guard access.mailGrant(accountID: account) == .granted,
-              (syncRetryAt[account] ?? .distantPast) <= Date(), pageTasks[account] == nil, !completed.contains(account) else { return }
+              (syncRetryAt[account] ?? .distantPast) <= clock.now, pageTasks[account] == nil, !completed.contains(account) else { return }
         failures.remove(account)
         pagingFailures.remove(account)
         let loader = self.loader, cursor = pages[account]
@@ -877,26 +874,61 @@ import GRDB
     /// A silent push said new mail is here (MAIL-CLOUD-SYNC §2a): one feed pass for each account,
     /// then the new messages' text, within `budget`. Runs inside the push's background window;
     /// returns whether the pass got through.
-    func catchUpFromPush(budget: Duration = .seconds(20)) async -> Bool {
-        guard let sync = mailboxSync else { return false }
+    func catchUpFromPush(budget: Duration = .seconds(20), includeContent: Bool = true) async -> Bool {
+        guard budget > .zero, !Task.isCancelled, let sync = mailboxSync else { return false }
+        let deadline = ContinuousClock.now + budget
+        return await withTaskGroup(of: Bool.self) { group in
+            group.addTask { @MainActor in
+                await self.pullFromPush(sync, until: deadline, includeContent: includeContent)
+            }
+            group.addTask {
+                try? await Task.sleep(until: deadline, clock: .continuous)
+                return false
+            }
+            let completed = await group.next() ?? false
+            group.cancelAll()
+            return completed
+        }
+    }
+
+    private func pullFromPush(_ sync: GmailMailboxSync, until deadline: ContinuousClock.Instant,
+                              includeContent: Bool) async -> Bool {
         pushCatchUp += 1
         paceGauge.enterWindow()
         defer { pushCatchUp -= 1; paceGauge.leaveWindow() }
-        let start = ContinuousClock.now
+        defer { publishAccounts() }
         var ok = false
-        for account in accounts where account.state == .connected {
+        let connected = accounts.filter { $0.state == .connected }
+        let split = lastPushAccount.flatMap { last in connected.firstIndex { $0.id == last } }.map { $0 + 1 } ?? 0
+        // Resume after the last attempted account if the previous window expired partway.
+        for account in connected[split...] + connected[..<split] {
+            guard !Task.isCancelled, ContinuousClock.now < deadline else { return ok }
+            guard (syncRetryAt[account.id] ?? .distantPast) <= clock.now else { continue }
+            lastPushAccount = account.id
             do {
-                let progress = try await sync.pass(account: account.id, nowMS: Int64(Date().timeIntervalSince1970 * 1000))
+                let progress = try await sync.pass(account: account.id, nowMS: Int64(clock.now.timeIntervalSince1970 * 1000))
+                pushFeedFailures[account.id] = nil
                 acceptSyncProgress(progress, account: account.id)
+                let finished = clock.now
+                lastSync[account.id] = finished
+                // Another simultaneous reader may have installed a longer provider deadline.
+                if (syncRetryAt[account.id] ?? .distantPast) <= finished {
+                    syncRetryAt[account.id] = nil
+                    failures.remove(account.id)
+                    syncHealth[account.id] = progress.hasMore ? .catchingUp : .live
+                }
                 ok = true
             } catch GmailMailboxSync.Failure.busy, MailCloudFeedSync.Failure.busy {
                 ok = true   // a pass is running already; it brings the same
             } catch {
-                recordReadFailure(error, account: account.id)
+                guard !Task.isCancelled else { return ok }
+                let attempts = min((pushFeedFailures[account.id] ?? 0) + 1, 7)
+                pushFeedFailures[account.id] = attempts
+                recordReadFailure(error, account: account.id, minimumDelay: min(300, 5 * pow(2, Double(attempts - 1))))
             }
         }
-        guard let pull = cloudPull else { return ok }
-        while ContinuousClock.now - start < budget, !Task.isCancelled {
+        guard includeContent, let pull = cloudPull else { return ok }
+        while ContinuousClock.now < deadline, !Task.isCancelled {
             let step: MailCloudPull.Step
             do { step = try await pull.step(fill: true) }
             catch { reportReadFailure("cloud pull " + Self.failureDetail(error)); break }
@@ -907,16 +939,15 @@ import GRDB
             // arrival not here yet) is tried again inside the window when its time comes in it.
             guard let at = await pull.nextRetry() else { break }
             let wait = Duration.milliseconds(max(0, at - Int64(Date().timeIntervalSince1970 * 1000)))
-            guard ContinuousClock.now + wait - start < budget else { break }
+            guard ContinuousClock.now + wait < deadline else { break }
             try? await Task.sleep(for: wait)
         }
-        publishAccounts()
         return ok
     }
     func fetchBody(_ id: MailMessageID) { enqueue(.body(id), priority: true) }
     private func enqueue(_ item: Download, priority: Bool) {
         guard access.mailGrant(accountID: item.account) == .granted,
-              (syncRetryAt[item.account] ?? .distantPast) <= Date(), downloads[item] == nil else { return }
+              (syncRetryAt[item.account] ?? .distantPast) <= clock.now, downloads[item] == nil else { return }
         downloadQueue.removeAll { $0 == item }
         if priority { downloadQueue.insert(item, at: 0) } else { downloadQueue.append(item) }
         if downloadQueue.count > 64 { downloadQueue.removeLast(downloadQueue.count - 64) }
@@ -927,7 +958,7 @@ import GRDB
         while downloads.count < 2, !downloadQueue.isEmpty {
             let item = downloadQueue.removeFirst()
             guard access.mailGrant(accountID: item.account) == .granted,
-                  (syncRetryAt[item.account] ?? .distantPast) <= Date() else { continue }
+                  (syncRetryAt[item.account] ?? .distantPast) <= clock.now else { continue }
             let loader = conversationLoader
             downloads[item] = Task { [weak self] in
                 do {
@@ -1099,6 +1130,7 @@ extension MailLiveSource {
             if Task.isCancelled { throw error }
             status.value.store = .unavailable(.unavailable)
         }
+        delivering = true
         kickDelivery()
     }
 
@@ -1279,12 +1311,13 @@ extension MailLiveSource {
     }
 
     private func canDeliver(_ account: String) -> Bool {
-        active && !removalNeedsRepair && access.mailGrant(accountID: account) == .granted && deliveryAllowed(account)
+        deliveryRuns && !removalNeedsRepair && access.mailGrant(accountID: account) == .granted && deliveryAllowed(account)
     }
 
     private func kickDelivery() {
         deliveryWake?.cancel(); deliveryWake = nil
-        guard active, delivery != nil else { return }
+        guard deliveryRuns, delivery != nil else { return }
+        MailOutgoingMirror.record(true)
         if deliveryTask != nil { deliveryDirty = true; return }
         deliveryTask = Task { [weak self] in await self?.runDelivery() }
     }
@@ -1295,9 +1328,9 @@ extension MailLiveSource {
             deliveryTask = nil
             // Reactivation can arrive while a cancelled HTTP pass is unwinding.
             // Its queued wake must survive until this pass releases the worker.
-            if active && deliveryDirty { kickDelivery() }
+            if deliveryRuns && deliveryDirty { kickDelivery() }
         }
-        while active && !Task.isCancelled {
+        while deliveryRuns && !Task.isCancelled {
             deliveryDirty = false
             let now = Int64(Date().timeIntervalSince1970 * 1000)
             let eligible = access.connectedAccountIDs.filter { canDeliver($0) }
@@ -1324,8 +1357,9 @@ extension MailLiveSource {
                     failures.insert(account); publishAccounts()
                 }
             }
-            if Task.isCancelled || !active { return }
+            if Task.isCancelled || !deliveryRuns { return }
             if worked || deliveryDirty { continue }
+            await recordOutgoingWork()
             if let next {
                 let delay = max(0.05, Double(next - now) / 1000)
                 deliveryWake = Task { [weak self] in
@@ -1487,7 +1521,7 @@ extension MailLiveSource {
         // An unrelated failed page/label read must not stall a usable reader.
         // Only the sync loop requests transient-error backoff for its own work.
         guard rateLimited || minimumDelay != nil else { return }
-        let now = Date()
+        let now = clock.now
         var delay = minimumDelay ?? 5
         var health: MailSyncHealth = .offline
         if case .limited = syncHealth[account], let previous = syncRetryAt[account], previous > now {
@@ -1559,14 +1593,15 @@ extension MailLiveSource {
             while !Task.isCancelled, self.active,
                   self.access.mailGrant(accountID: account) == .granted {
                 do {
-                    while let retry = self.syncRetryAt[account], retry > Date() {
-                        try await Task.sleep(for: .seconds(max(0, retry.timeIntervalSinceNow)))
+                    while let retry = self.syncRetryAt[account], retry > self.clock.now {
+                        try await self.clock.sleep(until: retry)
                     }
                     try Task.checkCancellation()
-                    let progress = try await worker.pass(account: account, nowMS: Int64(Date().timeIntervalSince1970 * 1000))
+                    let progress = try await worker.pass(account: account, nowMS: Int64(self.clock.now.timeIntervalSince1970 * 1000))
                     try Task.checkCancellation()
+                    self.pushFeedFailures[account] = nil
                     self.acceptSyncProgress(progress, account: account)
-                    if let retry = self.syncRetryAt[account], retry > Date() {
+                    if let retry = self.syncRetryAt[account], retry > self.clock.now {
                         // A concurrent body request may have been rate-limited
                         // while this pass was in flight. Its deadline still wins.
                         self.syncHealth[account] = .limited(until: retry)
@@ -1578,13 +1613,13 @@ extension MailLiveSource {
                     try Task.checkCancellation()
                     attempts = 0
                     self.failures.remove(account)
-                    self.lastSync[account] = Date()
+                    self.lastSync[account] = self.clock.now
                     let more = progress.hasMore || moreFill
                     if !progress.hasMore { await self.afterCaughtUpPass(account) }
                     self.syncHealth[account] = more ? .catchingUp : .live
                     try await self.loadRemovalStatus()
                     self.publishAccounts()
-                    try await Task.sleep(for: .seconds(more ? 2 : 30))
+                    try await self.clock.sleep(until: self.clock.now.addingTimeInterval(more ? 2 : 30))
                 } catch GmailMailboxSync.Failure.busy, MailCloudFeedSync.Failure.busy {
                     // A push's catch-up is running this account's pass: it brings the same. Not a
                     // failure: no backoff, the account is not marked offline, its reads go on.
@@ -1640,9 +1675,11 @@ extension MailLiveSource {
 
     func loadRemovalStatus() async throws {
         let counts = try await stores.index.read { db -> ([String: Int], [String: Int]) in
+            // CROSS JOIN keeps SQLite starting from the few held rows. Left to choose, it walked
+            // every message on every start (19 ms at 540,000 messages in the Simulator).
             let rows = try Row.fetchAll(db, sql: """
-                SELECT a.email,h.kept,count(*) FROM held_removal h JOIN message m ON m.msg_pk=h.msg_pk
-                JOIN account a ON a.account_pk=m.account_pk GROUP BY a.email,h.kept
+                SELECT a.email,h.kept,count(*) FROM held_removal h CROSS JOIN message m ON m.msg_pk=h.msg_pk
+                CROSS JOIN account a ON a.account_pk=m.account_pk GROUP BY a.email,h.kept
                 """)
             var held: [String: Int] = [:], kept: [String: Int] = [:]
             for row in rows {
@@ -1775,14 +1812,18 @@ extension MailLiveSource {
             allowed: { [weak self] account in
                 guard await contextAllowed() else { return false }
                 return await self?.canDeliver(account) ?? false
-            }, compose: compose, changed: { [weak self] record in
-                Task { @MainActor in self?.draftChanged(record) }
+            }, compose: compose, changed: { [weak self] record, becamePending in
+                Task { @MainActor in
+                    self?.draftChanged(record)
+                    if becamePending { self?.resumeDraftDelivery() }
+                }
             })
         draftDriver = driver
         durablePendingDraftSends = try await driver.hasPendingSends()
         // Bounded startup window. Additional records remain in the durable store.
         for record in try await driver.records() { draftChanged(record) }
         refreshDrafts()
+        resumeDraftDelivery()
     }
     private func enqueueDraftWork(_ work: @escaping @MainActor () async -> Void) {
         let previous = draftWork
@@ -2054,30 +2095,30 @@ extension MailLiveSource {
             }
         }
     }
+    /// What the outgoing store says now, for the next launch (`MailOutgoingMirror`).
+    private func recordOutgoingWork() async {
+        guard let intentStore else { return }
+        if let waiting = try? await intentStore.hasOutgoingWork() { MailOutgoingMirror.record(waiting) }
+    }
     private func resumeDraftDelivery() {
-        guard active, let driver = draftDriver else { return }
+        guard deliveryRuns, let driver = draftDriver else { return }
+        MailOutgoingMirror.record(true)
         if draftDeliveryTask != nil { draftDeliveryDirty = true; return }
         draftWake?.cancel(); draftWake = nil
-        draftDeliveryTask = Task { [weak self] in
-            var cursor = "", nextWake = Date().addingTimeInterval(30)
-            repeat {
-                guard !Task.isCancelled else { break }
-                let records = (try? await driver.pendingRecords(after: cursor)) ?? []
-                guard let last = records.last else { break }
-                for record in records {
-                    if record.state == .held, let due = record.sendAt, due > Date() { nextWake = min(nextWake, due) }
-                    try? await driver.flush(record.snapshot.id)
-                }
-                cursor = last.snapshot.id.raw
-            } while true
+        draftDeliveryTask = Task { [weak self, clock] in
+            let nextWake: Date?
+            do { nextWake = try await driver.deliverPending(at: clock.now) }
+            catch is CancellationError { nextWake = nil }
+            catch { nextWake = clock.now.addingTimeInterval(30) } // A failed read cannot establish that the queue is empty.
             guard let self else { return }
             self.draftDeliveryTask = nil
             if self.draftDeliveryDirty { self.draftDeliveryDirty = false; self.resumeDraftDelivery(); return }
-            guard self.active else { return }
-            let delay = max(0.1, nextWake.timeIntervalSinceNow)
+            await self.recordOutgoingWork()
+            guard self.deliveryRuns, let nextWake else { return }
+            let deadline = max(nextWake, clock.now.addingTimeInterval(0.1))
             self.draftWake = Task { [weak self] in
-                try? await Task.sleep(for: .seconds(delay))
-                guard !Task.isCancelled else { return }
+                do { try await clock.sleep(until: deadline) }
+                catch { return }
                 self?.resumeDraftDelivery()
             }
         }

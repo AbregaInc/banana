@@ -1,0 +1,285 @@
+{
+  "scope": "UIKit scrolling and deceleration signpost metrics from the five measured XCTest iterations. Each iteration checks the next and original date. The per-iteration hitch total and number are distinct from direct input latency and from maximum frame time. The signpost does not establish timing for work outside its interval. Preserve all reported units including zero frame-count fields.",
+  "runs": [
+    {
+      "device": "iPhone 14 Pro",
+      "build": "control",
+      "condition": "phone-functional-hitch-landscape-0",
+      "nativeRate": "directional",
+      "passed": true,
+      "appSHA256": "8e530e9c5e7412467a02e6a3187282dd006bfba6e3b1a0e77c04a2b53d118a12",
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            1.54322475,
+            1.5431837080000002,
+            1.543014125,
+            1.5432008750000001,
+            1.543116375
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            98.49505615234375,
+            98.49766540527344,
+            99.15657806396484,
+            98.49657440185547,
+            98.50196075439453
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "control",
+      "condition": "phone-functional-hitch-landscape-1",
+      "nativeRate": "normal",
+      "passed": true,
+      "appSHA256": "8e530e9c5e7412467a02e6a3187282dd006bfba6e3b1a0e77c04a2b53d118a12",
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            8.344624,
+            16.670166,
+            25.014832,
+            8.344666,
+            8.344666
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            2.8779612500000002,
+            2.8775462920000003,
+            2.8775023340000003,
+            2.878098167,
+            2.8779115830000004
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            2.8994917843317034,
+            5.7931880070681165,
+            8.693245195167522,
+            2.8993683270821955,
+            2.899556301518297
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            88.95185852050781,
+            88.26964569091797,
+            88.27100372314453,
+            88.60017395019531,
+            88.60591888427734
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            1,
+            1,
+            2,
+            1,
+            1
+          ]
+        }
+      }
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "control",
+      "condition": "phone-functional-hitch-portrait-0",
+      "nativeRate": "directional",
+      "passed": true,
+      "appSHA256": "8e530e9c5e7412467a02e6a3187282dd006bfba6e3b1a0e77c04a2b53d118a12",
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            8.344666,
+            0,
+            0,
+            16.689374,
+            16.689249
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            0.9926819170000001,
+            0.9926271670000001,
+            0.9927235830000001,
+            0.9926604170000001,
+            0.9927173330000001
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            8.406183820379523,
+            0,
+            0,
+            16.812773754032197,
+            16.81168388987533
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            93.68560028076172,
+            93.69076538085938,
+            93.6816635131836,
+            90.66545104980469,
+            90.66024780273438
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            1,
+            0,
+            0,
+            2,
+            2
+          ]
+        }
+      }
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "control",
+      "condition": "phone-functional-hitch-portrait-1",
+      "nativeRate": "normal",
+      "passed": true,
+      "appSHA256": "8e530e9c5e7412467a02e6a3187282dd006bfba6e3b1a0e77c04a2b53d118a12",
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            41.684956,
+            0,
+            33.340332,
+            0,
+            0
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            1.9768954170000002,
+            1.9602627910000001,
+            1.9267244170000002,
+            1.9601722080000001,
+            1.9602510830000002
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            21.086071616079842,
+            0,
+            17.304152604768376,
+            0,
+            0
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            78.40576934814453,
+            80.09130096435547,
+            79.92840576171875,
+            80.09500122070312,
+            79.5816421508789
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            3,
+            0,
+            2,
+            0,
+            0
+          ]
+        }
+      }
+    }
+  ]
+}

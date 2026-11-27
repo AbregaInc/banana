@@ -47,6 +47,12 @@ struct MailListHost: UIViewRepresentable {
 /// Runs a piece of work in the first layout pass that has a size and content, so the first frame
 /// is already at the restored position and never a frame at the top first.
 final class MailRestoringCollectionView: UICollectionView {
+    #if STRESS_DEVICE_AUDIT
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        StressPresentationClock.attach(to: self, surface: .mail)
+    }
+    #endif
     var pendingRestore: (() -> Void)?
     var bottomOverlayHeight: CGFloat = 0 {
         didSet { if abs(oldValue - bottomOverlayHeight) >= 0.5 { setNeedsLayout() } }
@@ -250,6 +256,7 @@ final class MailListCoordinator: NSObject, UICollectionViewDelegate {
     }
 
     private func apply(_ shown: [MailRow], animated: Bool) {
+        lazy var dates = MailDateText.Rows(now: self.session.now)
         snapshotGeneration &+= 1
         let generation = snapshotGeneration
         var seen = Set<MailConversationID>()
@@ -261,7 +268,7 @@ final class MailListCoordinator: NSObject, UICollectionViewDelegate {
             if rows[row.id] != row {
                 if rows[row.id] != nil { changed.append(row.id) }
                 rows[row.id] = row
-                displays[row.id] = MailRowDisplay(row, now: session.now)
+                displays[row.id] = MailRowDisplay(row, dates: dates)
             }
         }
         let retiring = order.filter { !seen.contains($0) }
@@ -366,6 +373,9 @@ final class MailListCoordinator: NSObject, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: false)
         guard let id = dataSource.itemIdentifier(for: indexPath) else { return }
+        #if STRESS_DEVICE_AUDIT
+        StressPresentationClock.recordSelection()
+        #endif
         if opensOnTap { session.open(id) } else { session.select(id) }
     }
 

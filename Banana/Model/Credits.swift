@@ -23,6 +23,8 @@ enum Credits {
     static let groups: [Group] = [
         Group(title: "Storage and HTML", entries: [
             Entry("GRDB.swift · Gwendal Roué · MIT", "https://github.com/groue/GRDB.swift"),
+            Entry("tantivy.swift · MIT", "https://github.com/botisan-ai/tantivy.swift/tree/0.3.4"),
+            Entry("Tantivy · Quickwit · MIT", "https://github.com/quickwit-oss/tantivy"),
             Entry("SwiftSoup · Jonathan Hedley and Nabil Chatbi · MIT", "https://github.com/scinfu/SwiftSoup"),
         ]),
         Group(title: "Assistant", entries: [

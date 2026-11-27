@@ -1,0 +1,2555 @@
+{
+  "scope": "Optimized standalone Mac experiment on a bounded message with 50,000 empty formatting elements before meaningful content. Current mirrors the production tag-bound SwiftSoup read, stream uses system libxml2 SAX without a document tree, oracle uses the full pinned SwiftSoup text projection on this finite test fixture only. Comparison is the initial stream; compatibility adds HTML5 named-reference handling and body noscript text. Records preserve the actual extracted text and all timings. The normal native message renderer is separate.",
+  "runs": [
+    {
+      "variant": "comparison",
+      "method": "current",
+      "sample": "both",
+      "text": "First",
+      "timesMS": [
+        94.657666,
+        92.895792,
+        91.271333,
+        90.833292
+      ],
+      "peakProcessRSSBytes": 24510464,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "oracle",
+      "sample": "both",
+      "text": "First last & fin",
+      "timesMS": [
+        94.726834,
+        92.559458,
+        94.955083,
+        93.71475
+      ],
+      "peakProcessRSSBytes": 24952832,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "stream",
+      "sample": "both",
+      "text": "First last & fin",
+      "timesMS": [
+        16.142417,
+        15.753417,
+        15.4135,
+        15.18475
+      ],
+      "peakProcessRSSBytes": 7815168,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "current",
+      "sample": "entities",
+      "text": "",
+      "timesMS": [
+        96.891917,
+        96.52825,
+        96.351917,
+        95.581958
+      ],
+      "peakProcessRSSBytes": 25296896,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "oracle",
+      "sample": "entities",
+      "text": "They ’ said ≂̸ & 'x'",
+      "timesMS": [
+        98.676709,
+        105.722708,
+        103.635333,
+        161.01025
+      ],
+      "peakProcessRSSBytes": 26607616,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "stream",
+      "sample": "entities",
+      "text": "They ’ said &NotEqualTilde; & 'x'",
+      "timesMS": [
+        18.548416,
+        18.399625,
+        18.0275,
+        20.773458
+      ],
+      "peakProcessRSSBytes": 7815168,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "current",
+      "sample": "late",
+      "text": "",
+      "timesMS": [
+        102.727084,
+        93.186416,
+        696.984791,
+        94.087667
+      ],
+      "peakProcessRSSBytes": 26935296,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "oracle",
+      "sample": "late",
+      "text": "deep",
+      "timesMS": [
+        101.609667,
+        94.639125,
+        94.009042,
+        92.1705
+      ],
+      "peakProcessRSSBytes": 25460736,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "stream",
+      "sample": "late",
+      "text": "deep",
+      "timesMS": [
+        15.946541,
+        16.05375,
+        15.666417,
+        15.113375
+      ],
+      "peakProcessRSSBytes": 8568832,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "current",
+      "sample": "plain",
+      "text": "Before",
+      "timesMS": [
+        155.526875,
+        121.417083,
+        138.845417,
+        116.167458
+      ],
+      "peakProcessRSSBytes": 27459584,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "oracle",
+      "sample": "plain",
+      "text": "Before After",
+      "timesMS": [
+        149.726417,
+        173.786041,
+        843.794208,
+        256.616792
+      ],
+      "peakProcessRSSBytes": 26607616,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "stream",
+      "sample": "plain",
+      "text": "Before After",
+      "timesMS": [
+        21.052,
+        21.047916,
+        23.874833,
+        38.140042
+      ],
+      "peakProcessRSSBytes": 9011200,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "current",
+      "sample": "quotes",
+      "text": "",
+      "timesMS": [
+        97.704625,
+        94.323625,
+        90.683083,
+        90.44075
+      ],
+      "peakProcessRSSBytes": 24952832,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "oracle",
+      "sample": "quotes",
+      "text": "older reply",
+      "timesMS": [
+        96.413333,
+        92.11,
+        91.49,
+        92.655625
+      ],
+      "peakProcessRSSBytes": 25034752,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "stream",
+      "sample": "quotes",
+      "text": "older reply",
+      "timesMS": [
+        15.73725,
+        15.67775,
+        15.266208,
+        14.889667
+      ],
+      "peakProcessRSSBytes": 8306688,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "current",
+      "sample": "visible-fallback",
+      "text": "",
+      "timesMS": [
+        104.69475,
+        165.110792,
+        119.055625,
+        155.933625
+      ],
+      "peakProcessRSSBytes": 26542080,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "oracle",
+      "sample": "visible-fallback",
+      "text": "A fallback Z",
+      "timesMS": [
+        110.59875,
+        142.823375,
+        164.256667,
+        113.538417
+      ],
+      "peakProcessRSSBytes": 27623424,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "comparison",
+      "method": "stream",
+      "sample": "visible-fallback",
+      "text": "AZ",
+      "timesMS": [
+        16.409708,
+        18.533667,
+        14.929042,
+        17.24
+      ],
+      "peakProcessRSSBytes": 8994816,
+      "binarySHA256": "6497744fb0bf611b1050e49aa4b1c8ab29fb22154f01655ab317132ccf62fffb"
+    },
+    {
+      "variant": "compatibility",
+      "method": "oracle",
+      "sample": "both",
+      "text": "First last & fin",
+      "timesMS": [
+        98.825583,
+        93.174959,
+        90.783542,
+        91.218084
+      ],
+      "peakProcessRSSBytes": 25051136,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "stream",
+      "sample": "both",
+      "text": "First last & fin",
+      "timesMS": [
+        16.833791,
+        16.497291,
+        16.160333,
+        16.950125
+      ],
+      "peakProcessRSSBytes": 8339456,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "oracle",
+      "sample": "breaks",
+      "text": "A X YB C",
+      "timesMS": [
+        94.082709,
+        90.93675,
+        91.845708,
+        90.729958
+      ],
+      "peakProcessRSSBytes": 24788992,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "stream",
+      "sample": "breaks",
+      "text": "A X Y B C",
+      "timesMS": [
+        18.549458,
+        18.506375,
+        17.951916,
+        17.599208
+      ],
+      "peakProcessRSSBytes": 7831552,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "oracle",
+      "sample": "entities",
+      "text": "They ’ said ≂̸ & 'x'",
+      "timesMS": [
+        98.913166,
+        92.923333,
+        93.0295,
+        94.904583
+      ],
+      "peakProcessRSSBytes": 25427968,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "stream",
+      "sample": "entities",
+      "text": "They ’ said ≂̸ & 'x'",
+      "timesMS": [
+        17.998583,
+        17.188416,
+        16.384209,
+        16.046583
+      ],
+      "peakProcessRSSBytes": 8962048,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "oracle",
+      "sample": "late",
+      "text": "deep",
+      "timesMS": [
+        98.143958,
+        94.047334,
+        93.9065,
+        99.370417
+      ],
+      "peakProcessRSSBytes": 25477120,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "stream",
+      "sample": "late",
+      "text": "deep",
+      "timesMS": [
+        18.11675,
+        17.092375,
+        16.054917,
+        16.163084
+      ],
+      "peakProcessRSSBytes": 8601600,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "oracle",
+      "sample": "malformed",
+      "text": "letterbolditalicssecondtail",
+      "timesMS": [
+        97.679917,
+        91.844042,
+        91.504417,
+        95.87975
+      ],
+      "peakProcessRSSBytes": 26738688,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "stream",
+      "sample": "malformed",
+      "text": "letterbolditalicssecondtail",
+      "timesMS": [
+        16.722542,
+        18.271125,
+        16.19875,
+        16.095416
+      ],
+      "peakProcessRSSBytes": 7831552,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "oracle",
+      "sample": "module",
+      "text": "A &NotEqualTilde; B &amp; C ≢ D",
+      "timesMS": [
+        94.334208,
+        94.173,
+        92.455667,
+        93.232417
+      ],
+      "peakProcessRSSBytes": 24150016,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "stream",
+      "sample": "module",
+      "text": "A &NotEqualTilde; B &amp; C ≢ D",
+      "timesMS": [
+        17.135875,
+        16.923375,
+        16.295917,
+        15.819958
+      ],
+      "peakProcessRSSBytes": 8339456,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "oracle",
+      "sample": "null",
+      "text": "ab after",
+      "timesMS": [
+        95.115833,
+        96.491083,
+        95.435333,
+        94.293084
+      ],
+      "peakProcessRSSBytes": 24100864,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "stream",
+      "sample": "null",
+      "text": "a b after",
+      "timesMS": [
+        16.474416,
+        16.001708,
+        15.650458,
+        16.0735
+      ],
+      "peakProcessRSSBytes": 8208384,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "oracle",
+      "sample": "plain",
+      "text": "Before After",
+      "timesMS": [
+        97.944375,
+        95.53525,
+        92.975917,
+        90.661583
+      ],
+      "peakProcessRSSBytes": 25477120,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "stream",
+      "sample": "plain",
+      "text": "Before After",
+      "timesMS": [
+        18.855792,
+        18.502,
+        18.024125,
+        18.206625
+      ],
+      "peakProcessRSSBytes": 7831552,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "oracle",
+      "sample": "quotes",
+      "text": "older reply",
+      "timesMS": [
+        96.323667,
+        94.412292,
+        93.206083,
+        93.564625
+      ],
+      "peakProcessRSSBytes": 25542656,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "stream",
+      "sample": "quotes",
+      "text": "older reply",
+      "timesMS": [
+        16.58075,
+        16.371041,
+        15.848041,
+        15.517
+      ],
+      "peakProcessRSSBytes": 8339456,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "oracle",
+      "sample": "spaces",
+      "text": "first   line\n  next line bye",
+      "timesMS": [
+        96.43475,
+        90.680709,
+        90.995458,
+        90.648333
+      ],
+      "peakProcessRSSBytes": 24674304,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "stream",
+      "sample": "spaces",
+      "text": "first line next line bye",
+      "timesMS": [
+        17.0895,
+        16.926834,
+        16.471,
+        16.458333
+      ],
+      "peakProcessRSSBytes": 7831552,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "oracle",
+      "sample": "title",
+      "text": "A B",
+      "timesMS": [
+        96.289375,
+        92.694417,
+        93.659541,
+        95.075292
+      ],
+      "peakProcessRSSBytes": 24133632,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "stream",
+      "sample": "title",
+      "text": "AB",
+      "timesMS": [
+        15.883417,
+        15.784417,
+        15.50975,
+        15.099333
+      ],
+      "peakProcessRSSBytes": 7831552,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "oracle",
+      "sample": "visible-fallback",
+      "text": "A fallback Z",
+      "timesMS": [
+        95.001583,
+        90.51275,
+        92.658709,
+        92.404625
+      ],
+      "peakProcessRSSBytes": 25690112,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    },
+    {
+      "variant": "compatibility",
+      "method": "stream",
+      "sample": "visible-fallback",
+      "text": "A fallback Z",
+      "timesMS": [
+        17.894042,
+        17.770333,
+        17.407792,
+        18.106542
+      ],
+      "peakProcessRSSBytes": 7831552,
+      "binarySHA256": "3f441e0084d80dcdfd3fa90d5a149a2969fb4c41c7da7278ec8b86dafd8ebdb4"
+    }
+  ],
+  "extendedComparisons": [
+    {
+      "variant": "semantics",
+      "description": "System libxml2 streaming extractor versus the pinned SwiftSoup document text on identical finite fixtures, including meaningful content following a long sequence of empty formatting elements.",
+      "binarySHA256": "ddc4784f7c4e7422f46d6a5ae4509d35be0f408b6524012c2b43b37c6092a1c0",
+      "matches": 23,
+      "cases": [
+        {
+          "fixture": "both",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 16,
+            "textSHA256": "69feb9285c015e0844f0422f08c1caeee5302368905fca7507dafbcb819f7d55",
+            "timesMS": [
+              94.155,
+              89.913209,
+              93.30975,
+              91.720833
+            ],
+            "peakProcessRSSBytes": 24231936
+          },
+          "stream": {
+            "bytes": 16,
+            "textSHA256": "69feb9285c015e0844f0422f08c1caeee5302368905fca7507dafbcb819f7d55",
+            "timesMS": [
+              17.884292,
+              17.406083,
+              17.128375,
+              16.919542
+            ],
+            "peakProcessRSSBytes": 8667136
+          },
+          "equal": true
+        },
+        {
+          "fixture": "breaks",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 8,
+            "textSHA256": "f9bd4b12bff98363f158e31fc9bf37c55947d4356915d29767628a20673c2a62",
+            "timesMS": [
+              96.949916,
+              94.204167,
+              96.097709,
+              94.724334
+            ],
+            "peakProcessRSSBytes": 26116096
+          },
+          "stream": {
+            "bytes": 8,
+            "textSHA256": "f9bd4b12bff98363f158e31fc9bf37c55947d4356915d29767628a20673c2a62",
+            "timesMS": [
+              18.794167,
+              17.854667,
+              17.997917,
+              17.906458
+            ],
+            "peakProcessRSSBytes": 9060352
+          },
+          "equal": true
+        },
+        {
+          "fixture": "comment",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 2,
+            "textSHA256": "38318c00d873bcdbf1dd521e4c68bcf16945d7e63a97f0f9d92b1c9fcbb2338e",
+            "timesMS": [
+              93.807625,
+              90.374834,
+              89.499916,
+              90.45275
+            ],
+            "peakProcessRSSBytes": 24297472
+          },
+          "stream": {
+            "bytes": 2,
+            "textSHA256": "38318c00d873bcdbf1dd521e4c68bcf16945d7e63a97f0f9d92b1c9fcbb2338e",
+            "timesMS": [
+              17.891625,
+              17.105,
+              17.182542,
+              17.067458
+            ],
+            "peakProcessRSSBytes": 8650752
+          },
+          "equal": true
+        },
+        {
+          "fixture": "entities",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 25,
+            "textSHA256": "345782eaadf56ea040c45c39a0e382ac2e45e071be7dd73226792e2cfad3a0f7",
+            "timesMS": [
+              95.148541,
+              90.316125,
+              89.660417,
+              90.739334
+            ],
+            "peakProcessRSSBytes": 24788992
+          },
+          "stream": {
+            "bytes": 25,
+            "textSHA256": "345782eaadf56ea040c45c39a0e382ac2e45e071be7dd73226792e2cfad3a0f7",
+            "timesMS": [
+              17.973208,
+              17.630375,
+              17.154417,
+              17.183417
+            ],
+            "peakProcessRSSBytes": 9191424
+          },
+          "equal": true
+        },
+        {
+          "fixture": "foreign",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 16,
+            "textSHA256": "66265dbe8ac3232c5448c67ee38077f4498f19ec4338b512b5076ce4285b7f0f",
+            "timesMS": [
+              96.599125,
+              90.409542,
+              90.098042,
+              90.267125
+            ],
+            "peakProcessRSSBytes": 25788416
+          },
+          "stream": {
+            "bytes": 16,
+            "textSHA256": "66265dbe8ac3232c5448c67ee38077f4498f19ec4338b512b5076ce4285b7f0f",
+            "timesMS": [
+              18.59,
+              18.251291,
+              17.739334,
+              17.704125
+            ],
+            "peakProcessRSSBytes": 8273920
+          },
+          "equal": true
+        },
+        {
+          "fixture": "foster",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 20,
+            "textSHA256": "6d71b8c323511677524d06ec82be4cc60c05310eaf5eb03e0f29bb06faa21f9c",
+            "timesMS": [
+              97.605583,
+              95.044375,
+              94.148542,
+              94.817542
+            ],
+            "peakProcessRSSBytes": 25395200
+          },
+          "stream": {
+            "bytes": 20,
+            "textSHA256": "6d71b8c323511677524d06ec82be4cc60c05310eaf5eb03e0f29bb06faa21f9c",
+            "timesMS": [
+              18.522041,
+              18.281875,
+              17.827667,
+              17.779
+            ],
+            "peakProcessRSSBytes": 8634368
+          },
+          "equal": true
+        },
+        {
+          "fixture": "implied",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 18,
+            "textSHA256": "2b4c4b9ab99037ec70b604f9b9fd201149f6c484190092e19ebeaac8b55e9c23",
+            "timesMS": [
+              94.803958,
+              91.029542,
+              90.66875,
+              91.569417
+            ],
+            "peakProcessRSSBytes": 26247168
+          },
+          "stream": {
+            "bytes": 18,
+            "textSHA256": "2b4c4b9ab99037ec70b604f9b9fd201149f6c484190092e19ebeaac8b55e9c23",
+            "timesMS": [
+              17.819375,
+              17.538083,
+              16.926375,
+              17.153084
+            ],
+            "peakProcessRSSBytes": 8257536
+          },
+          "equal": true
+        },
+        {
+          "fixture": "late",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 4,
+            "textSHA256": "74611c1d6455b534323a21f8133a6f43dc3a8188e7b946f96dcc28dde932fcb2",
+            "timesMS": [
+              93.565791,
+              89.238459,
+              88.8195,
+              89.431209
+            ],
+            "peakProcessRSSBytes": 24248320
+          },
+          "stream": {
+            "bytes": 4,
+            "textSHA256": "74611c1d6455b534323a21f8133a6f43dc3a8188e7b946f96dcc28dde932fcb2",
+            "timesMS": [
+              22.19475,
+              26.882042,
+              23.40225,
+              18.712583
+            ],
+            "peakProcessRSSBytes": 8241152
+          },
+          "equal": true
+        },
+        {
+          "fixture": "malformed",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 27,
+            "textSHA256": "747a5d2e65a67893749abc58f1c53b4df7a64d6fa6a34081fe6ac8aba9786cfe",
+            "timesMS": [
+              99.266958,
+              95.908167,
+              94.936875,
+              105.772125
+            ],
+            "peakProcessRSSBytes": 28721152
+          },
+          "stream": {
+            "bytes": 27,
+            "textSHA256": "747a5d2e65a67893749abc58f1c53b4df7a64d6fa6a34081fe6ac8aba9786cfe",
+            "timesMS": [
+              18.341625,
+              17.704,
+              17.811709,
+              18.103125
+            ],
+            "peakProcessRSSBytes": 8634368
+          },
+          "equal": true
+        },
+        {
+          "fixture": "misnested-table",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 10,
+            "textSHA256": "8f0b61cf4c3f0c2a59aabf6b4edda3e8c3ea01f2b1303b7f4408c154263201fe",
+            "timesMS": [
+              95.638625,
+              89.682458,
+              91.261625,
+              92.030792
+            ],
+            "peakProcessRSSBytes": 24363008
+          },
+          "stream": {
+            "bytes": 10,
+            "textSHA256": "8f0b61cf4c3f0c2a59aabf6b4edda3e8c3ea01f2b1303b7f4408c154263201fe",
+            "timesMS": [
+              17.359917,
+              16.886,
+              16.690709,
+              17.33225
+            ],
+            "peakProcessRSSBytes": 8241152
+          },
+          "equal": true
+        },
+        {
+          "fixture": "module",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 33,
+            "textSHA256": "02ccbc8feffd06ecbac6d863ae2498a3fdaeb03500ddfa9e0111ecdd9992a37c",
+            "timesMS": [
+              93.624625,
+              90.035792,
+              91.516041,
+              90.011041
+            ],
+            "peakProcessRSSBytes": 25149440
+          },
+          "stream": {
+            "bytes": 33,
+            "textSHA256": "02ccbc8feffd06ecbac6d863ae2498a3fdaeb03500ddfa9e0111ecdd9992a37c",
+            "timesMS": [
+              18.764917,
+              18.063,
+              17.968417,
+              18.03425
+            ],
+            "peakProcessRSSBytes": 9814016
+          },
+          "equal": true
+        },
+        {
+          "fixture": "nbsp",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 7,
+            "textSHA256": "1309fb1147de130b622444942ff0a11f83e638978727a4b977328d742018c9bf",
+            "timesMS": [
+              99.183625,
+              92.340791,
+              90.908625,
+              91.261667
+            ],
+            "peakProcessRSSBytes": 26525696
+          },
+          "stream": {
+            "bytes": 7,
+            "textSHA256": "1309fb1147de130b622444942ff0a11f83e638978727a4b977328d742018c9bf",
+            "timesMS": [
+              18.455875,
+              18.315584,
+              18.18575,
+              17.795458
+            ],
+            "peakProcessRSSBytes": 9207808
+          },
+          "equal": true
+        },
+        {
+          "fixture": "noscript-head",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 4,
+            "textSHA256": "72231043bc1807e6f740b235eb7511ecb33255a6a375435631196de8a9750d4b",
+            "timesMS": [
+              93.846458,
+              92.928291,
+              93.048708,
+              92.840542
+            ],
+            "peakProcessRSSBytes": 24117248
+          },
+          "stream": {
+            "bytes": 4,
+            "textSHA256": "72231043bc1807e6f740b235eb7511ecb33255a6a375435631196de8a9750d4b",
+            "timesMS": [
+              17.811458,
+              18.230625,
+              17.374792,
+              17.649792
+            ],
+            "peakProcessRSSBytes": 8978432
+          },
+          "equal": true
+        },
+        {
+          "fixture": "null",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 8,
+            "textSHA256": "f8b457dcddb06b431271e68ac1a31170407d709555e2140c64e808dd9f7d2380",
+            "timesMS": [
+              99.2505,
+              93.017209,
+              95.451833,
+              94.400708
+            ],
+            "peakProcessRSSBytes": 26771456
+          },
+          "stream": {
+            "bytes": 8,
+            "textSHA256": "f8b457dcddb06b431271e68ac1a31170407d709555e2140c64e808dd9f7d2380",
+            "timesMS": [
+              20.101458,
+              19.606334,
+              19.602875,
+              19.7155
+            ],
+            "peakProcessRSSBytes": 9732096
+          },
+          "equal": true
+        },
+        {
+          "fixture": "plain",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 12,
+            "textSHA256": "e476d5e7d7fce2fc41b636fe9be890fdd71e07fa31f2cd2c9f685eab7c99e7db",
+            "timesMS": [
+              93.408708,
+              91.151541,
+              89.513417,
+              91.781542
+            ],
+            "peakProcessRSSBytes": 24313856
+          },
+          "stream": {
+            "bytes": 12,
+            "textSHA256": "e476d5e7d7fce2fc41b636fe9be890fdd71e07fa31f2cd2c9f685eab7c99e7db",
+            "timesMS": [
+              18.023666,
+              17.471833,
+              16.977,
+              16.955333
+            ],
+            "peakProcessRSSBytes": 8241152
+          },
+          "equal": true
+        },
+        {
+          "fixture": "pre-nested",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 23,
+            "textSHA256": "1038d5b9587ea83b14f23eab67401a3ff4cf7675cad58bb35c3f62c5c2ca9701",
+            "timesMS": [
+              94.378709,
+              90.990333,
+              89.713875,
+              92.038542
+            ],
+            "peakProcessRSSBytes": 24903680
+          },
+          "stream": {
+            "bytes": 23,
+            "textSHA256": "1038d5b9587ea83b14f23eab67401a3ff4cf7675cad58bb35c3f62c5c2ca9701",
+            "timesMS": [
+              18.071458,
+              17.747,
+              17.530417,
+              17.295541
+            ],
+            "peakProcessRSSBytes": 8241152
+          },
+          "equal": true
+        },
+        {
+          "fixture": "quotes",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 11,
+            "textSHA256": "cc6e33113ed4542215d7197b34d951da8ebf2efd4d8755bbd8cf5029ec7904ea",
+            "timesMS": [
+              93.021292,
+              89.693167,
+              91.629292,
+              90.340167
+            ],
+            "peakProcessRSSBytes": 25149440
+          },
+          "stream": {
+            "bytes": 11,
+            "textSHA256": "cc6e33113ed4542215d7197b34d951da8ebf2efd4d8755bbd8cf5029ec7904ea",
+            "timesMS": [
+              17.597125,
+              17.257208,
+              17.0715,
+              16.96425
+            ],
+            "peakProcessRSSBytes": 8749056
+          },
+          "equal": true
+        },
+        {
+          "fixture": "raw",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 14,
+            "textSHA256": "ca4384ad6c2e54091e4cc1b7c1b3a921388f5f9dec792e786866b78fc0d638f4",
+            "timesMS": [
+              97.273,
+              91.419333,
+              90.788042,
+              92.074167
+            ],
+            "peakProcessRSSBytes": 27246592
+          },
+          "stream": {
+            "bytes": 14,
+            "textSHA256": "ca4384ad6c2e54091e4cc1b7c1b3a921388f5f9dec792e786866b78fc0d638f4",
+            "timesMS": [
+              17.804459,
+              17.372833,
+              17.352541,
+              16.993458
+            ],
+            "peakProcessRSSBytes": 8683520
+          },
+          "equal": true
+        },
+        {
+          "fixture": "spaces",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 28,
+            "textSHA256": "5e4a657f82b1fb55e8a7050980e9d937783f44beb8e747c9240db9203144ff22",
+            "timesMS": [
+              95.871458,
+              94.395625,
+              95.329708,
+              95.690083
+            ],
+            "peakProcessRSSBytes": 25673728
+          },
+          "stream": {
+            "bytes": 28,
+            "textSHA256": "5e4a657f82b1fb55e8a7050980e9d937783f44beb8e747c9240db9203144ff22",
+            "timesMS": [
+              17.584166,
+              17.509875,
+              17.111333,
+              17.020417
+            ],
+            "peakProcessRSSBytes": 8241152
+          },
+          "equal": true
+        },
+        {
+          "fixture": "template",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 7,
+            "textSHA256": "ecec698f735fe74ed9c44580dc16992b04dd72aaa81dabace74196ea5a623f2c",
+            "timesMS": [
+              100.659875,
+              94.704667,
+              94.161959,
+              94.066791
+            ],
+            "peakProcessRSSBytes": 26951680
+          },
+          "stream": {
+            "bytes": 7,
+            "textSHA256": "ecec698f735fe74ed9c44580dc16992b04dd72aaa81dabace74196ea5a623f2c",
+            "timesMS": [
+              18.479625,
+              18.343917,
+              18.096958,
+              18.31575
+            ],
+            "peakProcessRSSBytes": 8994816
+          },
+          "equal": true
+        },
+        {
+          "fixture": "title",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 3,
+            "textSHA256": "fea4c5ce720c1d6a1cbc47c1607cc4ea172a69de8948e76d67910120597950fc",
+            "timesMS": [
+              100.024333,
+              96.437083,
+              95.984833,
+              96.682583
+            ],
+            "peakProcessRSSBytes": 26329088
+          },
+          "stream": {
+            "bytes": 2,
+            "textSHA256": "38164fbd17603d73f696b8b4d72664d735bb6a7c88577687fd2ae33fd6964153",
+            "timesMS": [
+              18.768,
+              18.635625,
+              18.340916,
+              17.980917
+            ],
+            "peakProcessRSSBytes": 9027584
+          },
+          "equal": false
+        },
+        {
+          "fixture": "unicode-space",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 12,
+            "textSHA256": "1a4b98daa9d6ae8a01caf2a0cebc3cb32cc5dc67d5beb5f53c19af2a954eed33",
+            "timesMS": [
+              94.528333,
+              92.975709,
+              90.548167,
+              93.879458
+            ],
+            "peakProcessRSSBytes": 24150016
+          },
+          "stream": {
+            "bytes": 12,
+            "textSHA256": "1a4b98daa9d6ae8a01caf2a0cebc3cb32cc5dc67d5beb5f53c19af2a954eed33",
+            "timesMS": [
+              19.142375,
+              18.283792,
+              17.603458,
+              17.767
+            ],
+            "peakProcessRSSBytes": 9224192
+          },
+          "equal": true
+        },
+        {
+          "fixture": "unknown-element",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 8,
+            "textSHA256": "93a2cc46606f055fc6ce10220b3ef6069d320c7b620b05e21cd1bc43c7772c33",
+            "timesMS": [
+              94.963167,
+              89.427042,
+              90.804709,
+              90.0865
+            ],
+            "peakProcessRSSBytes": 25772032
+          },
+          "stream": {
+            "bytes": 8,
+            "textSHA256": "93a2cc46606f055fc6ce10220b3ef6069d320c7b620b05e21cd1bc43c7772c33",
+            "timesMS": [
+              17.475375,
+              17.442958,
+              17.018,
+              17.030958
+            ],
+            "peakProcessRSSBytes": 8273920
+          },
+          "equal": true
+        },
+        {
+          "fixture": "visible-fallback",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 12,
+            "textSHA256": "595d986a3c6b26c3670fddcfbc9737d5432911764e63e2f5d2a4ab7f6b4e7f25",
+            "timesMS": [
+              96.213959,
+              92.505917,
+              95.45575,
+              94.159458
+            ],
+            "peakProcessRSSBytes": 27836416
+          },
+          "stream": {
+            "bytes": 12,
+            "textSHA256": "595d986a3c6b26c3670fddcfbc9737d5432911764e63e2f5d2a4ab7f6b4e7f25",
+            "timesMS": [
+              18.291209,
+              18.02375,
+              18.470625,
+              18.245542
+            ],
+            "peakProcessRSSBytes": 8257536
+          },
+          "equal": true
+        }
+      ]
+    },
+    {
+      "variant": "corpus",
+      "description": "System libxml2 streaming extractor versus the pinned SwiftSoup document text on identical finite fixtures, including meaningful content following a long sequence of empty formatting elements.",
+      "binarySHA256": "5cc52fbf7b0ab682a436879e1e36b43354edfec3b863f4158b7202e4dcfd6cf2",
+      "matches": 41,
+      "cases": [
+        {
+          "fixture": "both",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 16,
+            "textSHA256": "69feb9285c015e0844f0422f08c1caeee5302368905fca7507dafbcb819f7d55",
+            "timesMS": [
+              99.564125,
+              92.231417,
+              91.814,
+              93.533292
+            ],
+            "peakProcessRSSBytes": 24805376
+          },
+          "stream": {
+            "bytes": 16,
+            "textSHA256": "69feb9285c015e0844f0422f08c1caeee5302368905fca7507dafbcb819f7d55",
+            "timesMS": [
+              19.071667,
+              18.486291,
+              18.751167,
+              18.465458
+            ],
+            "peakProcessRSSBytes": 8667136
+          },
+          "equal": true
+        },
+        {
+          "fixture": "breaks",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 8,
+            "textSHA256": "f9bd4b12bff98363f158e31fc9bf37c55947d4356915d29767628a20673c2a62",
+            "timesMS": [
+              98.415833,
+              97.580125,
+              96.828542,
+              96.411792
+            ],
+            "peakProcessRSSBytes": 26001408
+          },
+          "stream": {
+            "bytes": 8,
+            "textSHA256": "f9bd4b12bff98363f158e31fc9bf37c55947d4356915d29767628a20673c2a62",
+            "timesMS": [
+              19.106875,
+              18.177292,
+              18.286417,
+              18.387209
+            ],
+            "peakProcessRSSBytes": 9060352
+          },
+          "equal": true
+        },
+        {
+          "fixture": "calendar-heatmap-blank-cells",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 1284,
+            "textSHA256": "75230e0d8e4d8943d24d42e47169b04668ff31aba3c51940c9865ac011eab7b7",
+            "timesMS": [
+              101.115459,
+              98.086625,
+              96.688167,
+              94.55125
+            ],
+            "peakProcessRSSBytes": 27541504
+          },
+          "stream": {
+            "bytes": 1284,
+            "textSHA256": "75230e0d8e4d8943d24d42e47169b04668ff31aba3c51940c9865ac011eab7b7",
+            "timesMS": [
+              20.5385,
+              19.741542,
+              19.400417,
+              19.630167
+            ],
+            "peakProcessRSSBytes": 11567104
+          },
+          "equal": true
+        },
+        {
+          "fixture": "calendar-invitation",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 890,
+            "textSHA256": "e98a960c8fbb41378890a48f51fe2ce27df2b24c7ecea0a8b7a96af953a0758f",
+            "timesMS": [
+              98.443875,
+              97.255208,
+              97.315583,
+              95.972666
+            ],
+            "peakProcessRSSBytes": 27918336
+          },
+          "stream": {
+            "bytes": 890,
+            "textSHA256": "e98a960c8fbb41378890a48f51fe2ce27df2b24c7ecea0a8b7a96af953a0758f",
+            "timesMS": [
+              19.886208,
+              18.958958,
+              18.546084,
+              18.537375
+            ],
+            "peakProcessRSSBytes": 9846784
+          },
+          "equal": true
+        },
+        {
+          "fixture": "comment",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 2,
+            "textSHA256": "38318c00d873bcdbf1dd521e4c68bcf16945d7e63a97f0f9d92b1c9fcbb2338e",
+            "timesMS": [
+              96.72525,
+              95.353833,
+              95.190333,
+              94.654167
+            ],
+            "peakProcessRSSBytes": 25018368
+          },
+          "stream": {
+            "bytes": 2,
+            "textSHA256": "38318c00d873bcdbf1dd521e4c68bcf16945d7e63a97f0f9d92b1c9fcbb2338e",
+            "timesMS": [
+              21.693334,
+              19.37575,
+              20.542959,
+              18.20925
+            ],
+            "peakProcessRSSBytes": 9846784
+          },
+          "equal": true
+        },
+        {
+          "fixture": "compact-receipt-rows",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 26,
+            "textSHA256": "fe50a1acd0710bbe97e7425cc9f7135976b634e0c6aef30c5da443764d779f7b",
+            "timesMS": [
+              99.346917,
+              94.69825,
+              95.225084,
+              95.032916
+            ],
+            "peakProcessRSSBytes": 26853376
+          },
+          "stream": {
+            "bytes": 26,
+            "textSHA256": "fe50a1acd0710bbe97e7425cc9f7135976b634e0c6aef30c5da443764d779f7b",
+            "timesMS": [
+              19.306,
+              18.556625,
+              18.530583,
+              18.557666
+            ],
+            "peakProcessRSSBytes": 9076736
+          },
+          "equal": true
+        },
+        {
+          "fixture": "data-table-weekly-report",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 8132,
+            "textSHA256": "08005acdd96800223eae0cb1eac3f7f616afec911519f9dfd6139fcb31fc1315",
+            "timesMS": [
+              107.33675,
+              99.914542,
+              98.228958,
+              99.370167
+            ],
+            "peakProcessRSSBytes": 30081024
+          },
+          "stream": {
+            "bytes": 8147,
+            "textSHA256": "e9b03f50bb1f17451b0bad078b40e1f0cee8eee02e89c037398add6d76cd0183",
+            "timesMS": [
+              20.043083,
+              19.704292,
+              18.6185,
+              19.08175
+            ],
+            "peakProcessRSSBytes": 9142272
+          },
+          "equal": false
+        },
+        {
+          "fixture": "deep-mixed",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 38,
+            "textSHA256": "05daa2ca792cbb450656adfd4feb82a52a763ee29663733cad241f0295995d60",
+            "timesMS": [
+              101.225333,
+              95.813792,
+              100.01225,
+              98.459625
+            ],
+            "peakProcessRSSBytes": 25673728
+          },
+          "stream": {
+            "bytes": 38,
+            "textSHA256": "05daa2ca792cbb450656adfd4feb82a52a763ee29663733cad241f0295995d60",
+            "timesMS": [
+              19.650833,
+              19.806125,
+              18.996417,
+              19.021375
+            ],
+            "peakProcessRSSBytes": 9617408
+          },
+          "equal": true
+        },
+        {
+          "fixture": "entities",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 25,
+            "textSHA256": "345782eaadf56ea040c45c39a0e382ac2e45e071be7dd73226792e2cfad3a0f7",
+            "timesMS": [
+              95.666917,
+              91.973958,
+              91.546958,
+              91.586167
+            ],
+            "peakProcessRSSBytes": 24985600
+          },
+          "stream": {
+            "bytes": 25,
+            "textSHA256": "345782eaadf56ea040c45c39a0e382ac2e45e071be7dd73226792e2cfad3a0f7",
+            "timesMS": [
+              18.829167,
+              18.012375,
+              18.113417,
+              18.283291
+            ],
+            "peakProcessRSSBytes": 9191424
+          },
+          "equal": true
+        },
+        {
+          "fixture": "foreign",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 16,
+            "textSHA256": "66265dbe8ac3232c5448c67ee38077f4498f19ec4338b512b5076ce4285b7f0f",
+            "timesMS": [
+              105.070667,
+              96.119667,
+              97.590417,
+              96.677583
+            ],
+            "peakProcessRSSBytes": 27836416
+          },
+          "stream": {
+            "bytes": 16,
+            "textSHA256": "66265dbe8ac3232c5448c67ee38077f4498f19ec4338b512b5076ce4285b7f0f",
+            "timesMS": [
+              19.428125,
+              19.088709,
+              21.377375,
+              18.525208
+            ],
+            "peakProcessRSSBytes": 9060352
+          },
+          "equal": true
+        },
+        {
+          "fixture": "foster",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 20,
+            "textSHA256": "6d71b8c323511677524d06ec82be4cc60c05310eaf5eb03e0f29bb06faa21f9c",
+            "timesMS": [
+              98.813041,
+              96.153708,
+              95.598084,
+              93.906125
+            ],
+            "peakProcessRSSBytes": 25198592
+          },
+          "stream": {
+            "bytes": 20,
+            "textSHA256": "6d71b8c323511677524d06ec82be4cc60c05310eaf5eb03e0f29bb06faa21f9c",
+            "timesMS": [
+              18.929,
+              19.348708,
+              18.708833,
+              18.863209
+            ],
+            "peakProcessRSSBytes": 9027584
+          },
+          "equal": true
+        },
+        {
+          "fixture": "frameset",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 22,
+            "textSHA256": "0da988c0e8b8d172921ffb67497ba79fb917b49ba9c63ddaf846d349001c26d8",
+            "timesMS": [
+              90.51575,
+              85.774708,
+              83.699875,
+              86.690708
+            ],
+            "peakProcessRSSBytes": 42778624
+          },
+          "stream": {
+            "bytes": 16,
+            "textSHA256": "8c9c1c76eba8b80bc75718dc2f42de35de12b91c45de2be38915b2623805c788",
+            "timesMS": [
+              28.391458,
+              28.046208,
+              28.147833,
+              28.022542
+            ],
+            "peakProcessRSSBytes": 8978432
+          },
+          "equal": false
+        },
+        {
+          "fixture": "header-only-tables",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 1136,
+            "textSHA256": "b09d5145a60ab36875076d4ce9b7077e168ef4c6f85d0ce1c0ed6a6672762e97",
+            "timesMS": [
+              99.698333,
+              98.264,
+              96.241792,
+              96.038417
+            ],
+            "peakProcessRSSBytes": 26755072
+          },
+          "stream": {
+            "bytes": 1136,
+            "textSHA256": "b09d5145a60ab36875076d4ce9b7077e168ef4c6f85d0ce1c0ed6a6672762e97",
+            "timesMS": [
+              19.342833,
+              19.082291,
+              18.201041,
+              18.107084
+            ],
+            "peakProcessRSSBytes": 10272768
+          },
+          "equal": true
+        },
+        {
+          "fixture": "hidden-preview-padding",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 107,
+            "textSHA256": "f248539b0d437fe5a307aa625be7bd5eb3c07a857f61d27a7a73d95383e2e6c6",
+            "timesMS": [
+              99.041042,
+              95.652833,
+              95.355375,
+              95.147208
+            ],
+            "peakProcessRSSBytes": 26542080
+          },
+          "stream": {
+            "bytes": 107,
+            "textSHA256": "f248539b0d437fe5a307aa625be7bd5eb3c07a857f61d27a7a73d95383e2e6c6",
+            "timesMS": [
+              19.266084,
+              18.487917,
+              17.853,
+              18.058583
+            ],
+            "peakProcessRSSBytes": 10027008
+          },
+          "equal": true
+        },
+        {
+          "fixture": "icon-row-pictures",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 731,
+            "textSHA256": "b8b1c964c0514eb4709ce2d6f3c676a9210d1bc2cb390c471e88eda3e1fbda5a",
+            "timesMS": [
+              101.029791,
+              97.172833,
+              96.995541,
+              97.441541
+            ],
+            "peakProcessRSSBytes": 27623424
+          },
+          "stream": {
+            "bytes": 731,
+            "textSHA256": "b8b1c964c0514eb4709ce2d6f3c676a9210d1bc2cb390c471e88eda3e1fbda5a",
+            "timesMS": [
+              19.653292,
+              19.178875,
+              19.053,
+              18.81975
+            ],
+            "peakProcessRSSBytes": 9502720
+          },
+          "equal": true
+        },
+        {
+          "fixture": "implied",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 18,
+            "textSHA256": "2b4c4b9ab99037ec70b604f9b9fd201149f6c484190092e19ebeaac8b55e9c23",
+            "timesMS": [
+              99.253959,
+              93.078834,
+              94.250667,
+              95.7095
+            ],
+            "peakProcessRSSBytes": 27541504
+          },
+          "stream": {
+            "bytes": 18,
+            "textSHA256": "2b4c4b9ab99037ec70b604f9b9fd201149f6c484190092e19ebeaac8b55e9c23",
+            "timesMS": [
+              19.05075,
+              18.528875,
+              18.734,
+              18.5695
+            ],
+            "peakProcessRSSBytes": 9060352
+          },
+          "equal": true
+        },
+        {
+          "fixture": "inline-script",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 11,
+            "textSHA256": "7bf65154cad0fd76a31753d71ba79a07b350f8af2cfbf5017298d9bad982108d",
+            "timesMS": [
+              97.035583,
+              94.981792,
+              94.600291,
+              95.901792
+            ],
+            "peakProcessRSSBytes": 25116672
+          },
+          "stream": {
+            "bytes": 11,
+            "textSHA256": "7bf65154cad0fd76a31753d71ba79a07b350f8af2cfbf5017298d9bad982108d",
+            "timesMS": [
+              19.326792,
+              18.328125,
+              18.281416,
+              18.178
+            ],
+            "peakProcessRSSBytes": 9175040
+          },
+          "equal": true
+        },
+        {
+          "fixture": "late",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 4,
+            "textSHA256": "74611c1d6455b534323a21f8133a6f43dc3a8188e7b946f96dcc28dde932fcb2",
+            "timesMS": [
+              99.070875,
+              94.981042,
+              94.182334,
+              92.244541
+            ],
+            "peakProcessRSSBytes": 25034752
+          },
+          "stream": {
+            "bytes": 4,
+            "textSHA256": "74611c1d6455b534323a21f8133a6f43dc3a8188e7b946f96dcc28dde932fcb2",
+            "timesMS": [
+              18.343541,
+              18.588292,
+              18.145625,
+              18.512792
+            ],
+            "peakProcessRSSBytes": 8994816
+          },
+          "equal": true
+        },
+        {
+          "fixture": "lead-in-colon-list",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 715,
+            "textSHA256": "080ddc9be700ef8d4b062ef22fd51eaa5ba1345afa5b70300ea04a0d3f2bd160",
+            "timesMS": [
+              99.806792,
+              97.022959,
+              95.291,
+              96.563209
+            ],
+            "peakProcessRSSBytes": 25493504
+          },
+          "stream": {
+            "bytes": 715,
+            "textSHA256": "080ddc9be700ef8d4b062ef22fd51eaa5ba1345afa5b70300ea04a0d3f2bd160",
+            "timesMS": [
+              19.347958,
+              19.552459,
+              18.689916,
+              19.444958
+            ],
+            "peakProcessRSSBytes": 9125888
+          },
+          "equal": true
+        },
+        {
+          "fixture": "linked-profile-pictures",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 1243,
+            "textSHA256": "86fb8bc1a056b7f323f154a1bfe86c497d87845a5eaf55061fc24339005af9ef",
+            "timesMS": [
+              103.133375,
+              98.223,
+              98.17175,
+              96.095916
+            ],
+            "peakProcessRSSBytes": 27475968
+          },
+          "stream": {
+            "bytes": 1243,
+            "textSHA256": "86fb8bc1a056b7f323f154a1bfe86c497d87845a5eaf55061fc24339005af9ef",
+            "timesMS": [
+              20.336208,
+              19.181167,
+              18.870292,
+              18.93775
+            ],
+            "peakProcessRSSBytes": 11698176
+          },
+          "equal": true
+        },
+        {
+          "fixture": "malformed",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 27,
+            "textSHA256": "747a5d2e65a67893749abc58f1c53b4df7a64d6fa6a34081fe6ac8aba9786cfe",
+            "timesMS": [
+              97.452375,
+              92.001875,
+              91.27825,
+              95.301917
+            ],
+            "peakProcessRSSBytes": 26673152
+          },
+          "stream": {
+            "bytes": 27,
+            "textSHA256": "747a5d2e65a67893749abc58f1c53b4df7a64d6fa6a34081fe6ac8aba9786cfe",
+            "timesMS": [
+              18.813167,
+              18.58275,
+              18.125291,
+              18.329208
+            ],
+            "peakProcessRSSBytes": 9027584
+          },
+          "equal": true
+        },
+        {
+          "fixture": "misnested-table",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 10,
+            "textSHA256": "8f0b61cf4c3f0c2a59aabf6b4edda3e8c3ea01f2b1303b7f4408c154263201fe",
+            "timesMS": [
+              98.319291,
+              97.769125,
+              94.649834,
+              92.870584
+            ],
+            "peakProcessRSSBytes": 26279936
+          },
+          "stream": {
+            "bytes": 10,
+            "textSHA256": "8f0b61cf4c3f0c2a59aabf6b4edda3e8c3ea01f2b1303b7f4408c154263201fe",
+            "timesMS": [
+              18.807375,
+              18.041458,
+              17.990666,
+              18.223792
+            ],
+            "peakProcessRSSBytes": 9060352
+          },
+          "equal": true
+        },
+        {
+          "fixture": "module",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 33,
+            "textSHA256": "02ccbc8feffd06ecbac6d863ae2498a3fdaeb03500ddfa9e0111ecdd9992a37c",
+            "timesMS": [
+              95.144667,
+              92.34775,
+              93.83525,
+              93.978959
+            ],
+            "peakProcessRSSBytes": 24182784
+          },
+          "stream": {
+            "bytes": 33,
+            "textSHA256": "02ccbc8feffd06ecbac6d863ae2498a3fdaeb03500ddfa9e0111ecdd9992a37c",
+            "timesMS": [
+              18.9425,
+              18.432459,
+              18.381,
+              18.517625
+            ],
+            "peakProcessRSSBytes": 8650752
+          },
+          "equal": true
+        },
+        {
+          "fixture": "nbsp",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 7,
+            "textSHA256": "1309fb1147de130b622444942ff0a11f83e638978727a4b977328d742018c9bf",
+            "timesMS": [
+              95.830709,
+              93.270333,
+              92.539958,
+              95.152
+            ],
+            "peakProcessRSSBytes": 24887296
+          },
+          "stream": {
+            "bytes": 7,
+            "textSHA256": "1309fb1147de130b622444942ff0a11f83e638978727a4b977328d742018c9bf",
+            "timesMS": [
+              19.504709,
+              18.397667,
+              18.126375,
+              18.056458
+            ],
+            "peakProcessRSSBytes": 10321920
+          },
+          "equal": true
+        },
+        {
+          "fixture": "nested-receipt-labels",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 12,
+            "textSHA256": "651f689f26cc2b9a551d88b1d65ad1499d970b9e42288f5c15fd4a13eafab2c6",
+            "timesMS": [
+              98.023584,
+              96.148916,
+              95.921292,
+              95.295208
+            ],
+            "peakProcessRSSBytes": 26738688
+          },
+          "stream": {
+            "bytes": 12,
+            "textSHA256": "651f689f26cc2b9a551d88b1d65ad1499d970b9e42288f5c15fd4a13eafab2c6",
+            "timesMS": [
+              18.381625,
+              17.632583,
+              17.369708,
+              17.282375
+            ],
+            "peakProcessRSSBytes": 8273920
+          },
+          "equal": true
+        },
+        {
+          "fixture": "noscript-head",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 4,
+            "textSHA256": "72231043bc1807e6f740b235eb7511ecb33255a6a375435631196de8a9750d4b",
+            "timesMS": [
+              97.624458,
+              95.193541,
+              93.417459,
+              93.043458
+            ],
+            "peakProcessRSSBytes": 24920064
+          },
+          "stream": {
+            "bytes": 4,
+            "textSHA256": "72231043bc1807e6f740b235eb7511ecb33255a6a375435631196de8a9750d4b",
+            "timesMS": [
+              19.008625,
+              19.205167,
+              18.177792,
+              18.254458
+            ],
+            "peakProcessRSSBytes": 9043968
+          },
+          "equal": true
+        },
+        {
+          "fixture": "null",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 8,
+            "textSHA256": "f8b457dcddb06b431271e68ac1a31170407d709555e2140c64e808dd9f7d2380",
+            "timesMS": [
+              99.437042,
+              95.594958,
+              95.818625,
+              95.315292
+            ],
+            "peakProcessRSSBytes": 25182208
+          },
+          "stream": {
+            "bytes": 8,
+            "textSHA256": "f8b457dcddb06b431271e68ac1a31170407d709555e2140c64e808dd9f7d2380",
+            "timesMS": [
+              21.135958,
+              20.409375,
+              20.171584,
+              19.771333
+            ],
+            "peakProcessRSSBytes": 9732096
+          },
+          "equal": true
+        },
+        {
+          "fixture": "numbered-rows-soft-breaks",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 8760,
+            "textSHA256": "ef7c78c85f17afa1b24725fe3d68ecc5d6483cac01ee5ab68eb245e4f9e1e00d",
+            "timesMS": [
+              100.411458,
+              96.1765,
+              96.370666,
+              97.096166
+            ],
+            "peakProcessRSSBytes": 27213824
+          },
+          "stream": {
+            "bytes": 8760,
+            "textSHA256": "ef7c78c85f17afa1b24725fe3d68ecc5d6483cac01ee5ab68eb245e4f9e1e00d",
+            "timesMS": [
+              21.719417,
+              20.392917,
+              20.316833,
+              20.736375
+            ],
+            "peakProcessRSSBytes": 10158080
+          },
+          "equal": true
+        },
+        {
+          "fixture": "numeric-controls",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 13,
+            "textSHA256": "61bab1e567682f1e9b18976aad444d369ab41256ac2354184d28fe760d96b7b5",
+            "timesMS": [
+              98.438167,
+              97.483542,
+              96.517,
+              100.611209
+            ],
+            "peakProcessRSSBytes": 25673728
+          },
+          "stream": {
+            "bytes": 7,
+            "textSHA256": "8ed897e79af403954da25cc6e99e2aef5dc78d0498cda2d8a1a1673f7652789a",
+            "timesMS": [
+              18.993042,
+              18.486042,
+              18.184958,
+              18.133958
+            ],
+            "peakProcessRSSBytes": 8241152
+          },
+          "equal": false
+        },
+        {
+          "fixture": "plain",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 12,
+            "textSHA256": "e476d5e7d7fce2fc41b636fe9be890fdd71e07fa31f2cd2c9f685eab7c99e7db",
+            "timesMS": [
+              97.449583,
+              93.316959,
+              95.387917,
+              94.360458
+            ],
+            "peakProcessRSSBytes": 25837568
+          },
+          "stream": {
+            "bytes": 12,
+            "textSHA256": "e476d5e7d7fce2fc41b636fe9be890fdd71e07fa31f2cd2c9f685eab7c99e7db",
+            "timesMS": [
+              18.90175,
+              19.168542,
+              18.394417,
+              19.088625
+            ],
+            "peakProcessRSSBytes": 8224768
+          },
+          "equal": true
+        },
+        {
+          "fixture": "pre-nested",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 23,
+            "textSHA256": "1038d5b9587ea83b14f23eab67401a3ff4cf7675cad58bb35c3f62c5c2ca9701",
+            "timesMS": [
+              102.479625,
+              95.008667,
+              92.617166,
+              94.417625
+            ],
+            "peakProcessRSSBytes": 26345472
+          },
+          "stream": {
+            "bytes": 23,
+            "textSHA256": "1038d5b9587ea83b14f23eab67401a3ff4cf7675cad58bb35c3f62c5c2ca9701",
+            "timesMS": [
+              18.943625,
+              18.80175,
+              18.537541,
+              18.637834
+            ],
+            "peakProcessRSSBytes": 9027584
+          },
+          "equal": true
+        },
+        {
+          "fixture": "pre-newline",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 2,
+            "textSHA256": "38164fbd17603d73f696b8b4d72664d735bb6a7c88577687fd2ae33fd6964153",
+            "timesMS": [
+              98.751583,
+              93.227334,
+              92.221833,
+              93.868792
+            ],
+            "peakProcessRSSBytes": 25739264
+          },
+          "stream": {
+            "bytes": 2,
+            "textSHA256": "38164fbd17603d73f696b8b4d72664d735bb6a7c88577687fd2ae33fd6964153",
+            "timesMS": [
+              18.315416,
+              17.830625,
+              17.999,
+              17.598541
+            ],
+            "peakProcessRSSBytes": 9027584
+          },
+          "equal": true
+        },
+        {
+          "fixture": "quoted-tail-signature",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 13,
+            "textSHA256": "5e0a9599fbd6ba55f922faa73f6df49eb8af8ca772efc1b412d8bd0f1438cff0",
+            "timesMS": [
+              100.012125,
+              95.489209,
+              94.51175,
+              93.315709
+            ],
+            "peakProcessRSSBytes": 26525696
+          },
+          "stream": {
+            "bytes": 13,
+            "textSHA256": "5e0a9599fbd6ba55f922faa73f6df49eb8af8ca772efc1b412d8bd0f1438cff0",
+            "timesMS": [
+              18.516834,
+              17.911375,
+              17.573792,
+              17.663708
+            ],
+            "peakProcessRSSBytes": 8306688
+          },
+          "equal": true
+        },
+        {
+          "fixture": "quotes",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 11,
+            "textSHA256": "cc6e33113ed4542215d7197b34d951da8ebf2efd4d8755bbd8cf5029ec7904ea",
+            "timesMS": [
+              99.329542,
+              93.393667,
+              92.663584,
+              91.971208
+            ],
+            "peakProcessRSSBytes": 25886720
+          },
+          "stream": {
+            "bytes": 11,
+            "textSHA256": "cc6e33113ed4542215d7197b34d951da8ebf2efd4d8755bbd8cf5029ec7904ea",
+            "timesMS": [
+              19.046,
+              19.214042,
+              18.599958,
+              18.262083
+            ],
+            "peakProcessRSSBytes": 9519104
+          },
+          "equal": true
+        },
+        {
+          "fixture": "raw",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 14,
+            "textSHA256": "ca4384ad6c2e54091e4cc1b7c1b3a921388f5f9dec792e786866b78fc0d638f4",
+            "timesMS": [
+              129.704583,
+              106.514,
+              96.101083,
+              94.626084
+            ],
+            "peakProcessRSSBytes": 28540928
+          },
+          "stream": {
+            "bytes": 14,
+            "textSHA256": "ca4384ad6c2e54091e4cc1b7c1b3a921388f5f9dec792e786866b78fc0d638f4",
+            "timesMS": [
+              19.457958,
+              18.800541,
+              18.262291,
+              18.260042
+            ],
+            "peakProcessRSSBytes": 9076736
+          },
+          "equal": true
+        },
+        {
+          "fixture": "raw-plaintext",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 11,
+            "textSHA256": "626bccd020381a723b94f4433e401c77d22308491d998c7c20799a4e492a4048",
+            "timesMS": [
+              96.699625,
+              94.666,
+              94.461125,
+              93.828292
+            ],
+            "peakProcessRSSBytes": 24854528
+          },
+          "stream": {
+            "bytes": 7,
+            "textSHA256": "c3243b5c5a9171147e018ae88c624023b47e235edaef9fd6231558dfdfbeadaa",
+            "timesMS": [
+              18.691209,
+              18.321417,
+              17.891958,
+              17.967916
+            ],
+            "peakProcessRSSBytes": 8224768
+          },
+          "equal": false
+        },
+        {
+          "fixture": "raw-xmp",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 3,
+            "textSHA256": "b5d4045c3f466fa91fe2cc6abe79232a1a57cdf104f7a26e716e0a1e2789df78",
+            "timesMS": [
+              99.602,
+              95.300041,
+              94.343292,
+              94.82425
+            ],
+            "peakProcessRSSBytes": 26918912
+          },
+          "stream": {
+            "bytes": 3,
+            "textSHA256": "b5d4045c3f466fa91fe2cc6abe79232a1a57cdf104f7a26e716e0a1e2789df78",
+            "timesMS": [
+              18.810917,
+              18.6705,
+              18.56625,
+              18.35725
+            ],
+            "peakProcessRSSBytes": 9060352
+          },
+          "equal": true
+        },
+        {
+          "fixture": "select",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 13,
+            "textSHA256": "8cfd1ed94de922d185e9ea894055cd62cacff18642c3280411e75b2653a20914",
+            "timesMS": [
+              98.155834,
+              95.863166,
+              95.396917,
+              95.2195
+            ],
+            "peakProcessRSSBytes": 26198016
+          },
+          "stream": {
+            "bytes": 14,
+            "textSHA256": "1854e92bbc56ecbbcaa1b2991db2b2eda53fb0b06c69c975f27a23f13cd2ef56",
+            "timesMS": [
+              18.118709,
+              18.026333,
+              18.047458,
+              18.455333
+            ],
+            "peakProcessRSSBytes": 9027584
+          },
+          "equal": false
+        },
+        {
+          "fixture": "semantic-bullet-marker",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 60,
+            "textSHA256": "f57b6ce15c32b03e17baba86d2bc06bb51c0d950721c40440c5c360cdb5eab67",
+            "timesMS": [
+              100.689583,
+              94.916708,
+              92.463792,
+              92.536875
+            ],
+            "peakProcessRSSBytes": 26787840
+          },
+          "stream": {
+            "bytes": 61,
+            "textSHA256": "3538a3faffaf94c85d89f57d5b72d237bf31bc61dab8e6adb754d0a800df445a",
+            "timesMS": [
+              19.763625,
+              18.878334,
+              18.227625,
+              18.452291
+            ],
+            "peakProcessRSSBytes": 10420224
+          },
+          "equal": false
+        },
+        {
+          "fixture": "semicolonless",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 26,
+            "textSHA256": "8bbace93cdc60455f6c9e2e636d6da8a582440d1480ba0a3826ba0ce7129bb5a",
+            "timesMS": [
+              99.204167,
+              91.960333,
+              94.069125,
+              94.269417
+            ],
+            "peakProcessRSSBytes": 25657344
+          },
+          "stream": {
+            "bytes": 29,
+            "textSHA256": "636969c70f15243bf9cfcff9ec4ee1b98e922f359d6e1db339d36a67b500e07e",
+            "timesMS": [
+              19.779708,
+              18.47825,
+              18.147125,
+              17.956875
+            ],
+            "peakProcessRSSBytes": 9158656
+          },
+          "equal": false
+        },
+        {
+          "fixture": "spaces",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 28,
+            "textSHA256": "5e4a657f82b1fb55e8a7050980e9d937783f44beb8e747c9240db9203144ff22",
+            "timesMS": [
+              100.541291,
+              95.872208,
+              94.361583,
+              93.880209
+            ],
+            "peakProcessRSSBytes": 26804224
+          },
+          "stream": {
+            "bytes": 28,
+            "textSHA256": "5e4a657f82b1fb55e8a7050980e9d937783f44beb8e747c9240db9203144ff22",
+            "timesMS": [
+              18.262,
+              18.496916,
+              17.956584,
+              17.751167
+            ],
+            "peakProcessRSSBytes": 8241152
+          },
+          "equal": true
+        },
+        {
+          "fixture": "table-bullet-marker",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 19,
+            "textSHA256": "d00529e4b78ac0ff4d6f341e44a897d5da3d8fca6df3f5c2bc6f6c374395ab76",
+            "timesMS": [
+              98.388917,
+              95.593167,
+              92.417417,
+              92.7095
+            ],
+            "peakProcessRSSBytes": 26050560
+          },
+          "stream": {
+            "bytes": 19,
+            "textSHA256": "d00529e4b78ac0ff4d6f341e44a897d5da3d8fca6df3f5c2bc6f6c374395ab76",
+            "timesMS": [
+              18.777708,
+              18.087292,
+              17.68775,
+              18.523458
+            ],
+            "peakProcessRSSBytes": 8732672
+          },
+          "equal": true
+        },
+        {
+          "fixture": "table-row-one-line",
+          "checkedInNewsletter": true,
+          "oracle": {
+            "bytes": 29,
+            "textSHA256": "a8116795be9db654731172ba0bcbde459589edcda0a1904ec7c276704db535f7",
+            "timesMS": [
+              98.865625,
+              95.325792,
+              92.775583,
+              93.881584
+            ],
+            "peakProcessRSSBytes": 26640384
+          },
+          "stream": {
+            "bytes": 29,
+            "textSHA256": "a8116795be9db654731172ba0bcbde459589edcda0a1904ec7c276704db535f7",
+            "timesMS": [
+              18.417083,
+              18.0455,
+              17.769542,
+              18.025375
+            ],
+            "peakProcessRSSBytes": 8273920
+          },
+          "equal": true
+        },
+        {
+          "fixture": "template",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 7,
+            "textSHA256": "ecec698f735fe74ed9c44580dc16992b04dd72aaa81dabace74196ea5a623f2c",
+            "timesMS": [
+              98.563625,
+              96.41475,
+              95.449209,
+              95.075708
+            ],
+            "peakProcessRSSBytes": 26689536
+          },
+          "stream": {
+            "bytes": 7,
+            "textSHA256": "ecec698f735fe74ed9c44580dc16992b04dd72aaa81dabace74196ea5a623f2c",
+            "timesMS": [
+              19.117958,
+              18.589292,
+              18.408959,
+              18.705209
+            ],
+            "peakProcessRSSBytes": 8241152
+          },
+          "equal": true
+        },
+        {
+          "fixture": "title",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 3,
+            "textSHA256": "fea4c5ce720c1d6a1cbc47c1607cc4ea172a69de8948e76d67910120597950fc",
+            "timesMS": [
+              97.927709,
+              95.081417,
+              96.1725,
+              95.587625
+            ],
+            "peakProcessRSSBytes": 24952832
+          },
+          "stream": {
+            "bytes": 3,
+            "textSHA256": "fea4c5ce720c1d6a1cbc47c1607cc4ea172a69de8948e76d67910120597950fc",
+            "timesMS": [
+              20.868083,
+              18.514917,
+              17.838459,
+              17.793792
+            ],
+            "peakProcessRSSBytes": 9076736
+          },
+          "equal": true
+        },
+        {
+          "fixture": "unicode-space",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 12,
+            "textSHA256": "1a4b98daa9d6ae8a01caf2a0cebc3cb32cc5dc67d5beb5f53c19af2a954eed33",
+            "timesMS": [
+              98.484667,
+              95.850042,
+              94.976542,
+              93.610708
+            ],
+            "peakProcessRSSBytes": 25067520
+          },
+          "stream": {
+            "bytes": 12,
+            "textSHA256": "1a4b98daa9d6ae8a01caf2a0cebc3cb32cc5dc67d5beb5f53c19af2a954eed33",
+            "timesMS": [
+              18.798708,
+              18.174417,
+              17.640042,
+              18.008
+            ],
+            "peakProcessRSSBytes": 9175040
+          },
+          "equal": true
+        },
+        {
+          "fixture": "unknown-element",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 8,
+            "textSHA256": "93a2cc46606f055fc6ce10220b3ef6069d320c7b620b05e21cd1bc43c7772c33",
+            "timesMS": [
+              97.046709,
+              92.563667,
+              92.281375,
+              94.426458
+            ],
+            "peakProcessRSSBytes": 26640384
+          },
+          "stream": {
+            "bytes": 8,
+            "textSHA256": "93a2cc46606f055fc6ce10220b3ef6069d320c7b620b05e21cd1bc43c7772c33",
+            "timesMS": [
+              18.845,
+              18.1375,
+              18.173208,
+              17.957916
+            ],
+            "peakProcessRSSBytes": 8273920
+          },
+          "equal": true
+        },
+        {
+          "fixture": "visible-fallback",
+          "checkedInNewsletter": false,
+          "oracle": {
+            "bytes": 12,
+            "textSHA256": "595d986a3c6b26c3670fddcfbc9737d5432911764e63e2f5d2a4ab7f6b4e7f25",
+            "timesMS": [
+              95.215791,
+              90.900709,
+              92.972875,
+              93.2745
+            ],
+            "peakProcessRSSBytes": 25772032
+          },
+          "stream": {
+            "bytes": 12,
+            "textSHA256": "595d986a3c6b26c3670fddcfbc9737d5432911764e63e2f5d2a4ab7f6b4e7f25",
+            "timesMS": [
+              18.426416,
+              17.771042,
+              17.42075,
+              17.339166
+            ],
+            "peakProcessRSSBytes": 8257536
+          },
+          "equal": true
+        }
+      ]
+    }
+  ]
+}

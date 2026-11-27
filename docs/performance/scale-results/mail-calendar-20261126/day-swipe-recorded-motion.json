@@ -1,0 +1,5653 @@
+{
+  "method": "Event and ruler crops measured with tools/physical-stress-tests/day-swipe-motion.py. Device recording and gesture timestamps are retained privately. Only trials with attached viewport coordinates are included here; the geometry report carries incomplete attempts.",
+  "runs": [
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "fast",
+      "orientation": "Portrait",
+      "recordingSHA256": "3bfe417da28f47c49f8d11aa733a7c0540cc8b7dd54e7f43235e5116b92438d5",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 220,
+        "durationSeconds": 14.641667,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.929,
+                  "ruler": 0.162
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 15,
+                "changedSamples": {
+                  "events": 15,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.398,
+                  "ruler": 0.064
+                }
+              }
+            },
+            "postReleaseObservationMS": 1056.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1043.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.357,
+                  "ruler": 0.086
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 16,
+                "changedSamples": {
+                  "events": 16,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.255,
+                  "ruler": 0.086
+                }
+              }
+            },
+            "postReleaseObservationMS": 1088.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1065.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.103,
+                  "ruler": 0.076
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 15,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.384,
+                  "ruler": 0.08
+                }
+              }
+            },
+            "postReleaseObservationMS": 1055.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1040.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.255,
+                  "ruler": 0.096
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 15,
+                "changedSamples": {
+                  "events": 15,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.929,
+                  "ruler": 0.079
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1364.7,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "fast",
+      "orientation": "Landscape",
+      "recordingSHA256": "454d95c25fa6d858858c6e39e6670b88fab0da17f2ac625a59bd463d7d69a9d1",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 323,
+        "durationSeconds": 17.733333,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 20,
+                "changedSamples": {
+                  "events": 20,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.611,
+                  "ruler": 0.044
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.896,
+                  "ruler": 0.009
+                }
+              }
+            },
+            "postReleaseObservationMS": 1135.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1108.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.0,
+                  "ruler": 0.039
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.213,
+                  "ruler": 0.038
+                }
+              }
+            },
+            "postReleaseObservationMS": 1480.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1477.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.086,
+                  "ruler": 0.038
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.687,
+                  "ruler": 0.0
+                }
+              }
+            },
+            "postReleaseObservationMS": 1138.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1118.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 14.221,
+                  "ruler": 0.0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 13.665,
+                  "ruler": 0.063
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1434.0,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "repeat": 10,
+      "deceleration": "normal",
+      "orientation": "Portrait",
+      "recordingSHA256": "d07d37e3889617eb1f1f2c0994d1f3c59f67db27054f8b41944dc2197f3fb6ce",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 349,
+        "durationSeconds": 18.693333,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.949,
+                  "ruler": 0.078
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.01,
+                  "ruler": 0.184
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1334.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.365,
+                  "ruler": 0.071
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.852,
+                  "ruler": 0.166
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1307.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.77,
+                  "ruler": 0.095
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.787,
+                  "ruler": 0.122
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1448.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.478,
+                  "ruler": 0.08
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.323,
+                  "ruler": 0.124
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1372.7,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "repeat": 10,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "18305f29a16476b032a02d759c637c228de5f9d75fe61cf13c452782942a6e0e",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 480,
+        "durationSeconds": 23.073333,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.613,
+                  "ruler": 0.049
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.612,
+                  "ruler": 0.04
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1492.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 20,
+                "changedSamples": {
+                  "events": 20,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.049,
+                  "ruler": 0.0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.948,
+                  "ruler": 0.051
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1476.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.381,
+                  "ruler": 0.0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.824,
+                  "ruler": 0.048
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1467.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.678,
+                  "ruler": 0.024
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.544,
+                  "ruler": 0.029
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1468.7,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "repeat": 7,
+      "deceleration": "normal",
+      "orientation": "Portrait",
+      "recordingSHA256": "d1080fe262afc6ecf51c692d2339c6672d1c9e1e33413e66fb11e15b3bfd8699",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 345,
+        "durationSeconds": 18.501667,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.203,
+                  "ruler": 0.076
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.488,
+                  "ruler": 0.17
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1274.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.265,
+                  "ruler": 0.069
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.166,
+                  "ruler": 0.115
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1334.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.846,
+                  "ruler": 0.122
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.812,
+                  "ruler": 0.087
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1350.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.412,
+                  "ruler": 0.155
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.371,
+                  "ruler": 0.152
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1350.3,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "repeat": 7,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "f2a82df363eee91dc21c7259ee2a11a4970aaa63891a2df0d151ba073e5287a1",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 482,
+        "durationSeconds": 23.145,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.361,
+                  "ruler": 0.07
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.738,
+                  "ruler": 0.0
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1484.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.051,
+                  "ruler": 0.05
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.955,
+                  "ruler": 0.0
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1471.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.074,
+                  "ruler": 0.05
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.01,
+                  "ruler": 0.0
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1483.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.683,
+                  "ruler": 0.064
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.549,
+                  "ruler": 0.0
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1499.7,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "repeat": 8,
+      "deceleration": "fast",
+      "orientation": "Portrait",
+      "recordingSHA256": "3c72412655ff2c82f7e75235580a0595c8012ab94f901020616325097cad178d",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 218,
+        "durationSeconds": 14.701667,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.933,
+                  "ruler": 0.158
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 16,
+                "changedSamples": {
+                  "events": 16,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.426,
+                  "ruler": 0.07
+                }
+              }
+            },
+            "postReleaseObservationMS": 1062.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1048.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.357,
+                  "ruler": 0.088
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 16,
+                "changedSamples": {
+                  "events": 16,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.262,
+                  "ruler": 0.075
+                }
+              }
+            },
+            "postReleaseObservationMS": 1078.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1049.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.547,
+                  "ruler": 0.069
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 16,
+                "changedSamples": {
+                  "events": 16,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.509,
+                  "ruler": 0.102
+                }
+              }
+            },
+            "postReleaseObservationMS": 1073.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1050.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 13.471,
+                  "ruler": 0.08
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 15,
+                "changedSamples": {
+                  "events": 15,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.026,
+                  "ruler": 0.081
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1355.7,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "repeat": 8,
+      "deceleration": "fast",
+      "orientation": "Landscape",
+      "recordingSHA256": "0df9aef22605315c3e2c6785f323f63fb4bb9b1094fb47e4a07609abb3dd6dd9",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 325,
+        "durationSeconds": 17.818333,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.676,
+                  "ruler": 0.021
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.461,
+                  "ruler": 0.0
+                }
+              }
+            },
+            "postReleaseObservationMS": 1286.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1266.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.153,
+                  "ruler": 0.05
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.874,
+                  "ruler": 0.011
+                }
+              }
+            },
+            "postReleaseObservationMS": 1138.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1118.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.148,
+                  "ruler": 0.019
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.929,
+                  "ruler": 0.011
+                }
+              }
+            },
+            "postReleaseObservationMS": 1304.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1284.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 14.249,
+                  "ruler": 0.021
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 13.584,
+                  "ruler": 0.0
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1434.0,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "repeat": 9,
+      "deceleration": "fast",
+      "orientation": "Portrait",
+      "recordingSHA256": "7c0d5f74a66a5154cbde6f48315b6bfca0303f4e53bfcdc7f25f55ecb3a6b8fa",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 229,
+        "durationSeconds": 14.621667,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.876,
+                  "ruler": 0.207
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 15,
+                "changedSamples": {
+                  "events": 15,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.362,
+                  "ruler": 0.072
+                }
+              }
+            },
+            "postReleaseObservationMS": 1063.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1041.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.372,
+                  "ruler": 0.148
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 15,
+                "changedSamples": {
+                  "events": 15,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.285,
+                  "ruler": 0.077
+                }
+              }
+            },
+            "postReleaseObservationMS": 1071.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1057.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.226,
+                  "ruler": 0.14
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 16,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.118,
+                  "ruler": 0.076
+                }
+              }
+            },
+            "postReleaseObservationMS": 1061.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1031.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 13.756,
+                  "ruler": 0.065
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 16,
+                "changedSamples": {
+                  "events": 16,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.324,
+                  "ruler": 0.158
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1366.7,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "repeat": 9,
+      "deceleration": "fast",
+      "orientation": "Landscape",
+      "recordingSHA256": "faaae9cb86e3f1b0c7c951df73962348d28ddfd8128cae48afd007a741e6c1a7",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 319,
+        "durationSeconds": 17.446667,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.362,
+                  "ruler": 0.032
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.519,
+                  "ruler": 0.044
+                }
+              }
+            },
+            "postReleaseObservationMS": 1146.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1118.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.02,
+                  "ruler": 0.032
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.193,
+                  "ruler": 0.038
+                }
+              }
+            },
+            "postReleaseObservationMS": 1156.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1142.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.16,
+                  "ruler": 0.038
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.821,
+                  "ruler": 0.0
+                }
+              }
+            },
+            "postReleaseObservationMS": 1138.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1124.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 14.428,
+                  "ruler": 0.032
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 13.546,
+                  "ruler": 0.063
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1456.7,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "bands",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Portrait",
+      "recordingSHA256": "be5ade6ee182bf16161f2823f8b2e78d06b96dae96095e81e711bb86a03fdd67",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 343,
+        "durationSeconds": 18.63,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.769,
+                  "ruler": 0.06
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.42,
+                  "ruler": 0.149
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1314.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.622,
+                  "ruler": 0.064
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.251,
+                  "ruler": 0.166
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1322.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.039,
+                  "ruler": 0.099
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.055,
+                  "ruler": 0.08
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1350.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.569,
+                  "ruler": 0.058
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.637,
+                  "ruler": 0.119
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1325.0,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "bands",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "2dafc12eeda58eea37bea5a7f46ce30a47eddf006b1e0e02c9ed264543ca1411",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 480,
+        "durationSeconds": 23.103333,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.775,
+                  "ruler": 0.028
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.195,
+                  "ruler": 0.12
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1469.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.206,
+                  "ruler": 0.042
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.018,
+                  "ruler": 0.096
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1468.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.349,
+                  "ruler": 0.042
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.814,
+                  "ruler": 0.096
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1492.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.609,
+                  "ruler": 0.042
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.999,
+                  "ruler": 0.088
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1485.0,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "bands",
+      "device": "iPhone 14 Pro",
+      "repeat": 2,
+      "deceleration": "fast",
+      "orientation": "Portrait",
+      "recordingSHA256": "c48f45b49a52372764d66718564bd9400148164c1f1ae9da0cca74113967a794",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 222,
+        "durationSeconds": 14.876667,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.424,
+                  "ruler": 0.084
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 15,
+                "changedSamples": {
+                  "events": 15,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 6.987,
+                  "ruler": 0.06
+                }
+              }
+            },
+            "postReleaseObservationMS": 1046.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1024.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.82,
+                  "ruler": 0.123
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 15,
+                "changedSamples": {
+                  "events": 15,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.068,
+                  "ruler": 0.089
+                }
+              }
+            },
+            "postReleaseObservationMS": 1196.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1173.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.863,
+                  "ruler": 0.079
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 15,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.701,
+                  "ruler": 0.079
+                }
+              }
+            },
+            "postReleaseObservationMS": 1053.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1023.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.6,
+                  "ruler": 0.058
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 16,
+                "changedSamples": {
+                  "events": 16,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.997,
+                  "ruler": 0.116
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1333.3,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "bands",
+      "device": "iPhone 14 Pro",
+      "repeat": 2,
+      "deceleration": "fast",
+      "orientation": "Landscape",
+      "recordingSHA256": "e8c6224c12b3a04d2ed3f260b3b03f6726d566c58950e9186535487d5a112fc8",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 317,
+        "durationSeconds": 17.581667,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.632,
+                  "ruler": 0.028
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.683,
+                  "ruler": 0.171
+                }
+              }
+            },
+            "postReleaseObservationMS": 1153.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1133.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.568,
+                  "ruler": 0.009
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.449,
+                  "ruler": 0.0
+                }
+              }
+            },
+            "postReleaseObservationMS": 1138.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1117.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.544,
+                  "ruler": 0.104
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.244,
+                  "ruler": 0.056
+                }
+              }
+            },
+            "postReleaseObservationMS": 1137.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1117.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 14.981,
+                  "ruler": 0.041
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 13.689,
+                  "ruler": 0.124
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1484.0,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "bands",
+      "device": "iPhone 14 Pro",
+      "repeat": 3,
+      "deceleration": "fast",
+      "orientation": "Portrait",
+      "recordingSHA256": "0ec869d04da20475f2ce4397cdb2d0fb4e83e63370e5284b5606987ca040087a",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 218,
+        "durationSeconds": 14.888333,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.765,
+                  "ruler": 0.186
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 16,
+                "changedSamples": {
+                  "events": 16,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.285,
+                  "ruler": 0.083
+                }
+              }
+            },
+            "postReleaseObservationMS": 1061.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1032.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.824,
+                  "ruler": 0.122
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 16,
+                "changedSamples": {
+                  "events": 16,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.413,
+                  "ruler": 0.062
+                }
+              }
+            },
+            "postReleaseObservationMS": 1079.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1051.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.856,
+                  "ruler": 0.081
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 16,
+                "changedSamples": {
+                  "events": 15,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.698,
+                  "ruler": 0.078
+                }
+              }
+            },
+            "postReleaseObservationMS": 1182.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1168.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.978,
+                  "ruler": 0.104
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 16,
+                "changedSamples": {
+                  "events": 16,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.686,
+                  "ruler": 0.079
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1331.0,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "bands",
+      "device": "iPhone 14 Pro",
+      "repeat": 3,
+      "deceleration": "fast",
+      "orientation": "Landscape",
+      "recordingSHA256": "5b0e0280fc33c37f7ee3950b5899e24b38eed7d75cd1b8e44e7945cde6b6fffe",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 319,
+        "durationSeconds": 17.751667,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.641,
+                  "ruler": 0.036
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.565,
+                  "ruler": 0.179
+                }
+              }
+            },
+            "postReleaseObservationMS": 1143.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1129.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.195,
+                  "ruler": 0.174
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.375,
+                  "ruler": 0.104
+                }
+              }
+            },
+            "postReleaseObservationMS": 1138.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1123.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.536,
+                  "ruler": 0.104
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.252,
+                  "ruler": 0.056
+                }
+              }
+            },
+            "postReleaseObservationMS": 1144.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1122.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 15.032,
+                  "ruler": 0.032
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 13.684,
+                  "ruler": 0.199
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1432.7,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "bands",
+      "device": "iPhone 14 Pro",
+      "repeat": 4,
+      "deceleration": "normal",
+      "orientation": "Portrait",
+      "recordingSHA256": "51653e6bf4c7793d0bfbe7a79434c11c48cf601829e7e3730caec4543bb82857",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 340,
+        "durationSeconds": 18.816667,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.769,
+                  "ruler": 0.06
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.237,
+                  "ruler": 0.167
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1347.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.805,
+                  "ruler": 0.063
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.585,
+                  "ruler": 0.163
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1348.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.064,
+                  "ruler": 0.079
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.858,
+                  "ruler": 0.065
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1271.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.083,
+                  "ruler": 0.085
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.502,
+                  "ruler": 0.12
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1307.0,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "bands",
+      "device": "iPhone 14 Pro",
+      "repeat": 4,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "0127a894f2f6c5ab83d13ab32173496cf769438ca6393dca1b3233900c3be4fd",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 482,
+        "durationSeconds": 23.056667,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.667,
+                  "ruler": 0.028
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.197,
+                  "ruler": 0.134
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1471.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.21,
+                  "ruler": 0.056
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.863,
+                  "ruler": 0.133
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1491.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.033,
+                  "ruler": 0.032
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.824,
+                  "ruler": 0.104
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1467.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.501,
+                  "ruler": 0.056
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.004,
+                  "ruler": 0.139
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1483.3,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "final",
+      "device": "M1 iPad Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "0a6bd1f703299f018b2125a3d3525d7bacd14b31105e275c65e712ddae1f388d",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          1366.0,
+          1024.0
+        ],
+        "viewportPoints": [
+          0,
+          277.5,
+          1366,
+          726.5
+        ],
+        "rotation": "none",
+        "frameCount": 732,
+        "durationSeconds": 33.91,
+        "swipes": [
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 42,
+                "changedSamples": {
+                  "events": 42,
+                  "ruler": 2
+                },
+                "maxMeanGrayChange": {
+                  "events": 4.735,
+                  "ruler": 1.174
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 1
+                },
+                "maxMeanGrayChange": {
+                  "events": 1.854,
+                  "ruler": 1.195
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1458.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 42,
+                "changedSamples": {
+                  "events": 42,
+                  "ruler": 1
+                },
+                "maxMeanGrayChange": {
+                  "events": 4.785,
+                  "ruler": 1.264
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 1
+                },
+                "maxMeanGrayChange": {
+                  "events": 1.972,
+                  "ruler": 1.286
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1469.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 42,
+                "changedSamples": {
+                  "events": 42,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 4.489,
+                  "ruler": 0.952
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 1
+                },
+                "maxMeanGrayChange": {
+                  "events": 5.529,
+                  "ruler": 1.02
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1484.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 42,
+                "changedSamples": {
+                  "events": 42,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 3.735,
+                  "ruler": 0.954
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 1
+                },
+                "maxMeanGrayChange": {
+                  "events": 5.049,
+                  "ruler": 1.039
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1488.0,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "final",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Portrait",
+      "recordingSHA256": "1b120344d24d90c1e4450d3c555e87ab14b38373a205c45fca7ff2e2dd3b14ad",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "clockwise",
+        "frameCount": 399,
+        "durationSeconds": 19.821667,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.841,
+                  "ruler": 0.077
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.331,
+                  "ruler": 0.152
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1347.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.646,
+                  "ruler": 0.076
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.157,
+                  "ruler": 0.181
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1347.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.283,
+                  "ruler": 0.079
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.915,
+                  "ruler": 0.158
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1331.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.911,
+                  "ruler": 0.189
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.628,
+                  "ruler": 0.158
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1305.3,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "final",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "0a34353a51a058354785671dd02dbd6fab01791454ee1feb1ca73f2e65056c54",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 417,
+        "durationSeconds": 20.038333,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.616,
+                  "ruler": 0.059
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 6.827,
+                  "ruler": 0.067
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1472.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.1,
+                  "ruler": 0.05
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.051,
+                  "ruler": 0.051
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1499.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 20,
+                "changedSamples": {
+                  "events": 20,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.087,
+                  "ruler": 0.048
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.72,
+                  "ruler": 0.048
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1481.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.688,
+                  "ruler": 0.062
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.543,
+                  "ruler": 0.051
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1499.3,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "final",
+      "device": "iPhone 14 Pro",
+      "repeat": 2,
+      "deceleration": "normal",
+      "orientation": "Portrait",
+      "recordingSHA256": "923dc0b15b371edbf7a702f920911433a7dae26817dae2f0faaaa50fb3a62737",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "clockwise",
+        "frameCount": 392,
+        "durationSeconds": 19.696667,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.469,
+                  "ruler": 0.11
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.624,
+                  "ruler": 0.137
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1332.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.646,
+                  "ruler": 0.071
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.957,
+                  "ruler": 0.191
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1273.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.966,
+                  "ruler": 0.153
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.131,
+                  "ruler": 0.156
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1344.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.316,
+                  "ruler": 0.158
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.496,
+                  "ruler": 0.059
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1367.0,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "final",
+      "device": "iPhone 14 Pro",
+      "repeat": 2,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "3ad60d5e6c9e5d2f80679ccd601531168184f8a2de4c92eae4ff8bb35b73a2d8",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 419,
+        "durationSeconds": 20.238333,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.799,
+                  "ruler": 0.069
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 6.828,
+                  "ruler": 0.038
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1467.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 20,
+                "changedSamples": {
+                  "events": 20,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.042,
+                  "ruler": 0.05
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.944,
+                  "ruler": 0.039
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1475.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.393,
+                  "ruler": 0.05
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.805,
+                  "ruler": 0.039
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1474.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.674,
+                  "ruler": 0.055
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.545,
+                  "ruler": 0.042
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1467.3,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "interactive",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Portrait",
+      "recordingSHA256": "228ddb8f49c55190751d53a5c3ef5cde15b3b062374dd08ccdb56c1da94255d8",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "clockwise",
+        "frameCount": 356,
+        "durationSeconds": 19.185,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.585,
+                  "ruler": 0.077
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.24,
+                  "ruler": 0.139
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1214.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.649,
+                  "ruler": 0.118
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.505,
+                  "ruler": 0.156
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1165.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.934,
+                  "ruler": 0.155
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.128,
+                  "ruler": 0.104
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1248.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.953,
+                  "ruler": 0.158
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.895,
+                  "ruler": 0.158
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1263.7,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "optimized",
+      "device": "M1 iPad Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "56a15ad3433f20e3d33eab1bcafaea5758c6a91080737f919c6733796cb07d1d",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          1366.0,
+          1024.0
+        ],
+        "viewportPoints": [
+          0,
+          277.5,
+          1366,
+          726.5
+        ],
+        "rotation": "none",
+        "frameCount": 723,
+        "durationSeconds": 33.865,
+        "swipes": [
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 42,
+                "changedSamples": {
+                  "events": 42,
+                  "ruler": 2
+                },
+                "maxMeanGrayChange": {
+                  "events": 4.736,
+                  "ruler": 1.322
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 1.747,
+                  "ruler": 0.786
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1447.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 42,
+                "changedSamples": {
+                  "events": 42,
+                  "ruler": 2
+                },
+                "maxMeanGrayChange": {
+                  "events": 4.788,
+                  "ruler": 1.256
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 1
+                },
+                "maxMeanGrayChange": {
+                  "events": 1.975,
+                  "ruler": 1.261
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1436.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 41,
+                "changedSamples": {
+                  "events": 41,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 4.368,
+                  "ruler": 0.909
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 1
+                },
+                "maxMeanGrayChange": {
+                  "events": 5.583,
+                  "ruler": 1.012
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1449.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 41,
+                "changedSamples": {
+                  "events": 41,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 3.733,
+                  "ruler": 0.955
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 1
+                },
+                "maxMeanGrayChange": {
+                  "events": 5.012,
+                  "ruler": 1.03
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1480.0,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "optimized",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Portrait",
+      "recordingSHA256": "47b985c66c63e175a59830d723cfb8d2abeb04c9328e6a14e4f191514761a134",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "clockwise",
+        "frameCount": 343,
+        "durationSeconds": 18.505,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.831,
+                  "ruler": 0.08
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.148,
+                  "ruler": 0.166
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1105.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.65,
+                  "ruler": 0.133
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.236,
+                  "ruler": 0.158
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1164.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.285,
+                  "ruler": 0.071
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.005,
+                  "ruler": 0.088
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1115.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.321,
+                  "ruler": 0.159
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.567,
+                  "ruler": 0.158
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1149.7,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "optimized",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "433972d423a0d5f7d8be2056c50f8784a1649dd002c99dbd0620ea8764a65bff",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 180,
+        "durationSeconds": 10.061667,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.368,
+                  "ruler": 0.929
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 7.977,
+                  "ruler": 0.925
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1482.7,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "optimized",
+      "device": "iPhone 14 Pro",
+      "repeat": 2,
+      "deceleration": "normal",
+      "orientation": "Portrait",
+      "recordingSHA256": "b7651d57319085a2fc77dc2dff2b09592ea2b9ab909d84aa5d5ee6a97a6082bd",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "clockwise",
+        "frameCount": 338,
+        "durationSeconds": 18.436667,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.594,
+                  "ruler": 0.117
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.621,
+                  "ruler": 0.137
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1099.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.656,
+                  "ruler": 0.076
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.226,
+                  "ruler": 0.134
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1180.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.284,
+                  "ruler": 0.07
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.049,
+                  "ruler": 0.059
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1051.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.958,
+                  "ruler": 0.158
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.965,
+                  "ruler": 0.158
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1149.3,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "optimized",
+      "device": "iPhone 14 Pro",
+      "repeat": 2,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "16ec5683865ea5c78fc77ac4303c1684b3c8cff00a0137eb011a4e18514cc396",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 192,
+        "durationSeconds": 10.128333,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 1
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.877,
+                  "ruler": 1.492
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 9
+                },
+                "maxMeanGrayChange": {
+                  "events": 6.077,
+                  "ruler": 1.789
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1473.7,
+              "ruler": 305.3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "reference",
+      "device": "M1 iPad Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "27cd30ce9f956c1126569fd24502eab7fad83fbf7c2132ba7e01d3ee2c865dba",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          1366.0,
+          1024.0
+        ],
+        "viewportPoints": [
+          0,
+          277.5,
+          1366,
+          726.5
+        ],
+        "rotation": "none",
+        "frameCount": 179,
+        "durationSeconds": 22.78,
+        "swipes": [
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 9,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 5
+                },
+                "maxMeanGrayChange": {
+                  "events": 13.536,
+                  "ruler": 4.577
+                }
+              }
+            },
+            "postReleaseObservationMS": 1191.8,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 134.0,
+              "ruler": 134.0
+            }
+          },
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 9,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 13.98,
+                  "ruler": 4.646
+                }
+              }
+            },
+            "postReleaseObservationMS": 1077.8,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 121.3,
+              "ruler": 121.3
+            }
+          },
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 9,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 14.114,
+                  "ruler": 4.651
+                }
+              }
+            },
+            "postReleaseObservationMS": 1078.8,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 122.7,
+              "ruler": 122.7
+            }
+          },
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 9,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 5
+                },
+                "maxMeanGrayChange": {
+                  "events": 13.61,
+                  "ruler": 4.922
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 123.0,
+              "ruler": 89.7
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "reference",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Portrait",
+      "recordingSHA256": "11b4e2c7f45e41e34ba09db1492903b9d7323a6559ddb7f2a5c338156a65ca20",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "clockwise",
+        "frameCount": 182,
+        "durationSeconds": 13.901667,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 19.161,
+                  "ruler": 25.64
+                }
+              }
+            },
+            "postReleaseObservationMS": 689.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 123.0,
+              "ruler": 123.0
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0.029,
+                  "ruler": 0.083
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 9,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 16.079,
+                  "ruler": 25.217
+                }
+              }
+            },
+            "postReleaseObservationMS": 529.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 113.7,
+              "ruler": 113.7
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 16.951,
+                  "ruler": 17.183
+                }
+              }
+            },
+            "postReleaseObservationMS": 531.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 112.7,
+              "ruler": 112.7
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 19.16,
+                  "ruler": 18.832
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1428.0,
+              "ruler": 1494.7
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "reference",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "05ebe68127bd41772fc314bd9c89ce5698dc5afd5288a9e838f1e63936457ace",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 133,
+        "durationSeconds": 12.401667,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 19.41,
+                  "ruler": 26.205
+                }
+              }
+            },
+            "postReleaseObservationMS": 514.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 100.7,
+              "ruler": 100.7
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 15.326,
+                  "ruler": 25.609
+                }
+              }
+            },
+            "postReleaseObservationMS": 519.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 107.3,
+              "ruler": 107.3
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 15.287,
+                  "ruler": 26.209
+                }
+              }
+            },
+            "postReleaseObservationMS": 517.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 124.0,
+              "ruler": 124.0
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 5
+                },
+                "maxMeanGrayChange": {
+                  "events": 19.912,
+                  "ruler": 27.126
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 77.7,
+              "ruler": 77.7
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "reference",
+      "device": "iPhone 14 Pro",
+      "repeat": 2,
+      "deceleration": "normal",
+      "orientation": "Portrait",
+      "recordingSHA256": "0bd9fca7a65587bf30527745642b1b5be4f414f6b8504ae765f2f485f1447317",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "clockwise",
+        "frameCount": 167,
+        "durationSeconds": 14.325,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 19.087,
+                  "ruler": 23.38
+                }
+              }
+            },
+            "postReleaseObservationMS": 539.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 124.3,
+              "ruler": 124.3
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 16.144,
+                  "ruler": 25.373
+                }
+              }
+            },
+            "postReleaseObservationMS": 530.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 115.0,
+              "ruler": 115.0
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 16.953,
+                  "ruler": 17.408
+                }
+              }
+            },
+            "postReleaseObservationMS": 847.4,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 113.0,
+              "ruler": 113.0
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 19.413,
+                  "ruler": 22.537
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1497.3,
+              "ruler": 1497.3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "reference",
+      "device": "iPhone 14 Pro",
+      "repeat": 2,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "8185d527a657e50656d6b20debe7e9f8161ff45fd4fb51ea5f17384b4204c4fd",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "counterclockwise",
+        "frameCount": 78,
+        "durationSeconds": 11.315,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 19.413,
+                  "ruler": 27.134
+                }
+              }
+            },
+            "postReleaseObservationMS": 496.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 108.0,
+              "ruler": 108.0
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 6
+                },
+                "maxMeanGrayChange": {
+                  "events": 15.985,
+                  "ruler": 27.258
+                }
+              }
+            },
+            "postReleaseObservationMS": 516.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 66.0,
+              "ruler": 66.0
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 7
+                },
+                "maxMeanGrayChange": {
+                  "events": 15.356,
+                  "ruler": 27.01
+                }
+              }
+            },
+            "postReleaseObservationMS": 514.2,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 120.7,
+              "ruler": 120.7
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 0,
+                "changedSamples": {
+                  "events": 0,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 0,
+                  "ruler": 0
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 5
+                },
+                "maxMeanGrayChange": {
+                  "events": 19.389,
+                  "ruler": 28.509
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 109.0,
+              "ruler": 109.0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "review",
+      "device": "M1 iPad Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "11e9a76814fda8d2cefe8d0ec4c7317eb312924db689a9aa359308bed2892f67",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          1366.0,
+          1024.0
+        ],
+        "viewportPoints": [
+          0,
+          277.5,
+          1366,
+          726.5
+        ],
+        "rotation": "none",
+        "frameCount": 725,
+        "durationSeconds": 33.71,
+        "swipes": [
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 42,
+                "changedSamples": {
+                  "events": 42,
+                  "ruler": 1
+                },
+                "maxMeanGrayChange": {
+                  "events": 4.973,
+                  "ruler": 1.302
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 1.801,
+                  "ruler": 0.739
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1446.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 42,
+                "changedSamples": {
+                  "events": 42,
+                  "ruler": 2
+                },
+                "maxMeanGrayChange": {
+                  "events": 4.554,
+                  "ruler": 1.454
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 16,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 2.056,
+                  "ruler": 0.919
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1435.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 42,
+                "changedSamples": {
+                  "events": 42,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 4.919,
+                  "ruler": 0.975
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 2
+                },
+                "maxMeanGrayChange": {
+                  "events": 5.231,
+                  "ruler": 1.074
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1411.3,
+              "ruler": 11.3
+            }
+          },
+          {
+            "durationSeconds": 1.639,
+            "horizontalDistancePoints": 819.6,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 42,
+                "changedSamples": {
+                  "events": 42,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 4.428,
+                  "ruler": 0.98
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 2
+                },
+                "maxMeanGrayChange": {
+                  "events": 5.038,
+                  "ruler": 1.077
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1479.0,
+              "ruler": 12.3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "review",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Portrait",
+      "recordingSHA256": "02b73ab9504760bb9fb13522c0ed4f3ac28b7498087f1206dfcf28ba33184069",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          393.0,
+          852.0
+        ],
+        "viewportPoints": [
+          0,
+          301.3333333333333,
+          393,
+          516.6666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 331,
+        "durationSeconds": 17.66,
+        "swipes": [
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 6,
+                "changedSamples": {
+                  "events": 6,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 12.1,
+                  "ruler": 0.212
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 18,
+                "changedSamples": {
+                  "events": 18,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.277,
+                  "ruler": 0.092
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1281.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.371,
+                  "ruler": 0.153
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 8.848,
+                  "ruler": 0.066
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1305.7,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.033,
+                  "ruler": 0.073
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.693,
+                  "ruler": 0.055
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1335.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.472,
+            "horizontalDistancePoints": 235.8,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 7,
+                "changedSamples": {
+                  "events": 7,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.482,
+                  "ruler": 0.127
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.392,
+                  "ruler": 0.061
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1373.7,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "review",
+      "device": "iPhone 14 Pro",
+      "repeat": 1,
+      "deceleration": "normal",
+      "orientation": "Landscape",
+      "recordingSHA256": "dd45b7c92880fbf7877b685aba39d88b4ccf7599c855bfccde3e30e5a5e25db6",
+      "result": {
+        "scope": "Variable-rate XCTest screen recording. Counts are changes above one level of mean gray difference between adjacent recorded samples. The estimated drag interval excludes 120 ms at each end. This measures recorded movement, not display frame rate or input latency.",
+        "windowPoints": [
+          852.0,
+          393.0
+        ],
+        "viewportPoints": [
+          59,
+          258.3333333333333,
+          734,
+          114.66666666666666
+        ],
+        "rotation": "none",
+        "frameCount": 475,
+        "durationSeconds": 21.743333,
+        "swipes": [
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.979,
+                  "ruler": 0.289
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 6.314,
+                  "ruler": 0.269
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1499.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 11.202,
+                  "ruler": 0.278
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.692,
+                  "ruler": 0.459
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1499.0,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.324,
+                  "ruler": 0.408
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 9.38,
+                  "ruler": 0.314
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1499.3,
+              "ruler": null
+            }
+          },
+          {
+            "durationSeconds": 0.881,
+            "horizontalDistancePoints": 440.4,
+            "windows": {
+              "duringDrag": {
+                "recordedSamples": 19,
+                "changedSamples": {
+                  "events": 19,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.643,
+                  "ruler": 0.383
+                }
+              },
+              "aroundRelease": {
+                "recordedSamples": 17,
+                "changedSamples": {
+                  "events": 17,
+                  "ruler": 0
+                },
+                "maxMeanGrayChange": {
+                  "events": 10.315,
+                  "ruler": 0.188
+                }
+              }
+            },
+            "postReleaseObservationMS": 1500.0,
+            "lastRecordedChangeAfterReleaseMS": {
+              "events": 1467.0,
+              "ruler": null
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

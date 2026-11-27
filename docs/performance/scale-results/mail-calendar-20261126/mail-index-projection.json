@@ -1,0 +1,3926 @@
+{
+  "scope": "Two complete readers in one Release host binary, same indexed thread, increasing to/cc/bcc counts, alternating variants. Each complete result compared to baseline, and writer-side facts count checked independently.",
+  "runs": [
+    {
+      "additionalRecipientsAcrossToCcBcc": 0,
+      "samples": [
+        {
+          "conversationMS": 0.5064166616648436,
+          "factsMS": 0.03983336500823498,
+          "optimized": false,
+          "trial": 0,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.5095833912491798,
+          "factsMS": 0.05866680294275284,
+          "optimized": true,
+          "trial": 0,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.4031667485833168,
+          "factsMS": 0.03691669553518295,
+          "optimized": true,
+          "trial": 1,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.4192916676402092,
+          "factsMS": 0.03479188308119774,
+          "optimized": false,
+          "trial": 1,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.4085833206772804,
+          "factsMS": 0.03666686825454235,
+          "optimized": false,
+          "trial": 2,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.37008337676525116,
+          "factsMS": 0.0330416951328516,
+          "optimized": true,
+          "trial": 2,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.36049983464181423,
+          "factsMS": 0.0327499583363533,
+          "optimized": true,
+          "trial": 3,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3861666191369295,
+          "factsMS": 0.03170827403664589,
+          "optimized": false,
+          "trial": 3,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3800000995397568,
+          "factsMS": 0.03133341670036316,
+          "optimized": false,
+          "trial": 4,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3549999091774225,
+          "factsMS": 0.04266668111085892,
+          "optimized": true,
+          "trial": 4,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.36850012838840485,
+          "factsMS": 0.03229174762964249,
+          "optimized": true,
+          "trial": 5,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3908334765583277,
+          "factsMS": 0.03820843994617462,
+          "optimized": false,
+          "trial": 5,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.45387493446469307,
+          "factsMS": 0.03550015389919281,
+          "optimized": false,
+          "trial": 6,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.43345848098397255,
+          "factsMS": 0.034708296880126,
+          "optimized": true,
+          "trial": 6,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.39404164999723434,
+          "factsMS": 0.03391667269170284,
+          "optimized": true,
+          "trial": 7,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.42633339762687683,
+          "factsMS": 0.03270828165113926,
+          "optimized": false,
+          "trial": 7,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.38458313792943954,
+          "factsMS": 0.03462517634034157,
+          "optimized": false,
+          "trial": 8,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3948751837015152,
+          "factsMS": 0.032499898225069046,
+          "optimized": true,
+          "trial": 8,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3322083503007889,
+          "factsMS": 0.030749943107366562,
+          "optimized": true,
+          "trial": 9,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.36308332346379757,
+          "factsMS": 0.02904166467487812,
+          "optimized": false,
+          "trial": 9,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3416668623685837,
+          "factsMS": 0.029999995604157448,
+          "optimized": false,
+          "trial": 10,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3413751255720854,
+          "factsMS": 0.028791604563593864,
+          "optimized": true,
+          "trial": 10,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.31591649167239666,
+          "factsMS": 0.02966681495308876,
+          "optimized": true,
+          "trial": 11,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3594164736568928,
+          "factsMS": 0.028749927878379822,
+          "optimized": false,
+          "trial": 11,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3406249452382326,
+          "factsMS": 0.029333168640732765,
+          "optimized": false,
+          "trial": 12,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.32237498089671135,
+          "factsMS": 0.028416747227311134,
+          "optimized": true,
+          "trial": 12,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.31708343885838985,
+          "factsMS": 0.028916634619235992,
+          "optimized": true,
+          "trial": 13,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3493749536573887,
+          "factsMS": 0.02750009298324585,
+          "optimized": false,
+          "trial": 13,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.33441674895584583,
+          "factsMS": 0.029083341360092163,
+          "optimized": false,
+          "trial": 14,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3184166271239519,
+          "factsMS": 0.02920837141573429,
+          "optimized": true,
+          "trial": 14,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.31250016763806343,
+          "factsMS": 0.02920837141573429,
+          "optimized": true,
+          "trial": 15,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.34637516364455223,
+          "factsMS": 0.028583453968167305,
+          "optimized": false,
+          "trial": 15,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.33737486228346825,
+          "factsMS": 0.02920837141573429,
+          "optimized": false,
+          "trial": 16,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.32062502577900887,
+          "factsMS": 0.028916634619235992,
+          "optimized": true,
+          "trial": 16,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.31966669484972954,
+          "factsMS": 0.029416754841804504,
+          "optimized": true,
+          "trial": 17,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.35158335231244564,
+          "factsMS": 0.028458423912525177,
+          "optimized": false,
+          "trial": 17,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3372081555426121,
+          "factsMS": 0.029125018045306206,
+          "optimized": false,
+          "trial": 18,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3308332525193691,
+          "factsMS": 0.02866680733859539,
+          "optimized": true,
+          "trial": 18,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3078749869018793,
+          "factsMS": 0.025250017642974854,
+          "optimized": true,
+          "trial": 19,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3157083410769701,
+          "factsMS": 0.02533337101340294,
+          "optimized": false,
+          "trial": 19,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3156668972223997,
+          "factsMS": 0.02504163421690464,
+          "optimized": false,
+          "trial": 20,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2892084885388613,
+          "factsMS": 0.02504163421690464,
+          "optimized": true,
+          "trial": 20,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2883332781493664,
+          "factsMS": 0.02504163421690464,
+          "optimized": true,
+          "trial": 21,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3142915666103363,
+          "factsMS": 0.02504163421690464,
+          "optimized": false,
+          "trial": 21,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.31575001776218414,
+          "factsMS": 0.025083310902118683,
+          "optimized": false,
+          "trial": 22,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2872082404792309,
+          "factsMS": 0.026291701942682266,
+          "optimized": true,
+          "trial": 22,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2892916090786457,
+          "factsMS": 0.025958288460969925,
+          "optimized": true,
+          "trial": 23,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.30987500213086605,
+          "factsMS": 0.025833258405327797,
+          "optimized": false,
+          "trial": 23,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3081667236983776,
+          "factsMS": 0.025416724383831024,
+          "optimized": false,
+          "trial": 24,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2902916166931391,
+          "factsMS": 0.02550007775425911,
+          "optimized": true,
+          "trial": 24,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.28375000692903996,
+          "factsMS": 0.02537504769861698,
+          "optimized": true,
+          "trial": 25,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3083331976085901,
+          "factsMS": 0.025124987587332726,
+          "optimized": false,
+          "trial": 25,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.30487519688904285,
+          "factsMS": 0.02537504769861698,
+          "optimized": false,
+          "trial": 26,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.28429157100617886,
+          "factsMS": 0.025250017642974854,
+          "optimized": true,
+          "trial": 26,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2867917064577341,
+          "factsMS": 0.025083310902118683,
+          "optimized": true,
+          "trial": 27,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3079583402723074,
+          "factsMS": 0.025083310902118683,
+          "optimized": false,
+          "trial": 27,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.33166678622365,
+          "factsMS": 0.024833250790834427,
+          "optimized": false,
+          "trial": 28,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3083751071244478,
+          "factsMS": 0.025833258405327797,
+          "optimized": true,
+          "trial": 28,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.28895819559693336,
+          "factsMS": 0.025166664272546768,
+          "optimized": true,
+          "trial": 29,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3311249893158674,
+          "factsMS": 0.02550007775425911,
+          "optimized": false,
+          "trial": 29,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3185833338648081,
+          "factsMS": 0.023416709154844284,
+          "optimized": false,
+          "trial": 30,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.26020826771855354,
+          "factsMS": 0.0227498821914196,
+          "optimized": true,
+          "trial": 30,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.9449583012610674,
+          "factsMS": 0.13800011947751045,
+          "optimized": false,
+          "trial": 0,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.760083319619298,
+          "factsMS": 0.1379998866468668,
+          "optimized": true,
+          "trial": 0,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7105001714080572,
+          "factsMS": 0.1336249988526106,
+          "optimized": true,
+          "trial": 1,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7316668052226305,
+          "factsMS": 0.1213334035128355,
+          "optimized": false,
+          "trial": 1,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7250832859426737,
+          "factsMS": 0.12033339589834213,
+          "optimized": false,
+          "trial": 2,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6639582570642233,
+          "factsMS": 0.12012501247227192,
+          "optimized": true,
+          "trial": 2,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6517916917800903,
+          "factsMS": 0.11945818550884724,
+          "optimized": true,
+          "trial": 3,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7100000511854887,
+          "factsMS": 0.1188749447464943,
+          "optimized": false,
+          "trial": 3,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7090417202562094,
+          "factsMS": 0.11954153887927532,
+          "optimized": false,
+          "trial": 4,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6473751273006201,
+          "factsMS": 0.11837505735456944,
+          "optimized": true,
+          "trial": 4,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6689999718219042,
+          "factsMS": 0.12500002048909664,
+          "optimized": true,
+          "trial": 5,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7360000163316727,
+          "factsMS": 0.12295832857489586,
+          "optimized": false,
+          "trial": 5,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7486664690077305,
+          "factsMS": 0.11433335021138191,
+          "optimized": false,
+          "trial": 6,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6192501168698072,
+          "factsMS": 0.11312495917081833,
+          "optimized": true,
+          "trial": 6,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6072083488106728,
+          "factsMS": 0.11270842514932156,
+          "optimized": true,
+          "trial": 7,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6758749950677156,
+          "factsMS": 0.11175009422004223,
+          "optimized": false,
+          "trial": 7,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6612082943320274,
+          "factsMS": 0.11116685345768929,
+          "optimized": false,
+          "trial": 8,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.616708304733038,
+          "factsMS": 0.11391681618988514,
+          "optimized": true,
+          "trial": 8,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6272501777857542,
+          "factsMS": 0.11095847003161907,
+          "optimized": true,
+          "trial": 9,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6458749994635582,
+          "factsMS": 0.11237501166760921,
+          "optimized": false,
+          "trial": 9,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6411666981875896,
+          "factsMS": 0.11116662062704563,
+          "optimized": false,
+          "trial": 10,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6025834009051323,
+          "factsMS": 0.11054170317947865,
+          "optimized": true,
+          "trial": 10,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6018748972564936,
+          "factsMS": 0.11100014671683311,
+          "optimized": true,
+          "trial": 11,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6648334674537182,
+          "factsMS": 0.10954169556498528,
+          "optimized": false,
+          "trial": 11,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6528750527650118,
+          "factsMS": 0.11983327567577362,
+          "optimized": false,
+          "trial": 12,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5901248659938574,
+          "factsMS": 0.11104182340204716,
+          "optimized": true,
+          "trial": 12,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5882917903363705,
+          "factsMS": 0.1105000264942646,
+          "optimized": true,
+          "trial": 13,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6394581869244576,
+          "factsMS": 0.10987487621605396,
+          "optimized": false,
+          "trial": 13,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6542915944010019,
+          "factsMS": 0.11087488383054733,
+          "optimized": false,
+          "trial": 14,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5970001220703125,
+          "factsMS": 0.11054170317947865,
+          "optimized": true,
+          "trial": 14,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5875416100025177,
+          "factsMS": 0.10966649278998375,
+          "optimized": true,
+          "trial": 15,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6469583604484797,
+          "factsMS": 0.11095823720097542,
+          "optimized": false,
+          "trial": 15,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6464582402259111,
+          "factsMS": 0.11016661301255226,
+          "optimized": false,
+          "trial": 16,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5935416556894779,
+          "factsMS": 0.11029187589883804,
+          "optimized": true,
+          "trial": 16,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5915416404604912,
+          "factsMS": 0.1102082896977663,
+          "optimized": true,
+          "trial": 17,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6551251281052828,
+          "factsMS": 0.11037499643862247,
+          "optimized": false,
+          "trial": 17,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.653083436191082,
+          "factsMS": 0.11070840992033482,
+          "optimized": false,
+          "trial": 18,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6007084157317877,
+          "factsMS": 0.11566677130758762,
+          "optimized": true,
+          "trial": 18,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6074998527765274,
+          "factsMS": 0.1107498537749052,
+          "optimized": true,
+          "trial": 19,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6590834818780422,
+          "factsMS": 0.11520832777023315,
+          "optimized": false,
+          "trial": 19,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6447916384786367,
+          "factsMS": 0.11024996638298035,
+          "optimized": false,
+          "trial": 20,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6285414565354586,
+          "factsMS": 0.12250011786818504,
+          "optimized": true,
+          "trial": 20,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6680833175778389,
+          "factsMS": 0.12108334340155125,
+          "optimized": true,
+          "trial": 21,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7313750684261322,
+          "factsMS": 0.1432499848306179,
+          "optimized": false,
+          "trial": 21,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7553333416581154,
+          "factsMS": 0.12629153206944466,
+          "optimized": false,
+          "trial": 22,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7574164774268866,
+          "factsMS": 0.12145820073783398,
+          "optimized": true,
+          "trial": 22,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.699375057592988,
+          "factsMS": 0.1204581931233406,
+          "optimized": true,
+          "trial": 23,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7727497722953558,
+          "factsMS": 0.13337493874132633,
+          "optimized": false,
+          "trial": 23,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9401666466146708,
+          "factsMS": 0.13004173524677753,
+          "optimized": false,
+          "trial": 24,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9679582435637712,
+          "factsMS": 0.13958336785435677,
+          "optimized": true,
+          "trial": 24,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7570832967758179,
+          "factsMS": 0.11891662143170834,
+          "optimized": true,
+          "trial": 25,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.980916665866971,
+          "factsMS": 0.13137515634298325,
+          "optimized": false,
+          "trial": 25,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7617915980517864,
+          "factsMS": 0.11891662143170834,
+          "optimized": false,
+          "trial": 26,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7291249930858612,
+          "factsMS": 0.1582917757332325,
+          "optimized": true,
+          "trial": 26,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7680417038500309,
+          "factsMS": 0.14262506738305092,
+          "optimized": true,
+          "trial": 27,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8110832422971725,
+          "factsMS": 0.12749992311000824,
+          "optimized": false,
+          "trial": 27,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8863750845193863,
+          "factsMS": 0.13320823200047016,
+          "optimized": false,
+          "trial": 28,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8216251153498888,
+          "factsMS": 0.13420847244560719,
+          "optimized": true,
+          "trial": 28,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7251666393131018,
+          "factsMS": 0.12116669677197933,
+          "optimized": true,
+          "trial": 29,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7699998095631599,
+          "factsMS": 0.13754167594015598,
+          "optimized": false,
+          "trial": 29,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8885001298040152,
+          "factsMS": 0.12749992311000824,
+          "optimized": false,
+          "trial": 30,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.886125024408102,
+          "factsMS": 0.13283337466418743,
+          "optimized": true,
+          "trial": 30,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 3.1580831855535507,
+          "factsMS": 0.5990415811538696,
+          "optimized": false,
+          "trial": 0,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.7035833336412907,
+          "factsMS": 0.582666601985693,
+          "optimized": true,
+          "trial": 0,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.011041786521673,
+          "factsMS": 0.6240834482014179,
+          "optimized": true,
+          "trial": 1,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.0481249559670687,
+          "factsMS": 0.5810000002384186,
+          "optimized": false,
+          "trial": 1,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.774083288386464,
+          "factsMS": 0.5530000198632479,
+          "optimized": false,
+          "trial": 2,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5855000130832195,
+          "factsMS": 0.5787916015833616,
+          "optimized": true,
+          "trial": 2,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.612041775137186,
+          "factsMS": 0.5663749761879444,
+          "optimized": true,
+          "trial": 3,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.7243332006037235,
+          "factsMS": 0.5513750948011875,
+          "optimized": false,
+          "trial": 3,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.679208293557167,
+          "factsMS": 0.5441666580736637,
+          "optimized": false,
+          "trial": 4,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.440375043079257,
+          "factsMS": 0.5310834385454655,
+          "optimized": true,
+          "trial": 4,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3221666924655437,
+          "factsMS": 0.5243332125246525,
+          "optimized": true,
+          "trial": 5,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.6585834566503763,
+          "factsMS": 0.5300834309309721,
+          "optimized": false,
+          "trial": 5,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5552501901984215,
+          "factsMS": 0.5267916712909937,
+          "optimized": false,
+          "trial": 6,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3400415666401386,
+          "factsMS": 0.5317917093634605,
+          "optimized": true,
+          "trial": 6,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.380333375185728,
+          "factsMS": 0.5266249645501375,
+          "optimized": true,
+          "trial": 7,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5180417578667402,
+          "factsMS": 0.5261667538434267,
+          "optimized": false,
+          "trial": 7,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5289582554250956,
+          "factsMS": 0.5242915358394384,
+          "optimized": false,
+          "trial": 8,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.2950416896492243,
+          "factsMS": 0.5247083026915789,
+          "optimized": true,
+          "trial": 8,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.296249847859144,
+          "factsMS": 0.5222084000706673,
+          "optimized": true,
+          "trial": 9,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.4904166348278522,
+          "factsMS": 0.5204165354371071,
+          "optimized": false,
+          "trial": 9,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.4972916580736637,
+          "factsMS": 0.5266249645501375,
+          "optimized": false,
+          "trial": 10,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.288458403199911,
+          "factsMS": 0.5292918067425489,
+          "optimized": true,
+          "trial": 10,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3234167601913214,
+          "factsMS": 0.5199583247303963,
+          "optimized": true,
+          "trial": 11,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.541541587561369,
+          "factsMS": 0.5267916712909937,
+          "optimized": false,
+          "trial": 11,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5183334946632385,
+          "factsMS": 0.5236666183918715,
+          "optimized": false,
+          "trial": 12,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.302000066265464,
+          "factsMS": 0.52416673861444,
+          "optimized": true,
+          "trial": 12,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.296249847859144,
+          "factsMS": 0.5282084457576275,
+          "optimized": true,
+          "trial": 13,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.524999901652336,
+          "factsMS": 0.5265832878649235,
+          "optimized": false,
+          "trial": 13,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5229582097381353,
+          "factsMS": 0.5233748815953732,
+          "optimized": false,
+          "trial": 14,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.301583532243967,
+          "factsMS": 0.5242917686700821,
+          "optimized": true,
+          "trial": 14,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.2827915381640196,
+          "factsMS": 0.5189999938011169,
+          "optimized": true,
+          "trial": 15,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.492625033482909,
+          "factsMS": 0.5331665743142366,
+          "optimized": false,
+          "trial": 15,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5717082899063826,
+          "factsMS": 0.5288748070597649,
+          "optimized": false,
+          "trial": 16,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3045416455715895,
+          "factsMS": 0.5244999192655087,
+          "optimized": true,
+          "trial": 16,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3037916980683804,
+          "factsMS": 0.5252500995993614,
+          "optimized": true,
+          "trial": 17,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.524416660889983,
+          "factsMS": 0.5230417009443045,
+          "optimized": false,
+          "trial": 17,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5510000996291637,
+          "factsMS": 0.5205832421779633,
+          "optimized": false,
+          "trial": 18,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.2972917649894953,
+          "factsMS": 0.5550000350922346,
+          "optimized": true,
+          "trial": 18,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3997914977371693,
+          "factsMS": 0.5524165462702513,
+          "optimized": true,
+          "trial": 19,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.680791774764657,
+          "factsMS": 0.5694166757166386,
+          "optimized": false,
+          "trial": 19,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.752291737124324,
+          "factsMS": 0.5793750751763582,
+          "optimized": false,
+          "trial": 20,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.656208351254463,
+          "factsMS": 0.6042500026524067,
+          "optimized": true,
+          "trial": 20,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8921666089445353,
+          "factsMS": 0.5729582626372576,
+          "optimized": true,
+          "trial": 21,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.9995834920555353,
+          "factsMS": 0.5647914949804544,
+          "optimized": false,
+          "trial": 21,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.7520000003278255,
+          "factsMS": 0.5402916576713324,
+          "optimized": false,
+          "trial": 22,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.532791579142213,
+          "factsMS": 0.5602915771305561,
+          "optimized": true,
+          "trial": 22,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5196666829288006,
+          "factsMS": 0.5557916592806578,
+          "optimized": true,
+          "trial": 23,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.7955416589975357,
+          "factsMS": 0.5352916195988655,
+          "optimized": false,
+          "trial": 23,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.6494998019188643,
+          "factsMS": 0.5310417618602514,
+          "optimized": false,
+          "trial": 24,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.343166619539261,
+          "factsMS": 0.5258750170469284,
+          "optimized": true,
+          "trial": 24,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.2937499452382326,
+          "factsMS": 0.5231250543147326,
+          "optimized": true,
+          "trial": 25,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5169583968818188,
+          "factsMS": 0.521958339959383,
+          "optimized": false,
+          "trial": 25,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5094999000430107,
+          "factsMS": 0.5254168063402176,
+          "optimized": false,
+          "trial": 26,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.31654173694551,
+          "factsMS": 0.5307500250637531,
+          "optimized": true,
+          "trial": 26,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.374375006183982,
+          "factsMS": 0.525499926880002,
+          "optimized": true,
+          "trial": 27,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5180832017213106,
+          "factsMS": 0.5235832650214434,
+          "optimized": false,
+          "trial": 27,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.561041619628668,
+          "factsMS": 0.5204167682677507,
+          "optimized": false,
+          "trial": 28,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3070834577083588,
+          "factsMS": 0.522000016644597,
+          "optimized": true,
+          "trial": 28,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.2901250049471855,
+          "factsMS": 0.522875227034092,
+          "optimized": true,
+          "trial": 29,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.50066677108407,
+          "factsMS": 0.5220833700150251,
+          "optimized": false,
+          "trial": 29,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.6671667583286762,
+          "factsMS": 0.5298331379890442,
+          "optimized": false,
+          "trial": 30,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3152499925345182,
+          "factsMS": 0.5273749120533466,
+          "optimized": true,
+          "trial": 30,
+          "workload": "long-thread"
+        }
+      ]
+    },
+    {
+      "additionalRecipientsAcrossToCcBcc": 24,
+      "samples": [
+        {
+          "conversationMS": 0.3449167124927044,
+          "factsMS": 0.03545847721397877,
+          "optimized": false,
+          "trial": 0,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.34487503580749035,
+          "factsMS": 0.03629177808761597,
+          "optimized": true,
+          "trial": 0,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2659582532942295,
+          "factsMS": 0.029458198696374893,
+          "optimized": true,
+          "trial": 1,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2850417513400316,
+          "factsMS": 0.028374837711453438,
+          "optimized": false,
+          "trial": 1,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2731666900217533,
+          "factsMS": 0.029791612178087234,
+          "optimized": false,
+          "trial": 2,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2414998598396778,
+          "factsMS": 0.027499860152602196,
+          "optimized": true,
+          "trial": 2,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2327500842511654,
+          "factsMS": 0.027250032871961594,
+          "optimized": true,
+          "trial": 3,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.26062503457069397,
+          "factsMS": 0.02670823596417904,
+          "optimized": false,
+          "trial": 3,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.25637494400143623,
+          "factsMS": 0.026791589334607124,
+          "optimized": false,
+          "trial": 4,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.23224996402859688,
+          "factsMS": 0.02670823596417904,
+          "optimized": true,
+          "trial": 4,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.23624999448657036,
+          "factsMS": 0.026708468794822693,
+          "optimized": true,
+          "trial": 5,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2617083955556154,
+          "factsMS": 0.0332915224134922,
+          "optimized": false,
+          "trial": 5,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.28345827013254166,
+          "factsMS": 0.027916627004742622,
+          "optimized": false,
+          "trial": 6,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2309582196176052,
+          "factsMS": 0.027083326131105423,
+          "optimized": true,
+          "trial": 6,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22779172286391258,
+          "factsMS": 0.02704164944589138,
+          "optimized": true,
+          "trial": 7,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.25266665033996105,
+          "factsMS": 0.026916619390249252,
+          "optimized": false,
+          "trial": 7,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.25216653011739254,
+          "factsMS": 0.026666559278964996,
+          "optimized": false,
+          "trial": 8,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22945832461118698,
+          "factsMS": 0.026833266019821167,
+          "optimized": true,
+          "trial": 8,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22950000129640102,
+          "factsMS": 0.026750145480036736,
+          "optimized": true,
+          "trial": 9,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.251958379521966,
+          "factsMS": 0.02687494270503521,
+          "optimized": false,
+          "trial": 9,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2511667553335428,
+          "factsMS": 0.026666559278964996,
+          "optimized": false,
+          "trial": 10,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22720824927091599,
+          "factsMS": 0.026791822165250778,
+          "optimized": true,
+          "trial": 10,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22512488067150116,
+          "factsMS": 0.026708468794822693,
+          "optimized": true,
+          "trial": 11,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.25041657499969006,
+          "factsMS": 0.026541762053966522,
+          "optimized": false,
+          "trial": 11,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2508333418518305,
+          "factsMS": 0.026416731998324394,
+          "optimized": false,
+          "trial": 12,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2285416703671217,
+          "factsMS": 0.026750145480036736,
+          "optimized": true,
+          "trial": 12,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22737495601177216,
+          "factsMS": 0.026583438739180565,
+          "optimized": true,
+          "trial": 13,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.25079166516661644,
+          "factsMS": 0.02666679210960865,
+          "optimized": false,
+          "trial": 13,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.25033322162926197,
+          "factsMS": 0.02650008536875248,
+          "optimized": false,
+          "trial": 14,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22500008344650269,
+          "factsMS": 0.02658320590853691,
+          "optimized": true,
+          "trial": 14,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22437493316829205,
+          "factsMS": 0.02670823596417904,
+          "optimized": true,
+          "trial": 15,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2517916727811098,
+          "factsMS": 0.026291469112038612,
+          "optimized": false,
+          "trial": 15,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24841679260134697,
+          "factsMS": 0.026708468794822693,
+          "optimized": false,
+          "trial": 16,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22429181262850761,
+          "factsMS": 0.02650008536875248,
+          "optimized": true,
+          "trial": 16,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22666668519377708,
+          "factsMS": 0.026708468794822693,
+          "optimized": true,
+          "trial": 17,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.25029154494404793,
+          "factsMS": 0.026458175852894783,
+          "optimized": false,
+          "trial": 17,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24862517602741718,
+          "factsMS": 0.02637505531311035,
+          "optimized": false,
+          "trial": 18,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2232915721833706,
+          "factsMS": 0.02637505531311035,
+          "optimized": true,
+          "trial": 18,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2237916924059391,
+          "factsMS": 0.02604164183139801,
+          "optimized": true,
+          "trial": 19,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2476666122674942,
+          "factsMS": 0.02633337862789631,
+          "optimized": false,
+          "trial": 19,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.260666711255908,
+          "factsMS": 0.02720835618674755,
+          "optimized": false,
+          "trial": 20,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.23279176093637943,
+          "factsMS": 0.03170827403664589,
+          "optimized": true,
+          "trial": 20,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.277375103905797,
+          "factsMS": 0.029999995604157448,
+          "optimized": true,
+          "trial": 21,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.28970837593078613,
+          "factsMS": 0.02941652201116085,
+          "optimized": false,
+          "trial": 21,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.36874995566904545,
+          "factsMS": 0.0338749960064888,
+          "optimized": false,
+          "trial": 22,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.26566674932837486,
+          "factsMS": 0.02887495793402195,
+          "optimized": true,
+          "trial": 22,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2558748237788677,
+          "factsMS": 0.02833339385688305,
+          "optimized": true,
+          "trial": 23,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.26050000451505184,
+          "factsMS": 0.02883351407945156,
+          "optimized": false,
+          "trial": 23,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.27600000612437725,
+          "factsMS": 0.027916627004742622,
+          "optimized": false,
+          "trial": 24,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2351666335016489,
+          "factsMS": 0.028999987989664078,
+          "optimized": true,
+          "trial": 24,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2448749728500843,
+          "factsMS": 0.028250040486454964,
+          "optimized": true,
+          "trial": 25,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.26229163631796837,
+          "factsMS": 0.02850010059773922,
+          "optimized": false,
+          "trial": 25,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2712083514779806,
+          "factsMS": 0.027916859835386276,
+          "optimized": false,
+          "trial": 26,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2983333542943001,
+          "factsMS": 0.05008326843380928,
+          "optimized": true,
+          "trial": 26,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.36770827136933804,
+          "factsMS": 0.04066666588187218,
+          "optimized": true,
+          "trial": 27,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3071250393986702,
+          "factsMS": 0.032499898225069046,
+          "optimized": false,
+          "trial": 27,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.39199995808303356,
+          "factsMS": 0.03708316944539547,
+          "optimized": false,
+          "trial": 28,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.30304165557026863,
+          "factsMS": 0.032250070944428444,
+          "optimized": true,
+          "trial": 28,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.28533325530588627,
+          "factsMS": 0.030416762456297874,
+          "optimized": true,
+          "trial": 29,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.29604160226881504,
+          "factsMS": 0.028916634619235992,
+          "optimized": false,
+          "trial": 29,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.27841655537486076,
+          "factsMS": 0.027750153094530106,
+          "optimized": false,
+          "trial": 30,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24708337150514126,
+          "factsMS": 0.02783350646495819,
+          "optimized": true,
+          "trial": 30,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.969999935477972,
+          "factsMS": 0.20870822481811047,
+          "optimized": false,
+          "trial": 0,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7853750139474869,
+          "factsMS": 0.2274166326969862,
+          "optimized": true,
+          "trial": 0,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8129584603011608,
+          "factsMS": 0.22787507623434067,
+          "optimized": true,
+          "trial": 1,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9428749326616526,
+          "factsMS": 0.2079999540001154,
+          "optimized": false,
+          "trial": 1,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9591665584594011,
+          "factsMS": 0.20795827731490135,
+          "optimized": false,
+          "trial": 2,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8082082495093346,
+          "factsMS": 0.20995852537453175,
+          "optimized": true,
+          "trial": 2,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8643749170005322,
+          "factsMS": 0.23604161106050014,
+          "optimized": true,
+          "trial": 3,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 1.0562499519437551,
+          "factsMS": 0.21729152649641037,
+          "optimized": false,
+          "trial": 3,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 1.031583407893777,
+          "factsMS": 0.2198750153183937,
+          "optimized": false,
+          "trial": 4,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.956124858930707,
+          "factsMS": 0.21900003775954247,
+          "optimized": true,
+          "trial": 4,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8720832411199808,
+          "factsMS": 0.20887493155896664,
+          "optimized": true,
+          "trial": 5,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9494998957961798,
+          "factsMS": 0.20945840515196323,
+          "optimized": false,
+          "trial": 5,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9778749663382769,
+          "factsMS": 0.20995852537453175,
+          "optimized": false,
+          "trial": 6,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7836667355149984,
+          "factsMS": 0.20837504416704178,
+          "optimized": true,
+          "trial": 6,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7538332138210535,
+          "factsMS": 0.21341652609407902,
+          "optimized": true,
+          "trial": 7,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9066665079444647,
+          "factsMS": 0.20808330737054348,
+          "optimized": false,
+          "trial": 7,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9107501246035099,
+          "factsMS": 0.2030001487582922,
+          "optimized": false,
+          "trial": 8,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8629581425338984,
+          "factsMS": 0.21258322522044182,
+          "optimized": true,
+          "trial": 8,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7875831797719002,
+          "factsMS": 0.2124167513102293,
+          "optimized": true,
+          "trial": 9,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9902915917336941,
+          "factsMS": 0.220791669562459,
+          "optimized": false,
+          "trial": 9,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 1.0140000376850367,
+          "factsMS": 0.21150009706616402,
+          "optimized": false,
+          "trial": 10,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9164582006633282,
+          "factsMS": 0.21725008264183998,
+          "optimized": true,
+          "trial": 10,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8488749153912067,
+          "factsMS": 0.21133339032530785,
+          "optimized": true,
+          "trial": 11,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9698749054223299,
+          "factsMS": 0.2060001716017723,
+          "optimized": false,
+          "trial": 11,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 1.019166549667716,
+          "factsMS": 0.20562508143484592,
+          "optimized": false,
+          "trial": 12,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7608332671225071,
+          "factsMS": 0.20341668277978897,
+          "optimized": true,
+          "trial": 12,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7306665647774935,
+          "factsMS": 0.2060001716017723,
+          "optimized": true,
+          "trial": 13,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9107915684580803,
+          "factsMS": 0.21179160103201866,
+          "optimized": false,
+          "trial": 13,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9360415861010551,
+          "factsMS": 0.20295847207307816,
+          "optimized": false,
+          "trial": 14,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.736375106498599,
+          "factsMS": 0.20124996080994606,
+          "optimized": true,
+          "trial": 14,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7352083921432495,
+          "factsMS": 0.20033330656588078,
+          "optimized": true,
+          "trial": 15,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.918499892577529,
+          "factsMS": 0.2008334267884493,
+          "optimized": false,
+          "trial": 15,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8777917828410864,
+          "factsMS": 0.19679171964526176,
+          "optimized": false,
+          "trial": 16,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7192499469965696,
+          "factsMS": 0.19641662947833538,
+          "optimized": true,
+          "trial": 16,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7189165335148573,
+          "factsMS": 0.19575003534555435,
+          "optimized": true,
+          "trial": 17,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.833416823297739,
+          "factsMS": 0.19283336587250233,
+          "optimized": false,
+          "trial": 17,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8290833793580532,
+          "factsMS": 0.1926249824464321,
+          "optimized": false,
+          "trial": 18,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6864583119750023,
+          "factsMS": 0.1934582833200693,
+          "optimized": true,
+          "trial": 18,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6848748307675123,
+          "factsMS": 0.1932918094098568,
+          "optimized": true,
+          "trial": 19,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8395416662096977,
+          "factsMS": 0.19562500528991222,
+          "optimized": false,
+          "trial": 19,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8469582535326481,
+          "factsMS": 0.20029162988066673,
+          "optimized": false,
+          "trial": 20,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7164583075791597,
+          "factsMS": 0.19812490791082382,
+          "optimized": true,
+          "trial": 20,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7150834426283836,
+          "factsMS": 0.1983335241675377,
+          "optimized": true,
+          "trial": 21,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8785834070295095,
+          "factsMS": 0.19800011068582535,
+          "optimized": false,
+          "trial": 21,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8747915271669626,
+          "factsMS": 0.20058336667716503,
+          "optimized": false,
+          "trial": 22,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7005000952631235,
+          "factsMS": 0.19720825366675854,
+          "optimized": true,
+          "trial": 22,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.711583299562335,
+          "factsMS": 0.19449996761977673,
+          "optimized": true,
+          "trial": 23,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8341248612850904,
+          "factsMS": 0.1954585313796997,
+          "optimized": false,
+          "trial": 23,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8283334318548441,
+          "factsMS": 0.19470835104584694,
+          "optimized": false,
+          "trial": 24,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6862501613795757,
+          "factsMS": 0.19508320838212967,
+          "optimized": true,
+          "trial": 24,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6918334402143955,
+          "factsMS": 0.19462499767541885,
+          "optimized": true,
+          "trial": 25,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8325832895934582,
+          "factsMS": 0.19470835104584694,
+          "optimized": false,
+          "trial": 25,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8344999514520168,
+          "factsMS": 0.1951248850673437,
+          "optimized": false,
+          "trial": 26,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6908331997692585,
+          "factsMS": 0.19445852376520634,
+          "optimized": true,
+          "trial": 26,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6862084846943617,
+          "factsMS": 0.19370834343135357,
+          "optimized": true,
+          "trial": 27,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8263334166258574,
+          "factsMS": 0.1943334937095642,
+          "optimized": false,
+          "trial": 27,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8276666048914194,
+          "factsMS": 0.1948750577867031,
+          "optimized": false,
+          "trial": 28,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6881665904074907,
+          "factsMS": 0.19424990750849247,
+          "optimized": true,
+          "trial": 28,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6850834470242262,
+          "factsMS": 0.19433326087892056,
+          "optimized": true,
+          "trial": 29,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9365417063236237,
+          "factsMS": 0.19716680981218815,
+          "optimized": false,
+          "trial": 29,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.9031665977090597,
+          "factsMS": 0.19824993796646595,
+          "optimized": false,
+          "trial": 30,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7223333232104778,
+          "factsMS": 0.19754166714847088,
+          "optimized": true,
+          "trial": 30,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 3.60970851033926,
+          "factsMS": 0.9916250128298998,
+          "optimized": false,
+          "trial": 0,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.875124802812934,
+          "factsMS": 0.9813748765736818,
+          "optimized": true,
+          "trial": 0,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8525833040475845,
+          "factsMS": 0.9885418694466352,
+          "optimized": true,
+          "trial": 1,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.5687501076608896,
+          "factsMS": 0.9875416290014982,
+          "optimized": false,
+          "trial": 1,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.5423750523477793,
+          "factsMS": 0.9800000116229057,
+          "optimized": false,
+          "trial": 2,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8606250416487455,
+          "factsMS": 0.9800416883081198,
+          "optimized": true,
+          "trial": 2,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.851541619747877,
+          "factsMS": 0.9791250340640545,
+          "optimized": true,
+          "trial": 3,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.5083333496004343,
+          "factsMS": 0.9642916265875101,
+          "optimized": false,
+          "trial": 3,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.492875024676323,
+          "factsMS": 0.9805832523852587,
+          "optimized": false,
+          "trial": 4,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.849375130608678,
+          "factsMS": 0.9785001166164875,
+          "optimized": true,
+          "trial": 4,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8952916618436575,
+          "factsMS": 0.9788332972675562,
+          "optimized": true,
+          "trial": 5,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.528874833136797,
+          "factsMS": 0.9768751915544271,
+          "optimized": false,
+          "trial": 5,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.523416817188263,
+          "factsMS": 0.9890000801533461,
+          "optimized": false,
+          "trial": 6,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8835416305810213,
+          "factsMS": 0.9820831473916769,
+          "optimized": true,
+          "trial": 6,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.852041507139802,
+          "factsMS": 0.993124907836318,
+          "optimized": true,
+          "trial": 7,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.544999985024333,
+          "factsMS": 0.983166741207242,
+          "optimized": false,
+          "trial": 7,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.536166623234749,
+          "factsMS": 0.9789166506379843,
+          "optimized": false,
+          "trial": 8,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8483334463089705,
+          "factsMS": 0.9787918534129858,
+          "optimized": true,
+          "trial": 8,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8562499210238457,
+          "factsMS": 0.9897917043417692,
+          "optimized": true,
+          "trial": 9,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.658583387732506,
+          "factsMS": 0.9948334190994501,
+          "optimized": false,
+          "trial": 9,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.6126249469816685,
+          "factsMS": 0.9951249230653048,
+          "optimized": false,
+          "trial": 10,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.893958240747452,
+          "factsMS": 0.9873334784060717,
+          "optimized": true,
+          "trial": 10,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.869333140552044,
+          "factsMS": 0.9874585084617138,
+          "optimized": true,
+          "trial": 11,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.56758339330554,
+          "factsMS": 0.9915833361446857,
+          "optimized": false,
+          "trial": 11,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.550250083208084,
+          "factsMS": 0.9891667868942022,
+          "optimized": false,
+          "trial": 12,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8575416654348373,
+          "factsMS": 0.9869583882391453,
+          "optimized": true,
+          "trial": 12,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8597915079444647,
+          "factsMS": 0.9870834182947874,
+          "optimized": true,
+          "trial": 13,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.5590834449976683,
+          "factsMS": 0.989583320915699,
+          "optimized": false,
+          "trial": 13,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.5554999485611916,
+          "factsMS": 0.991875072941184,
+          "optimized": false,
+          "trial": 14,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8744167648255825,
+          "factsMS": 0.9869583882391453,
+          "optimized": true,
+          "trial": 14,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.864458132535219,
+          "factsMS": 0.9978334419429302,
+          "optimized": true,
+          "trial": 15,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.557291580364108,
+          "factsMS": 0.9914999827742577,
+          "optimized": false,
+          "trial": 15,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.553875023499131,
+          "factsMS": 0.9909584186971188,
+          "optimized": false,
+          "trial": 16,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.870916621759534,
+          "factsMS": 0.989624997600913,
+          "optimized": true,
+          "trial": 16,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.9171667993068695,
+          "factsMS": 1.0210417676717043,
+          "optimized": true,
+          "trial": 17,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.8303332403302193,
+          "factsMS": 1.0200832039117813,
+          "optimized": false,
+          "trial": 17,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.7841249722987413,
+          "factsMS": 1.0172082111239433,
+          "optimized": false,
+          "trial": 18,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.986916806548834,
+          "factsMS": 0.9956248104572296,
+          "optimized": true,
+          "trial": 18,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.9117916710674763,
+          "factsMS": 0.9906250052154064,
+          "optimized": true,
+          "trial": 19,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.593041794374585,
+          "factsMS": 0.9907500352710485,
+          "optimized": false,
+          "trial": 19,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.5800416953861713,
+          "factsMS": 0.9911248926073313,
+          "optimized": false,
+          "trial": 20,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.9959999956190586,
+          "factsMS": 0.9971666149795055,
+          "optimized": true,
+          "trial": 20,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.9641250148415565,
+          "factsMS": 0.9974583517760038,
+          "optimized": true,
+          "trial": 21,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.6006667651236057,
+          "factsMS": 0.9933332912623882,
+          "optimized": false,
+          "trial": 21,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.5832084249705076,
+          "factsMS": 0.9922084864228964,
+          "optimized": false,
+          "trial": 22,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8909165412187576,
+          "factsMS": 1.0298334527760744,
+          "optimized": true,
+          "trial": 22,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.942833350971341,
+          "factsMS": 1.0263333097100258,
+          "optimized": true,
+          "trial": 23,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.6075834650546312,
+          "factsMS": 1.0021249763667583,
+          "optimized": false,
+          "trial": 23,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.5909998696297407,
+          "factsMS": 1.0178331285715103,
+          "optimized": false,
+          "trial": 24,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8983750380575657,
+          "factsMS": 1.0321249719709158,
+          "optimized": true,
+          "trial": 24,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.9871249571442604,
+          "factsMS": 1.0387918446213007,
+          "optimized": true,
+          "trial": 25,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.7568332627415657,
+          "factsMS": 1.057041808962822,
+          "optimized": false,
+          "trial": 25,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 4.006791627034545,
+          "factsMS": 0.9880834259092808,
+          "optimized": false,
+          "trial": 26,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.37329157628119,
+          "factsMS": 1.052666688337922,
+          "optimized": true,
+          "trial": 26,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.3807498402893543,
+          "factsMS": 1.0686249006539583,
+          "optimized": true,
+          "trial": 27,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 4.09175013191998,
+          "factsMS": 0.9926666971296072,
+          "optimized": false,
+          "trial": 27,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 4.212416708469391,
+          "factsMS": 1.054750056937337,
+          "optimized": false,
+          "trial": 28,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.1790833454579115,
+          "factsMS": 0.9945000056177378,
+          "optimized": true,
+          "trial": 28,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.5890417639166117,
+          "factsMS": 1.0817083530128002,
+          "optimized": true,
+          "trial": 29,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.8647083565592766,
+          "factsMS": 1.0032914578914642,
+          "optimized": false,
+          "trial": 29,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.7328749895095825,
+          "factsMS": 1.0144999250769615,
+          "optimized": false,
+          "trial": 30,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.034166758880019,
+          "factsMS": 1.0022916831076145,
+          "optimized": true,
+          "trial": 30,
+          "workload": "long-thread"
+        }
+      ]
+    },
+    {
+      "additionalRecipientsAcrossToCcBcc": 3,
+      "samples": [
+        {
+          "conversationMS": 0.31649996526539326,
+          "factsMS": 0.02566678449511528,
+          "optimized": false,
+          "trial": 0,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.3700831439346075,
+          "factsMS": 0.027999980375170708,
+          "optimized": true,
+          "trial": 0,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2536249812692404,
+          "factsMS": 0.022083520889282227,
+          "optimized": true,
+          "trial": 1,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2615000121295452,
+          "factsMS": 0.021625077351927757,
+          "optimized": false,
+          "trial": 1,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2532918006181717,
+          "factsMS": 0.0235831830650568,
+          "optimized": false,
+          "trial": 2,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.23383344523608685,
+          "factsMS": 0.023083295673131943,
+          "optimized": true,
+          "trial": 2,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22645830176770687,
+          "factsMS": 0.0208334531635046,
+          "optimized": true,
+          "trial": 3,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24649989791214466,
+          "factsMS": 0.020708423107862473,
+          "optimized": false,
+          "trial": 3,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24358322843909264,
+          "factsMS": 0.02033333294093609,
+          "optimized": false,
+          "trial": 4,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22749998606741428,
+          "factsMS": 0.02050003968179226,
+          "optimized": true,
+          "trial": 4,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22549997083842754,
+          "factsMS": 0.02866680733859539,
+          "optimized": true,
+          "trial": 5,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.30049984343349934,
+          "factsMS": 0.023916829377412796,
+          "optimized": false,
+          "trial": 5,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2715415321290493,
+          "factsMS": 0.02266676165163517,
+          "optimized": false,
+          "trial": 6,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24816649965941906,
+          "factsMS": 0.022249994799494743,
+          "optimized": true,
+          "trial": 6,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.23679155856370926,
+          "factsMS": 0.021291663870215416,
+          "optimized": true,
+          "trial": 7,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.25387504138052464,
+          "factsMS": 0.020708423107862473,
+          "optimized": false,
+          "trial": 7,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24558324366807938,
+          "factsMS": 0.02033333294093609,
+          "optimized": false,
+          "trial": 8,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.23004179820418358,
+          "factsMS": 0.020666513592004776,
+          "optimized": true,
+          "trial": 8,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22520823404192924,
+          "factsMS": 0.020916573703289032,
+          "optimized": true,
+          "trial": 9,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24433317594230175,
+          "factsMS": 0.02258317545056343,
+          "optimized": false,
+          "trial": 9,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.25100004859268665,
+          "factsMS": 0.02104160375893116,
+          "optimized": false,
+          "trial": 10,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22866670042276382,
+          "factsMS": 0.02070819027721882,
+          "optimized": true,
+          "trial": 10,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22483337670564651,
+          "factsMS": 0.020499806851148605,
+          "optimized": true,
+          "trial": 11,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2435415517538786,
+          "factsMS": 0.0200001522898674,
+          "optimized": false,
+          "trial": 11,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24083326570689678,
+          "factsMS": 0.019958242774009705,
+          "optimized": false,
+          "trial": 12,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22224988788366318,
+          "factsMS": 0.02050003968179226,
+          "optimized": true,
+          "trial": 12,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.21945824846625328,
+          "factsMS": 0.019916566088795662,
+          "optimized": true,
+          "trial": 13,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.23779179900884628,
+          "factsMS": 0.01987488940358162,
+          "optimized": false,
+          "trial": 13,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.23787491954863071,
+          "factsMS": 0.020083272829651833,
+          "optimized": false,
+          "trial": 14,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22499985061585903,
+          "factsMS": 0.020083272829651833,
+          "optimized": true,
+          "trial": 14,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2173751126974821,
+          "factsMS": 0.02012518234550953,
+          "optimized": true,
+          "trial": 15,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.238791573792696,
+          "factsMS": 0.020083272829651833,
+          "optimized": false,
+          "trial": 15,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.23820833303034306,
+          "factsMS": 0.019708415493369102,
+          "optimized": false,
+          "trial": 16,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.21745823323726654,
+          "factsMS": 0.019999919459223747,
+          "optimized": true,
+          "trial": 16,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.21729152649641037,
+          "factsMS": 0.019916566088795662,
+          "optimized": true,
+          "trial": 17,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.23925001733005047,
+          "factsMS": 0.019916566088795662,
+          "optimized": false,
+          "trial": 17,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.23750006221234798,
+          "factsMS": 0.019999919459223747,
+          "optimized": false,
+          "trial": 18,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.21729175932705402,
+          "factsMS": 0.020249979570508003,
+          "optimized": true,
+          "trial": 18,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.21691666916012764,
+          "factsMS": 0.020083505660295486,
+          "optimized": true,
+          "trial": 19,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2362916711717844,
+          "factsMS": 0.019791768863797188,
+          "optimized": false,
+          "trial": 19,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.23787515237927437,
+          "factsMS": 0.019999919459223747,
+          "optimized": false,
+          "trial": 20,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22345827892422676,
+          "factsMS": 0.020083505660295486,
+          "optimized": true,
+          "trial": 20,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2193334512412548,
+          "factsMS": 0.019875122234225273,
+          "optimized": true,
+          "trial": 21,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2438751980662346,
+          "factsMS": 0.02058316022157669,
+          "optimized": false,
+          "trial": 21,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2460000105202198,
+          "factsMS": 0.020583393052220345,
+          "optimized": false,
+          "trial": 22,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2498333342373371,
+          "factsMS": 0.021583400666713715,
+          "optimized": true,
+          "trial": 22,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2284583169966936,
+          "factsMS": 0.022999942302703857,
+          "optimized": true,
+          "trial": 23,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.25358330458402634,
+          "factsMS": 0.0216667540371418,
+          "optimized": false,
+          "trial": 23,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.25833328254520893,
+          "factsMS": 0.021499814465641975,
+          "optimized": false,
+          "trial": 24,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22891676053404808,
+          "factsMS": 0.021833227947354317,
+          "optimized": true,
+          "trial": 24,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2348748967051506,
+          "factsMS": 0.021541491150856018,
+          "optimized": true,
+          "trial": 25,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24616671726107597,
+          "factsMS": 0.02158316783607006,
+          "optimized": false,
+          "trial": 25,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24666660465300083,
+          "factsMS": 0.0222083181142807,
+          "optimized": false,
+          "trial": 26,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22887485101819038,
+          "factsMS": 0.021791551262140274,
+          "optimized": true,
+          "trial": 26,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22670836187899113,
+          "factsMS": 0.020499806851148605,
+          "optimized": true,
+          "trial": 27,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24229171685874462,
+          "factsMS": 0.020583393052220345,
+          "optimized": false,
+          "trial": 27,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24045840837061405,
+          "factsMS": 0.020458362996578217,
+          "optimized": false,
+          "trial": 28,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2240415196865797,
+          "factsMS": 0.02050003968179226,
+          "optimized": true,
+          "trial": 28,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22537494078278542,
+          "factsMS": 0.020583393052220345,
+          "optimized": true,
+          "trial": 29,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.24233339354395866,
+          "factsMS": 0.022249994799494743,
+          "optimized": false,
+          "trial": 29,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.2482500858604908,
+          "factsMS": 0.021458370611071587,
+          "optimized": false,
+          "trial": 30,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.22475002333521843,
+          "factsMS": 0.020583393052220345,
+          "optimized": true,
+          "trial": 30,
+          "workload": "single"
+        },
+        {
+          "conversationMS": 0.6844999734312296,
+          "factsMS": 0.12112502008676529,
+          "optimized": false,
+          "trial": 0,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6325000431388617,
+          "factsMS": 0.12070825323462486,
+          "optimized": true,
+          "trial": 0,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6170417182147503,
+          "factsMS": 0.12141675688326359,
+          "optimized": true,
+          "trial": 1,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6730416789650917,
+          "factsMS": 0.1202083658427,
+          "optimized": false,
+          "trial": 1,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6815418601036072,
+          "factsMS": 0.12066657654941082,
+          "optimized": false,
+          "trial": 2,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6130833644419909,
+          "factsMS": 0.11970847845077515,
+          "optimized": true,
+          "trial": 2,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.608083326369524,
+          "factsMS": 0.12058322317898273,
+          "optimized": true,
+          "trial": 3,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6677082274109125,
+          "factsMS": 0.1196668017655611,
+          "optimized": false,
+          "trial": 3,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7738333661109209,
+          "factsMS": 0.1244167797267437,
+          "optimized": false,
+          "trial": 4,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6342916749417782,
+          "factsMS": 0.11995830573141575,
+          "optimized": true,
+          "trial": 4,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.610291725024581,
+          "factsMS": 0.11979159899055958,
+          "optimized": true,
+          "trial": 5,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6627915427088737,
+          "factsMS": 0.12016668915748596,
+          "optimized": false,
+          "trial": 5,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6634166929870844,
+          "factsMS": 0.11987495236098766,
+          "optimized": false,
+          "trial": 6,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5970417987555265,
+          "factsMS": 0.11995830573141575,
+          "optimized": true,
+          "trial": 6,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5994583480060101,
+          "factsMS": 0.1202083658427,
+          "optimized": true,
+          "trial": 7,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6619584746658802,
+          "factsMS": 0.11933338828384876,
+          "optimized": false,
+          "trial": 7,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6547083612531424,
+          "factsMS": 0.11970824562013149,
+          "optimized": false,
+          "trial": 8,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5947917234152555,
+          "factsMS": 0.1190833281725645,
+          "optimized": true,
+          "trial": 8,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5922499112784863,
+          "factsMS": 0.11862488463521004,
+          "optimized": true,
+          "trial": 9,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6583749782294035,
+          "factsMS": 0.11945818550884724,
+          "optimized": false,
+          "trial": 9,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6612082943320274,
+          "factsMS": 0.1193750649690628,
+          "optimized": false,
+          "trial": 10,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5961668211966753,
+          "factsMS": 0.11962489224970341,
+          "optimized": true,
+          "trial": 10,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5931665655225515,
+          "factsMS": 0.11916668154299259,
+          "optimized": true,
+          "trial": 11,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6657084450125694,
+          "factsMS": 0.11912500485777855,
+          "optimized": false,
+          "trial": 11,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6580417975783348,
+          "factsMS": 0.11958344839513302,
+          "optimized": false,
+          "trial": 12,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6120416801422834,
+          "factsMS": 0.12004165910184383,
+          "optimized": true,
+          "trial": 12,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5995000246912241,
+          "factsMS": 0.11962512508034706,
+          "optimized": true,
+          "trial": 13,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6540415342897177,
+          "factsMS": 0.11929171159863472,
+          "optimized": false,
+          "trial": 13,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6524166092276573,
+          "factsMS": 0.11879159137606621,
+          "optimized": false,
+          "trial": 14,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5922084674239159,
+          "factsMS": 0.1193750649690628,
+          "optimized": true,
+          "trial": 14,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5893332418054342,
+          "factsMS": 0.11941674165427685,
+          "optimized": true,
+          "trial": 15,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6557500455528498,
+          "factsMS": 0.11954153887927532,
+          "optimized": false,
+          "trial": 15,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6541251204907894,
+          "factsMS": 0.12029148638248444,
+          "optimized": false,
+          "trial": 16,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6000418215990067,
+          "factsMS": 0.12054154649376869,
+          "optimized": true,
+          "trial": 16,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5996667314320803,
+          "factsMS": 0.11983350850641727,
+          "optimized": true,
+          "trial": 17,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6782917771488428,
+          "factsMS": 0.1204581931233406,
+          "optimized": false,
+          "trial": 17,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6774167995899916,
+          "factsMS": 0.11970824562013149,
+          "optimized": false,
+          "trial": 18,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6127085071057081,
+          "factsMS": 0.11962489224970341,
+          "optimized": true,
+          "trial": 18,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.5963332951068878,
+          "factsMS": 0.11899997480213642,
+          "optimized": true,
+          "trial": 19,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6528750527650118,
+          "factsMS": 0.11912500485777855,
+          "optimized": false,
+          "trial": 19,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6523749325424433,
+          "factsMS": 0.11929171159863472,
+          "optimized": false,
+          "trial": 20,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.594249926507473,
+          "factsMS": 0.11925003491342068,
+          "optimized": true,
+          "trial": 20,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6121250335127115,
+          "factsMS": 0.12612505815923214,
+          "optimized": true,
+          "trial": 21,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7446666713804007,
+          "factsMS": 0.1316666603088379,
+          "optimized": false,
+          "trial": 21,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.833375146612525,
+          "factsMS": 0.12933346442878246,
+          "optimized": false,
+          "trial": 22,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6606667302548885,
+          "factsMS": 0.12899981811642647,
+          "optimized": true,
+          "trial": 22,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6673331372439861,
+          "factsMS": 0.1408334355801344,
+          "optimized": true,
+          "trial": 23,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7604581769555807,
+          "factsMS": 0.12741656973958015,
+          "optimized": false,
+          "trial": 23,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6927500944584608,
+          "factsMS": 0.12474996037781239,
+          "optimized": false,
+          "trial": 24,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.6850415375083685,
+          "factsMS": 0.13004173524677753,
+          "optimized": true,
+          "trial": 24,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7091250736266375,
+          "factsMS": 0.13179169036448002,
+          "optimized": true,
+          "trial": 25,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8418748620897532,
+          "factsMS": 0.13025011867284775,
+          "optimized": false,
+          "trial": 25,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7767498027533293,
+          "factsMS": 0.1275001559406519,
+          "optimized": false,
+          "trial": 26,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.672666821628809,
+          "factsMS": 0.12883334420621395,
+          "optimized": true,
+          "trial": 26,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7565414998680353,
+          "factsMS": 0.1341251190751791,
+          "optimized": true,
+          "trial": 27,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.8093332871794701,
+          "factsMS": 0.1309998333454132,
+          "optimized": false,
+          "trial": 27,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7522501982748508,
+          "factsMS": 0.13275002129375935,
+          "optimized": false,
+          "trial": 28,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7159165106713772,
+          "factsMS": 0.13041659258306026,
+          "optimized": true,
+          "trial": 28,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.720249954611063,
+          "factsMS": 0.1277499832212925,
+          "optimized": true,
+          "trial": 29,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7625417783856392,
+          "factsMS": 0.12949993833899498,
+          "optimized": false,
+          "trial": 29,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7430417463183403,
+          "factsMS": 0.13975007459521294,
+          "optimized": false,
+          "trial": 30,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 0.7169167511165142,
+          "factsMS": 0.13387505896389484,
+          "optimized": true,
+          "trial": 30,
+          "workload": "small-thread"
+        },
+        {
+          "conversationMS": 2.950833411887288,
+          "factsMS": 0.6214582826942205,
+          "optimized": false,
+          "trial": 0,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.578041749075055,
+          "factsMS": 0.5995414685457945,
+          "optimized": true,
+          "trial": 0,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.7303332462906837,
+          "factsMS": 0.5959165282547474,
+          "optimized": true,
+          "trial": 1,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.780541777610779,
+          "factsMS": 0.5732499994337559,
+          "optimized": false,
+          "trial": 1,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.6695416308939457,
+          "factsMS": 0.640499871224165,
+          "optimized": false,
+          "trial": 2,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.6390415150672197,
+          "factsMS": 0.5808335263282061,
+          "optimized": true,
+          "trial": 2,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3950415197759867,
+          "factsMS": 0.5741666536778212,
+          "optimized": true,
+          "trial": 3,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.6366666425019503,
+          "factsMS": 0.5764584057033062,
+          "optimized": false,
+          "trial": 3,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.6093332562595606,
+          "factsMS": 0.5759585183113813,
+          "optimized": false,
+          "trial": 4,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3423333186656237,
+          "factsMS": 0.5759168416261673,
+          "optimized": true,
+          "trial": 4,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3812083527445793,
+          "factsMS": 0.5742083303630352,
+          "optimized": true,
+          "trial": 5,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.627250039950013,
+          "factsMS": 0.5757501348853111,
+          "optimized": false,
+          "trial": 5,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.6101667899638414,
+          "factsMS": 0.5743750371038914,
+          "optimized": false,
+          "trial": 6,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.348541747778654,
+          "factsMS": 0.5742916837334633,
+          "optimized": true,
+          "trial": 6,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3346252273768187,
+          "factsMS": 0.5707084201276302,
+          "optimized": true,
+          "trial": 7,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.603208413347602,
+          "factsMS": 0.5700001493096352,
+          "optimized": false,
+          "trial": 7,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.60029174387455,
+          "factsMS": 0.5754167214035988,
+          "optimized": false,
+          "trial": 8,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3366250097751617,
+          "factsMS": 0.5707084201276302,
+          "optimized": true,
+          "trial": 8,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.343333326280117,
+          "factsMS": 0.5725834053009748,
+          "optimized": true,
+          "trial": 9,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.6020416989922523,
+          "factsMS": 0.5712916608899832,
+          "optimized": false,
+          "trial": 9,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.5933750439435244,
+          "factsMS": 0.5674583371728659,
+          "optimized": false,
+          "trial": 10,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3731249384582043,
+          "factsMS": 0.5868333391845226,
+          "optimized": true,
+          "trial": 10,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.400333294644952,
+          "factsMS": 0.5863751284778118,
+          "optimized": true,
+          "trial": 11,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.6628749910742044,
+          "factsMS": 0.5870000459253788,
+          "optimized": false,
+          "trial": 11,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.6579583063721657,
+          "factsMS": 0.5866249557584524,
+          "optimized": false,
+          "trial": 12,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.3892917670309544,
+          "factsMS": 0.5868750158697367,
+          "optimized": true,
+          "trial": 12,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.389791654422879,
+          "factsMS": 0.593583332374692,
+          "optimized": true,
+          "trial": 13,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.0754583422094584,
+          "factsMS": 0.6250415463000536,
+          "optimized": false,
+          "trial": 13,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8533332515507936,
+          "factsMS": 0.6315833888947964,
+          "optimized": false,
+          "trial": 14,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.7719999197870493,
+          "factsMS": 0.6494999397546053,
+          "optimized": true,
+          "trial": 14,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.751541556790471,
+          "factsMS": 0.634124968200922,
+          "optimized": true,
+          "trial": 15,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.0330000445246696,
+          "factsMS": 0.6309582386165857,
+          "optimized": false,
+          "trial": 15,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.9186666943132877,
+          "factsMS": 0.6148333195596933,
+          "optimized": false,
+          "trial": 16,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8751250356435776,
+          "factsMS": 0.6285833660513163,
+          "optimized": true,
+          "trial": 16,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.592458389699459,
+          "factsMS": 0.6062916945666075,
+          "optimized": true,
+          "trial": 17,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.089000005275011,
+          "factsMS": 0.6498333532363176,
+          "optimized": false,
+          "trial": 17,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.7234167102724314,
+          "factsMS": 0.6327915471047163,
+          "optimized": false,
+          "trial": 18,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.709583379328251,
+          "factsMS": 0.6244583055377007,
+          "optimized": true,
+          "trial": 18,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.7642918284982443,
+          "factsMS": 0.6529167294502258,
+          "optimized": true,
+          "trial": 19,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.2311666291207075,
+          "factsMS": 0.6637917831540108,
+          "optimized": false,
+          "trial": 19,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.327250014990568,
+          "factsMS": 0.6361249834299088,
+          "optimized": false,
+          "trial": 20,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.965791616588831,
+          "factsMS": 0.6222915835678577,
+          "optimized": true,
+          "trial": 20,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.1560417264699936,
+          "factsMS": 0.6180000491440296,
+          "optimized": true,
+          "trial": 21,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.982458332553506,
+          "factsMS": 0.6227083504199982,
+          "optimized": false,
+          "trial": 21,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.048625076189637,
+          "factsMS": 0.6241248920559883,
+          "optimized": false,
+          "trial": 22,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.7467915788292885,
+          "factsMS": 0.6177499890327454,
+          "optimized": true,
+          "trial": 22,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.772125182673335,
+          "factsMS": 0.6239167414605618,
+          "optimized": true,
+          "trial": 23,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.3288332633674145,
+          "factsMS": 0.6370833143591881,
+          "optimized": false,
+          "trial": 23,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 4.012666642665863,
+          "factsMS": 0.6412083748728037,
+          "optimized": false,
+          "trial": 24,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.4636249765753746,
+          "factsMS": 0.6342916749417782,
+          "optimized": true,
+          "trial": 24,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.1574999447911978,
+          "factsMS": 0.6319999229162931,
+          "optimized": true,
+          "trial": 25,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.5749999806284904,
+          "factsMS": 0.6309165619313717,
+          "optimized": false,
+          "trial": 25,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.923666663467884,
+          "factsMS": 0.6452500820159912,
+          "optimized": false,
+          "trial": 26,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.7777498364448547,
+          "factsMS": 0.6327501032501459,
+          "optimized": true,
+          "trial": 26,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.0822083353996277,
+          "factsMS": 0.6367915775626898,
+          "optimized": true,
+          "trial": 27,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.356083296239376,
+          "factsMS": 0.6375415250658989,
+          "optimized": false,
+          "trial": 27,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.9081666618585587,
+          "factsMS": 0.6419999990612268,
+          "optimized": false,
+          "trial": 28,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.8418332803994417,
+          "factsMS": 0.626124907284975,
+          "optimized": true,
+          "trial": 28,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.6996249798685312,
+          "factsMS": 0.6032083183526993,
+          "optimized": true,
+          "trial": 29,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.91600008495152,
+          "factsMS": 0.6135418079793453,
+          "optimized": false,
+          "trial": 29,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 3.3174583222717047,
+          "factsMS": 0.6141664925962687,
+          "optimized": false,
+          "trial": 30,
+          "workload": "long-thread"
+        },
+        {
+          "conversationMS": 2.567125018686056,
+          "factsMS": 0.5903749261051416,
+          "optimized": true,
+          "trial": 30,
+          "workload": "long-thread"
+        }
+      ]
+    }
+  ]
+}

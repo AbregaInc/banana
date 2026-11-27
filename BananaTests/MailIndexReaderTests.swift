@@ -229,6 +229,11 @@ final class MailIndexReaderTests: XCTestCase {
                 while true {
                     query.before = before
                     let rows = try await reader.page(query)
+                    let window = try await reader.listWindow(query)
+                    XCTAssertEqual(window.rows.map(\.threadPK), rows.map(\.threadPK))
+                    XCTAssertEqual(window.hasMore, walked.count + rows.count < listed.count)
+                    XCTAssertEqual(window.total, MailCount(value: min(10000, listed.count), isAtLeast: listed.count > 10000))
+                    XCTAssertEqual(window.stillLoading, inScope.count - listed.count)
                     XCTAssertLessThanOrEqual(rows.count, 500)
                     guard let last = rows.last else { break }
                     walked += rows.map(\.threadPK)
@@ -243,6 +248,39 @@ final class MailIndexReaderTests: XCTestCase {
                     stillLoading: inScope.filter { $0.sortKey <= 0 }.count), "\(scope) \(filters)")
             }
         }
+    }
+
+    /// The fixture first-page gate times an in-memory source. Exercise the disk-backed
+    /// list through the same visible-row, total, loading and continuation read as Mail.
+    func testDiskBackedListWindowWithRetainedHistory() async throws {
+        let reader = try await reader(count: 180_000)
+        let accounts: Set<String> = ["a@example.com", "b@example.com"]
+        let ids: [Int64] = [180_000, 90_000, 49]
+        var samples: [[String: Any]] = []
+        for first in ids {
+            let preceding = first + 1
+            let before = first == ids[0] ? nil : MailOrderKey(group: 0, sortKey: 1_000_000 + preceding / 3, tie: preceding)
+            var query = request(before: before, limit: 50)
+            query.allowedAccounts = accounts
+            let expected = Array((1...first).reversed().prefix(query.limit))
+            for trial in 0..<6 {
+                if trial == 5 { reader.stores.index.releaseMemory() }
+                let start = ContinuousClock.now
+                let window = try await reader.listWindow(query)
+                let elapsed = start.duration(to: .now).components
+                let ms = Double(elapsed.seconds) * 1_000 + Double(elapsed.attoseconds) / 1e15
+                XCTAssertEqual(window.rows.map(\.threadPK), expected)
+                XCTAssertEqual(window.total, MailCount(value: 10_000, isAtLeast: true))
+                XCTAssertEqual(window.stillLoading, 0)
+                XCTAssertEqual(window.hasMore, first > query.limit)
+                samples.append(["firstID": first, "trial": trial, "ms": ms])
+            }
+        }
+        let evidence = XCTAttachment(data: try JSONSerialization.data(withJSONObject: samples),
+                                     uniformTypeIdentifier: "public.json")
+        evidence.name = "SQLite inbox windows, first read, four warm reads and released database cache"
+        evidence.lifetime = .keepAlways
+        add(evidence)
     }
 
     func testKeysetCostAgainstOffsetWithRetainedHistory() async throws {

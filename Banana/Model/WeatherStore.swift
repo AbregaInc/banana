@@ -376,11 +376,7 @@ final class WeatherStore: NSObject, ObservableObject {
     }
 
     private func performRefresh() async {
-        guard let location = await currentLocation() else {
-            let status = "no location · auth=\(authName)"
-            if debugStatus != status { debugStatus = status }
-            return
-        }
+        guard let location = await currentLocation() else { return }
         coordinate = location.coordinate
         lastFetch = Date()
         // Gates the snapshot rewrite in saveSnapshot() below: a refresh where every needed cell is
@@ -461,8 +457,6 @@ final class WeatherStore: NSObject, ObservableObject {
         // Back-compat: `days` mirrors the home cell so Week + detail are unchanged.
         if let home = cache[homeKey] {
             if days != home.days { days = home.days }
-            let status = "OK · \(resolvedSource) · \(cache.count) cell(s) · home \(home.days.count)d @ \(coordLabel(location))"
-            if debugStatus != status { debugStatus = status }
         }
         if source != resolvedSource { source = resolvedSource }
         if lastError != resolvedError { lastError = resolvedError }
@@ -554,22 +548,7 @@ final class WeatherStore: NSObject, ObservableObject {
         guard placeName == nil else { return }
         guard let request = MKReverseGeocodingRequest(location: location),
               let item = try? await request.mapItems.first else { return }
-        placeName = item.name
-    }
-
-    private var authName: String {
-        switch LocationAccess.shared.status {
-        case .authorizedAlways: return "always"
-        case .authorizedWhenInUse: return "whenInUse"
-        case .denied: return "denied"
-        case .restricted: return "restricted"
-        case .notDetermined: return "notDetermined"
-        @unknown default: return "unknown"
-        }
-    }
-
-    private func coordLabel(_ location: CLLocation) -> String {
-        String(format: "%.2f,%.2f", location.coordinate.latitude, location.coordinate.longitude)
+        if placeName != item.name { placeName = item.name }
     }
 
     // MARK: - Location (one-shot)

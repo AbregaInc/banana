@@ -242,21 +242,30 @@ actor MailActionCoordinator {
             var after: Int64 = 0
             while true {
                 let cursor = after
-                let rows = try await stores.index.read { db in
-                    try Row.fetchAll(db, sql: """
+                // Walk the overlay, which holds only messages with a local change, and look each
+                // one up. Testing every message for an overlay cost time in proportion to the
+                // mailbox on every start. The cursor is the overlay's, so overlay rows without a
+                // message cannot end the walk early.
+                let (rows, last) = try await stores.index.read { db -> ([(Int64, String, String)], Int64?) in
+                    let batch = try Int64.fetchAll(db, sql: """
+                        SELECT DISTINCT msg_pk FROM overlay WHERE msg_pk>? ORDER BY msg_pk LIMIT 100
+                        """, arguments: [cursor])
+                    guard let last = batch.last else { return ([], nil) }
+                    let rows = try Row.fetchAll(db, sql: """
                         SELECT m.msg_pk,a.email,m.gmail_id FROM message m
                         JOIN account a ON a.account_pk=m.account_pk
-                        WHERE m.msg_pk>? AND EXISTS(SELECT 1 FROM overlay o WHERE o.msg_pk=m.msg_pk)
-                        ORDER BY m.msg_pk LIMIT 100
-                        """, arguments: [cursor]).map { row -> (Int64, String, String) in
+                        WHERE m.msg_pk IN (SELECT msg_pk FROM overlay WHERE msg_pk>? AND msg_pk<=?)
+                        ORDER BY m.msg_pk
+                        """, arguments: [cursor, last]).map { row -> (Int64, String, String) in
                             (row[0], row[1], row[2])
                         }
+                    return (rows, last)
                 }
-                guard let last = rows.last else { break }
+                guard let last else { break }
                 for (account, values) in Dictionary(grouping: rows, by: { $0.1 }) {
                     try await Self.project(account: account, messages: values.map { $0.2 }, through: 0, intent: intent, writer: writer)
                 }
-                after = last.0
+                after = last
             }
             var cursor: MailIntentStore.Cursor?
             while true {

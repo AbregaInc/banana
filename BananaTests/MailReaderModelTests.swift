@@ -276,7 +276,7 @@ import XCTest
         XCTAssertNil(reader.verificationCode)
     }
 
-    func testCodeAppearsBeforeOlderBodiesFinishLoading() async {
+    func testNewestBodyAndCodeAppearBeforeOlderBodiesFinishLoading() async {
         let source = Source()
         let codeBody = MailBody.text(MailText(blocks: [.init(kind: .paragraph, runs: [.init(text: "Verification code: 042819")])]), quoteStartsAt: nil, notices: [])
         source.values[messageID] = codeBody
@@ -291,8 +291,39 @@ import XCTest
         source.onChange?(value)
         await fulfillment(of: [started], timeout: 2)
         XCTAssertEqual(reader.verificationCode?.value, "042819", "Reading old history must not delay the top code")
+        XCTAssertEqual(reader.bodies[messageID], codeBody)
+        XCTAssertEqual(reader.styled[messageID]?.count, 1)
+        XCTAssertNil(reader.bodies[oldID])
         source.waiting?.resume(returning: text); source.waiting = nil
         await reader.waitForBodies()
+        XCTAssertEqual(reader.bodies[oldID], text)
+        XCTAssertEqual(source.reads, 2)
+    }
+
+    func testOpeningAndExpensiveBlocksAreStyledBeforePublishingTheBody() async throws {
+        let safe = URL(string: "https://plan.example/meeting")
+        let plain = MailTextBlock(kind: .paragraph, runs: [.init(text: "Read the plan", style: .bold, link: safe)])
+        var blocks = Array(repeating: plain, count: 65)
+        blocks.append(.init(kind: .quote(depth: 1), runs: Array(repeating: plain.runs[0], count: 9)))
+        blocks.append(.init(kind: .paragraph, runs: [.init(text: String(repeating: "é", count: 513))]))
+        blocks.append(.init(kind: .paragraph, runs: [.init(text: "plain", link: URL(string: "file:///private"))]))
+        let source = Source()
+        let text = MailText(blocks: blocks)
+        source.value = .text(text, quoteStartsAt: nil, notices: [])
+        let reader = MailReaderModel(id: id, source: source)
+        source.onChange?(conversation(body: .text))
+        await reader.waitForBodies()
+        let prepared = try XCTUnwrap(reader.styled[messageID])
+        XCTAssertEqual(prepared.count, blocks.count)
+        XCTAssertNotNil(prepared[63])
+        XCTAssertNil(prepared[64])
+        XCTAssertNotNil(prepared[65])
+        XCTAssertNotNil(prepared[66])
+        XCTAssertNil(prepared[67])
+        let rendered = zip(prepared, blocks).map { ready, block in ready ?? MailAttributedText.make(block.runs) }
+        XCTAssertEqual(rendered, MailAttributedText.blocks(text))
+        XCTAssertEqual(rendered[64].runs.first?.link, safe)
+        XCTAssertNil(rendered[67].runs.first?.link)
     }
 
     func testUnchangedHeadersReuseTheCodeAndChangedSubjectUsesTheCachedBody() async {

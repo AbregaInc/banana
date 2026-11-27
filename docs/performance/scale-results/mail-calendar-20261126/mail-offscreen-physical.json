@@ -1,0 +1,200 @@
+{
+  "scope": "Actual live Mail source and SQLite stores in a separately signed foreground fixture, on the physical device. One in-process provider account stays healthy and one answers with network loss. No real network request, credentials or message content. Only the former unconditional foreground activation varies. Each fresh store receives one bounded feed push and stays open for three wall-clock minutes. The unchanged screen remains visible. CPU and interrupt wakeups are cumulative process deltas. Battery readings cover the whole device, including its display, at one-minute intervals.",
+  "binarySHA256": "769b9d5b5baba58b8a00a1f970d1fb08b982466531c4047007ebe0f6e2ab7def",
+  "runs": [
+    {
+      "hardware": "iPhone 14 Pro",
+      "run": "hidden1",
+      "intervals": [
+        {
+          "formerEagerActivation": true,
+          "seconds": 188.523,
+          "returnedForeground": true,
+          "pushCompleted": true,
+          "afterPush": {
+            "labels": 2,
+            "profile": 2
+          },
+          "afterThreeMinutes": {
+            "healthyFeed": 6,
+            "labels": 2,
+            "offlineFeed": 6,
+            "profile": 2
+          },
+          "totalProviderCalls": 16,
+          "processDelta": {
+            "cpuSeconds": 0.07088,
+            "interruptWakeups": 40,
+            "platformIdleWakeups": 1,
+            "timerWakeups": 0
+          },
+          "thermalStart": 0,
+          "thermalEnd": 0,
+          "devicePowerSamples": [
+            {
+              "connected": true,
+              "batteryPercent": 100,
+              "inputW": 0.849,
+              "loadW": 0.849,
+              "netBatteryW": 0.0
+            },
+            {
+              "connected": true,
+              "batteryPercent": 100,
+              "inputW": 0.819,
+              "loadW": 0.819,
+              "netBatteryW": 0.0
+            },
+            {
+              "connected": true,
+              "batteryPercent": 100,
+              "inputW": 0.723,
+              "loadW": 0.723,
+              "netBatteryW": 0.0
+            }
+          ]
+        },
+        {
+          "formerEagerActivation": false,
+          "seconds": 190.866,
+          "returnedForeground": true,
+          "pushCompleted": true,
+          "afterPush": {
+            "healthyFeed": 1,
+            "offlineFeed": 1
+          },
+          "afterThreeMinutes": {
+            "healthyFeed": 1,
+            "offlineFeed": 1
+          },
+          "totalProviderCalls": 2,
+          "processDelta": {
+            "cpuSeconds": 0.00258,
+            "interruptWakeups": 6,
+            "platformIdleWakeups": 0,
+            "timerWakeups": 0
+          },
+          "thermalStart": 0,
+          "thermalEnd": 0,
+          "devicePowerSamples": [
+            {
+              "connected": true,
+              "batteryPercent": 100,
+              "inputW": 0.764,
+              "loadW": 0.764,
+              "netBatteryW": 0.0
+            },
+            {
+              "connected": true,
+              "batteryPercent": 100,
+              "inputW": 0.749,
+              "loadW": 0.749,
+              "netBatteryW": 0.0
+            },
+            {
+              "connected": true,
+              "batteryPercent": 100,
+              "inputW": 0.79,
+              "loadW": 0.79,
+              "netBatteryW": 0.0
+            }
+          ]
+        },
+        {
+          "formerEagerActivation": false,
+          "seconds": 191.77,
+          "returnedForeground": true,
+          "pushCompleted": true,
+          "afterPush": {
+            "healthyFeed": 1,
+            "offlineFeed": 1
+          },
+          "afterThreeMinutes": {
+            "healthyFeed": 1,
+            "offlineFeed": 1
+          },
+          "totalProviderCalls": 2,
+          "processDelta": {
+            "cpuSeconds": 0.0021,
+            "interruptWakeups": 4,
+            "platformIdleWakeups": 0,
+            "timerWakeups": 0
+          },
+          "thermalStart": 0,
+          "thermalEnd": 0,
+          "devicePowerSamples": [
+            {
+              "connected": true,
+              "batteryPercent": 100,
+              "inputW": 0.759,
+              "loadW": 0.759,
+              "netBatteryW": 0.0
+            },
+            {
+              "connected": true,
+              "batteryPercent": 100,
+              "inputW": 0.828,
+              "loadW": 0.828,
+              "netBatteryW": 0.0
+            },
+            {
+              "connected": true,
+              "batteryPercent": 100,
+              "inputW": 0.725,
+              "loadW": 0.725,
+              "netBatteryW": 0.0
+            }
+          ]
+        },
+        {
+          "formerEagerActivation": true,
+          "seconds": 189.38,
+          "returnedForeground": true,
+          "pushCompleted": true,
+          "afterPush": {
+            "labels": 2,
+            "profile": 2
+          },
+          "afterThreeMinutes": {
+            "healthyFeed": 6,
+            "labels": 2,
+            "offlineFeed": 6,
+            "profile": 2
+          },
+          "totalProviderCalls": 16,
+          "processDelta": {
+            "cpuSeconds": 0.05677,
+            "interruptWakeups": 23,
+            "platformIdleWakeups": 1,
+            "timerWakeups": 0
+          },
+          "thermalStart": 0,
+          "thermalEnd": 0,
+          "devicePowerSamples": [
+            {
+              "connected": true,
+              "batteryPercent": 100,
+              "inputW": 0.715,
+              "loadW": 0.715,
+              "netBatteryW": 0.0
+            },
+            {
+              "connected": true,
+              "batteryPercent": 100,
+              "inputW": 0.699,
+              "loadW": 0.699,
+              "netBatteryW": 0.0
+            },
+            {
+              "connected": true,
+              "batteryPercent": 100,
+              "inputW": 0.659,
+              "loadW": 0.659,
+              "netBatteryW": 0.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

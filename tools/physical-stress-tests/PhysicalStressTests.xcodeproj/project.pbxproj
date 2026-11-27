@@ -10,6 +10,7 @@
 		0F0842186E076C9E4F670C46 /* PhysicalSystemIdlePolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FD94BD5472CF953B488985C /* PhysicalSystemIdlePolicy.swift */; };
 		1374A486DCF117EA186FE761 /* MailIdentifiers+Slice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1061A6F6F67882831BCF153B /* MailIdentifiers+Slice.swift */; };
 		2154FF12B0051C364DA1936D /* ReviewLaunchUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BEF9AABB8F94BC3BF0BD207 /* ReviewLaunchUITests.swift */; };
+		36A727A262355DAA7DAC111C /* PhysicalCalendarFlicks.m in Sources */ = {isa = PBXBuildFile; fileRef = BF36DA2464755597D338AF8A /* PhysicalCalendarFlicks.m */; };
 		3E403DFD6A275F136A00045C /* MailIdentifiers+Compose.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4AE66BD2DCD87096B589480 /* MailIdentifiers+Compose.swift */; };
 		49DBA06DC7CD1B0396CA82D5 /* ShellPages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78476074111C793306711C84 /* ShellPages.swift */; };
 		68D1D144AB4E2E4F926E51CE /* Ready.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B8BB9E67BD17FECAE4DEECD /* Ready.swift */; };
@@ -35,6 +36,7 @@
 		5E43FF8688BB78FCD80550B5 /* MailIdentifiers+Box.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MailIdentifiers+Box.swift"; sourceTree = "<group>"; };
 		78476074111C793306711C84 /* ShellPages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShellPages.swift; sourceTree = "<group>"; };
 		BE2D6CE3C8CF927A3BD3A8FF /* MailIdentifiers+Schedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MailIdentifiers+Schedule.swift"; sourceTree = "<group>"; };
+		BF36DA2464755597D338AF8A /* PhysicalCalendarFlicks.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PhysicalCalendarFlicks.m; sourceTree = "<group>"; };
 		D1C5DBD58EC372A21335899B /* LiveReminderAcceptanceUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveReminderAcceptanceUITests.swift; sourceTree = "<group>"; };
 		E4AE66BD2DCD87096B589480 /* MailIdentifiers+Compose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MailIdentifiers+Compose.swift"; sourceTree = "<group>"; };
 		FFA22E2AF2D0E042E67C08D1 /* PhysicalStressUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = PhysicalStressUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -68,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				D1C5DBD58EC372A21335899B /* LiveReminderAcceptanceUITests.swift */,
+				BF36DA2464755597D338AF8A /* PhysicalCalendarFlicks.m */,
 				3FD94BD5472CF953B488985C /* PhysicalSystemIdlePolicy.swift */,
 				0BEF9AABB8F94BC3BF0BD207 /* ReviewLaunchUITests.swift */,
 				E81B8B321E7D35F48C43CC81 /* BananaUITests */,
@@ -163,6 +166,7 @@
 				1374A486DCF117EA186FE761 /* MailIdentifiers+Slice.swift in Sources */,
 				757F2327F35A2FA126A1FAAB /* MailIdentifiers+Snooze.swift in Sources */,
 				767753D738DAC5C543359ECE /* MailIdentifiers.swift in Sources */,
+				36A727A262355DAA7DAC111C /* PhysicalCalendarFlicks.m in Sources */,
 				0F0842186E076C9E4F670C46 /* PhysicalSystemIdlePolicy.swift in Sources */,
 				68D1D144AB4E2E4F926E51CE /* Ready.swift in Sources */,
 				2154FF12B0051C364DA1936D /* ReviewLaunchUITests.swift in Sources */,
@@ -246,6 +250,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.boris.banana.stressreview.uitests;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) PHYSICAL_STRESS_UI_TESTS";
+				SWIFT_OBJC_BRIDGING_HEADER = PhysicalCalendarFlicks.h;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -265,6 +270,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.boris.banana.stressreview.uitests;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) PHYSICAL_STRESS_UI_TESTS";
+				SWIFT_OBJC_BRIDGING_HEADER = PhysicalCalendarFlicks.h;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

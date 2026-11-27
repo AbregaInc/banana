@@ -630,7 +630,7 @@ final class MailCloudPullTests: XCTestCase {
         await cloud.hold([MailCloudPullTests.full("n1", date: date, labels: ["INBOX", "UNREAD"])])
         await cloud.fail(URLError(.networkConnectionLost), times: 1)
         let (stores, source) = try await source(cloud: cloud, gmail: gmail)
-        _ = await source.catchUpFromPush(budget: .zero)   // the feed only: n1 known by id
+        _ = await source.catchUpFromPush(includeContent: false)   // the feed only: n1 known by id
         var unread: [Int] = []
         let places = source.observePlaces { unread.append($0.mailboxCounts[.inbox]?.unread.value ?? 0) }
         defer { places.cancel() }
@@ -716,7 +716,7 @@ final class MailCloudPullTests: XCTestCase {
         let cloud = MailCloudPullTests.Cloud(), quiet = MailCloudPullTests.Gmail()
         await cloud.set(entries); await cloud.hold(messages); await cloud.slow(latency)
         let (_, after) = try await source(cloud: cloud, gmail: quiet)
-        _ = await after.catchUpFromPush(budget: .milliseconds(1))   // the feed only: rows known, no text yet
+        _ = await after.catchUpFromPush(includeContent: false)   // the feed only: rows known, no text yet
         let early = await after.body(id("m7"))
         XCTAssertEqual(early, .notOnDevice, "nothing pulled before the row is shown")
         after.setVisible(true)

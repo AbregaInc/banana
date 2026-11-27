@@ -11,13 +11,13 @@ actor MailDraftDriver {
     private let token: @Sendable (String) async throws -> String
     private let allowed: @Sendable (String) async -> Bool
     private let compose: @Sendable (MailDraftRecord.Snapshot) throws -> GmailDraftComposition
-    private let changed: @Sendable (MailDraftRecord) -> Void
+    private let changed: @Sendable (MailDraftRecord, _ becamePending: Bool) -> Void
     private var running = Set<MailDraftID>()
     init(scope: String, store: MailIntentStore, api: any GmailDraftAPI,
          token: @escaping @Sendable (String) async throws -> String,
          allowed: @escaping @Sendable (String) async -> Bool,
          compose: @escaping @Sendable (MailDraftRecord.Snapshot) throws -> GmailDraftComposition,
-         changed: @escaping @Sendable (MailDraftRecord) -> Void = { _ in }) {
+         changed: @escaping @Sendable (MailDraftRecord, Bool) -> Void = { _, _ in }) {
         self.scope = scope; self.store = store; self.api = api; self.token = token
         self.allowed = allowed; self.compose = compose; self.changed = changed
     }
@@ -29,21 +29,50 @@ actor MailDraftDriver {
         value.snapshot.forwardMessageID = forwardMessageID
         if awaitingFirstEdit { value.awaitingFirstEdit = true }
         guard try await store.putDraftRecord(value, expectedGeneration: nil) else { throw Failure.changed }
-        changed(value)
+        changed(value, value.needsDelivery)
     }
     @discardableResult private func mutate(_ id: MailDraftID, _ update: (inout MailDraftRecord) throws -> Void) async throws -> MailDraftRecord {
         for _ in 0..<20 {
             guard var value = try await record(id) else { throw Failure.notFound }
-            let generation = value.generation
+            let generation = value.generation, wasPending = value.needsDelivery
             try update(&value)
             if try await store.putDraftRecord(value, expectedGeneration: generation) {
-                value.generation = generation + 1; changed(value); return value
+                value.generation = generation + 1
+                changed(value, !wasPending && value.needsDelivery)
+                return value
             }
         }
         throw Failure.changed
     }
     func pendingRecords(after: String = "") async throws -> [MailDraftRecord] {
         try await store.pendingDraftRecords(scope: scope, after: after)
+    }
+    /// Drain durable work and return the earliest reason to wake again. A clean outbox
+    /// has no timer. The first subsequent dirty transition wakes the live source.
+    func deliverPending(at now: Date = Date()) async throws -> Date? {
+        var cursor = "", next: Date?
+        let retry = now.addingTimeInterval(30)
+        while true {
+            try Task.checkCancellation()
+            let records = try await pendingRecords(after: cursor)
+            guard let last = records.last else { return next }
+            for record in records {
+                try Task.checkCancellation()
+                if record.state == .held, let due = record.sendAt, due > now,
+                   record.acknowledgedRevision == record.revision, record.pending == nil, !record.wantsDelete {
+                    next = min(next ?? due, due)
+                } else {
+                    // A queued edit may be delivered before its send hold expires.
+                    let due = record.state == .held ? record.sendAt : nil
+                    let wake = due.flatMap { $0 > now ? min(retry, $0) : nil } ?? retry
+                    next = min(next ?? wake, wake)
+                    do { try await flush(record.snapshot.id, now: now) }
+                    catch is CancellationError { throw CancellationError() }
+                    catch { continue } // Preserve the operation and service other drafts.
+                }
+            }
+            cursor = last.snapshot.id.raw
+        }
     }
     func forConversation(_ conversation: MailConversationID) async throws -> MailDraftRecord? {
         try await store.draftForConversation(scope: scope, conversation: conversation)
@@ -199,7 +228,7 @@ actor MailDraftDriver {
         value.acknowledgedRevision = value.revision
         guard try await store.putDraftRecord(value, expectedGeneration: existing?.generation) else { throw Failure.changed }
         value.generation = (existing?.generation ?? -1) + 1
-        changed(value)
+        changed(value, false)
     }
 
     private static func editableDraftMIME(_ part: GmailPart) -> Bool {
@@ -480,7 +509,7 @@ actor MailDraftDriver {
                 value.pendingFiles = content == nil ? nil : value.snapshot.attachments
                 if action == .send { value.state = .sending }
                 guard try await store.putDraftRecord(value, expectedGeneration: generation) else { continue }
-                value.generation += 1; changed(value)
+                value.generation += 1; changed(value, false)
             }
             guard let pending = value.pending else { return }
             do {

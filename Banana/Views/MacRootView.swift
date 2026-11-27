@@ -395,6 +395,7 @@ struct MacRootView: View {
                         if let unread = await MailBadgeLaunchRead.read(), MailApplication.shared.session == nil {
                             ActionBadges.shared.setMailInbox(unread)
                         }
+                        MailApplication.shared.startIfOutgoingWorkWaits()
                         #endif
                     }
                     #if DEBUG

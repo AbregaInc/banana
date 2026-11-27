@@ -1,0 +1,69 @@
+{
+  "scope": "Single M1 iPad Day process on the same charger and foreground fixture. Two 10-minute intervals with the host process sampler attached, alternating as attached/disconnected/disconnected/attached. The independent minute battery collector ran throughout. CPU and wakeup rates use cumulative counters at each endpoint. Total device load includes the display and other processes.",
+  "intervals": [
+    {
+      "order": 1,
+      "fiveSecondProcessSamplerAttached": true,
+      "startUTC": "2026-11-26T09:57:58+00:00",
+      "endUTC": "2026-11-26T10:07:59+00:00",
+      "counterElapsedSeconds": 600.58,
+      "processCPUPercent": 0.06005078947837697,
+      "interruptWakeupsPerSecond": 2.1778777780069705,
+      "platformIdleWakeupsPerSecond": 0.02664070676461126,
+      "powerSamples": 10,
+      "powerMedianW": {
+        "SystemPowerIn": 7.696,
+        "SystemLoad": 5.789,
+        "BatteryPower": 1.914
+      }
+    },
+    {
+      "order": 2,
+      "fiveSecondProcessSamplerAttached": false,
+      "startUTC": "2026-11-26T10:08:05+00:00",
+      "endUTC": "2026-11-26T10:18:05+00:00",
+      "counterElapsedSeconds": 606.3,
+      "processCPUPercent": 0.05892917668209437,
+      "interruptWakeupsPerSecond": 2.175473773780849,
+      "platformIdleWakeupsPerSecond": 0.018142692578915345,
+      "powerSamples": 10,
+      "powerMedianW": {
+        "SystemPowerIn": 7.676,
+        "SystemLoad": 5.701,
+        "BatteryPower": 1.968
+      }
+    },
+    {
+      "order": 3,
+      "fiveSecondProcessSamplerAttached": false,
+      "startUTC": "2026-11-26T10:18:17+00:00",
+      "endUTC": "2026-11-26T10:28:17+00:00",
+      "counterElapsedSeconds": 605.57,
+      "processCPUPercent": 0.05471246708689635,
+      "interruptWakeupsPerSecond": 2.1731506714496565,
+      "platformIdleWakeupsPerSecond": 0.01816463327199561,
+      "powerSamples": 10,
+      "powerMedianW": {
+        "SystemPowerIn": 7.671,
+        "SystemLoad": 5.707,
+        "BatteryPower": 1.979
+      }
+    },
+    {
+      "order": 4,
+      "fiveSecondProcessSamplerAttached": true,
+      "startUTC": "2026-11-26T10:28:23+00:00",
+      "endUTC": "2026-11-26T10:38:24+00:00",
+      "counterElapsedSeconds": 600.54,
+      "processCPUPercent": 0.059206739324955536,
+      "interruptWakeupsPerSecond": 2.2080157962373574,
+      "platformIdleWakeupsPerSecond": 0.019982043404862964,
+      "powerSamples": 10,
+      "powerMedianW": {
+        "SystemPowerIn": 7.681,
+        "SystemLoad": 5.845,
+        "BatteryPower": 1.837
+      }
+    }
+  ]
+}

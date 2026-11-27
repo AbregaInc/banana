@@ -390,7 +390,7 @@ struct MailMessageCard: View {
     let message: MailMessageDisplay
     /// Nil until the body has arrived.
     let text: MailBody?
-    var styled: [AttributedString]? = nil
+    var styled: [AttributedString?]? = nil
     var timeNotes: [Int: [MailReaderTime.Note]] = [:]
     let opener: MailAttachmentOpener
 

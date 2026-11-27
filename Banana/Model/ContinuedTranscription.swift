@@ -61,7 +61,11 @@ enum ContinuedTranscription {
             guard let task = task as? BGContinuedProcessingTask else {
                 task.setTaskCompleted(success: false); return
             }
-            Task { @MainActor in await run(task) }
+            let worker = Task { @MainActor in await run(task) }
+            task.expirationHandler = {
+                worker.cancel()
+                Log.wake.notice("continued transcription: expired by the system")
+            }
         }
         guard ok else {
             Log.wake.error("continued transcription: registration rejected for \(id, privacy: .public)")
@@ -96,6 +100,7 @@ enum ContinuedTranscription {
         #endif
 
         defer {
+            task.expirationHandler = nil
             var map = jobs
             map[task.identifier] = nil
             jobs = map
@@ -115,15 +120,6 @@ enum ContinuedTranscription {
             Log.wake.error("continued transcription: no episode for \(task.identifier, privacy: .public)")
             task.setTaskCompleted(success: false)
             return
-        }
-
-        var expired = false
-        task.expirationHandler = {
-            expired = true
-            #if DEBUG
-            print("[continued] EXPIRED BY SYSTEM"); fflush(stdout)
-            #endif
-            Log.wake.error("continued transcription: expired by the system")
         }
 
         let coordinator = TranscriptCoordinator.shared
@@ -161,12 +157,11 @@ enum ContinuedTranscription {
         }
         defer { ticker.cancel() }
 
-        let transcript = await coordinator.ensureTranscript(for: episode, keepAwake: false,
-                                                            isCancelled: { expired })
+        let transcript = await coordinator.ensureTranscript(for: episode, keepAwake: false)
         ticker.cancel()
 
         #if DEBUG
-        print("[continued] finished — words: \(transcript?.words.count ?? 0), expired: \(expired)")
+        print("[continued] finished — words: \(transcript?.words.count ?? 0), expired: \(Task.isCancelled)")
         fflush(stdout)
         #endif
 

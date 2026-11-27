@@ -125,7 +125,7 @@ final class MailFixtureSource: MailSource {
     /// Where the sample mail's clock stands.
     var now: Date { MailFixtureConversations.now }
 
-    init(samples: [MailFixtureConversations.Sample] = MailFixtureConversations.threads(),
+    init(samples: some Sequence<MailFixtureConversations.Sample> = MailFixtureConversations.threads(),
          clock: @escaping () -> Date = Date.init, wakeClock: MailClock = SystemMailClock(),
          defaults: UserDefaults? = nil, gmailDelay: Duration? = nil) {
         self.clock = clock
@@ -314,8 +314,14 @@ final class MailFixtureSource: MailSource {
             + MailBodyHTML.html(text) + "<a href='https://example.com/event'>View event</a></article>"
     }
 
+    #if STRESS_DEVICE_AUDIT && os(iOS)
+    var diskFixtureBody: ((MailMessageID) async -> MailBody?)?
+    #endif
     func body(_ id: MailMessageID) async -> MailBody {
-        bodies[id] ?? draftBody(id) ?? .notOnDevice
+        #if STRESS_DEVICE_AUDIT && os(iOS)
+        if let diskFixtureBody, let body = await diskFixtureBody(id) { return body }
+        #endif
+        return bodies[id] ?? draftBody(id) ?? .notOnDevice
     }
 
     // MARK: - Changes
@@ -656,7 +662,7 @@ final class MailFixtureSource: MailSource {
                                                name: file.name, bytes: file.bytes, actually: source.actually[file.name])
                 },
                 delivery: nil, draft: nil))
-            bodies[messageID] = .text(text, quoteStartsAt: nil,
+            bodies[messageID] = .text(text, quoteStartsAt: source.quoteStartsAt,
                                       notices: sample.designed ? [.shownAsText] : [])
         }
 

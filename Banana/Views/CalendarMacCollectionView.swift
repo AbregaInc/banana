@@ -28,13 +28,29 @@ struct CalendarMacSlotAction {
 }
 
 final class CalendarMacCollectionLayout: NSCollectionViewLayout {
-    var attributes: [NSCollectionViewLayoutAttributes] = []
+    private(set) var attributes: [NSCollectionViewLayoutAttributes] = []
+    private(set) var items: [CalendarMacViewportItem] = []
+
+    @discardableResult
+    func replaceItems(_ next: [CalendarMacViewportItem]) -> Bool {
+        let changed = CalendarViewportAttributes.update(&attributes, from: items, to: next,
+            sameGeometry: { $0.frame == $1.frame && $0.zIndex == $1.zIndex }
+        ) { index, item in
+            let attribute = NSCollectionViewLayoutAttributes(forItemWith: IndexPath(item: index, section: 0))
+            attribute.frame = item.frame
+            attribute.zIndex = item.zIndex
+            return attribute
+        }
+        items = next
+        return changed
+    }
+
     var size: CGSize = .zero
     var activeIndex: Int?
 
     override var collectionViewContentSize: NSSize { size }
     override func layoutAttributesForElements(in rect: NSRect) -> [NSCollectionViewLayoutAttributes] {
-        attributes.filter { $0.indexPath?.item == activeIndex || $0.frame.intersects(rect) }
+        CalendarViewportAttributes.visible(attributes, items: items, rect: rect, active: activeIndex, frame: { $0.frame })
     }
     override func layoutAttributesForItem(at indexPath: IndexPath) -> NSCollectionViewLayoutAttributes? {
         guard indexPath.section == 0, attributes.indices.contains(indexPath.item) else { return nil }
@@ -52,6 +68,28 @@ private final class CalendarMacCellView: NSView {
     }
 }
 
+/// One intentional trackpad gesture can turn one period. Momentum belongs to the scroll
+/// that already ended, including when its horizontal component outlasts the vertical one.
+struct CalendarMacPeriodSwipe {
+    private var accumulatedX: CGFloat = 0
+    private var didMove = false
+    private var lastTimestamp: TimeInterval = 0
+
+    mutating func page(x: CGFloat, y: CGFloat, phase: NSEvent.Phase, momentum: NSEvent.Phase,
+                       timestamp: TimeInterval) -> Int? {
+        guard momentum.isEmpty, !phase.contains(.cancelled) else { return nil }
+        if phase.contains(.began) || (phase.isEmpty && timestamp - lastTimestamp > 0.45) {
+            accumulatedX = 0
+            didMove = false
+        }
+        lastTimestamp = timestamp
+        guard !didMove, abs(x) > abs(y) * 1.2 else { return nil }
+        accumulatedX += x
+        guard abs(accumulatedX) >= 60 else { return nil }
+        didMove = true
+        return accumulatedX > 0 ? 1 : -1
+    }
+}
 /// Discrete mouse wheels have no gesture phases, so AppKit's live-scroll end
 /// notification alone does not cover them. Coalesce their persistence callback.
 final class CalendarMacScrollView: NSScrollView {
@@ -146,7 +184,7 @@ struct CalendarMacCollectionViewport: NSViewRepresentable {
         private let collection = NSCollectionView()
         private let layout = CalendarMacCollectionLayout()
         private let backgroundHost = NSHostingView(rootView: AnyView(EmptyView()))
-        private var items: [CalendarMacViewportItem] = []
+        private var items: [CalendarMacViewportItem] { layout.items }
         private var environment = EnvironmentValues()
         private var observer: NSObjectProtocol?
         private var scrollEndObserver: NSObjectProtocol?
@@ -206,8 +244,8 @@ struct CalendarMacCollectionViewport: NSViewRepresentable {
         }
 
         func update(_ input: CalendarMacCollectionViewport, environment: EnvironmentValues) {
-            let changedIDs = items.map(\.id) != input.items.map(\.id)
-            items = input.items
+            let changedIDs = !items.elementsEqual(input.items) { $0.id == $1.id }
+            let changedFrames = layout.replaceItems(input.items)
             self.environment = environment
             onOffset = input.onOffset
             onScrollEnd = input.onScrollEnd
@@ -219,16 +257,13 @@ struct CalendarMacCollectionViewport: NSViewRepresentable {
                 .frame(width: input.contentSize.width, height: input.contentSize.height, alignment: .topLeading)
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .topLeading)
                 .environment(\.self, environment))
-            layout.size = input.contentSize
-            layout.activeIndex = input.activeID.flatMap { id in items.firstIndex { $0.id.hasSuffix("|" + id) } }
-            layout.attributes = items.enumerated().map { index, item in
-                let attributes = NSCollectionViewLayoutAttributes(forItemWith: IndexPath(item: index, section: 0))
-                attributes.frame = item.frame
-                attributes.zIndex = item.zIndex
-                return attributes
+            let activeIndex = input.activeID.flatMap { id in items.firstIndex { $0.id.hasSuffix("|" + id) } }
+            if changedFrames || layout.size != input.contentSize || layout.activeIndex != activeIndex {
+                layout.size = input.contentSize
+                layout.activeIndex = activeIndex
+                collection.setFrameSize(input.contentSize)
+                layout.invalidateLayout()
             }
-            collection.setFrameSize(input.contentSize)
-            layout.invalidateLayout()
             if changedIDs { collection.reloadData() }
             else {
                 for index in collection.indexPathsForVisibleItems() where items.indices.contains(index.item) {

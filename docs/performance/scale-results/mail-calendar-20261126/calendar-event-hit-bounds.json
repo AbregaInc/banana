@@ -1,0 +1,23 @@
+{
+  "scope": "One accessibility snapshot of the visible native Week collection. Each event button must fit its own cell horizontally within one point, including cells narrower than the normal block. Separate real gestures exercise opening the selected event and a rejected move.",
+  "runs": [
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "checkedEvents": 39,
+      "narrowCells": 14,
+      "maxOverhangPoints": 5.684341886080802e-14,
+      "passed": true,
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984"
+    },
+    {
+      "build": "bands",
+      "device": "iPhone 14 Pro",
+      "checkedEvents": 31,
+      "narrowCells": 12,
+      "maxOverhangPoints": 221.33333333333331,
+      "passed": false,
+      "appSHA256": "6a7a1316ebc7c64e7019ddcb1fa546c4847b739b07c6ef589f284bc15133d0ef"
+    }
+  ]
+}

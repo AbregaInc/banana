@@ -1,0 +1,234 @@
+{
+  "scope": "iPhone 17 Pro Simulator (stock runtime, Release BananaModelTests), MailColdStartCostTests. One mailbox on disk: 180,000 conversations in two accounts, 540,000 message rows, write-ahead log checkpointed as the app writer keeps it. Each process opens the existing mailbox; within a process the five iterations reopen the stores, so iteration 1 is the fresh-process cost and 2-5 reuse warm process state. The OS file cache is warm in every process. Steps follow MailApplication.start(): open the four stores and the intent store, make MailLiveSource, prepareActions, make it visible, first 50 unified-Inbox rows. Simulator timings run on Mac cores and are lower than a phone.",
+  "result": "Two startup reads walked every message: the action coordinator looked for messages with a local overlay by scanning message, and the held-removal count let SQLite drive its join from message. Walking the overlay and forcing the join to start from held_removal took prepareActions from 98-100 to 43-47 ms in a fresh process and from 74-79 to 12-13 ms on later opens. Launch to the first inbox rows went from 132-136 to 84-99 ms in a fresh process.",
+  "before": {
+    "process2": {
+      "becomeVisible": [
+        0.62,
+        0.42,
+        0.63,
+        0.5,
+        0.42
+      ],
+      "firstInboxRows": [
+        13.81,
+        5.26,
+        6.75,
+        4.89,
+        5.21
+      ],
+      "makeSource": [
+        0.68,
+        0.03,
+        0.02,
+        0.02,
+        0.03
+      ],
+      "openStores": [
+        17.83,
+        4.28,
+        4.06,
+        5.13,
+        4.59
+      ],
+      "prepareActions": [
+        99.51,
+        75.68,
+        76.86,
+        78.29,
+        79.22
+      ],
+      "total": [
+        132.45,
+        85.66,
+        88.32,
+        88.82,
+        89.48
+      ]
+    },
+    "process3": {
+      "becomeVisible": [
+        0.59,
+        0.38,
+        0.39,
+        0.41,
+        0.49
+      ],
+      "firstInboxRows": [
+        13.83,
+        5.44,
+        5.39,
+        5.04,
+        5.39
+      ],
+      "makeSource": [
+        0.69,
+        0.02,
+        0.02,
+        0.02,
+        0.02
+      ],
+      "openStores": [
+        22.32,
+        4.07,
+        4.94,
+        4.15,
+        4.78
+      ],
+      "prepareActions": [
+        98.17,
+        76.71,
+        74.22,
+        76.43,
+        76.94
+      ],
+      "total": [
+        135.6,
+        86.61,
+        84.96,
+        86.06,
+        87.62
+      ]
+    }
+  },
+  "after": {
+    "process2": {
+      "becomeVisible": [
+        0.66,
+        0.45,
+        0.47,
+        0.47,
+        0.49
+      ],
+      "firstInboxRows": [
+        15.47,
+        5.1,
+        4.73,
+        4.81,
+        5.14
+      ],
+      "makeSource": [
+        0.84,
+        0.02,
+        0.02,
+        0.02,
+        0.03
+      ],
+      "openStores": [
+        39.04,
+        14.96,
+        8.12,
+        5.99,
+        9.45
+      ],
+      "prepareActions": [
+        43.43,
+        13.44,
+        12.31,
+        12.67,
+        12.4
+      ],
+      "total": [
+        99.44,
+        33.98,
+        25.65,
+        23.97,
+        27.51
+      ]
+    },
+    "process3": {
+      "becomeVisible": [
+        0.76,
+        0.36,
+        0.33,
+        0.32,
+        0.46
+      ],
+      "firstInboxRows": [
+        15.33,
+        4.63,
+        4.13,
+        4.62,
+        4.31
+      ],
+      "makeSource": [
+        0.63,
+        0.02,
+        0.01,
+        0.02,
+        0.02
+      ],
+      "openStores": [
+        19.91,
+        10.77,
+        8.03,
+        5.01,
+        4.71
+      ],
+      "prepareActions": [
+        47.15,
+        11.91,
+        11.77,
+        12.42,
+        12.14
+      ],
+      "total": [
+        83.78,
+        27.71,
+        24.27,
+        22.38,
+        21.64
+      ]
+    }
+  },
+  "artifactsExcluded": "A first fixture without message rows hid both scans. A second fixture left its 361 MB bulk insert in the write-ahead log, which every fresh process replayed while opening index.sqlite (about 100 ms); the app writer checkpoints above 8 MiB, so the measured fixture is checkpointed.",
+  "uncheckpointedSearchLog": {
+    "found": "On the owner's iPhone the Beta's search.sqlite was 4 KB with a 1.48 GB write-ahead log (last main-file change 13 October). The blob log was 21.8 MB against an 8 MiB limit. Only the index and intent stores had a checkpointer; every writable store had SQLite's automatic checkpoint turned off.",
+    "reproduction": "Same benchmark with MAIL_COLD_START_SEARCH_LOG: 1.4 GB left in the search log, then fresh processes.",
+    "process2": {
+      "becomeVisible": [
+        0.68,
+        0.42,
+        0.44,
+        0.35,
+        0.36
+      ],
+      "firstInboxRows": [
+        12.91,
+        4.84,
+        4.81,
+        4.26,
+        4.54
+      ],
+      "makeSource": [
+        0.77,
+        0.02,
+        0.03,
+        0.01,
+        0.01
+      ],
+      "openStores": [
+        386.87,
+        385.36,
+        3.99,
+        3.52,
+        3.57
+      ],
+      "prepareActions": [
+        41.6,
+        12.13,
+        12.46,
+        13.1,
+        12.9
+      ],
+      "total": [
+        442.83,
+        402.78,
+        21.73,
+        21.24,
+        21.38
+      ]
+    },
+    "result": "Opening the stores took 386-426 ms in each fresh open with the 1.4 GB log and 4 ms with a normal one, on Mac storage. Once the search indexer wrote, the new automatic checkpoint emptied the log and later opens in the same process took 4 ms."
+  }
+}

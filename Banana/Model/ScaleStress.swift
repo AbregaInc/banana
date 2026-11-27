@@ -97,6 +97,7 @@ final class ScaleStress: ObservableObject {
         let podcasts: Int
         let episodes: Int
         let residentMB: Double
+        let physicalFootprintMB: Double
         let metrics: [Metric]
         let passed: Bool
         let platform: String
@@ -228,11 +229,43 @@ final class ScaleStress: ObservableObject {
                                     : "stress-event-\(i)")
             }
         }
-        OccurrenceStore.shared.injectStress(meetings)
+        var allDay: [MeetingInfo] = []
+        if ProcessInfo.processInfo.arguments.contains("--stress-calendar-day-bands") {
+            // Supplement the existing timed workload with different all-day bands on the
+            // two adjacent pages. The original stress suite keeps precisely its timed set.
+            let calendar = Calendar.current
+            for offset in [1, 2] {
+                let start = calendar.date(byAdding: .day, value: offset, to: now)!
+                let end = calendar.date(byAdding: .day, value: 1, to: start)!
+                for item in 1...(offset == 1 ? 1 : 5) {
+                    allDay.append(MeetingInfo(start: start, end: end, coordinate: nil, address: nil,
+                        isVirtual: false, title: "Calendar workshop \(offset)-\(item)",
+                        eventID: "stress-workshop-\(offset)-\(item)", isAllDay: true))
+                }
+            }
+        }
+        OccurrenceStore.shared.injectStress(meetings, allDay: allDay)
+        #if STRESS_DEVICE_AUDIT && os(iOS)
+        if ProcessInfo.processInfo.arguments.contains("--stress-calendar-snapshot-work") {
+            try! await Self.measureCalendarSnapshotWork(OccurrenceStore.shared.occurrences, from: now,
+                to: Self.reportDirectory.appendingPathComponent("calendar-snapshot-work.json"))
+        }
+        #endif
+        #if targetEnvironment(simulator)
+        if ProcessInfo.processInfo.arguments.contains("--stress-plan-attention") {
+            try! PlanAttentionBenchmark.run(events: OccurrenceStore.shared.occurrences,
+                                            to: Self.reportDirectory.appendingPathComponent("plan-attention.json"))
+        }
+        #endif
         #if !BANANA_PUBLIC
         guard let mail = MailSession.shared?.source as? MailFixtureSource else {
             fatalError("Stress route requires the fixture mail source")
         }
+        #if STRESS_DEVICE_AUDIT && os(iOS)
+        if ProcessInfo.processInfo.arguments.contains("--stress-mail-disk-reader") {
+            try! await MailDiskReaderFixture.install(in: mail, root: AppSupport.directory.appendingPathComponent("reader-store"))
+        }
+        #endif
         #endif
         // Every section is loaded together, even when only one tab is visible.
         if ProcessInfo.processInfo.arguments.contains("--stress-measure") {
@@ -271,6 +304,7 @@ final class ScaleStress: ObservableObject {
             let report = Report(schemaVersion: 1, days: days, emails: Self.mailDays * 2_000,
                                 events: meetings.count, notes: notes.count, podcasts: shows.count,
                                 episodes: shows.count * episodesPerShow, residentMB: Double(usage.ru_maxrss) / 1_048_576,
+                                physicalFootprintMB: MemoryLog.footprintMB(),
                                 metrics: metrics, passed: metrics.allSatisfy(\.passed),
                                 platform: Self.platform)
             do {
@@ -338,6 +372,53 @@ struct ScaleStressBadge: View {
                 .accessibilityValue(stress.calendarFixtureSummary)
                 .allowsHitTesting(false)
         }
+    }
+}
+#endif
+
+#if DEBUG && STRESS_DEVICE_AUDIT && os(iOS)
+extension ScaleStress {
+    /// The extra work a Day or Week snapshot used to do after obtaining its ordered events.
+    /// Run on explicitly requested synthetic fixtures only.
+    static func measureCalendarSnapshotWork(_ events: [Occurrence], from start: Date, to file: URL) async throws {
+        let calendar = Calendar.current
+        let dates = (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: start) }
+        let week = dates.map { DayColumn.occurrences(events, on: $0, calendar: calendar) }
+        let reverse = ProcessInfo.processInfo.arguments.contains("--stress-reverse-comparison")
+        var samples: [[String: Any]] = []
+        var checksum = 0
+        for width in [1, 3, 7] {
+            let days = week.prefix(width)
+            let expected = Array(days.flatMap { $0.map(\.id) }.prefix(200))
+            for trial in 0..<12 {
+                for step in 0..<6 {
+                    let offset = (trial + step) % 6
+                    let mode = reverse ? 5 - offset : offset
+                    let begins = ProcessInfo.processInfo.systemUptime
+                    if mode < 3 {
+                        for items in days { checksum &+= items.hashValue }
+                    }
+                    let ids: [String]
+                    if mode % 3 == 0 {
+                        ids = Array(days.flatMap { $0.map(\.id) }.prefix(200))
+                    } else if mode % 3 == 1 {
+                        ids = days.joined().prefix(200).map(\.id)
+                    } else {
+                        ids = ProblemReportCenter.reportedCalendarIDs(days)
+                    }
+                    let elapsed = (ProcessInfo.processInfo.systemUptime - begins) * 1000
+                    precondition(ids == expected)
+                    samples.append(["width": width, "items": days.reduce(0) { $0 + $1.count },
+                                    "reported": ids.count, "hashesItems": mode < 3,
+                                    "boundsIDs": mode % 3 != 0, "idMode": ["all", "flattened", "bounded slices"][mode % 3], "trial": trial, "ms": elapsed])
+                    await Task.yield()
+                }
+            }
+        }
+        let args = ProcessInfo.processInfo.arguments
+        let run = args.firstIndex(of: "--stress-calendar-snapshot-run").flatMap { args.dropFirst($0 + 1).first }
+        let output: [String: Any] = ["run": run ?? "local", "samples": samples, "hashSink": checksum, "thermal": ProcessInfo.processInfo.thermalState.rawValue]
+        try JSONSerialization.data(withJSONObject: output, options: [.sortedKeys]).write(to: file, options: .atomic)
     }
 }
 #endif

@@ -39,6 +39,27 @@ final class MailConversationReaderTests: XCTestCase {
         XCTAssertEqual(value?.messages.first?.firstLine, "We've got tea & coffee")
     }
 
+    func testEachMessageKeepsItsOwnBlindRecipientsAndPreparationState() async throws {
+        let stores = try await stores()
+        var wire = try message()
+        try await importMessage(wire, stores: stores)
+        wire.id = "m2"
+        wire.internalDate = 2000
+        try await importMessage(wire, stores: stores)
+        try await stores.index.write { db in
+            try db.execute(sql: "UPDATE message SET prep_state=1 WHERE gmail_id='m1'")
+            try db.execute(sql: "UPDATE message SET recipients=NULL WHERE gmail_id='m2'")
+        }
+        let reader = MailConversationReader(stores: stores)
+        let conversation = try await reader.conversation(.init(account: "a@example.com", thread: "t1"))
+        let first = try XCTUnwrap(conversation?.messages.first { $0.id.message == "m1" })
+        let second = try XCTUnwrap(conversation?.messages.first { $0.id.message == "m2" })
+        XCTAssertEqual(first.bcc.map(\.address), ["hidden@example.com"])
+        XCTAssertEqual(first.body, .preparing)
+        XCTAssertTrue(second.bcc.isEmpty)
+        XCTAssertEqual(second.body, .notOnDevice)
+    }
+
     func testCachedHeadersAreReadableBeforeBodyAndAccountIsIsolated() async throws {
         let stores = try await stores(), wire = try message()
         try await importMessage(wire, stores: stores)
@@ -63,6 +84,38 @@ final class MailConversationReaderTests: XCTestCase {
         XCTAssertTrue(value?.inInbox == true)
         XCTAssertNil(value?.system)
         XCTAssertEqual(value?.messages.count, 2)
+    }
+
+    func testUserLabelsFollowEffectiveMessagesAndUseTheirOwnAccountsCatalog() async throws {
+        let stores = try await stores()
+        var first = try message()
+        first.labelIds = ["INBOX", "shared", "remove", "refused"]
+        try await importMessage(first, stores: stores)
+        var second = first
+        second.id = "m2"
+        second.labelIds = ["shared", "TRASH", "trash-only"]
+        try await importMessage(second, stores: stores)
+        let localID = #"local:Trip "A" / été"#
+        try await stores.index.write { db in
+            let accountPK = try XCTUnwrap(Int64.fetchOne(db, sql: "SELECT account_pk FROM account WHERE email=?", arguments: ["a@example.com"]))
+            let messagePK = try XCTUnwrap(Int64.fetchOne(db, sql: "SELECT msg_pk FROM message WHERE account_pk=? AND gmail_id='m1'", arguments: [accountPK]))
+            try db.execute(sql: "UPDATE label SET name='Revised',background_color='#ffeeaa' WHERE account_pk=? AND gmail_id='shared'", arguments: [accountPK])
+            try db.execute(sql: "INSERT INTO label(account_pk,gmail_id,name,kind) VALUES (?,?,?,1)", arguments: [accountPK, localID, "Local"])
+            try db.execute(sql: "INSERT INTO account(email) VALUES ('other@plan.example')")
+            try db.execute(sql: "INSERT INTO label(account_pk,gmail_id,name,kind) VALUES (?,'shared','Another account',1)", arguments: [db.lastInsertedRowID])
+            for (id, want, refused) in [(localID, true, false), ("remove", false, false), ("refused", false, true)] {
+                try db.execute(sql: """
+                    INSERT INTO overlay(msg_pk,label_pk,want,refused)
+                    SELECT ?,label_pk,?,? FROM label WHERE account_pk=? AND gmail_id=?
+                    """, arguments: [messagePK, want, refused, accountPK, id])
+            }
+        }
+        let id = MailConversationID(account: "a@example.com", thread: "t1")
+        let conversation = try await MailConversationReader(stores: stores).conversation(id)
+        let labels = try XCTUnwrap(conversation).labels
+        XCTAssertEqual(labels.map(\.id), [localID, "refused", "shared", "trash-only"].sorted())
+        XCTAssertEqual(labels.first { $0.id == "shared" }?.name, "Revised")
+        XCTAssertEqual(labels.first { $0.id == "shared" }?.colorHex, "#ffeeaa")
     }
 
     func testBrowserFreeUnsubscribeRequiresOneMatchedSignatureCoveringBothHeaders() throws {

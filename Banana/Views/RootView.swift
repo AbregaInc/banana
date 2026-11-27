@@ -266,8 +266,16 @@ struct RootView: View {
                 // The plan's Day with that sheet already open, for the sheets' own tests.
                 NewItemSheetHost(task: ProcessInfo.processInfo.arguments.contains("--new-task"))
             } else if ProcessInfo.processInfo.arguments.contains("--plan") {
-                // With the toasts the Plan tab has, so an Undo can be seen and tapped here too.
-                PlannerTab().toastHost()
+                if ProcessInfo.processInfo.arguments.contains("--stress-empty-scene") {
+                    // Same fixture preparation and foreground diagnostics, without mounting the planner.
+                    Color(.systemBackground).ignoresSafeArea()
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Empty fixture scene")
+                        .accessibilityIdentifier("stress.emptyScene")
+                        .onAppear { PlaybackDiagnostics.shared.log("fixture", "empty scene appeared") }
+                } else {
+                    PlannerTab().toastHost()
+                }
             } else if ProcessInfo.processInfo.arguments.contains("--week") {
                 WeekView().toastHost()
             } else if ProcessInfo.processInfo.arguments.contains("--day") {
@@ -337,11 +345,22 @@ struct RootView: View {
                 || ProcessInfo.processInfo.arguments.contains("--storm-selftest")
                 || ProcessInfo.processInfo.arguments.contains("--smart-publish-regression")
                 || ProcessInfo.processInfo.arguments.contains("--offscreen-recompute-regression")
+                || ProcessInfo.processInfo.arguments.contains("--hidden-plan-recompute-regression")
                 || ProcessInfo.processInfo.arguments.contains("--calendar-move-render-probe")
                 || ProcessInfo.processInfo.arguments.contains("--calendar-artwork-test-probe")
                 || ProcessInfo.processInfo.arguments.contains("--tab-reentry-probe")
                 || ProcessInfo.processInfo.arguments.contains("--perf-trace") {
                 DayPerformanceRenderProbe()
+            }
+        }
+        // `--hidden-plan-recompute-regression`: twenty timeline publications from six seconds
+        // after launch, from the shell, so they arrive whichever section is in front.
+        .task {
+            guard ProcessInfo.processInfo.arguments.contains("--hidden-plan-recompute-regression") else { return }
+            try? await Task.sleep(for: .seconds(6))
+            for round in 0..<20 where !Task.isCancelled {
+                OccurrenceStore.shared.republishWithOffscreenChange(round: round)
+                try? await Task.sleep(for: .milliseconds(150))
             }
         }
         #endif
@@ -616,6 +635,7 @@ struct RootView: View {
         #if DEBUG
         LaunchTiming.note("mail_badge_read_ms", Date().timeIntervalSince(began) * 1000)
         #endif
+        MailApplication.shared.startIfOutgoingWorkWaits()
     }
     #endif
 
@@ -741,6 +761,7 @@ struct RootView: View {
                 // None of those changes the calendar subtree. Keep their launch-time publication
                 // bursts from rebuilding the expensive day grid.
                 PlannerTab().equatable()
+                    .environment(\.sectionInFront, tabSelection.wrappedValue == .section(.plan))
                     .measuresLayoutClass()
                     .toastHost()
                     .shellPage(bottomBar: bottomBarShell).erasedTab()

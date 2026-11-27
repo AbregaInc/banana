@@ -1,0 +1,3389 @@
+{
+  "scope": "Bounded code extraction over prepared text. Same results checked in both binaries.",
+  "runs": [
+    {
+      "build": "old",
+      "binarySHA256": "c0b61442fc695f2d8d10fed8de4c8e6bc36e56fe062b74c2b322e5c539420c47",
+      "samples": [
+        {
+          "trial": 0,
+          "workload": "short-code",
+          "ms": 1.826458377763629
+        },
+        {
+          "trial": 0,
+          "workload": "bounded-negative",
+          "ms": 4.301249980926514
+        },
+        {
+          "trial": 0,
+          "workload": "repeated-labels",
+          "ms": 5.389791680499911
+        },
+        {
+          "trial": 0,
+          "workload": "bounded-blocks",
+          "ms": 0.0355415977537632
+        },
+        {
+          "trial": 0,
+          "workload": "order",
+          "ms": 0.025583431124687195
+        },
+        {
+          "trial": 0,
+          "workload": "negative-many-lines",
+          "ms": 2.383916638791561
+        },
+        {
+          "trial": 0,
+          "workload": "mixed-code",
+          "ms": 0.026958296075463295
+        },
+        {
+          "trial": 0,
+          "workload": "instruction",
+          "ms": 0.03179186023771763
+        },
+        {
+          "trial": 1,
+          "workload": "short-code",
+          "ms": 0.01987488940358162
+        },
+        {
+          "trial": 1,
+          "workload": "bounded-negative",
+          "ms": 4.254375118762255
+        },
+        {
+          "trial": 1,
+          "workload": "repeated-labels",
+          "ms": 5.556916585192084
+        },
+        {
+          "trial": 1,
+          "workload": "bounded-blocks",
+          "ms": 0.040458282455801964
+        },
+        {
+          "trial": 1,
+          "workload": "order",
+          "ms": 0.028291484341025352
+        },
+        {
+          "trial": 1,
+          "workload": "negative-many-lines",
+          "ms": 2.4941249284893274
+        },
+        {
+          "trial": 1,
+          "workload": "mixed-code",
+          "ms": 0.02987496554851532
+        },
+        {
+          "trial": 1,
+          "workload": "instruction",
+          "ms": 0.03337487578392029
+        },
+        {
+          "trial": 2,
+          "workload": "short-code",
+          "ms": 0.019999919459223747
+        },
+        {
+          "trial": 2,
+          "workload": "bounded-negative",
+          "ms": 4.31741657666862
+        },
+        {
+          "trial": 2,
+          "workload": "repeated-labels",
+          "ms": 5.38174994289875
+        },
+        {
+          "trial": 2,
+          "workload": "bounded-blocks",
+          "ms": 0.03374996595084667
+        },
+        {
+          "trial": 2,
+          "workload": "order",
+          "ms": 0.024999957531690598
+        },
+        {
+          "trial": 2,
+          "workload": "negative-many-lines",
+          "ms": 2.8091249987483025
+        },
+        {
+          "trial": 2,
+          "workload": "mixed-code",
+          "ms": 0.022791558876633644
+        },
+        {
+          "trial": 2,
+          "workload": "instruction",
+          "ms": 0.02750009298324585
+        },
+        {
+          "trial": 3,
+          "workload": "short-code",
+          "ms": 0.01795846037566662
+        },
+        {
+          "trial": 3,
+          "workload": "bounded-negative",
+          "ms": 4.188083345070481
+        },
+        {
+          "trial": 3,
+          "workload": "repeated-labels",
+          "ms": 6.003458518534899
+        },
+        {
+          "trial": 3,
+          "workload": "bounded-blocks",
+          "ms": 0.05075009539723396
+        },
+        {
+          "trial": 3,
+          "workload": "order",
+          "ms": 0.037083402276039124
+        },
+        {
+          "trial": 3,
+          "workload": "negative-many-lines",
+          "ms": 2.697416814044118
+        },
+        {
+          "trial": 3,
+          "workload": "mixed-code",
+          "ms": 0.03887503407895565
+        },
+        {
+          "trial": 3,
+          "workload": "instruction",
+          "ms": 0.03658328205347061
+        },
+        {
+          "trial": 4,
+          "workload": "short-code",
+          "ms": 0.021958258002996445
+        },
+        {
+          "trial": 4,
+          "workload": "bounded-negative",
+          "ms": 4.531208425760269
+        },
+        {
+          "trial": 4,
+          "workload": "repeated-labels",
+          "ms": 5.6420001201331615
+        },
+        {
+          "trial": 4,
+          "workload": "bounded-blocks",
+          "ms": 0.03454159013926983
+        },
+        {
+          "trial": 4,
+          "workload": "order",
+          "ms": 0.026041874662041664
+        },
+        {
+          "trial": 4,
+          "workload": "negative-many-lines",
+          "ms": 2.3764583747833967
+        },
+        {
+          "trial": 4,
+          "workload": "mixed-code",
+          "ms": 0.027541769668459892
+        },
+        {
+          "trial": 4,
+          "workload": "instruction",
+          "ms": 0.030833296477794647
+        },
+        {
+          "trial": 5,
+          "workload": "short-code",
+          "ms": 0.019708415493369102
+        },
+        {
+          "trial": 5,
+          "workload": "bounded-negative",
+          "ms": 4.273708444088697
+        },
+        {
+          "trial": 5,
+          "workload": "repeated-labels",
+          "ms": 5.359666654840112
+        },
+        {
+          "trial": 5,
+          "workload": "bounded-blocks",
+          "ms": 0.034166499972343445
+        },
+        {
+          "trial": 5,
+          "workload": "order",
+          "ms": 0.025791581720113754
+        },
+        {
+          "trial": 5,
+          "workload": "negative-many-lines",
+          "ms": 2.4067917838692665
+        },
+        {
+          "trial": 5,
+          "workload": "mixed-code",
+          "ms": 0.03474997356534004
+        },
+        {
+          "trial": 5,
+          "workload": "instruction",
+          "ms": 0.03187498077750206
+        },
+        {
+          "trial": 6,
+          "workload": "short-code",
+          "ms": 0.019625062122941017
+        },
+        {
+          "trial": 6,
+          "workload": "bounded-negative",
+          "ms": 4.262458300217986
+        },
+        {
+          "trial": 6,
+          "workload": "repeated-labels",
+          "ms": 5.377499852329493
+        },
+        {
+          "trial": 6,
+          "workload": "bounded-blocks",
+          "ms": 0.03291666507720947
+        },
+        {
+          "trial": 6,
+          "workload": "order",
+          "ms": 0.024958280846476555
+        },
+        {
+          "trial": 6,
+          "workload": "negative-many-lines",
+          "ms": 2.3037914652377367
+        },
+        {
+          "trial": 6,
+          "workload": "mixed-code",
+          "ms": 0.028749927878379822
+        },
+        {
+          "trial": 6,
+          "workload": "instruction",
+          "ms": 0.03054155968129635
+        },
+        {
+          "trial": 7,
+          "workload": "short-code",
+          "ms": 0.019625062122941017
+        },
+        {
+          "trial": 7,
+          "workload": "bounded-negative",
+          "ms": 4.363291664049029
+        },
+        {
+          "trial": 7,
+          "workload": "repeated-labels",
+          "ms": 5.534916650503874
+        },
+        {
+          "trial": 7,
+          "workload": "bounded-blocks",
+          "ms": 0.03600004129111767
+        },
+        {
+          "trial": 7,
+          "workload": "order",
+          "ms": 0.030499882996082306
+        },
+        {
+          "trial": 7,
+          "workload": "negative-many-lines",
+          "ms": 2.435041591525078
+        },
+        {
+          "trial": 7,
+          "workload": "mixed-code",
+          "ms": 0.037499936297535896
+        },
+        {
+          "trial": 7,
+          "workload": "instruction",
+          "ms": 0.031624920666217804
+        },
+        {
+          "trial": 8,
+          "workload": "short-code",
+          "ms": 0.021166633814573288
+        },
+        {
+          "trial": 8,
+          "workload": "bounded-negative",
+          "ms": 4.275625105947256
+        },
+        {
+          "trial": 8,
+          "workload": "repeated-labels",
+          "ms": 5.405416712164879
+        },
+        {
+          "trial": 8,
+          "workload": "bounded-blocks",
+          "ms": 0.03433343954384327
+        },
+        {
+          "trial": 8,
+          "workload": "order",
+          "ms": 0.024833250790834427
+        },
+        {
+          "trial": 8,
+          "workload": "negative-many-lines",
+          "ms": 2.448249841108918
+        },
+        {
+          "trial": 8,
+          "workload": "mixed-code",
+          "ms": 0.028499867767095566
+        },
+        {
+          "trial": 8,
+          "workload": "instruction",
+          "ms": 0.030541792511940002
+        },
+        {
+          "trial": 9,
+          "workload": "short-code",
+          "ms": 0.018541701138019562
+        },
+        {
+          "trial": 9,
+          "workload": "bounded-negative",
+          "ms": 4.271750105544925
+        },
+        {
+          "trial": 9,
+          "workload": "repeated-labels",
+          "ms": 5.446166731417179
+        },
+        {
+          "trial": 9,
+          "workload": "bounded-blocks",
+          "ms": 0.03791670314967632
+        },
+        {
+          "trial": 9,
+          "workload": "order",
+          "ms": 0.029791612178087234
+        },
+        {
+          "trial": 9,
+          "workload": "negative-many-lines",
+          "ms": 2.419625176116824
+        },
+        {
+          "trial": 9,
+          "workload": "mixed-code",
+          "ms": 0.024791574105620384
+        },
+        {
+          "trial": 9,
+          "workload": "instruction",
+          "ms": 0.028999987989664078
+        },
+        {
+          "trial": 10,
+          "workload": "short-code",
+          "ms": 0.01900014467537403
+        },
+        {
+          "trial": 10,
+          "workload": "bounded-negative",
+          "ms": 4.25212481059134
+        },
+        {
+          "trial": 10,
+          "workload": "repeated-labels",
+          "ms": 5.58004155755043
+        },
+        {
+          "trial": 10,
+          "workload": "bounded-blocks",
+          "ms": 0.03616674803197384
+        },
+        {
+          "trial": 10,
+          "workload": "order",
+          "ms": 0.024583423510193825
+        },
+        {
+          "trial": 10,
+          "workload": "negative-many-lines",
+          "ms": 2.325791632756591
+        },
+        {
+          "trial": 10,
+          "workload": "mixed-code",
+          "ms": 0.022625084966421127
+        },
+        {
+          "trial": 10,
+          "workload": "instruction",
+          "ms": 0.027250032871961594
+        },
+        {
+          "trial": 11,
+          "workload": "short-code",
+          "ms": 0.017791753634810448
+        },
+        {
+          "trial": 11,
+          "workload": "bounded-negative",
+          "ms": 4.130708519369364
+        },
+        {
+          "trial": 11,
+          "workload": "repeated-labels",
+          "ms": 5.387458251789212
+        },
+        {
+          "trial": 11,
+          "workload": "bounded-blocks",
+          "ms": 0.04754168912768364
+        },
+        {
+          "trial": 11,
+          "workload": "order",
+          "ms": 0.034333206713199615
+        },
+        {
+          "trial": 11,
+          "workload": "negative-many-lines",
+          "ms": 2.4147084914147854
+        },
+        {
+          "trial": 11,
+          "workload": "mixed-code",
+          "ms": 0.03754184581339359
+        },
+        {
+          "trial": 11,
+          "workload": "instruction",
+          "ms": 0.031250063329935074
+        },
+        {
+          "trial": 12,
+          "workload": "short-code",
+          "ms": 0.01983344554901123
+        },
+        {
+          "trial": 12,
+          "workload": "bounded-negative",
+          "ms": 4.269750090315938
+        },
+        {
+          "trial": 12,
+          "workload": "repeated-labels",
+          "ms": 5.422916496172547
+        },
+        {
+          "trial": 12,
+          "workload": "bounded-blocks",
+          "ms": 0.03212480805814266
+        },
+        {
+          "trial": 12,
+          "workload": "order",
+          "ms": 0.022624852135777473
+        },
+        {
+          "trial": 12,
+          "workload": "negative-many-lines",
+          "ms": 2.4000415578484535
+        },
+        {
+          "trial": 12,
+          "workload": "mixed-code",
+          "ms": 0.05475012585520744
+        },
+        {
+          "trial": 12,
+          "workload": "instruction",
+          "ms": 0.030958326533436775
+        },
+        {
+          "trial": 13,
+          "workload": "short-code",
+          "ms": 0.01958315260708332
+        },
+        {
+          "trial": 13,
+          "workload": "bounded-negative",
+          "ms": 4.452874884009361
+        },
+        {
+          "trial": 13,
+          "workload": "repeated-labels",
+          "ms": 5.649375030770898
+        },
+        {
+          "trial": 13,
+          "workload": "bounded-blocks",
+          "ms": 0.03970833495259285
+        },
+        {
+          "trial": 13,
+          "workload": "order",
+          "ms": 0.028749927878379822
+        },
+        {
+          "trial": 13,
+          "workload": "negative-many-lines",
+          "ms": 2.4566249921917915
+        },
+        {
+          "trial": 13,
+          "workload": "mixed-code",
+          "ms": 0.032791635021567345
+        },
+        {
+          "trial": 13,
+          "workload": "instruction",
+          "ms": 0.031333183869719505
+        },
+        {
+          "trial": 14,
+          "workload": "short-code",
+          "ms": 0.0208334531635046
+        },
+        {
+          "trial": 14,
+          "workload": "bounded-negative",
+          "ms": 4.3912916444242
+        },
+        {
+          "trial": 14,
+          "workload": "repeated-labels",
+          "ms": 5.554333329200745
+        },
+        {
+          "trial": 14,
+          "workload": "bounded-blocks",
+          "ms": 0.03458326682448387
+        },
+        {
+          "trial": 14,
+          "workload": "order",
+          "ms": 0.038499943912029266
+        },
+        {
+          "trial": 14,
+          "workload": "negative-many-lines",
+          "ms": 2.4479166604578495
+        },
+        {
+          "trial": 14,
+          "workload": "mixed-code",
+          "ms": 0.02820836380124092
+        },
+        {
+          "trial": 14,
+          "workload": "instruction",
+          "ms": 0.029416754841804504
+        },
+        {
+          "trial": 15,
+          "workload": "short-code",
+          "ms": 0.01895846799015999
+        },
+        {
+          "trial": 15,
+          "workload": "bounded-negative",
+          "ms": 4.387750057503581
+        },
+        {
+          "trial": 15,
+          "workload": "repeated-labels",
+          "ms": 5.531125003471971
+        },
+        {
+          "trial": 15,
+          "workload": "bounded-blocks",
+          "ms": 0.03437511622905731
+        },
+        {
+          "trial": 15,
+          "workload": "order",
+          "ms": 0.02404162660241127
+        },
+        {
+          "trial": 15,
+          "workload": "negative-many-lines",
+          "ms": 2.4113331455737352
+        },
+        {
+          "trial": 15,
+          "workload": "mixed-code",
+          "ms": 0.02420833334326744
+        },
+        {
+          "trial": 15,
+          "workload": "instruction",
+          "ms": 0.02787495031952858
+        },
+        {
+          "trial": 16,
+          "workload": "short-code",
+          "ms": 0.018458347767591476
+        },
+        {
+          "trial": 16,
+          "workload": "bounded-negative",
+          "ms": 4.297208273783326
+        },
+        {
+          "trial": 16,
+          "workload": "repeated-labels",
+          "ms": 5.461083259433508
+        },
+        {
+          "trial": 16,
+          "workload": "bounded-blocks",
+          "ms": 0.03400002606213093
+        },
+        {
+          "trial": 16,
+          "workload": "order",
+          "ms": 0.024083303287625313
+        },
+        {
+          "trial": 16,
+          "workload": "negative-many-lines",
+          "ms": 2.4443333968520164
+        },
+        {
+          "trial": 16,
+          "workload": "mixed-code",
+          "ms": 0.028125010430812836
+        },
+        {
+          "trial": 16,
+          "workload": "instruction",
+          "ms": 0.029458431527018547
+        },
+        {
+          "trial": 17,
+          "workload": "short-code",
+          "ms": 0.01874985173344612
+        },
+        {
+          "trial": 17,
+          "workload": "bounded-negative",
+          "ms": 4.2772500310093164
+        },
+        {
+          "trial": 17,
+          "workload": "repeated-labels",
+          "ms": 5.385833326727152
+        },
+        {
+          "trial": 17,
+          "workload": "bounded-blocks",
+          "ms": 0.032499898225069046
+        },
+        {
+          "trial": 17,
+          "workload": "order",
+          "ms": 0.022916821762919426
+        },
+        {
+          "trial": 17,
+          "workload": "negative-many-lines",
+          "ms": 2.3677917197346687
+        },
+        {
+          "trial": 17,
+          "workload": "mixed-code",
+          "ms": 0.022541731595993042
+        },
+        {
+          "trial": 17,
+          "workload": "instruction",
+          "ms": 0.02787495031952858
+        },
+        {
+          "trial": 18,
+          "workload": "short-code",
+          "ms": 0.01816684380173683
+        },
+        {
+          "trial": 18,
+          "workload": "bounded-negative",
+          "ms": 4.25349990837276
+        },
+        {
+          "trial": 18,
+          "workload": "repeated-labels",
+          "ms": 5.494666518643498
+        },
+        {
+          "trial": 18,
+          "workload": "bounded-blocks",
+          "ms": 0.04229182377457619
+        },
+        {
+          "trial": 18,
+          "workload": "order",
+          "ms": 0.029291491955518723
+        },
+        {
+          "trial": 18,
+          "workload": "negative-many-lines",
+          "ms": 2.378624863922596
+        },
+        {
+          "trial": 18,
+          "workload": "mixed-code",
+          "ms": 0.032958341762423515
+        },
+        {
+          "trial": 18,
+          "workload": "instruction",
+          "ms": 0.031125033274292946
+        },
+        {
+          "trial": 19,
+          "workload": "short-code",
+          "ms": 0.01983344554901123
+        },
+        {
+          "trial": 19,
+          "workload": "bounded-negative",
+          "ms": 4.268333315849304
+        },
+        {
+          "trial": 19,
+          "workload": "repeated-labels",
+          "ms": 5.479166749864817
+        },
+        {
+          "trial": 19,
+          "workload": "bounded-blocks",
+          "ms": 0.034958356991410255
+        },
+        {
+          "trial": 19,
+          "workload": "order",
+          "ms": 0.025250017642974854
+        },
+        {
+          "trial": 19,
+          "workload": "negative-many-lines",
+          "ms": 2.299708314239979
+        },
+        {
+          "trial": 19,
+          "workload": "mixed-code",
+          "ms": 0.024458393454551697
+        },
+        {
+          "trial": 19,
+          "workload": "instruction",
+          "ms": 0.027458416298031807
+        },
+        {
+          "trial": 20,
+          "workload": "short-code",
+          "ms": 0.018166610971093178
+        },
+        {
+          "trial": 20,
+          "workload": "bounded-negative",
+          "ms": 4.234208259731531
+        },
+        {
+          "trial": 20,
+          "workload": "repeated-labels",
+          "ms": 5.368875106796622
+        },
+        {
+          "trial": 20,
+          "workload": "bounded-blocks",
+          "ms": 0.037458259612321854
+        },
+        {
+          "trial": 20,
+          "workload": "order",
+          "ms": 0.025958288460969925
+        },
+        {
+          "trial": 20,
+          "workload": "negative-many-lines",
+          "ms": 2.394083421677351
+        },
+        {
+          "trial": 20,
+          "workload": "mixed-code",
+          "ms": 0.03208336420357227
+        },
+        {
+          "trial": 20,
+          "workload": "instruction",
+          "ms": 0.03283354453742504
+        }
+      ]
+    },
+    {
+      "build": "new",
+      "binarySHA256": "67ce8507f3d74fc0a477b997f0e86f716a578e59f4a785061696aaed1f1b5334",
+      "samples": [
+        {
+          "trial": 0,
+          "workload": "short-code",
+          "ms": 2.5677501689642668
+        },
+        {
+          "trial": 0,
+          "workload": "bounded-negative",
+          "ms": 1.8671250436455011
+        },
+        {
+          "trial": 0,
+          "workload": "repeated-labels",
+          "ms": 7.010958390310407
+        },
+        {
+          "trial": 0,
+          "workload": "bounded-blocks",
+          "ms": 0.04137493669986725
+        },
+        {
+          "trial": 0,
+          "workload": "order",
+          "ms": 0.018541468307375908
+        },
+        {
+          "trial": 0,
+          "workload": "negative-many-lines",
+          "ms": 0.9564168285578489
+        },
+        {
+          "trial": 0,
+          "workload": "mixed-code",
+          "ms": 0.03450014628469944
+        },
+        {
+          "trial": 0,
+          "workload": "instruction",
+          "ms": 0.040499959141016006
+        },
+        {
+          "trial": 1,
+          "workload": "short-code",
+          "ms": 0.025666551664471626
+        },
+        {
+          "trial": 1,
+          "workload": "bounded-negative",
+          "ms": 1.5997916925698519
+        },
+        {
+          "trial": 1,
+          "workload": "repeated-labels",
+          "ms": 6.340375170111656
+        },
+        {
+          "trial": 1,
+          "workload": "bounded-blocks",
+          "ms": 0.03758328966796398
+        },
+        {
+          "trial": 1,
+          "workload": "order",
+          "ms": 0.0130415428429842
+        },
+        {
+          "trial": 1,
+          "workload": "negative-many-lines",
+          "ms": 0.8744583465158939
+        },
+        {
+          "trial": 1,
+          "workload": "mixed-code",
+          "ms": 0.025583431124687195
+        },
+        {
+          "trial": 1,
+          "workload": "instruction",
+          "ms": 0.032958341762423515
+        },
+        {
+          "trial": 2,
+          "workload": "short-code",
+          "ms": 0.022124964743852615
+        },
+        {
+          "trial": 2,
+          "workload": "bounded-negative",
+          "ms": 1.4656248968094587
+        },
+        {
+          "trial": 2,
+          "workload": "repeated-labels",
+          "ms": 5.744500085711479
+        },
+        {
+          "trial": 2,
+          "workload": "bounded-blocks",
+          "ms": 0.03283331170678139
+        },
+        {
+          "trial": 2,
+          "workload": "order",
+          "ms": 0.01066667027771473
+        },
+        {
+          "trial": 2,
+          "workload": "negative-many-lines",
+          "ms": 0.7655834779143333
+        },
+        {
+          "trial": 2,
+          "workload": "mixed-code",
+          "ms": 0.021291663870215416
+        },
+        {
+          "trial": 2,
+          "workload": "instruction",
+          "ms": 0.030916649848222733
+        },
+        {
+          "trial": 3,
+          "workload": "short-code",
+          "ms": 0.019208528101444244
+        },
+        {
+          "trial": 3,
+          "workload": "bounded-negative",
+          "ms": 1.313291722908616
+        },
+        {
+          "trial": 3,
+          "workload": "repeated-labels",
+          "ms": 5.356791662052274
+        },
+        {
+          "trial": 3,
+          "workload": "bounded-blocks",
+          "ms": 0.031416770070791245
+        },
+        {
+          "trial": 3,
+          "workload": "order",
+          "ms": 0.009958399459719658
+        },
+        {
+          "trial": 3,
+          "workload": "negative-many-lines",
+          "ms": 0.730500090867281
+        },
+        {
+          "trial": 3,
+          "workload": "mixed-code",
+          "ms": 0.019708415493369102
+        },
+        {
+          "trial": 3,
+          "workload": "instruction",
+          "ms": 0.02920837141573429
+        },
+        {
+          "trial": 4,
+          "workload": "short-code",
+          "ms": 0.018250197172164917
+        },
+        {
+          "trial": 4,
+          "workload": "bounded-negative",
+          "ms": 1.2587083037942648
+        },
+        {
+          "trial": 4,
+          "workload": "repeated-labels",
+          "ms": 5.334583343937993
+        },
+        {
+          "trial": 4,
+          "workload": "bounded-blocks",
+          "ms": 0.029791612178087234
+        },
+        {
+          "trial": 4,
+          "workload": "order",
+          "ms": 0.009791692718863487
+        },
+        {
+          "trial": 4,
+          "workload": "negative-many-lines",
+          "ms": 0.7310416549444199
+        },
+        {
+          "trial": 4,
+          "workload": "mixed-code",
+          "ms": 0.021999934688210487
+        },
+        {
+          "trial": 4,
+          "workload": "instruction",
+          "ms": 0.02866680733859539
+        },
+        {
+          "trial": 5,
+          "workload": "short-code",
+          "ms": 0.01783343032002449
+        },
+        {
+          "trial": 5,
+          "workload": "bounded-negative",
+          "ms": 1.2579583562910557
+        },
+        {
+          "trial": 5,
+          "workload": "repeated-labels",
+          "ms": 5.334708373993635
+        },
+        {
+          "trial": 5,
+          "workload": "bounded-blocks",
+          "ms": 0.029625138267874718
+        },
+        {
+          "trial": 5,
+          "workload": "order",
+          "ms": 0.009750016033649445
+        },
+        {
+          "trial": 5,
+          "workload": "negative-many-lines",
+          "ms": 0.7257082033902407
+        },
+        {
+          "trial": 5,
+          "workload": "mixed-code",
+          "ms": 0.02141646109521389
+        },
+        {
+          "trial": 5,
+          "workload": "instruction",
+          "ms": 0.02587493509054184
+        },
+        {
+          "trial": 6,
+          "workload": "short-code",
+          "ms": 0.01733331009745598
+        },
+        {
+          "trial": 6,
+          "workload": "bounded-negative",
+          "ms": 1.2584582436829805
+        },
+        {
+          "trial": 6,
+          "workload": "repeated-labels",
+          "ms": 5.326583283022046
+        },
+        {
+          "trial": 6,
+          "workload": "bounded-blocks",
+          "ms": 0.029541784897446632
+        },
+        {
+          "trial": 6,
+          "workload": "order",
+          "ms": 0.009708339348435402
+        },
+        {
+          "trial": 6,
+          "workload": "negative-many-lines",
+          "ms": 0.7257917895913124
+        },
+        {
+          "trial": 6,
+          "workload": "mixed-code",
+          "ms": 0.019291648641228676
+        },
+        {
+          "trial": 6,
+          "workload": "instruction",
+          "ms": 0.02558319829404354
+        },
+        {
+          "trial": 7,
+          "workload": "short-code",
+          "ms": 0.017291633412241936
+        },
+        {
+          "trial": 7,
+          "workload": "bounded-negative",
+          "ms": 1.2579166796058416
+        },
+        {
+          "trial": 7,
+          "workload": "repeated-labels",
+          "ms": 5.331958411261439
+        },
+        {
+          "trial": 7,
+          "workload": "bounded-blocks",
+          "ms": 0.029708491638302803
+        },
+        {
+          "trial": 7,
+          "workload": "order",
+          "ms": 0.009541632607579231
+        },
+        {
+          "trial": 7,
+          "workload": "negative-many-lines",
+          "ms": 0.7278749253600836
+        },
+        {
+          "trial": 7,
+          "workload": "mixed-code",
+          "ms": 0.019541708752512932
+        },
+        {
+          "trial": 7,
+          "workload": "instruction",
+          "ms": 0.025458168238401413
+        },
+        {
+          "trial": 8,
+          "workload": "short-code",
+          "ms": 0.01737498678267002
+        },
+        {
+          "trial": 8,
+          "workload": "bounded-negative",
+          "ms": 1.2557916343212128
+        },
+        {
+          "trial": 8,
+          "workload": "repeated-labels",
+          "ms": 5.325124831870198
+        },
+        {
+          "trial": 8,
+          "workload": "bounded-blocks",
+          "ms": 0.029666582122445107
+        },
+        {
+          "trial": 8,
+          "workload": "order",
+          "ms": 0.00966666266322136
+        },
+        {
+          "trial": 8,
+          "workload": "negative-many-lines",
+          "ms": 0.7274167146533728
+        },
+        {
+          "trial": 8,
+          "workload": "mixed-code",
+          "ms": 0.018999911844730377
+        },
+        {
+          "trial": 8,
+          "workload": "instruction",
+          "ms": 0.02533337101340294
+        },
+        {
+          "trial": 9,
+          "workload": "short-code",
+          "ms": 0.017166603356599808
+        },
+        {
+          "trial": 9,
+          "workload": "bounded-negative",
+          "ms": 1.2598333414644003
+        },
+        {
+          "trial": 9,
+          "workload": "repeated-labels",
+          "ms": 5.331833381205797
+        },
+        {
+          "trial": 9,
+          "workload": "bounded-blocks",
+          "ms": 0.029624905437231064
+        },
+        {
+          "trial": 9,
+          "workload": "order",
+          "ms": 0.009624985978007317
+        },
+        {
+          "trial": 9,
+          "workload": "negative-many-lines",
+          "ms": 0.7285000756382942
+        },
+        {
+          "trial": 9,
+          "workload": "mixed-code",
+          "ms": 0.01912517473101616
+        },
+        {
+          "trial": 9,
+          "workload": "instruction",
+          "ms": 0.025625107809901237
+        },
+        {
+          "trial": 10,
+          "workload": "short-code",
+          "ms": 0.01737498678267002
+        },
+        {
+          "trial": 10,
+          "workload": "bounded-negative",
+          "ms": 1.2566668447107077
+        },
+        {
+          "trial": 10,
+          "workload": "repeated-labels",
+          "ms": 5.338625051081181
+        },
+        {
+          "trial": 10,
+          "workload": "bounded-blocks",
+          "ms": 0.02987496554851532
+        },
+        {
+          "trial": 10,
+          "workload": "order",
+          "ms": 0.011625001206994057
+        },
+        {
+          "trial": 10,
+          "workload": "negative-many-lines",
+          "ms": 0.7257082033902407
+        },
+        {
+          "trial": 10,
+          "workload": "mixed-code",
+          "ms": 0.01920829527080059
+        },
+        {
+          "trial": 10,
+          "workload": "instruction",
+          "ms": 0.02583349123597145
+        },
+        {
+          "trial": 11,
+          "workload": "short-code",
+          "ms": 0.017416663467884064
+        },
+        {
+          "trial": 11,
+          "workload": "bounded-negative",
+          "ms": 1.2606249656528234
+        },
+        {
+          "trial": 11,
+          "workload": "repeated-labels",
+          "ms": 5.338166607543826
+        },
+        {
+          "trial": 11,
+          "workload": "bounded-blocks",
+          "ms": 0.029583461582660675
+        },
+        {
+          "trial": 11,
+          "workload": "order",
+          "ms": 0.00966666266322136
+        },
+        {
+          "trial": 11,
+          "workload": "negative-many-lines",
+          "ms": 0.7262500002980232
+        },
+        {
+          "trial": 11,
+          "workload": "mixed-code",
+          "ms": 0.019583385437726974
+        },
+        {
+          "trial": 11,
+          "workload": "instruction",
+          "ms": 0.025708461180329323
+        },
+        {
+          "trial": 12,
+          "workload": "short-code",
+          "ms": 0.017416663467884064
+        },
+        {
+          "trial": 12,
+          "workload": "bounded-negative",
+          "ms": 1.2543750926852226
+        },
+        {
+          "trial": 12,
+          "workload": "repeated-labels",
+          "ms": 5.332208471372724
+        },
+        {
+          "trial": 12,
+          "workload": "bounded-blocks",
+          "ms": 0.029583461582660675
+        },
+        {
+          "trial": 12,
+          "workload": "order",
+          "ms": 0.009541632607579231
+        },
+        {
+          "trial": 12,
+          "workload": "negative-many-lines",
+          "ms": 0.7254998199641705
+        },
+        {
+          "trial": 12,
+          "workload": "mixed-code",
+          "ms": 0.018916558474302292
+        },
+        {
+          "trial": 12,
+          "workload": "instruction",
+          "ms": 0.0255415216088295
+        },
+        {
+          "trial": 13,
+          "workload": "short-code",
+          "ms": 0.01720828004181385
+        },
+        {
+          "trial": 13,
+          "workload": "bounded-negative",
+          "ms": 1.2590833939611912
+        },
+        {
+          "trial": 13,
+          "workload": "repeated-labels",
+          "ms": 5.331875057891011
+        },
+        {
+          "trial": 13,
+          "workload": "bounded-blocks",
+          "ms": 0.029708491638302803
+        },
+        {
+          "trial": 13,
+          "workload": "order",
+          "ms": 0.009499955922365189
+        },
+        {
+          "trial": 13,
+          "workload": "negative-many-lines",
+          "ms": 0.725375022739172
+        },
+        {
+          "trial": 13,
+          "workload": "mixed-code",
+          "ms": 0.019166618585586548
+        },
+        {
+          "trial": 13,
+          "workload": "instruction",
+          "ms": 0.02570822834968567
+        },
+        {
+          "trial": 14,
+          "workload": "short-code",
+          "ms": 0.01729186624288559
+        },
+        {
+          "trial": 14,
+          "workload": "bounded-negative",
+          "ms": 1.258250093087554
+        },
+        {
+          "trial": 14,
+          "workload": "repeated-labels",
+          "ms": 5.33220823854208
+        },
+        {
+          "trial": 14,
+          "workload": "bounded-blocks",
+          "ms": 0.031416770070791245
+        },
+        {
+          "trial": 14,
+          "workload": "order",
+          "ms": 0.01020822674036026
+        },
+        {
+          "trial": 14,
+          "workload": "negative-many-lines",
+          "ms": 0.7264583837240934
+        },
+        {
+          "trial": 14,
+          "workload": "mixed-code",
+          "ms": 0.02020830288529396
+        },
+        {
+          "trial": 14,
+          "workload": "instruction",
+          "ms": 0.025875167921185493
+        },
+        {
+          "trial": 15,
+          "workload": "short-code",
+          "ms": 0.01737498678267002
+        },
+        {
+          "trial": 15,
+          "workload": "bounded-negative",
+          "ms": 1.2575415894389153
+        },
+        {
+          "trial": 15,
+          "workload": "repeated-labels",
+          "ms": 5.33720850944519
+        },
+        {
+          "trial": 15,
+          "workload": "bounded-blocks",
+          "ms": 0.029499875381588936
+        },
+        {
+          "trial": 15,
+          "workload": "order",
+          "ms": 0.00966666266322136
+        },
+        {
+          "trial": 15,
+          "workload": "negative-many-lines",
+          "ms": 0.7250832859426737
+        },
+        {
+          "trial": 15,
+          "workload": "mixed-code",
+          "ms": 0.01920829527080059
+        },
+        {
+          "trial": 15,
+          "workload": "instruction",
+          "ms": 0.025875167921185493
+        },
+        {
+          "trial": 16,
+          "workload": "short-code",
+          "ms": 0.01733331009745598
+        },
+        {
+          "trial": 16,
+          "workload": "bounded-negative",
+          "ms": 1.2587083037942648
+        },
+        {
+          "trial": 16,
+          "workload": "repeated-labels",
+          "ms": 5.319708259776235
+        },
+        {
+          "trial": 16,
+          "workload": "bounded-blocks",
+          "ms": 0.029624905437231064
+        },
+        {
+          "trial": 16,
+          "workload": "order",
+          "ms": 0.01004151999950409
+        },
+        {
+          "trial": 16,
+          "workload": "negative-many-lines",
+          "ms": 0.7244583684951067
+        },
+        {
+          "trial": 16,
+          "workload": "mixed-code",
+          "ms": 0.018791528418660164
+        },
+        {
+          "trial": 16,
+          "workload": "instruction",
+          "ms": 0.02550007775425911
+        },
+        {
+          "trial": 17,
+          "workload": "short-code",
+          "ms": 0.017124926671385765
+        },
+        {
+          "trial": 17,
+          "workload": "bounded-negative",
+          "ms": 1.2582498602569103
+        },
+        {
+          "trial": 17,
+          "workload": "repeated-labels",
+          "ms": 5.326541606336832
+        },
+        {
+          "trial": 17,
+          "workload": "bounded-blocks",
+          "ms": 0.029583461582660675
+        },
+        {
+          "trial": 17,
+          "workload": "order",
+          "ms": 0.009583309292793274
+        },
+        {
+          "trial": 17,
+          "workload": "negative-many-lines",
+          "ms": 0.725999940186739
+        },
+        {
+          "trial": 17,
+          "workload": "mixed-code",
+          "ms": 0.018916791304945946
+        },
+        {
+          "trial": 17,
+          "workload": "instruction",
+          "ms": 0.025708461180329323
+        },
+        {
+          "trial": 18,
+          "workload": "short-code",
+          "ms": 0.017166603356599808
+        },
+        {
+          "trial": 18,
+          "workload": "bounded-negative",
+          "ms": 1.2554165441542864
+        },
+        {
+          "trial": 18,
+          "workload": "repeated-labels",
+          "ms": 5.334249930456281
+        },
+        {
+          "trial": 18,
+          "workload": "bounded-blocks",
+          "ms": 0.029791612178087234
+        },
+        {
+          "trial": 18,
+          "workload": "order",
+          "ms": 0.009583309292793274
+        },
+        {
+          "trial": 18,
+          "workload": "negative-many-lines",
+          "ms": 0.7277501281350851
+        },
+        {
+          "trial": 18,
+          "workload": "mixed-code",
+          "ms": 0.01912517473101616
+        },
+        {
+          "trial": 18,
+          "workload": "instruction",
+          "ms": 0.025791581720113754
+        },
+        {
+          "trial": 19,
+          "workload": "short-code",
+          "ms": 0.01733331009745598
+        },
+        {
+          "trial": 19,
+          "workload": "bounded-negative",
+          "ms": 1.2529583182185888
+        },
+        {
+          "trial": 19,
+          "workload": "repeated-labels",
+          "ms": 5.347499856725335
+        },
+        {
+          "trial": 19,
+          "workload": "bounded-blocks",
+          "ms": 0.02954155206680298
+        },
+        {
+          "trial": 19,
+          "workload": "order",
+          "ms": 0.009583542123436928
+        },
+        {
+          "trial": 19,
+          "workload": "negative-many-lines",
+          "ms": 0.7269999478012323
+        },
+        {
+          "trial": 19,
+          "workload": "mixed-code",
+          "ms": 0.019124941900372505
+        },
+        {
+          "trial": 19,
+          "workload": "instruction",
+          "ms": 0.02566678449511528
+        },
+        {
+          "trial": 20,
+          "workload": "short-code",
+          "ms": 0.017625046893954277
+        },
+        {
+          "trial": 20,
+          "workload": "bounded-negative",
+          "ms": 1.2711668387055397
+        },
+        {
+          "trial": 20,
+          "workload": "repeated-labels",
+          "ms": 5.519708385691047
+        },
+        {
+          "trial": 20,
+          "workload": "bounded-blocks",
+          "ms": 0.030750175938010216
+        },
+        {
+          "trial": 20,
+          "workload": "order",
+          "ms": 0.011333264410495758
+        },
+        {
+          "trial": 20,
+          "workload": "negative-many-lines",
+          "ms": 0.7648332975804806
+        },
+        {
+          "trial": 20,
+          "workload": "mixed-code",
+          "ms": 0.028291717171669006
+        },
+        {
+          "trial": 20,
+          "workload": "instruction",
+          "ms": 0.030416762456297874
+        }
+      ]
+    },
+    {
+      "build": "new",
+      "binarySHA256": "67ce8507f3d74fc0a477b997f0e86f716a578e59f4a785061696aaed1f1b5334",
+      "samples": [
+        {
+          "trial": 0,
+          "workload": "short-code",
+          "ms": 1.777291763573885
+        },
+        {
+          "trial": 0,
+          "workload": "bounded-negative",
+          "ms": 1.2717084027826786
+        },
+        {
+          "trial": 0,
+          "workload": "repeated-labels",
+          "ms": 5.549333291128278
+        },
+        {
+          "trial": 0,
+          "workload": "bounded-blocks",
+          "ms": 0.03904174081981182
+        },
+        {
+          "trial": 0,
+          "workload": "order",
+          "ms": 0.027916627004742622
+        },
+        {
+          "trial": 0,
+          "workload": "negative-many-lines",
+          "ms": 0.7802499458193779
+        },
+        {
+          "trial": 0,
+          "workload": "mixed-code",
+          "ms": 0.039958395063877106
+        },
+        {
+          "trial": 0,
+          "workload": "instruction",
+          "ms": 0.03491668030619621
+        },
+        {
+          "trial": 1,
+          "workload": "short-code",
+          "ms": 0.021249987185001373
+        },
+        {
+          "trial": 1,
+          "workload": "bounded-negative",
+          "ms": 1.3194999191910028
+        },
+        {
+          "trial": 1,
+          "workload": "repeated-labels",
+          "ms": 5.668833153322339
+        },
+        {
+          "trial": 1,
+          "workload": "bounded-blocks",
+          "ms": 0.04187482409179211
+        },
+        {
+          "trial": 1,
+          "workload": "order",
+          "ms": 0.014375196769833565
+        },
+        {
+          "trial": 1,
+          "workload": "negative-many-lines",
+          "ms": 0.7819999009370804
+        },
+        {
+          "trial": 1,
+          "workload": "mixed-code",
+          "ms": 0.03383331932127476
+        },
+        {
+          "trial": 1,
+          "workload": "instruction",
+          "ms": 0.030833296477794647
+        },
+        {
+          "trial": 2,
+          "workload": "short-code",
+          "ms": 0.022458378225564957
+        },
+        {
+          "trial": 2,
+          "workload": "bounded-negative",
+          "ms": 1.3120833318680525
+        },
+        {
+          "trial": 2,
+          "workload": "repeated-labels",
+          "ms": 5.601499928161502
+        },
+        {
+          "trial": 2,
+          "workload": "bounded-blocks",
+          "ms": 0.03633345477283001
+        },
+        {
+          "trial": 2,
+          "workload": "order",
+          "ms": 0.014458317309617996
+        },
+        {
+          "trial": 2,
+          "workload": "negative-many-lines",
+          "ms": 0.7719583809375763
+        },
+        {
+          "trial": 2,
+          "workload": "mixed-code",
+          "ms": 0.03254157491028309
+        },
+        {
+          "trial": 2,
+          "workload": "instruction",
+          "ms": 0.03670831210911274
+        },
+        {
+          "trial": 3,
+          "workload": "short-code",
+          "ms": 0.0213750172406435
+        },
+        {
+          "trial": 3,
+          "workload": "bounded-negative",
+          "ms": 1.3326667249202728
+        },
+        {
+          "trial": 3,
+          "workload": "repeated-labels",
+          "ms": 5.391750019043684
+        },
+        {
+          "trial": 3,
+          "workload": "bounded-blocks",
+          "ms": 0.03266660496592522
+        },
+        {
+          "trial": 3,
+          "workload": "order",
+          "ms": 0.012708362191915512
+        },
+        {
+          "trial": 3,
+          "workload": "negative-many-lines",
+          "ms": 0.7215833757072687
+        },
+        {
+          "trial": 3,
+          "workload": "mixed-code",
+          "ms": 0.026916619390249252
+        },
+        {
+          "trial": 3,
+          "workload": "instruction",
+          "ms": 0.03370852209627628
+        },
+        {
+          "trial": 4,
+          "workload": "short-code",
+          "ms": 0.020291656255722046
+        },
+        {
+          "trial": 4,
+          "workload": "bounded-negative",
+          "ms": 1.2257082853466272
+        },
+        {
+          "trial": 4,
+          "workload": "repeated-labels",
+          "ms": 5.507041700184345
+        },
+        {
+          "trial": 4,
+          "workload": "bounded-blocks",
+          "ms": 0.030374852940440178
+        },
+        {
+          "trial": 4,
+          "workload": "order",
+          "ms": 0.011333264410495758
+        },
+        {
+          "trial": 4,
+          "workload": "negative-many-lines",
+          "ms": 0.7191249169409275
+        },
+        {
+          "trial": 4,
+          "workload": "mixed-code",
+          "ms": 0.024625100195407867
+        },
+        {
+          "trial": 4,
+          "workload": "instruction",
+          "ms": 0.02787495031952858
+        },
+        {
+          "trial": 5,
+          "workload": "short-code",
+          "ms": 0.018041813746094704
+        },
+        {
+          "trial": 5,
+          "workload": "bounded-negative",
+          "ms": 1.2406250461935997
+        },
+        {
+          "trial": 5,
+          "workload": "repeated-labels",
+          "ms": 5.307916784659028
+        },
+        {
+          "trial": 5,
+          "workload": "bounded-blocks",
+          "ms": 0.038958387449383736
+        },
+        {
+          "trial": 5,
+          "workload": "order",
+          "ms": 0.01600012183189392
+        },
+        {
+          "trial": 5,
+          "workload": "negative-many-lines",
+          "ms": 0.7760832086205482
+        },
+        {
+          "trial": 5,
+          "workload": "mixed-code",
+          "ms": 0.04375004209578037
+        },
+        {
+          "trial": 5,
+          "workload": "instruction",
+          "ms": 0.03474997356534004
+        },
+        {
+          "trial": 6,
+          "workload": "short-code",
+          "ms": 0.02666679210960865
+        },
+        {
+          "trial": 6,
+          "workload": "bounded-negative",
+          "ms": 1.253041671589017
+        },
+        {
+          "trial": 6,
+          "workload": "repeated-labels",
+          "ms": 5.321958335116506
+        },
+        {
+          "trial": 6,
+          "workload": "bounded-blocks",
+          "ms": 0.031041447073221207
+        },
+        {
+          "trial": 6,
+          "workload": "order",
+          "ms": 0.01320824958384037
+        },
+        {
+          "trial": 6,
+          "workload": "negative-many-lines",
+          "ms": 0.7274164818227291
+        },
+        {
+          "trial": 6,
+          "workload": "mixed-code",
+          "ms": 0.02104160375893116
+        },
+        {
+          "trial": 6,
+          "workload": "instruction",
+          "ms": 0.027750153094530106
+        },
+        {
+          "trial": 7,
+          "workload": "short-code",
+          "ms": 0.018083257600665092
+        },
+        {
+          "trial": 7,
+          "workload": "bounded-negative",
+          "ms": 1.257291529327631
+        },
+        {
+          "trial": 7,
+          "workload": "repeated-labels",
+          "ms": 5.326124839484692
+        },
+        {
+          "trial": 7,
+          "workload": "bounded-blocks",
+          "ms": 0.030958326533436775
+        },
+        {
+          "trial": 7,
+          "workload": "order",
+          "ms": 0.010083429515361786
+        },
+        {
+          "trial": 7,
+          "workload": "negative-many-lines",
+          "ms": 0.7387499790638685
+        },
+        {
+          "trial": 7,
+          "workload": "mixed-code",
+          "ms": 0.02041645348072052
+        },
+        {
+          "trial": 7,
+          "workload": "instruction",
+          "ms": 0.02620834857225418
+        },
+        {
+          "trial": 8,
+          "workload": "short-code",
+          "ms": 0.017625046893954277
+        },
+        {
+          "trial": 8,
+          "workload": "bounded-negative",
+          "ms": 1.255916664376855
+        },
+        {
+          "trial": 8,
+          "workload": "repeated-labels",
+          "ms": 5.333333276212215
+        },
+        {
+          "trial": 8,
+          "workload": "bounded-blocks",
+          "ms": 0.029791612178087234
+        },
+        {
+          "trial": 8,
+          "workload": "order",
+          "ms": 0.010124873369932175
+        },
+        {
+          "trial": 8,
+          "workload": "negative-many-lines",
+          "ms": 0.7238332182168961
+        },
+        {
+          "trial": 8,
+          "workload": "mixed-code",
+          "ms": 0.02204161137342453
+        },
+        {
+          "trial": 8,
+          "workload": "instruction",
+          "ms": 0.026083318516612053
+        },
+        {
+          "trial": 9,
+          "workload": "short-code",
+          "ms": 0.01754169352352619
+        },
+        {
+          "trial": 9,
+          "workload": "bounded-negative",
+          "ms": 1.2535417918115854
+        },
+        {
+          "trial": 9,
+          "workload": "repeated-labels",
+          "ms": 5.37412497214973
+        },
+        {
+          "trial": 9,
+          "workload": "bounded-blocks",
+          "ms": 0.030791619792580605
+        },
+        {
+          "trial": 9,
+          "workload": "order",
+          "ms": 0.010583316907286644
+        },
+        {
+          "trial": 9,
+          "workload": "negative-many-lines",
+          "ms": 0.7310416549444199
+        },
+        {
+          "trial": 9,
+          "workload": "mixed-code",
+          "ms": 0.020541483536362648
+        },
+        {
+          "trial": 9,
+          "workload": "instruction",
+          "ms": 0.025916611775755882
+        },
+        {
+          "trial": 10,
+          "workload": "short-code",
+          "ms": 0.01754169352352619
+        },
+        {
+          "trial": 10,
+          "workload": "bounded-negative",
+          "ms": 1.2572500854730606
+        },
+        {
+          "trial": 10,
+          "workload": "repeated-labels",
+          "ms": 5.310750100761652
+        },
+        {
+          "trial": 10,
+          "workload": "bounded-blocks",
+          "ms": 0.03433343954384327
+        },
+        {
+          "trial": 10,
+          "workload": "order",
+          "ms": 0.01200009137392044
+        },
+        {
+          "trial": 10,
+          "workload": "negative-many-lines",
+          "ms": 0.7264583837240934
+        },
+        {
+          "trial": 10,
+          "workload": "mixed-code",
+          "ms": 0.01933332532644272
+        },
+        {
+          "trial": 10,
+          "workload": "instruction",
+          "ms": 0.025666551664471626
+        },
+        {
+          "trial": 11,
+          "workload": "short-code",
+          "ms": 0.017416663467884064
+        },
+        {
+          "trial": 11,
+          "workload": "bounded-negative",
+          "ms": 1.2517499271780252
+        },
+        {
+          "trial": 11,
+          "workload": "repeated-labels",
+          "ms": 5.313333356752992
+        },
+        {
+          "trial": 11,
+          "workload": "bounded-blocks",
+          "ms": 0.029666582122445107
+        },
+        {
+          "trial": 11,
+          "workload": "order",
+          "ms": 0.00966666266322136
+        },
+        {
+          "trial": 11,
+          "workload": "negative-many-lines",
+          "ms": 0.7235417142510414
+        },
+        {
+          "trial": 11,
+          "workload": "mixed-code",
+          "ms": 0.01883343793451786
+        },
+        {
+          "trial": 11,
+          "workload": "instruction",
+          "ms": 0.025541754439473152
+        },
+        {
+          "trial": 12,
+          "workload": "short-code",
+          "ms": 0.01737498678267002
+        },
+        {
+          "trial": 12,
+          "workload": "bounded-negative",
+          "ms": 1.2541250325739384
+        },
+        {
+          "trial": 12,
+          "workload": "repeated-labels",
+          "ms": 5.324250087141991
+        },
+        {
+          "trial": 12,
+          "workload": "bounded-blocks",
+          "ms": 0.02970825880765915
+        },
+        {
+          "trial": 12,
+          "workload": "order",
+          "ms": 0.009791692718863487
+        },
+        {
+          "trial": 12,
+          "workload": "negative-many-lines",
+          "ms": 0.7212916389107704
+        },
+        {
+          "trial": 12,
+          "workload": "mixed-code",
+          "ms": 0.01887488178908825
+        },
+        {
+          "trial": 12,
+          "workload": "instruction",
+          "ms": 0.0255415216088295
+        },
+        {
+          "trial": 13,
+          "workload": "short-code",
+          "ms": 0.01720828004181385
+        },
+        {
+          "trial": 13,
+          "workload": "bounded-negative",
+          "ms": 1.251791836693883
+        },
+        {
+          "trial": 13,
+          "workload": "repeated-labels",
+          "ms": 5.310500040650368
+        },
+        {
+          "trial": 13,
+          "workload": "bounded-blocks",
+          "ms": 0.02958322875201702
+        },
+        {
+          "trial": 13,
+          "workload": "order",
+          "ms": 0.009624985978007317
+        },
+        {
+          "trial": 13,
+          "workload": "negative-many-lines",
+          "ms": 0.7236250676214695
+        },
+        {
+          "trial": 13,
+          "workload": "mixed-code",
+          "ms": 0.020166626200079918
+        },
+        {
+          "trial": 13,
+          "workload": "instruction",
+          "ms": 0.026916619390249252
+        },
+        {
+          "trial": 14,
+          "workload": "short-code",
+          "ms": 0.018291641026735306
+        },
+        {
+          "trial": 14,
+          "workload": "bounded-negative",
+          "ms": 1.2568749953061342
+        },
+        {
+          "trial": 14,
+          "workload": "repeated-labels",
+          "ms": 5.307124927639961
+        },
+        {
+          "trial": 14,
+          "workload": "bounded-blocks",
+          "ms": 0.029541784897446632
+        },
+        {
+          "trial": 14,
+          "workload": "order",
+          "ms": 0.01237494871020317
+        },
+        {
+          "trial": 14,
+          "workload": "negative-many-lines",
+          "ms": 0.7249999325722456
+        },
+        {
+          "trial": 14,
+          "workload": "mixed-code",
+          "ms": 0.020041828975081444
+        },
+        {
+          "trial": 14,
+          "workload": "instruction",
+          "ms": 0.02550007775425911
+        },
+        {
+          "trial": 15,
+          "workload": "short-code",
+          "ms": 0.01733331009745598
+        },
+        {
+          "trial": 15,
+          "workload": "bounded-negative",
+          "ms": 1.2525832280516624
+        },
+        {
+          "trial": 15,
+          "workload": "repeated-labels",
+          "ms": 5.308416672050953
+        },
+        {
+          "trial": 15,
+          "workload": "bounded-blocks",
+          "ms": 0.02958322875201702
+        },
+        {
+          "trial": 15,
+          "workload": "order",
+          "ms": 0.009541632607579231
+        },
+        {
+          "trial": 15,
+          "workload": "negative-many-lines",
+          "ms": 0.7220418192446232
+        },
+        {
+          "trial": 15,
+          "workload": "mixed-code",
+          "ms": 0.018791761249303818
+        },
+        {
+          "trial": 15,
+          "workload": "instruction",
+          "ms": 0.02537504769861698
+        },
+        {
+          "trial": 16,
+          "workload": "short-code",
+          "ms": 0.01733331009745598
+        },
+        {
+          "trial": 16,
+          "workload": "bounded-negative",
+          "ms": 1.2525415513664484
+        },
+        {
+          "trial": 16,
+          "workload": "repeated-labels",
+          "ms": 5.309500033035874
+        },
+        {
+          "trial": 16,
+          "workload": "bounded-blocks",
+          "ms": 0.02966681495308876
+        },
+        {
+          "trial": 16,
+          "workload": "order",
+          "ms": 0.009541632607579231
+        },
+        {
+          "trial": 16,
+          "workload": "negative-many-lines",
+          "ms": 0.7213749922811985
+        },
+        {
+          "trial": 16,
+          "workload": "mixed-code",
+          "ms": 0.018916791304945946
+        },
+        {
+          "trial": 16,
+          "workload": "instruction",
+          "ms": 0.025750137865543365
+        },
+        {
+          "trial": 17,
+          "workload": "short-code",
+          "ms": 0.01766672357916832
+        },
+        {
+          "trial": 17,
+          "workload": "bounded-negative",
+          "ms": 1.2512917164713144
+        },
+        {
+          "trial": 17,
+          "workload": "repeated-labels",
+          "ms": 5.3147918079048395
+        },
+        {
+          "trial": 17,
+          "workload": "bounded-blocks",
+          "ms": 0.02958322875201702
+        },
+        {
+          "trial": 17,
+          "workload": "order",
+          "ms": 0.009624985978007317
+        },
+        {
+          "trial": 17,
+          "workload": "negative-many-lines",
+          "ms": 0.7206250447779894
+        },
+        {
+          "trial": 17,
+          "workload": "mixed-code",
+          "ms": 0.019249971956014633
+        },
+        {
+          "trial": 17,
+          "workload": "instruction",
+          "ms": 0.025458401069045067
+        },
+        {
+          "trial": 18,
+          "workload": "short-code",
+          "ms": 0.017291633412241936
+        },
+        {
+          "trial": 18,
+          "workload": "bounded-negative",
+          "ms": 1.251583220437169
+        },
+        {
+          "trial": 18,
+          "workload": "repeated-labels",
+          "ms": 5.305874859914184
+        },
+        {
+          "trial": 18,
+          "workload": "bounded-blocks",
+          "ms": 0.02941652201116085
+        },
+        {
+          "trial": 18,
+          "workload": "order",
+          "ms": 0.009499955922365189
+        },
+        {
+          "trial": 18,
+          "workload": "negative-many-lines",
+          "ms": 0.7210834883153439
+        },
+        {
+          "trial": 18,
+          "workload": "mixed-code",
+          "ms": 0.018750084564089775
+        },
+        {
+          "trial": 18,
+          "workload": "instruction",
+          "ms": 0.025374814867973328
+        },
+        {
+          "trial": 19,
+          "workload": "short-code",
+          "ms": 0.017166603356599808
+        },
+        {
+          "trial": 19,
+          "workload": "bounded-negative",
+          "ms": 1.2539166491478682
+        },
+        {
+          "trial": 19,
+          "workload": "repeated-labels",
+          "ms": 5.30483340844512
+        },
+        {
+          "trial": 19,
+          "workload": "bounded-blocks",
+          "ms": 0.02937507815659046
+        },
+        {
+          "trial": 19,
+          "workload": "order",
+          "ms": 0.009458279237151146
+        },
+        {
+          "trial": 19,
+          "workload": "negative-many-lines",
+          "ms": 0.7215000223368406
+        },
+        {
+          "trial": 19,
+          "workload": "mixed-code",
+          "ms": 0.01883343793451786
+        },
+        {
+          "trial": 19,
+          "workload": "instruction",
+          "ms": 0.025250017642974854
+        },
+        {
+          "trial": 20,
+          "workload": "short-code",
+          "ms": 0.017916550859808922
+        },
+        {
+          "trial": 20,
+          "workload": "bounded-negative",
+          "ms": 1.2509585358202457
+        },
+        {
+          "trial": 20,
+          "workload": "repeated-labels",
+          "ms": 5.308708408847451
+        },
+        {
+          "trial": 20,
+          "workload": "bounded-blocks",
+          "ms": 0.029541784897446632
+        },
+        {
+          "trial": 20,
+          "workload": "order",
+          "ms": 0.009458279237151146
+        },
+        {
+          "trial": 20,
+          "workload": "negative-many-lines",
+          "ms": 0.7215000223368406
+        },
+        {
+          "trial": 20,
+          "workload": "mixed-code",
+          "ms": 0.01887488178908825
+        },
+        {
+          "trial": 20,
+          "workload": "instruction",
+          "ms": 0.025291694328188896
+        }
+      ]
+    },
+    {
+      "build": "old",
+      "binarySHA256": "c0b61442fc695f2d8d10fed8de4c8e6bc36e56fe062b74c2b322e5c539420c47",
+      "samples": [
+        {
+          "trial": 0,
+          "workload": "short-code",
+          "ms": 1.7714998684823513
+        },
+        {
+          "trial": 0,
+          "workload": "bounded-negative",
+          "ms": 4.376833327114582
+        },
+        {
+          "trial": 0,
+          "workload": "repeated-labels",
+          "ms": 5.407041637226939
+        },
+        {
+          "trial": 0,
+          "workload": "bounded-blocks",
+          "ms": 0.03570830449461937
+        },
+        {
+          "trial": 0,
+          "workload": "order",
+          "ms": 0.02620834857225418
+        },
+        {
+          "trial": 0,
+          "workload": "negative-many-lines",
+          "ms": 2.4047084152698517
+        },
+        {
+          "trial": 0,
+          "workload": "mixed-code",
+          "ms": 0.028624897822737694
+        },
+        {
+          "trial": 0,
+          "workload": "instruction",
+          "ms": 0.032250070944428444
+        },
+        {
+          "trial": 1,
+          "workload": "short-code",
+          "ms": 0.019791768863797188
+        },
+        {
+          "trial": 1,
+          "workload": "bounded-negative",
+          "ms": 4.250083351507783
+        },
+        {
+          "trial": 1,
+          "workload": "repeated-labels",
+          "ms": 5.404208321124315
+        },
+        {
+          "trial": 1,
+          "workload": "bounded-blocks",
+          "ms": 0.037083402276039124
+        },
+        {
+          "trial": 1,
+          "workload": "order",
+          "ms": 0.025708461180329323
+        },
+        {
+          "trial": 1,
+          "workload": "negative-many-lines",
+          "ms": 2.383916638791561
+        },
+        {
+          "trial": 1,
+          "workload": "mixed-code",
+          "ms": 0.02433336339890957
+        },
+        {
+          "trial": 1,
+          "workload": "instruction",
+          "ms": 0.03104167990386486
+        },
+        {
+          "trial": 2,
+          "workload": "short-code",
+          "ms": 0.01995847560465336
+        },
+        {
+          "trial": 2,
+          "workload": "bounded-negative",
+          "ms": 4.2496249079704285
+        },
+        {
+          "trial": 2,
+          "workload": "repeated-labels",
+          "ms": 5.392375169321895
+        },
+        {
+          "trial": 2,
+          "workload": "bounded-blocks",
+          "ms": 0.03404170274734497
+        },
+        {
+          "trial": 2,
+          "workload": "order",
+          "ms": 0.023250002413988113
+        },
+        {
+          "trial": 2,
+          "workload": "negative-many-lines",
+          "ms": 2.3799999617040157
+        },
+        {
+          "trial": 2,
+          "workload": "mixed-code",
+          "ms": 0.021166633814573288
+        },
+        {
+          "trial": 2,
+          "workload": "instruction",
+          "ms": 0.027541769668459892
+        },
+        {
+          "trial": 3,
+          "workload": "short-code",
+          "ms": 0.01850002445280552
+        },
+        {
+          "trial": 3,
+          "workload": "bounded-negative",
+          "ms": 4.263416863977909
+        },
+        {
+          "trial": 3,
+          "workload": "repeated-labels",
+          "ms": 5.3941248916089535
+        },
+        {
+          "trial": 3,
+          "workload": "bounded-blocks",
+          "ms": 0.032166484743356705
+        },
+        {
+          "trial": 3,
+          "workload": "order",
+          "ms": 0.023791799321770668
+        },
+        {
+          "trial": 3,
+          "workload": "negative-many-lines",
+          "ms": 2.3552500642836094
+        },
+        {
+          "trial": 3,
+          "workload": "mixed-code",
+          "ms": 0.02037500962615013
+        },
+        {
+          "trial": 3,
+          "workload": "instruction",
+          "ms": 0.02933340147137642
+        },
+        {
+          "trial": 4,
+          "workload": "short-code",
+          "ms": 0.01850002445280552
+        },
+        {
+          "trial": 4,
+          "workload": "bounded-negative",
+          "ms": 4.191999789327383
+        },
+        {
+          "trial": 4,
+          "workload": "repeated-labels",
+          "ms": 5.343500059098005
+        },
+        {
+          "trial": 4,
+          "workload": "bounded-blocks",
+          "ms": 0.03174995072185993
+        },
+        {
+          "trial": 4,
+          "workload": "order",
+          "ms": 0.022166641429066658
+        },
+        {
+          "trial": 4,
+          "workload": "negative-many-lines",
+          "ms": 2.3474167101085186
+        },
+        {
+          "trial": 4,
+          "workload": "mixed-code",
+          "ms": 0.02004159614443779
+        },
+        {
+          "trial": 4,
+          "workload": "instruction",
+          "ms": 0.026124995201826096
+        },
+        {
+          "trial": 5,
+          "workload": "short-code",
+          "ms": 0.01750001683831215
+        },
+        {
+          "trial": 5,
+          "workload": "bounded-negative",
+          "ms": 4.195541841909289
+        },
+        {
+          "trial": 5,
+          "workload": "repeated-labels",
+          "ms": 5.354624940082431
+        },
+        {
+          "trial": 5,
+          "workload": "bounded-blocks",
+          "ms": 0.03200001083314419
+        },
+        {
+          "trial": 5,
+          "workload": "order",
+          "ms": 0.022583408281207085
+        },
+        {
+          "trial": 5,
+          "workload": "negative-many-lines",
+          "ms": 2.4712916929274797
+        },
+        {
+          "trial": 5,
+          "workload": "mixed-code",
+          "ms": 0.030749943107366562
+        },
+        {
+          "trial": 5,
+          "workload": "instruction",
+          "ms": 0.02870825119316578
+        },
+        {
+          "trial": 6,
+          "workload": "short-code",
+          "ms": 0.01850002445280552
+        },
+        {
+          "trial": 6,
+          "workload": "bounded-negative",
+          "ms": 4.125708248466253
+        },
+        {
+          "trial": 6,
+          "workload": "repeated-labels",
+          "ms": 5.367708392441273
+        },
+        {
+          "trial": 6,
+          "workload": "bounded-blocks",
+          "ms": 0.04575005732476711
+        },
+        {
+          "trial": 6,
+          "workload": "order",
+          "ms": 0.027499860152602196
+        },
+        {
+          "trial": 6,
+          "workload": "negative-many-lines",
+          "ms": 2.418708289042115
+        },
+        {
+          "trial": 6,
+          "workload": "mixed-code",
+          "ms": 0.0352917704731226
+        },
+        {
+          "trial": 6,
+          "workload": "instruction",
+          "ms": 0.03266660496592522
+        },
+        {
+          "trial": 7,
+          "workload": "short-code",
+          "ms": 0.01920829527080059
+        },
+        {
+          "trial": 7,
+          "workload": "bounded-negative",
+          "ms": 4.2506668251007795
+        },
+        {
+          "trial": 7,
+          "workload": "repeated-labels",
+          "ms": 5.395083222538233
+        },
+        {
+          "trial": 7,
+          "workload": "bounded-blocks",
+          "ms": 0.03491668030619621
+        },
+        {
+          "trial": 7,
+          "workload": "order",
+          "ms": 0.02437504008412361
+        },
+        {
+          "trial": 7,
+          "workload": "negative-many-lines",
+          "ms": 2.39162496291101
+        },
+        {
+          "trial": 7,
+          "workload": "mixed-code",
+          "ms": 0.025250017642974854
+        },
+        {
+          "trial": 7,
+          "workload": "instruction",
+          "ms": 0.028250040486454964
+        },
+        {
+          "trial": 8,
+          "workload": "short-code",
+          "ms": 0.018458347767591476
+        },
+        {
+          "trial": 8,
+          "workload": "bounded-negative",
+          "ms": 4.243583418428898
+        },
+        {
+          "trial": 8,
+          "workload": "repeated-labels",
+          "ms": 5.386916687712073
+        },
+        {
+          "trial": 8,
+          "workload": "bounded-blocks",
+          "ms": 0.03241654485464096
+        },
+        {
+          "trial": 8,
+          "workload": "order",
+          "ms": 0.022916588932275772
+        },
+        {
+          "trial": 8,
+          "workload": "negative-many-lines",
+          "ms": 2.480125054717064
+        },
+        {
+          "trial": 8,
+          "workload": "mixed-code",
+          "ms": 0.02466677688062191
+        },
+        {
+          "trial": 8,
+          "workload": "instruction",
+          "ms": 0.02633337862789631
+        },
+        {
+          "trial": 9,
+          "workload": "short-code",
+          "ms": 0.017625046893954277
+        },
+        {
+          "trial": 9,
+          "workload": "bounded-negative",
+          "ms": 4.106541629880667
+        },
+        {
+          "trial": 9,
+          "workload": "repeated-labels",
+          "ms": 5.280041601508856
+        },
+        {
+          "trial": 9,
+          "workload": "bounded-blocks",
+          "ms": 0.057499855756759644
+        },
+        {
+          "trial": 9,
+          "workload": "order",
+          "ms": 0.04420825280249119
+        },
+        {
+          "trial": 9,
+          "workload": "negative-many-lines",
+          "ms": 2.4261665530502796
+        },
+        {
+          "trial": 9,
+          "workload": "mixed-code",
+          "ms": 0.04283338785171509
+        },
+        {
+          "trial": 9,
+          "workload": "instruction",
+          "ms": 0.034166499972343445
+        },
+        {
+          "trial": 10,
+          "workload": "short-code",
+          "ms": 0.020166626200079918
+        },
+        {
+          "trial": 10,
+          "workload": "bounded-negative",
+          "ms": 4.238874884322286
+        },
+        {
+          "trial": 10,
+          "workload": "repeated-labels",
+          "ms": 5.402249982580543
+        },
+        {
+          "trial": 10,
+          "workload": "bounded-blocks",
+          "ms": 0.03270851448178291
+        },
+        {
+          "trial": 10,
+          "workload": "order",
+          "ms": 0.023958273231983185
+        },
+        {
+          "trial": 10,
+          "workload": "negative-many-lines",
+          "ms": 2.3688331712037325
+        },
+        {
+          "trial": 10,
+          "workload": "mixed-code",
+          "ms": 0.022041844204068184
+        },
+        {
+          "trial": 10,
+          "workload": "instruction",
+          "ms": 0.02758321352303028
+        },
+        {
+          "trial": 11,
+          "workload": "short-code",
+          "ms": 0.01820828765630722
+        },
+        {
+          "trial": 11,
+          "workload": "bounded-negative",
+          "ms": 4.2483750730752945
+        },
+        {
+          "trial": 11,
+          "workload": "repeated-labels",
+          "ms": 5.373916821554303
+        },
+        {
+          "trial": 11,
+          "workload": "bounded-blocks",
+          "ms": 0.032125040888786316
+        },
+        {
+          "trial": 11,
+          "workload": "order",
+          "ms": 0.022916588932275772
+        },
+        {
+          "trial": 11,
+          "workload": "negative-many-lines",
+          "ms": 2.3789582774043083
+        },
+        {
+          "trial": 11,
+          "workload": "mixed-code",
+          "ms": 0.021541723981499672
+        },
+        {
+          "trial": 11,
+          "workload": "instruction",
+          "ms": 0.026916619390249252
+        },
+        {
+          "trial": 12,
+          "workload": "short-code",
+          "ms": 0.017833197489380836
+        },
+        {
+          "trial": 12,
+          "workload": "bounded-negative",
+          "ms": 4.336916608735919
+        },
+        {
+          "trial": 12,
+          "workload": "repeated-labels",
+          "ms": 5.578833166509867
+        },
+        {
+          "trial": 12,
+          "workload": "bounded-blocks",
+          "ms": 0.034250086173415184
+        },
+        {
+          "trial": 12,
+          "workload": "order",
+          "ms": 0.025458401069045067
+        },
+        {
+          "trial": 12,
+          "workload": "negative-many-lines",
+          "ms": 2.4138332810252905
+        },
+        {
+          "trial": 12,
+          "workload": "mixed-code",
+          "ms": 0.025083310902118683
+        },
+        {
+          "trial": 12,
+          "workload": "instruction",
+          "ms": 0.026833266019821167
+        },
+        {
+          "trial": 13,
+          "workload": "short-code",
+          "ms": 0.01766672357916832
+        },
+        {
+          "trial": 13,
+          "workload": "bounded-negative",
+          "ms": 4.347625188529491
+        },
+        {
+          "trial": 13,
+          "workload": "repeated-labels",
+          "ms": 5.381208378821611
+        },
+        {
+          "trial": 13,
+          "workload": "bounded-blocks",
+          "ms": 0.04058331251144409
+        },
+        {
+          "trial": 13,
+          "workload": "order",
+          "ms": 0.02941652201116085
+        },
+        {
+          "trial": 13,
+          "workload": "negative-many-lines",
+          "ms": 2.4248333647847176
+        },
+        {
+          "trial": 13,
+          "workload": "mixed-code",
+          "ms": 0.03800005652010441
+        },
+        {
+          "trial": 13,
+          "workload": "instruction",
+          "ms": 0.031499890610575676
+        },
+        {
+          "trial": 14,
+          "workload": "short-code",
+          "ms": 0.019999919459223747
+        },
+        {
+          "trial": 14,
+          "workload": "bounded-negative",
+          "ms": 4.25649993121624
+        },
+        {
+          "trial": 14,
+          "workload": "repeated-labels",
+          "ms": 5.518374964594841
+        },
+        {
+          "trial": 14,
+          "workload": "bounded-blocks",
+          "ms": 0.03404170274734497
+        },
+        {
+          "trial": 14,
+          "workload": "order",
+          "ms": 0.025833258405327797
+        },
+        {
+          "trial": 14,
+          "workload": "negative-many-lines",
+          "ms": 2.3155417293310165
+        },
+        {
+          "trial": 14,
+          "workload": "mixed-code",
+          "ms": 0.021750107407569885
+        },
+        {
+          "trial": 14,
+          "workload": "instruction",
+          "ms": 0.02633337862789631
+        },
+        {
+          "trial": 15,
+          "workload": "short-code",
+          "ms": 0.01754169352352619
+        },
+        {
+          "trial": 15,
+          "workload": "bounded-negative",
+          "ms": 4.1251250077039
+        },
+        {
+          "trial": 15,
+          "workload": "repeated-labels",
+          "ms": 5.394583335146308
+        },
+        {
+          "trial": 15,
+          "workload": "bounded-blocks",
+          "ms": 0.04054163582623005
+        },
+        {
+          "trial": 15,
+          "workload": "order",
+          "ms": 0.03170827403664589
+        },
+        {
+          "trial": 15,
+          "workload": "negative-many-lines",
+          "ms": 2.4995000567287207
+        },
+        {
+          "trial": 15,
+          "workload": "mixed-code",
+          "ms": 0.03983336500823498
+        },
+        {
+          "trial": 15,
+          "workload": "instruction",
+          "ms": 0.033583492040634155
+        },
+        {
+          "trial": 16,
+          "workload": "short-code",
+          "ms": 0.02037500962615013
+        },
+        {
+          "trial": 16,
+          "workload": "bounded-negative",
+          "ms": 4.378041485324502
+        },
+        {
+          "trial": 16,
+          "workload": "repeated-labels",
+          "ms": 5.474041681736708
+        },
+        {
+          "trial": 16,
+          "workload": "bounded-blocks",
+          "ms": 0.03466662019491196
+        },
+        {
+          "trial": 16,
+          "workload": "order",
+          "ms": 0.02537504769861698
+        },
+        {
+          "trial": 16,
+          "workload": "negative-many-lines",
+          "ms": 2.451375126838684
+        },
+        {
+          "trial": 16,
+          "workload": "mixed-code",
+          "ms": 0.025291694328188896
+        },
+        {
+          "trial": 16,
+          "workload": "instruction",
+          "ms": 0.029291491955518723
+        },
+        {
+          "trial": 17,
+          "workload": "short-code",
+          "ms": 0.01904158852994442
+        },
+        {
+          "trial": 17,
+          "workload": "bounded-negative",
+          "ms": 4.3865416664630175
+        },
+        {
+          "trial": 17,
+          "workload": "repeated-labels",
+          "ms": 5.4928751196712255
+        },
+        {
+          "trial": 17,
+          "workload": "bounded-blocks",
+          "ms": 0.038874801248311996
+        },
+        {
+          "trial": 17,
+          "workload": "order",
+          "ms": 0.028875190764665604
+        },
+        {
+          "trial": 17,
+          "workload": "negative-many-lines",
+          "ms": 2.4397082161158323
+        },
+        {
+          "trial": 17,
+          "workload": "mixed-code",
+          "ms": 0.0330416951328516
+        },
+        {
+          "trial": 17,
+          "workload": "instruction",
+          "ms": 0.032499898225069046
+        },
+        {
+          "trial": 18,
+          "workload": "short-code",
+          "ms": 0.02033333294093609
+        },
+        {
+          "trial": 18,
+          "workload": "bounded-negative",
+          "ms": 4.43904148414731
+        },
+        {
+          "trial": 18,
+          "workload": "repeated-labels",
+          "ms": 5.5644584354013205
+        },
+        {
+          "trial": 18,
+          "workload": "bounded-blocks",
+          "ms": 0.03741658292710781
+        },
+        {
+          "trial": 18,
+          "workload": "order",
+          "ms": 0.027999980375170708
+        },
+        {
+          "trial": 18,
+          "workload": "negative-many-lines",
+          "ms": 2.3783750366419554
+        },
+        {
+          "trial": 18,
+          "workload": "mixed-code",
+          "ms": 0.029625138267874718
+        },
+        {
+          "trial": 18,
+          "workload": "instruction",
+          "ms": 0.03124983049929142
+        },
+        {
+          "trial": 19,
+          "workload": "short-code",
+          "ms": 0.019833212718367577
+        },
+        {
+          "trial": 19,
+          "workload": "bounded-negative",
+          "ms": 4.410749999806285
+        },
+        {
+          "trial": 19,
+          "workload": "repeated-labels",
+          "ms": 5.483791697770357
+        },
+        {
+          "trial": 19,
+          "workload": "bounded-blocks",
+          "ms": 0.03745849244296551
+        },
+        {
+          "trial": 19,
+          "workload": "order",
+          "ms": 0.028125010430812836
+        },
+        {
+          "trial": 19,
+          "workload": "negative-many-lines",
+          "ms": 2.3849999997764826
+        },
+        {
+          "trial": 19,
+          "workload": "mixed-code",
+          "ms": 0.03687501884996891
+        },
+        {
+          "trial": 19,
+          "workload": "instruction",
+          "ms": 0.035791657865047455
+        },
+        {
+          "trial": 20,
+          "workload": "short-code",
+          "ms": 0.01937500201165676
+        },
+        {
+          "trial": 20,
+          "workload": "bounded-negative",
+          "ms": 4.184708232060075
+        },
+        {
+          "trial": 20,
+          "workload": "repeated-labels",
+          "ms": 5.330083193257451
+        },
+        {
+          "trial": 20,
+          "workload": "bounded-blocks",
+          "ms": 0.03183353692293167
+        },
+        {
+          "trial": 20,
+          "workload": "order",
+          "ms": 0.023083295673131943
+        },
+        {
+          "trial": 20,
+          "workload": "negative-many-lines",
+          "ms": 2.3388334084302187
+        },
+        {
+          "trial": 20,
+          "workload": "mixed-code",
+          "ms": 0.021041836589574814
+        },
+        {
+          "trial": 20,
+          "workload": "instruction",
+          "ms": 0.027458416298031807
+        }
+      ]
+    }
+  ]
+}

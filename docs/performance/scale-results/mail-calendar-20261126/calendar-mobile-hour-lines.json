@@ -1,0 +1,1520 @@
+{
+  "scope": "Decorative hour and half-hour lines only. The control uses separate SwiftUI rectangles. The candidate uses the existing Canvas with mobile line thickness and colors. The same iPhone 14 Pro binary performed five measured round trips per condition in two orientations, in control/candidate/candidate/control order. Every forward and return date was checked. The process sampler covers the whole test; its maximum includes fixture startup. Offscreen ImageRenderer pixel comparisons use mobile thickness, range and zoom geometry at 2x and 3x in light/dark appearance. A change in drawn pixels is a correctness difference, even when a navigation test passes.",
+  "binarySHA256": "e1e0c5f381ba4148e3b4975cc85af6127c167255767ca4a68c99378b05c80be4",
+  "deviceRuns": [
+    {
+      "condition": "canvas1",
+      "orientation": "landscape",
+      "casePassed": true,
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            8.344666,
+            16.689374,
+            8.344624,
+            0,
+            8.344624
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            1.5435229160000001,
+            1.543277625,
+            1.5432324590000002,
+            1.543171375,
+            1.5432017500000001
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            5.406247342726528,
+            10.814240244039047,
+            5.407237875888162,
+            0,
+            5.407345475081272
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            101.71536254882812,
+            96.54776000976562,
+            96.55058288574219,
+            98.49846649169922,
+            97.8485107421875
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            1,
+            2,
+            1,
+            0,
+            1
+          ]
+        }
+      },
+      "processSamples": 74,
+      "peakSampledFootprintBytes": 665061768
+    },
+    {
+      "condition": "canvas1",
+      "orientation": "portrait",
+      "casePassed": true,
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            16.689248,
+            0,
+            0,
+            8.344666
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            0.9926911660000001,
+            0.9926982500000001,
+            0.9927350840000001,
+            0.9933126250000001,
+            0.9928618750000001
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            16.81200707264267,
+            0,
+            0,
+            8.404660181625632
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            93.68473052978516,
+            90.6619873046875,
+            94.68789672851562,
+            95.63957214355469,
+            94.67581176757812
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            2,
+            0,
+            0,
+            1
+          ]
+        }
+      },
+      "processSamples": 61,
+      "peakSampledFootprintBytes": 576686472
+    },
+    {
+      "condition": "canvas2",
+      "orientation": "landscape",
+      "casePassed": true,
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            8.344666,
+            0,
+            0,
+            0
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            1.54375225,
+            1.5432001670000002,
+            1.543077792,
+            1.5431810000000001,
+            1.5432079170000002
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            5.407378023222522,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            97.16585540771484,
+            98.49662017822266,
+            93.96804809570312,
+            93.96175384521484,
+            95.2561264038086
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "processSamples": 73,
+      "peakSampledFootprintBytes": 689310160
+    },
+    {
+      "condition": "canvas2",
+      "orientation": "portrait",
+      "casePassed": true,
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            16.68929,
+            8.344583,
+            8.344666,
+            8.344583
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            0.992607,
+            0.9926491660000001,
+            0.992785208,
+            0.9925883750000001,
+            0.9927271670000001
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            16.81288034795778,
+            8.405225282659119,
+            8.40697602031322,
+            8.40571671001247
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            93.69267272949219,
+            90.66647338867188,
+            92.66858673095703,
+            86.64215850830078,
+            92.67400360107422
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            2,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "processSamples": 59,
+      "peakSampledFootprintBytes": 608340432
+    },
+    {
+      "condition": "clear1",
+      "orientation": "landscape",
+      "casePassed": true,
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            1.54342975,
+            1.542955333,
+            1.5431703330000002,
+            1.543178375,
+            1.542901958
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            98.48197174072266,
+            96.56792449951172,
+            98.49852752685547,
+            97.8499984741211,
+            98.51565551757812
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "processSamples": 75,
+      "peakSampledFootprintBytes": 518244576
+    },
+    {
+      "condition": "clear1",
+      "orientation": "portrait",
+      "casePassed": true,
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            8.344666,
+            8.344666,
+            8.344666,
+            8.344708
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            0.992798791,
+            0.9925883750000001,
+            0.9927935000000001,
+            0.992368083,
+            0.9925905
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            8.40697602031322,
+            8.405239021676378,
+            8.408842249981673,
+            8.406999999832088
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            93.67456817626953,
+            93.69442749023438,
+            94.68232727050781,
+            95.7306137084961,
+            94.70169067382812
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      },
+      "processSamples": 61,
+      "peakSampledFootprintBytes": 540641528
+    },
+    {
+      "condition": "clear2",
+      "orientation": "landscape",
+      "casePassed": true,
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            1.5431668330000001,
+            1.5433269580000002,
+            1.5432035000000002,
+            1.5432675,
+            1.5431501250000002
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            98.49874114990234,
+            98.488525390625,
+            97.20040130615234,
+            101.084228515625,
+            98.49981689453125
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "processSamples": 73,
+      "peakSampledFootprintBytes": 524093688
+    },
+    {
+      "condition": "clear2",
+      "orientation": "portrait",
+      "casePassed": true,
+      "metrics": {
+        "Hitches Total Duration": {
+          "unit": "ms",
+          "samples": [
+            0,
+            0,
+            16.689207,
+            0,
+            0
+          ]
+        },
+        "Duration": {
+          "unit": "s",
+          "samples": [
+            0.992725292,
+            0.9924737090000001,
+            0.9922995000000001,
+            0.9928118330000001,
+            0.992702041
+          ]
+        },
+        "Hitch Time Ratio": {
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            16.818720893574305,
+            0,
+            0
+          ]
+        },
+        "Frame Count": {
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "Frame Rate": {
+          "unit": "fps",
+          "samples": [
+            93.68150329589844,
+            90.68250274658203,
+            90.69842529296875,
+            93.67333984375,
+            93.68370056152344
+          ]
+        },
+        "Number of Hitches": {
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            2,
+            0,
+            0
+          ]
+        }
+      },
+      "processSamples": 62,
+      "peakSampledFootprintBytes": 512018680
+    }
+  ],
+  "pixelComparisons": [
+    {
+      "dark": false,
+      "pixels": 243584,
+      "hourHeight": 44,
+      "width": 173,
+      "pixelDifferences": 0,
+      "hours": 8,
+      "maximumByteDifference": 0,
+      "scale": 2
+    },
+    {
+      "pixels": 730752,
+      "scale": 2,
+      "pixelDifferences": 0,
+      "width": 173,
+      "maximumByteDifference": 0,
+      "hours": 24,
+      "dark": false,
+      "hourHeight": 44
+    },
+    {
+      "dark": false,
+      "pixelDifferences": 0,
+      "width": 173,
+      "scale": 2,
+      "pixels": 310016,
+      "hourHeight": 56,
+      "maximumByteDifference": 0,
+      "hours": 8
+    },
+    {
+      "width": 173,
+      "maximumByteDifference": 0,
+      "scale": 2,
+      "dark": false,
+      "hours": 24,
+      "pixelDifferences": 0,
+      "hourHeight": 56,
+      "pixels": 930048
+    },
+    {
+      "width": 173,
+      "maximumByteDifference": 33,
+      "scale": 2,
+      "dark": false,
+      "hours": 8,
+      "pixelDifferences": 10380,
+      "hourHeight": 64.96,
+      "pixels": 359840
+    },
+    {
+      "pixelDifferences": 31832,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 33,
+      "dark": false,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 1079174,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 160,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 885760,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 160,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 2657280,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 44,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 303424,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 44,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 910272,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 56,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 386176,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 56,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 1158528,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 12930,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 33,
+      "dark": false,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 448240,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 39652,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 33,
+      "dark": false,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 1344289,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 160,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 1103360,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 160,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 3310080,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 44,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 550528,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 44,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 1651584,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 56,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 700672,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 56,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 2102016,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 23460,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 33,
+      "dark": false,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 813280,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 71944,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 33,
+      "dark": false,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 2439058,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 160,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 2001920,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 160,
+      "maximumByteDifference": 0,
+      "dark": false,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 6005760,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 44,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 243584,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 44,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 730752,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 56,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 310016,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 56,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 930048,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 10380,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 33,
+      "dark": true,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 359840,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 31832,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 33,
+      "dark": true,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 1079174,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 160,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 885760,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 160,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 2657280,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 44,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 303424,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 44,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 910272,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 56,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 386176,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 56,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 1158528,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 12930,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 33,
+      "dark": true,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 448240,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 39652,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 33,
+      "dark": true,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 1344289,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 160,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 1103360,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 160,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 3310080,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 44,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 550528,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 44,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 1651584,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 56,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 700672,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 56,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 2102016,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 23460,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 33,
+      "dark": true,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 813280,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 71944,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 33,
+      "dark": true,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 2439058,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 160,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 8,
+      "scale": 2,
+      "pixels": 2001920,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 0,
+      "hourHeight": 160,
+      "maximumByteDifference": 0,
+      "dark": true,
+      "hours": 24,
+      "scale": 2,
+      "pixels": 6005760,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 8304,
+      "hourHeight": 44,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 548064,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 24912,
+      "hourHeight": 44,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 1644192,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 8304,
+      "hourHeight": 56,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 697536,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 24912,
+      "hourHeight": 56,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 2092608,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 16089,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 809640,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 48267,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 2427882,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 8304,
+      "hourHeight": 160,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 1992960,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 24912,
+      "hourHeight": 160,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 5978880,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 10352,
+      "hourHeight": 44,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 683232,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 31056,
+      "hourHeight": 44,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 2049696,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 10352,
+      "hourHeight": 56,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 869568,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 31056,
+      "hourHeight": 56,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 2608704,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 20057,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 1009320,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 60171,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 3026666,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 10352,
+      "hourHeight": 160,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 2484480,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 31056,
+      "hourHeight": 160,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 7453440,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 18768,
+      "hourHeight": 44,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 1238688,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 56304,
+      "hourHeight": 44,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 3716064,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 18768,
+      "hourHeight": 56,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 1576512,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 56304,
+      "hourHeight": 56,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 4729536,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 36363,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 1829880,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 109089,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 5487294,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 18768,
+      "hourHeight": 160,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 4504320,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 56304,
+      "hourHeight": 160,
+      "maximumByteDifference": 34,
+      "dark": false,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 13512960,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 8304,
+      "hourHeight": 44,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 548064,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 24912,
+      "hourHeight": 44,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 1644192,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 8304,
+      "hourHeight": 56,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 697536,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 24912,
+      "hourHeight": 56,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 2092608,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 16089,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 809640,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 48786,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 2427882,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 8304,
+      "hourHeight": 160,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 1992960,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 24912,
+      "hourHeight": 160,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 5978880,
+      "width": 173
+    },
+    {
+      "pixelDifferences": 10352,
+      "hourHeight": 44,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 683232,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 31056,
+      "hourHeight": 44,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 2049696,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 10352,
+      "hourHeight": 56,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 869568,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 31056,
+      "hourHeight": 56,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 2608704,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 20057,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 1009320,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 60818,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 3026666,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 10352,
+      "hourHeight": 160,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 2484480,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 31056,
+      "hourHeight": 160,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 7453440,
+      "width": 215.5
+    },
+    {
+      "pixelDifferences": 18768,
+      "hourHeight": 44,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 1238688,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 56304,
+      "hourHeight": 44,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 3716064,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 18768,
+      "hourHeight": 56,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 1576512,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 56304,
+      "hourHeight": 56,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 4729536,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 36363,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 1829880,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 110262,
+      "hourHeight": 64.96,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 5487294,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 18768,
+      "hourHeight": 160,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 8,
+      "scale": 3,
+      "pixels": 4504320,
+      "width": 391
+    },
+    {
+      "pixelDifferences": 56304,
+      "hourHeight": 160,
+      "maximumByteDifference": 34,
+      "dark": true,
+      "hours": 24,
+      "scale": 3,
+      "pixels": 13512960,
+      "width": 391
+    }
+  ]
+}

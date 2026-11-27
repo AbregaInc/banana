@@ -1,0 +1,33 @@
+{
+  "status": "fail",
+  "scope": "Simulator components, not UI acceptance",
+  "baselineVersion": 1,
+  "failures": {
+    "scale-1d": [
+      "peak RSS regression or ceiling exceeded: 364.09 MB"
+    ],
+    "scale-7d": [
+      "peak RSS regression or ceiling exceeded: 405.36 MB"
+    ],
+    "scale-30d": [
+      "peak RSS regression or ceiling exceeded: 488.05 MB"
+    ],
+    "scale-90d": [
+      "peak RSS regression or ceiling exceeded: 721.61 MB"
+    ],
+    "redraw-notes": [
+      "peak RSS regression or ceiling exceeded: 488.05 MB"
+    ],
+    "redraw-library": [
+      "peak RSS regression or ceiling exceeded: 493.92 MB"
+    ],
+    "redraw-plan": [
+      "peak RSS regression or ceiling exceeded: 509.02 MB",
+      "weather\u21bb: redraw rate increased from 0 to 0.09511762763185472",
+      "WeekView: redraw rate increased from 0 to 0.09511762763185472"
+    ],
+    "redraw-mail": [
+      "peak RSS regression or ceiling exceeded: 494.52 MB"
+    ]
+  }
+}

@@ -7,7 +7,7 @@ struct MailTextView: View {
     let text: MailText
     /// The blocks already styled off the main thread (`MailReaderModel.styled`); styled here
     /// only when absent.
-    var styled: [AttributedString]? = nil
+    var styled: [AttributedString?]? = nil
     /// The prepared body's `quoteStartsAt`: quoted history waits behind one button.
     var foldFrom: Int? = nil
     var foldEntireTail = false
@@ -18,14 +18,15 @@ struct MailTextView: View {
         let ready = styled?.count == text.blocks.count ? styled : nil
         let hidden = MailQuoteFolding.hiddenRange(in: text.blocks, from: foldFrom, expanded: showsQuote,
                                                  entireTail: foldEntireTail)
-        VStack(alignment: .leading, spacing: DS.Space.s) {
+        // Lazy: a 1,200-paragraph message builds the paragraphs on screen, not all of them.
+        LazyVStack(alignment: .leading, spacing: DS.Space.s) {
             ForEach(text.blocks.indices, id: \.self) { index in
                 if hidden?.lowerBound == index { showQuoteButton }
                 if hidden?.contains(index) != true {
                     if let notes = timeNotes[index] {
-                        MailLocalTimeParagraph(runs: ready?[index] ?? MailAttributedText.make(text.blocks[index].runs), notes: notes)
+                        MailLocalTimeParagraph(runs: (ready?[index] ?? nil) ?? MailAttributedText.make(text.blocks[index].runs, detectAddresses: true), notes: notes)
                     } else {
-                        MailBlockView(block: text.blocks[index], styled: ready?[index])
+                        MailBlockView(block: text.blocks[index], styled: ready?[index] ?? nil)
                     }
                 }
             }
@@ -108,7 +109,7 @@ private struct MailBlockView: View {
     let block: MailTextBlock
     let styled: AttributedString?
 
-    private var runs: AttributedString { styled ?? MailAttributedText.make(block.runs) }
+    private var runs: AttributedString { styled ?? MailAttributedText.make(block.runs, detectAddresses: true) }
 
     var body: some View {
         switch block.kind {

@@ -1,0 +1,101 @@
+--- a/Banana/Views/CalendarHourLines.swift
++++ b/Banana/Views/CalendarHourLines.swift
+@@ -7,6 +7,8 @@
+     let hourColor: Color
+     let halfHourColor: Color
+     let usesCanvas: Bool
++    var hourCount = 24
++    var lineHeight: CGFloat = 1
+ 
+     static let experimentalCanvasEnabled: Bool = {
+         #if DEBUG
+@@ -20,24 +22,26 @@
+         Group {
+             if usesCanvas {
+                 Canvas { context, size in
+-                    var hours = Path(), halves = Path()
+-                    for hour in 0...24 {
+-                        hours.addRect(CGRect(x: 0, y: CGFloat(hour) * hourHeight, width: size.width, height: 1))
++                    var hourMarks = Path(), halves = Path()
++                    for hour in 0...hourCount {
++                        hourMarks.addRect(CGRect(x: 0, y: CGFloat(hour) * hourHeight,
++                                                 width: size.width, height: lineHeight))
+                     }
+-                    for hour in 0..<24 {
+-                        halves.addRect(CGRect(x: 0, y: (CGFloat(hour) + 0.5) * hourHeight, width: size.width, height: 1))
++                    for hour in 0..<hourCount {
++                        halves.addRect(CGRect(x: 0, y: (CGFloat(hour) + 0.5) * hourHeight,
++                                              width: size.width, height: lineHeight))
+                     }
+-                    context.fill(hours, with: .color(hourColor))
++                    context.fill(hourMarks, with: .color(hourColor))
+                     context.fill(halves, with: .color(halfHourColor))
+                 }
+             } else {
+                 ZStack(alignment: .topLeading) {
+-                    ForEach(0...24, id: \.self) { hour in
+-                        Rectangle().fill(hourColor).frame(height: 1)
++                    ForEach(0...hourCount, id: \.self) { hour in
++                        Rectangle().fill(hourColor).frame(height: lineHeight)
+                             .offset(y: CGFloat(hour) * hourHeight)
+                     }
+-                    ForEach(0..<24, id: \.self) { hour in
+-                        Rectangle().fill(halfHourColor).frame(height: 1)
++                    ForEach(0..<hourCount, id: \.self) { hour in
++                        Rectangle().fill(halfHourColor).frame(height: lineHeight)
+                             .offset(y: (CGFloat(hour) + 0.5) * hourHeight)
+                     }
+                 }
+--- a/Banana/Views/WeekView.swift
++++ b/Banana/Views/WeekView.swift
+@@ -5269,19 +5269,25 @@
+                             onDragCancelled: { mobileDraftSelection = nil },
+                             handlesDrag: !dayMode && !Self.nativeWeekViewport)
+                 }
+-            ForEach(startHour...endHour, id: \.self) { hour in
+-                Rectangle()
+-                    .fill(Color(.separator).opacity(0.32))
+-                    .frame(height: 0.5)
+-                    .offset(y: CGFloat(hour - startHour) * hourHeight)
+-                    .allowsHitTesting(false)
+-            }
+-            ForEach(startHour..<endHour, id: \.self) { hour in
+-                Rectangle()
+-                    .fill(Color(.separator).opacity(0.12))
+-                    .frame(height: 0.5)
+-                    .offset(y: (CGFloat(hour - startHour) + 0.5) * hourHeight)
+-                    .allowsHitTesting(false)
++            if CalendarHourLines.experimentalCanvasEnabled {
++                CalendarHourLines(hourHeight: hourHeight, hourColor: Color(.separator).opacity(0.32),
++                                  halfHourColor: Color(.separator).opacity(0.12), usesCanvas: true,
++                                  hourCount: endHour - startHour, lineHeight: 0.5)
++            } else {
++                ForEach(startHour...endHour, id: \.self) { hour in
++                    Rectangle()
++                        .fill(Color(.separator).opacity(0.32))
++                        .frame(height: 0.5)
++                        .offset(y: CGFloat(hour - startHour) * hourHeight)
++                        .allowsHitTesting(false)
++                }
++                ForEach(startHour..<endHour, id: \.self) { hour in
++                    Rectangle()
++                        .fill(Color(.separator).opacity(0.12))
++                        .frame(height: 0.5)
++                        .offset(y: (CGFloat(hour - startHour) + 0.5) * hourHeight)
++                        .allowsHitTesting(false)
++                }
+             }
+             if let selection = mobileDraftSelection,
+                calendar.isDate(selection.day, inSameDayAs: day.date) {
+--- a/BananaUITests/ScaleStressUITests.swift
++++ b/BananaUITests/ScaleStressUITests.swift
+@@ -71,6 +71,9 @@
+             }
+             if ProcessInfo.processInfo.environment["STRESS_REFERENCE_DAY_COAST"] == "1" {
+                 app.launchArguments += ["--calendar-reference-day-deceleration"]
++            }
++            if ProcessInfo.processInfo.environment["STRESS_CANVAS_GRID"] == "1" {
++                app.launchArguments += ["--calendar-canvas-grid"]
+             }
+             if extra.contains("--calendar-prepared-artwork") {
+                 app.launchArguments += ["--calendar-artwork-test-probe"]

@@ -41,7 +41,7 @@ struct MailConversationFacts: Equatable, Sendable {
     var labels: [String]
     var isInvitation: Bool
 
-    init(_ conversation: MailConversation) {
+    init(_ conversation: MailConversation, formatDate: (Date) -> String = { MailDateText.full($0) }) {
         var order: [String] = []
         var seen: [String: Participant] = [:]
         func note(_ person: MailPerson, wrote: Bool) {
@@ -69,8 +69,8 @@ struct MailConversationFacts: Equatable, Sendable {
         last = conversation.messages.map(\.date).max()
         let count = conversation.messages.count == 1 ? "1 message" : "\(conversation.messages.count) messages"
         messageLine = unreadCount > 0 ? "\(count), \(unreadCount) unread" : count
-        firstText = first.map { MailDateText.full($0) }
-        lastText = last.map { MailDateText.full($0) }
+        firstText = first.map(formatDate)
+        lastText = last.map(formatDate)
         attachments = conversation.messages.flatMap(\.attachments).map {
             Attachment(id: $0.id, name: $0.name, bytes: $0.bytes,
                        sizeText: ByteCountFormatter.string(fromByteCount: Int64($0.bytes), countStyle: .file))

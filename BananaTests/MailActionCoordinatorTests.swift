@@ -211,6 +211,42 @@ final class MailActionCoordinatorTests: XCTestCase {
         let remaining = try await intent.assertions()
         XCTAssertTrue(remaining.isEmpty)
     }
+    /// Startup recovery walks the overlay, not every message. Overlay rows whose messages are
+    /// gone must not end that walk before a real change further on is settled.
+    func testStartupRecoveryReachesAChangePastOrphanedOverlayRows() async throws {
+        let (stores, intent, _) = try await setup()
+        let writer = MailWriter(stores: stores, sink: nil)
+        try await stores.index.write { db in
+            // 150 overlay rows for messages that no longer exist, below the real one, and one
+            // kept placeholder so the next imported message is numbered after all of them.
+            try db.execute(sql: "INSERT INTO message(msg_pk,account_pk,gmail_id,thread_pk) VALUES (999,1,'placeholder',1)")
+            for pk in 10..<160 {
+                try db.execute(sql: "INSERT INTO overlay(msg_pk,label_pk,want) VALUES (?,1,1)", arguments: [pk])
+            }
+        }
+        let wire = GmailMessage(id: "late", threadId: "late", labelIds: ["INBOX"], historyId: 1, internalDate: 3000,
+            payload: GmailPart(headers: [GmailHeader(name: "Subject", value: "Late")]))
+        _ = try await writer.transact {
+            try MailMessageImporter.apply(FetchedMessage(wire: wire, floor: 1, headers: MessageHeaders(payload: wire.payload), structure: nil),
+                                          account: "a@example.com", myAddresses: ["a@example.com"], in: $0)
+        }
+        let late = MailConversationID(account: "a@example.com", thread: "late")
+        let coordinator = MailActionCoordinator(stores: stores, intent: intent, writer: writer)
+        let applied = try await coordinator.apply(.star(true), to: late, asOf: 5000, at: 2)
+        let sequence = try XCTUnwrap(applied)
+        let pk = try await stores.index.read { try Int64.fetchOne($0, sql: "SELECT msg_pk FROM message WHERE gmail_id='late'") }
+        XCTAssertGreaterThan(try XCTUnwrap(pk), 159, "The real change must come after the orphaned rows")
+        let key = SentKey(account: late.account, messageID: "late", labelRef: "STARRED", sentSeq: sequence)
+        try await intent.markInFlight([key])
+        try await intent.confirmed([key])
+        // Terminated between Gmail's confirmation and the index cleanup: the next start settles it.
+        let restarted = MailActionCoordinator(stores: stores, intent: intent, writer: MailWriter(stores: stores, sink: nil))
+        try await restarted.recover()
+        let row = try await inbox(stores).first { $0.account == late.account && $0.subject == "Late" }
+        XCTAssertEqual(row?.pending, 0)
+        XCTAssertFalse(try XCTUnwrap(row).flags.contains(.starred))
+    }
+
     func testActionCommitCostForDenseConversations() async throws {
         let budget = CostBudget(self)
         var timings: [String: [Double]] = [:]

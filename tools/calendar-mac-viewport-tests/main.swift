@@ -4,11 +4,12 @@ import Foundation
 setbuf(__stdoutp, nil)
 let layout = CalendarMacCollectionLayout()
 layout.size = CGSize(width: 1000, height: 2400)
-layout.attributes = (0..<240).map { i in
-    let a = NSCollectionViewLayoutAttributes(forItemWith: IndexPath(item: i, section: 0))
-    a.frame = CGRect(x: (i % 10) * 100, y: (i / 10) * 100, width: 90, height: 90)
-    return a
-}
+layout.replaceItems((0..<240).map { index in
+    CalendarMacViewportItem(id: String(index),
+        frame: CGRect(x: (index % 10) * 100, y: (index / 10) * 100, width: 90, height: 90)) {
+        AnyView(EmptyView())
+    }
+})
 var checks = 0
 func check(_ condition: Bool) { checks += 1; precondition(condition) }
 check(layout.collectionViewContentSize == CGSize(width: 1000, height: 2400))
@@ -25,7 +26,7 @@ check(!layout.layoutAttributesForElements(in: top).contains { $0.indexPath?.item
 check(layout.layoutAttributesForItem(at: IndexPath(item: 239, section: 0)) === layout.attributes[239])
 check(layout.layoutAttributesForItem(at: IndexPath(item: 240, section: 0)) == nil)
 check(layout.layoutAttributesForItem(at: IndexPath(item: 0, section: 1)) == nil)
-layout.attributes = []
+layout.replaceItems([])
 check(layout.layoutAttributesForElements(in: top).isEmpty)
 // Windowless initial-mount checks exercise the actual adapter, without claiming that
 // off-window scroll notifications model a visible AppKit window's lifecycle.
@@ -66,6 +67,50 @@ check(scrollEnds == 11)
 coordinator.stopObserving()
 NotificationCenter.default.post(name: NSScrollView.didEndLiveScrollNotification, object: coordinator.scroll)
 check(scrollEnds == 11)
+// A page can replace all identities while preserving its geometry. A content update must
+// still rebind the visible cells, even if it reuses every layout attribute.
+let updates = CalendarMacCollectionViewport.Coordinator()
+updates.scroll.frame = CGRect(x: 0, y: 0, width: 500, height: 250)
+let updatedCollection = updates.scroll.documentView as! NSCollectionView
+let updateLayout = updatedCollection.collectionViewLayout as! CalendarMacCollectionLayout
+var contentReads = [Int: Int]()
+func rows(page: Int, count: Int = 20, shifted: Int? = nil, raised: Int? = nil) -> [CalendarMacViewportItem] {
+    (0..<count).map { i in
+        CalendarMacViewportItem(id: "\(page)|\(i)",
+            frame: CGRect(x: shifted == i ? 30 : 0, y: 50 * i, width: 300, height: 45),
+            zIndex: raised == i ? 7 : 0) {
+                contentReads[page, default: 0] += 1
+                return AnyView(Text("Event \(page)/\(i)"))
+            }
+    }
+}
+func applyRows(_ items: [CalendarMacViewportItem], active: String? = nil, height: CGFloat = 1000) {
+    updates.update(CalendarMacCollectionViewport(items: items, contentSize: CGSize(width: 500, height: height),
+        background: AnyView(Color.clear), initialOffset: 0, activeID: active, onOffset: { _ in }),
+        environment: EnvironmentValues())
+    updates.scroll.layoutSubtreeIfNeeded()
+    check(updatedCollection.numberOfItems(inSection: 0) == items.count)
+    check(updateLayout.collectionViewContentSize.height == height)
+    for (attributes, item) in zip(updateLayout.attributes, items) {
+        check(attributes.frame == item.frame && attributes.zIndex == item.zIndex)
+    }
+}
+applyRows(rows(page: 0))
+let mountedAttributes = updateLayout.attributes
+let initialReads = contentReads[0]!
+applyRows(rows(page: 0), active: "19", height: 1100)
+check(contentReads[0]! > initialReads)
+check(zip(mountedAttributes, updateLayout.attributes).allSatisfy { $0 === $1 })
+check(updateLayout.layoutAttributesForElements(in: .zero).contains { $0.indexPath?.item == 19 })
+applyRows(rows(page: 1))
+check(contentReads[1, default: 0] > 0 && updateLayout.activeIndex == nil)
+check(zip(mountedAttributes, updateLayout.attributes).allSatisfy { $0 === $1 })
+applyRows(rows(page: 1, shifted: 1, raised: 3))
+check(zip(mountedAttributes, updateLayout.attributes).filter { $0 !== $1 }.count == 2)
+applyRows(rows(page: 0))
+applyRows([])
+check(updateLayout.attributes.isEmpty)
+updates.stopObserving()
 // SwiftUI can update the coordinator before AppKit has given the viewport a size.
 let opening = CalendarMacCollectionViewport.Coordinator()
 opening.scroll.frame = .zero
@@ -148,4 +193,19 @@ for style in [NSScroller.Style.legacy, .overlay] {
     }
     host.stopObserving()
 }
-print("\(checks) AppKit layout/initial-mount checks passed; no visible interaction or performance acceptance")
+// Momentum can outlast the dominant axis, while resting fingers can pause a precise gesture.
+// Neither starts another day or week. Wheels that supply no phase keep their timeout fallback.
+var paging = CalendarMacPeriodSwipe()
+check(paging.page(x: 35, y: 1, phase: .began, momentum: [], timestamp: 1) == nil)
+check(paging.page(x: 30, y: 1, phase: .changed, momentum: [], timestamp: 1.02) == 1)
+check(paging.page(x: 70, y: 0, phase: .changed, momentum: [], timestamp: 1.8) == nil)
+check(paging.page(x: 75, y: 0, phase: [], momentum: .changed, timestamp: 2.5) == nil)
+check(paging.page(x: -65, y: 0, phase: .began, momentum: [], timestamp: 2.51) == -1)
+check(paging.page(x: 8, y: 75, phase: .began, momentum: [], timestamp: 3) == nil)
+check(paging.page(x: 65, y: 4, phase: [], momentum: .began, timestamp: 3.12) == nil)
+check(paging.page(x: 35, y: 1, phase: .began, momentum: [], timestamp: 4) == nil)
+check(paging.page(x: 35, y: 0, phase: .cancelled, momentum: [], timestamp: 4.05) == nil)
+check(paging.page(x: 36, y: 0, phase: [], momentum: [], timestamp: 5) == nil)
+check(paging.page(x: 30, y: 0, phase: [], momentum: [], timestamp: 5.05) == 1)
+check(paging.page(x: 65, y: 0, phase: [], momentum: [], timestamp: 5.8) == 1)
+print("\(checks) AppKit layout, initial-mount and paging checks passed")

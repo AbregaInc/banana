@@ -70,10 +70,11 @@ struct MailVerificationCode: Equatable, Sendable {
         }
         // Link-only actions (e.g. a VERIFY button) are not code payloads.
         let own = lines.map { $0.plain ? $0.text : "\u{FFFC}" }.joined(separator: "\n")
-        let text = (allowSubjectCode ? subject + "\n" : "") + own
         let strongSubject = has(labelPattern, subject)
         let strongContext = strongSubject || has(labelPattern, own)
-        let authContext = strongContext || has(action, subject) || has(action, own)
+        // Every candidate needs either a verification label or an authentication instruction.
+        guard strongContext || has(action, subject) || has(action, own) else { return nil }
+        let text = (allowSubjectCode ? subject + "\n" : "") + own
         if !strongContext && has(meeting, own) { return nil }
         var candidates: [String: Set<String>] = [:]
         func add(_ raw: String, letters: Bool = false, anyCase: Bool = false) {
@@ -89,7 +90,7 @@ struct MailVerificationCode: Equatable, Sendable {
                 if let range = Range(match.range(at: 1), in: text) { add(String(text[range])) }
             }
         }
-        if authContext && (!has(meeting, own) || strongSubject) && (strongContext || !has(otherRole, subject)) {
+        if (!has(meeting, own) || strongSubject) && (strongContext || !has(otherRole, subject)) {
             if allowSubjectCode, strongSubject || !has(otherRole, subject) {
                 for pattern in [genericAfter, genericBefore].compactMap({ $0 }) {
                     if let match = pattern.firstMatch(in: subject, range: NSRange(subject.startIndex..., in: subject)), let range = Range(match.range(at: 1), in: subject) { add(String(subject[range]), letters: true, anyCase: true) }
