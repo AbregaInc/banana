@@ -61,7 +61,7 @@ actor MailRankedIndex {
                 name: field,
                 options: TextFieldOptions(
                     tokenizer: ["sender", "recipients", "filename"].contains(field) ? .default : .enStem,
-                    record: .withFreqs, stored: false, fast: false, fieldnorms: true))
+                    record: .withFreqs, stored: false, fast: false, fieldnorms: field != "attachments"))
         }
         return try TantivyIndex.newWithSchema(path: path.path, schemaBuilder: schema)
     }
@@ -139,9 +139,9 @@ actor MailRankedIndex {
     private func openOrBuild() async throws {
         let directory = stores.directories.cache.appendingPathComponent("RankedMail.noindex", isDirectory: true)
         try lock(directory)
-        // v2: the attachments field. An index of another version is rebuilt (and its files go).
-        let path = directory.appendingPathComponent("v2", isDirectory: true)
-        let retired = directory.appendingPathComponent("v1", isDirectory: true)
+        // v3: the attachments field, unnormalised and ranked on its own. Other versions are rebuilt.
+        let path = directory.appendingPathComponent("v3", isDirectory: true)
+        let retired = ["v1", "v2"].map { directory.appendingPathComponent($0, isDirectory: true) }
         let marker = directory.appendingPathComponent("complete")
         let epoch = try await stores.searchReader.read { db in
             guard
@@ -150,7 +150,7 @@ actor MailRankedIndex {
                     sql:
                         "SELECT idx.ranked_epoch.id || blobs.ranked_epoch.id FROM idx.ranked_epoch,blobs.ranked_epoch")
             else { throw CocoaError(.fileReadCorruptFile) }
-            return "2:" + value
+            return "3:" + value
         }
         let fm = FileManager.default
         if (try? String(contentsOf: marker, encoding: .utf8)) == epoch,
@@ -160,7 +160,7 @@ actor MailRankedIndex {
             return
         }
         if fm.fileExists(atPath: marker.path) { try fm.removeItem(at: marker) }
-        if fm.fileExists(atPath: retired.path) { try fm.removeItem(at: retired) }
+        for old in retired where fm.fileExists(atPath: old.path) { try fm.removeItem(at: old) }
         if fm.fileExists(atPath: path.path) { try fm.removeItem(at: path) }
         let index = try Self.open(path)
         try await writer.maintainSearchIndex {
@@ -307,7 +307,7 @@ actor MailRankedIndex {
         let access = accounts.map { "account:\($0)" }.joined(separator: " OR ")
         let expression = (scoped.all ? "" : "(\(access))^0 AND ") + "(" + clauses.joined(separator: " OR ") + ")"
         let query = TantivySearchQuery(
-            queryStr: expression, defaultFields: Self.fields, fuzzyFields: [], topDocLimit: 200, topDocOffset: 0)
+            queryStr: expression, defaultFields: Self.fields.filter { $0 != "attachments" }, fuzzyFields: [], topDocLimit: 200, topDocOffset: 0)
         // Native segment order can change after a merge. Use the persistent message ID to break equal scores.
         func matches(_ query: TantivySearchQuery) throws -> [Int64] {
             try engine.searchDocIds(query: query, idField: "id")
@@ -325,6 +325,14 @@ actor MailRankedIndex {
             fileMatches = try matches(fileQuery)
         }
         let fileIDs = fileMatches
+        // Attachment text is ranked on its own (docs/performance/mail-attachment-search.md): in the
+        // main ranking, BM25 length normalisation against an average dominated by messages without
+        // files buries every document, and without it long files win unrelated searches. Its best
+        // match with every word takes one place in the first five.
+        let attachQuery = TantivySearchQuery(
+            queryStr: (scoped.all ? "" : "(\(access))^0 AND ") + "(" + tokens.map { "attachments:" + $0 }.joined(separator: " AND ") + ")",
+            defaultFields: ["attachments"], fuzzyFields: [], topDocLimit: 50, topDocOffset: 0)
+        let attachIDs = try matches(attachQuery)
         // Keep the canonical rows, grants, hint lookup and dirty check in the same read transaction.
         let page: Page? = try await stores.searchReader.read { db in
             guard try Self.clean(db) else { return nil }
@@ -340,7 +348,7 @@ actor MailRankedIndex {
                 ).map { ($0[0], $0[1]) }
             }
             let hintIDs = hints.sorted { ($0.1, $0.0) > ($1.1, $1.0) }.map(\.0)
-            let ids = Array(Set(candidates + hintIDs + fileIDs))
+            let ids = Array(Set(candidates + hintIDs + fileIDs + attachIDs))
             guard !ids.isEmpty else { return Page() }
             var args = StatementArguments(ids)
             args += StatementArguments(allowed.sorted())
@@ -372,6 +380,7 @@ actor MailRankedIndex {
                 append(candidates, count: 1)
                 append(fileIDs, count: fileSlots)
             }
+            append(attachIDs, count: 1)
             if result.count < MailTuning.listStep { append(candidates, count: MailTuning.listStep) }
             let offset: Int
             if let before {

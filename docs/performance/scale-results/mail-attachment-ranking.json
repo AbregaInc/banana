@@ -1,0 +1,61 @@
+{
+ "date": "2026-11-26",
+ "metric": "intended conversation in the first five",
+ "population": "cloud-extracted attachment text for 2616 of 4799 messages with document attachments",
+ "sets": {
+  "attachment": 53,
+  "attachmentOnlyWords": 10,
+  "header": 380,
+  "content": 210
+ },
+ "configurations": {
+  "noText": [
+   10,
+   0,
+   144,
+   101
+  ],
+  "fieldNormalised": [
+   16,
+   3,
+   143,
+   101
+  ],
+  "fieldUnnormalised": [
+   29,
+   6,
+   139,
+   88
+  ],
+  "fieldBoost8": [
+   21,
+   4,
+   141,
+   96
+  ],
+  "inBody": [
+   17,
+   4,
+   143,
+   100
+  ],
+  "ownRankingOneSlot": [
+   23,
+   6,
+   143,
+   98
+  ],
+  "gmail": [
+   25,
+   null,
+   null,
+   null
+  ]
+ },
+ "columns": [
+  "attachment",
+  "attachmentOnlyWords",
+  "header",
+  "content"
+ ]
+}
