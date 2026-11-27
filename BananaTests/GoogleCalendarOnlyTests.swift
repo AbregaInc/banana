@@ -83,11 +83,15 @@ private func window(_ events: [(calendar: String, event: GoogleEvent)]) -> Calen
 
 final class GoogleEventWindowTests: XCTestCase {
     func testHidingPrivateBusyEntriesPreservesAvailabilityAndDetailedEvents() {
-        let opaque = googleEvent(id: "opaque", summary: "Busy")
-        let detailed = googleEvent(id: "detailed", summary: "Planning")
+        let opaque = googleEvent(id: "opaque", summary: "Busy", description: "Hidden appointment")
+        let detailed = googleEvent(id: "detailed", summary: "Planning", description: "Quarterly agenda", attendees: 1)
         let fetched = [opaque, detailed].map { GoogleFetchedEvent(calendarID: "shared", event: $0) }
         let visible = GoogleEventWindowBuilder.window(from: fetched, ownedCalendarIDs: [], blockingCalendarIDs: ["shared"])
         let hidden = GoogleEventWindowBuilder.window(from: fetched, ownedCalendarIDs: [], blockingCalendarIDs: ["shared"], hiddenSharedAvailabilityCalendarIDs: ["shared"])
+        XCTAssertNil(visible.meetings.first(where: { $0.isAvailabilityOnly })?.searchDetails)
+        let searchable = visible.meetings.first(where: { $0.title == "Planning" })?.searchDetails
+        XCTAssertTrue(searchable?.contains("Quarterly agenda") == true)
+        XCTAssertTrue(searchable?.contains("guest0@example.com") == true)
         XCTAssertEqual(visible.meetings.count, 2)
         XCTAssertEqual(hidden.meetings.map(\.title), ["Planning"])
         XCTAssertEqual(hidden.busyIntervals.count, visible.busyIntervals.count)

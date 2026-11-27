@@ -161,6 +161,8 @@ struct MeetingInfo: Identifiable {
     var copySources: [String] = []
     /// Calendars (info ids) holding a Busy copy of this event, hidden because this is shown.
     var blockingCalendarIDs: [String] = []
+    /// Notes and people from the visible event, retained for local search.
+    var searchDetails: String? = nil
 
     var id: String { eventID ?? "\(Int(start.timeIntervalSince1970))-\(title)" }
     var hasPhysicalLocation: Bool {
@@ -189,7 +191,7 @@ extension MeetingInfo: Codable {
     private enum CodingKeys: String, CodingKey {
         case start, end, lat, lon, address, isVirtual, title, eventID, joinURL, platform, calendarID
         case calendarBlocksTime, showsAsFree, isRecurring, myResponse, othersAllDeclined, alsoOnCalendarIDs, isAllDay, isAvailabilityOnly, startTimeZone, endTimeZone
-        case copySources, blockingCalendarIDs
+        case copySources, blockingCalendarIDs, searchDetails
     }
 
     init(from decoder: Decoder) throws {
@@ -217,7 +219,8 @@ extension MeetingInfo: Codable {
                   startTimeZone: try c.decodeIfPresent(String.self, forKey: .startTimeZone),
                   endTimeZone: try c.decodeIfPresent(String.self, forKey: .endTimeZone),
                   copySources: try c.decodeIfPresent([String].self, forKey: .copySources) ?? [],
-                  blockingCalendarIDs: try c.decodeIfPresent([String].self, forKey: .blockingCalendarIDs) ?? [])
+                  blockingCalendarIDs: try c.decodeIfPresent([String].self, forKey: .blockingCalendarIDs) ?? [],
+                  searchDetails: try c.decodeIfPresent(String.self, forKey: .searchDetails))
     }
 
     func encode(to encoder: Encoder) throws {
@@ -244,6 +247,7 @@ extension MeetingInfo: Codable {
         try c.encodeIfPresent(startTimeZone, forKey: .startTimeZone)
         try c.encodeIfPresent(endTimeZone, forKey: .endTimeZone)
         if !copySources.isEmpty { try c.encode(copySources, forKey: .copySources) }
+        try c.encodeIfPresent(searchDetails, forKey: .searchDetails)
         if !blockingCalendarIDs.isEmpty { try c.encode(blockingCalendarIDs, forKey: .blockingCalendarIDs) }
     }
 }
@@ -264,6 +268,7 @@ extension MeetingInfo: Hashable {
             && a.myResponse == b.myResponse && a.othersAllDeclined == b.othersAllDeclined
             && a.alsoOnCalendarIDs == b.alsoOnCalendarIDs && a.isAllDay == b.isAllDay && a.isAvailabilityOnly == b.isAvailabilityOnly
             && a.startTimeZone == b.startTimeZone && a.endTimeZone == b.endTimeZone
+            && a.searchDetails == b.searchDetails
             && a.copySources == b.copySources && a.blockingCalendarIDs == b.blockingCalendarIDs
     }
 
@@ -276,7 +281,7 @@ extension MeetingInfo: Hashable {
         hasher.combine(myResponse); hasher.combine(othersAllDeclined); hasher.combine(alsoOnCalendarIDs)
         hasher.combine(isAllDay); hasher.combine(isAvailabilityOnly)
         hasher.combine(startTimeZone); hasher.combine(endTimeZone)
-        hasher.combine(copySources); hasher.combine(blockingCalendarIDs)
+        hasher.combine(searchDetails); hasher.combine(copySources); hasher.combine(blockingCalendarIDs)
     }
 }
 

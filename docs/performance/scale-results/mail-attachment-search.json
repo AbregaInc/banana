@@ -1,0 +1,81 @@
+{
+ "metric": "intended conversation in the first five / first place",
+ "methods": {
+  "before": "Banana today: subject, sender, body, filenames",
+  "after": "Banana with the attachment's extracted text indexed",
+  "gmail": "Gmail search via Banana's service, target's account"
+ },
+ "summary": {
+  "all": {
+   "tasks": 140,
+   "beforeTop1": 11,
+   "beforeTop5": 26,
+   "afterTop1": 18,
+   "afterTop5": 40,
+   "gmailTop1": 14,
+   "gmailTop5": 41
+  },
+  "attachmentOnlyWords": {
+   "tasks": 29,
+   "beforeTop1": 0,
+   "beforeTop5": 0,
+   "afterTop1": 3,
+   "afterTop5": 6,
+   "gmailTop1": 3,
+   "gmailTop5": 10
+  },
+  "wordsAlsoInEmail": {
+   "tasks": 111,
+   "beforeTop1": 11,
+   "beforeTop5": 26,
+   "afterTop1": 15,
+   "afterTop5": 34,
+   "gmailTop1": 11,
+   "gmailTop5": 31
+  },
+  "kind=pdf": {
+   "tasks": 69,
+   "beforeTop1": 7,
+   "beforeTop5": 13,
+   "afterTop1": 11,
+   "afterTop5": 22,
+   "gmailTop1": 5,
+   "gmailTop5": 16
+  },
+  "kind=office": {
+   "tasks": 40,
+   "beforeTop1": 4,
+   "beforeTop5": 12,
+   "afterTop1": 6,
+   "afterTop5": 16,
+   "gmailTop1": 7,
+   "gmailTop5": 17
+  },
+  "kind=image": {
+   "tasks": 31,
+   "beforeTop1": 0,
+   "beforeTop5": 1,
+   "afterTop1": 1,
+   "afterTop5": 2,
+   "gmailTop1": 2,
+   "gmailTop5": 8
+  }
+ },
+ "extraction": {
+  "pdf": {
+   "files": 70,
+   "withText": 69,
+   "medianMs": 62
+  },
+  "office": {
+   "files": 40,
+   "withText": 40,
+   "medianMs": 55
+  },
+  "image": {
+   "files": 39,
+   "withText": 31,
+   "medianMs": 514
+  }
+ }
+}

@@ -12,19 +12,40 @@ struct MailLocalSearchQuery: Equatable, Sendable {
     var limit: Int = 50
     var allowedAccounts: Set<String>? = nil
 
+    var excludingThreads: [Int64] = []
+    // A bulk action traverses the ranked results and literal tail once in canonical date order.
+    var includingThreads: [Int64] = []
+
+    var rankText: String? {
+        let parsed = definition
+        guard filters.isEmpty, parsed?.canRun != false, parsed?.terms.allSatisfy({ $0.field == "text" }) != false
+        else { return nil }
+        let words = parsed?.text ?? text
+        return words.isEmpty ? nil : words
+    }
+
     var definition: LiveFilter? { LiveFilter.fromSearchExpression(text, scope: "mail") }
-    var match: String? {
-        let words = (definition?.text ?? text).components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty }
-        var parts = words.map { "\"" + $0 + "\"*" }
-        for person in definition?.terms.filter({ $0.field == "person" }) ?? [] {
-            let senderWords = person.value.components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty }
-            if !senderWords.isEmpty { parts.append("sender : (" + senderWords.map { "\"" + $0 + "\"*" }.joined(separator: " AND ") + ")") }
+    /// Use the header index's sender tokens for both header and body hits.
+    var senderMatch: String? {
+        let clauses = (definition?.terms ?? []).filter { $0.field == "person" }.map { term in
+            let words = Self.prefixMatch(term.value) ?? "\"\""
+            return "sender : (\(words))"
         }
+        return clauses.isEmpty ? nil : clauses.joined(separator: " AND ")
+    }
+
+    var match: String? {
+        let parts = [bodyMatch, senderMatch].compactMap { $0 }
         return parts.isEmpty ? nil : parts.joined(separator: " AND ")
     }
+
     /// The words alone, for the body index, which has no sender column.
     var bodyMatch: String? {
-        let words = (definition?.text ?? text).components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty }
+        Self.prefixMatch(definition?.text ?? text)
+    }
+
+    private static func prefixMatch(_ text: String) -> String? {
+        let words = text.components(separatedBy: CharacterSet.alphanumerics.inverted).filter { !$0.isEmpty }
         return words.isEmpty ? nil : words.map { "\"" + $0 + "\"*" }.joined(separator: " AND ")
     }
 }
@@ -71,13 +92,23 @@ extension MailIndexReader {
         guard query.match != nil || definition?.isEmpty == false else { return [] }
         var predicates = ["t.last_date > 0"]
         var arguments: [(any DatabaseValueConvertible)?] = []
-        if let match = query.match { predicates.append("mail_header_search MATCH ?"); arguments.append(match) }
+        if let match = query.match {
+            if query.includingThreads.isEmpty {
+                predicates.append("mail_header_search MATCH ?")
+                arguments.append(match)
+            } else {
+                let slots = query.includingThreads.map { _ in "?" }.joined(separator: ",")
+                predicates.append("(t.thread_pk IN (\(slots)) OR t.thread_pk IN (SELECT m.thread_pk FROM mail_header_search JOIN message m ON m.msg_pk=mail_header_search.rowid WHERE mail_header_search MATCH ?))")
+                arguments += query.includingThreads.map { $0 as (any DatabaseValueConvertible)? }
+                arguments.append(match)
+            }
+        }
         conditions(query, predicates: &predicates, arguments: &arguments)
         if let before = query.before {
             predicates.append("(t.last_date,t.tie) \(includingBoundary ? "<=" : "<") (?,?)"); arguments += [before.sortKey, before.tie]
         }
         arguments.append(query.limit)
-        let from = query.match != nil
+        let from = query.match != nil && query.includingThreads.isEmpty
             ? "mail_header_search JOIN message m ON m.msg_pk=mail_header_search.rowid JOIN thread t ON t.thread_pk=m.thread_pk JOIN account a ON a.account_pk=t.account_pk"
             : "thread t JOIN account a ON a.account_pk=t.account_pk"
         return try Row.fetchAll(db, sql: """
@@ -102,6 +133,10 @@ extension MailIndexReader {
     static func conditions(_ query: MailLocalSearchQuery, predicates: inout [String],
                            arguments: inout [(any DatabaseValueConvertible)?]) {
         let definition = query.definition
+        if !query.excludingThreads.isEmpty {
+            predicates.append("t.thread_pk NOT IN (" + query.excludingThreads.map { _ in "?" }.joined(separator:",") + ")")
+            arguments += query.excludingThreads.map { $0 as (any DatabaseValueConvertible)? }
+        }
         if let interval = definition?.interval() {
             predicates.append("t.last_date >= ? AND t.last_date < ?")
             arguments += [Int64(interval.start.timeIntervalSince1970 * 1000), Int64(interval.end.timeIntervalSince1970 * 1000)]

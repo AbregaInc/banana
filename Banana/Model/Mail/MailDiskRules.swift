@@ -32,10 +32,11 @@ enum MailDiskRules {
     private static let megabyte: Int64 = 1_048_576
     private static let gigabyte: Int64 = 1_073_741_824
 
-    /// The floor: 1 GB on an iPhone or iPad, 5 GB on a Mac.
+    /// The floor: 3 GB on an iPhone or iPad (raised from 1 GB on 26 Nov 2026, when the content fill
+    /// grew to the whole mailbox), 5 GB on a Mac.
     static func floor(for role: MailDeviceRole) -> Int64 {
         switch role {
-        case .phone, .pad: return 1 * gigabyte
+        case .phone, .pad: return 3 * gigabyte
         case .mac: return 5 * gigabyte
         }
     }

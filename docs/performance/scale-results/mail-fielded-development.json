@@ -1,0 +1,1925 @@
+{
+  "split": "development",
+  "library": "0.27.0",
+  "corpus": {
+    "messages": 174287,
+    "bodies": 173268,
+    "buildSeconds": 13.352941625053063,
+    "bytes": 55086852,
+    "retainedMessages": 174299,
+    "retainedThreads": 174299,
+    "bodyIndexRows": 173280,
+    "eligibleIndexedBodies": 173268
+  },
+  "summary": {
+    "strict": {
+      "medianMS": 22.741,
+      "p95MS": 210.7296,
+      "maxMS": 211.2157,
+      "top1": 8,
+      "top5": 9,
+      "top10": 11,
+      "top50": 12,
+      "mrr10": 0.3417777777777778,
+      "gained5": 0,
+      "lost5": 0
+    },
+    "sqliteAny": {
+      "medianMS": 259.4785,
+      "p95MS": 732.8985,
+      "maxMS": 808.0803,
+      "top1": 9,
+      "top5": 17,
+      "top10": 17,
+      "top50": 18,
+      "mrr10": 0.454,
+      "gained5": 8,
+      "lost5": 0
+    },
+    "sqliteTwoAnchors": {
+      "medianMS": 41.3261,
+      "p95MS": 140.2482,
+      "maxMS": 155.7332,
+      "top1": 9,
+      "top5": 13,
+      "top10": 15,
+      "top50": 17,
+      "mrr10": 0.42438095238095236,
+      "gained5": 5,
+      "lost5": 1
+    },
+    "field11111": {
+      "medianMS": 1.2088,
+      "p95MS": 2.3956,
+      "maxMS": 2.8295,
+      "top1": 8,
+      "top5": 16,
+      "top10": 17,
+      "top50": 19,
+      "mrr10": 0.42,
+      "gained5": 7,
+      "lost5": 0
+    },
+    "field22111": {
+      "medianMS": 1.1056,
+      "p95MS": 2.429,
+      "maxMS": 2.6901,
+      "top1": 7,
+      "top5": 14,
+      "top10": 15,
+      "top50": 19,
+      "mrr10": 0.3863333333333333,
+      "gained5": 7,
+      "lost5": 2
+    },
+    "field42111": {
+      "medianMS": 1.0904,
+      "p95MS": 2.2902,
+      "maxMS": 2.9107,
+      "top1": 6,
+      "top5": 14,
+      "top10": 15,
+      "top50": 18,
+      "mrr10": 0.374,
+      "gained5": 8,
+      "lost5": 3
+    },
+    "field21112": {
+      "medianMS": 1.0878,
+      "p95MS": 2.4611,
+      "maxMS": 2.8681,
+      "top1": 8,
+      "top5": 14,
+      "top10": 18,
+      "top50": 19,
+      "mrr10": 0.4153809523809524,
+      "gained5": 7,
+      "lost5": 2
+    },
+    "fielded": {
+      "medianMS": 1.1417,
+      "p95MS": 2.4547,
+      "maxMS": 2.6845,
+      "top1": 8,
+      "top5": 16,
+      "top10": 17,
+      "top50": 19,
+      "mrr10": 0.42,
+      "gained5": 7,
+      "lost5": 0
+    },
+    "overlap": {
+      "medianMS": 3.8263,
+      "p95MS": 11.7942,
+      "maxMS": 12.5019,
+      "top1": 9,
+      "top5": 17,
+      "top10": 17,
+      "top50": 20,
+      "mrr10": 0.4746666666666667,
+      "gained5": 8,
+      "lost5": 0
+    },
+    "withRecent": {
+      "medianMS": 4.0698,
+      "p95MS": 12.7306,
+      "maxMS": 13.4098,
+      "top1": 9,
+      "top5": 17,
+      "top10": 17,
+      "top50": 20,
+      "mrr10": 0.45066666666666666,
+      "gained5": 8,
+      "lost5": 0
+    },
+    "completed": {
+      "medianMS": 4.0092,
+      "p95MS": 11.2848,
+      "maxMS": 12.5011,
+      "top1": 9,
+      "top5": 17,
+      "top10": 17,
+      "top50": 20,
+      "mrr10": 0.4746666666666667,
+      "gained5": 8,
+      "lost5": 0
+    }
+  },
+  "cases": [
+    {
+      "id": "KI1",
+      "field11111": {
+        "rank": 3,
+        "ms": [
+          0.9364
+        ]
+      },
+      "withRecent": {
+        "rank": 4,
+        "ms": [
+          3.6812
+        ]
+      },
+      "field42111": {
+        "rank": 15,
+        "ms": [
+          0.8784
+        ]
+      },
+      "completed": {
+        "rank": 3,
+        "ms": [
+          3.2633
+        ]
+      },
+      "field22111": {
+        "rank": 8,
+        "ms": [
+          0.8763
+        ]
+      },
+      "overlap": {
+        "rank": 3,
+        "ms": [
+          3.2599
+        ]
+      },
+      "sqliteAny": {
+        "rank": 1,
+        "ms": [
+          173.2965
+        ]
+      },
+      "field21112": {
+        "rank": 7,
+        "ms": [
+          1.0096
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          26.6517
+        ]
+      },
+      "fielded": {
+        "rank": 3,
+        "ms": [
+          0.937
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 1,
+        "ms": [
+          54.0223
+        ]
+      }
+    },
+    {
+      "id": "KI2",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          4.4688
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          4.7195
+        ]
+      },
+      "field42111": {
+        "rank": 0,
+        "ms": [
+          1.1236
+        ]
+      },
+      "field22111": {
+        "rank": 0,
+        "ms": [
+          1.1156
+        ]
+      },
+      "field11111": {
+        "rank": 0,
+        "ms": [
+          1.112
+        ]
+      },
+      "sqliteAny": {
+        "rank": 0,
+        "ms": [
+          305.2569
+        ]
+      },
+      "field21112": {
+        "rank": 0,
+        "ms": [
+          1.3398
+        ]
+      },
+      "strict": {
+        "rank": 9,
+        "ms": [
+          34.5406
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          4.4519
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          1.1417
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 0,
+        "ms": [
+          33.4548
+        ]
+      }
+    },
+    {
+      "id": "KI3",
+      "sqliteTwoAnchors": {
+        "rank": 0,
+        "ms": [
+          21.4139
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          3.9632
+        ]
+      },
+      "overlap": {
+        "rank": 2,
+        "ms": [
+          3.8035
+        ]
+      },
+      "fielded": {
+        "rank": 13,
+        "ms": [
+          1.1824
+        ]
+      },
+      "withRecent": {
+        "rank": 2,
+        "ms": [
+          3.9645
+        ]
+      },
+      "field21112": {
+        "rank": 8,
+        "ms": [
+          1.1807
+        ]
+      },
+      "field22111": {
+        "rank": 23,
+        "ms": [
+          1.1702
+        ]
+      },
+      "field42111": {
+        "rank": 38,
+        "ms": [
+          1.1716
+        ]
+      },
+      "sqliteAny": {
+        "rank": 0,
+        "ms": [
+          461.3708
+        ]
+      },
+      "field11111": {
+        "rank": 13,
+        "ms": [
+          1.3777
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          9.3316
+        ]
+      }
+    },
+    {
+      "id": "KI4",
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.5652
+        ]
+      },
+      "field22111": {
+        "rank": 2,
+        "ms": [
+          0.2875
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          5.6501
+        ]
+      },
+      "sqliteAny": {
+        "rank": 1,
+        "ms": [
+          47.6857
+        ]
+      },
+      "field11111": {
+        "rank": 1,
+        "ms": [
+          0.3637
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.5756
+        ]
+      },
+      "field42111": {
+        "rank": 2,
+        "ms": [
+          0.2822
+        ]
+      },
+      "field21112": {
+        "rank": 1,
+        "ms": [
+          0.2719
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 1,
+        "ms": [
+          45.8132
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.6597
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.2712
+        ]
+      }
+    },
+    {
+      "id": "KI5",
+      "sqliteAny": {
+        "rank": 0,
+        "ms": [
+          143.9634
+        ]
+      },
+      "field22111": {
+        "rank": 0,
+        "ms": [
+          0.8731
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          1.9115
+        ]
+      },
+      "field21112": {
+        "rank": 0,
+        "ms": [
+          0.5719
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          1.8618
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          2.1005
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.5612
+        ]
+      },
+      "field42111": {
+        "rank": 0,
+        "ms": [
+          0.5583
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 0,
+        "ms": [
+          38.2464
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          11.7697
+        ]
+      },
+      "field11111": {
+        "rank": 0,
+        "ms": [
+          0.7435
+        ]
+      }
+    },
+    {
+      "id": "KI6",
+      "field22111": {
+        "rank": 2,
+        "ms": [
+          2.3599
+        ]
+      },
+      "withRecent": {
+        "rank": 5,
+        "ms": [
+          11.2491
+        ]
+      },
+      "field11111": {
+        "rank": 4,
+        "ms": [
+          2.2022
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          38.0244
+        ]
+      },
+      "overlap": {
+        "rank": 4,
+        "ms": [
+          10.7108
+        ]
+      },
+      "fielded": {
+        "rank": 4,
+        "ms": [
+          2.3234
+        ]
+      },
+      "field42111": {
+        "rank": 1,
+        "ms": [
+          2.2902
+        ]
+      },
+      "field21112": {
+        "rank": 2,
+        "ms": [
+          2.2895
+        ]
+      },
+      "sqliteAny": {
+        "rank": 2,
+        "ms": [
+          653.5937
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 2,
+        "ms": [
+          72.2588
+        ]
+      },
+      "completed": {
+        "rank": 4,
+        "ms": [
+          10.4807
+        ]
+      }
+    },
+    {
+      "id": "KI7",
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          1.4832
+        ]
+      },
+      "field22111": {
+        "rank": 1,
+        "ms": [
+          1.3593
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          5.6029
+        ]
+      },
+      "sqliteAny": {
+        "rank": 1,
+        "ms": [
+          445.6395
+        ]
+      },
+      "field42111": {
+        "rank": 1,
+        "ms": [
+          1.5744
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          5.4555
+        ]
+      },
+      "field21112": {
+        "rank": 1,
+        "ms": [
+          1.3822
+        ]
+      },
+      "field11111": {
+        "rank": 1,
+        "ms": [
+          1.3677
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          5.5643
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 1,
+        "ms": [
+          28.5039
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          9.9185
+        ]
+      }
+    },
+    {
+      "id": "KI8",
+      "sqliteTwoAnchors": {
+        "rank": 0,
+        "ms": [
+          7.3219
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          4.6762
+        ]
+      },
+      "field42111": {
+        "rank": 0,
+        "ms": [
+          0.5094
+        ]
+      },
+      "overlap": {
+        "rank": 11,
+        "ms": [
+          0.9535
+        ]
+      },
+      "withRecent": {
+        "rank": 12,
+        "ms": [
+          1.0557
+        ]
+      },
+      "field21112": {
+        "rank": 0,
+        "ms": [
+          0.3389
+        ]
+      },
+      "field22111": {
+        "rank": 0,
+        "ms": [
+          0.3566
+        ]
+      },
+      "sqliteAny": {
+        "rank": 0,
+        "ms": [
+          19.2759
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.5557
+        ]
+      },
+      "completed": {
+        "rank": 11,
+        "ms": [
+          1.0188
+        ]
+      },
+      "field11111": {
+        "rank": 0,
+        "ms": [
+          0.3246
+        ]
+      }
+    },
+    {
+      "id": "KI9",
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          12.5019
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          48.9966
+        ]
+      },
+      "field42111": {
+        "rank": 0,
+        "ms": [
+          2.9107
+        ]
+      },
+      "field22111": {
+        "rank": 0,
+        "ms": [
+          2.6901
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          2.6845
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 0,
+        "ms": [
+          155.7332
+        ]
+      },
+      "sqliteAny": {
+        "rank": 0,
+        "ms": [
+          808.0803
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          13.4098
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          12.5011
+        ]
+      },
+      "field21112": {
+        "rank": 0,
+        "ms": [
+          2.8681
+        ]
+      },
+      "field11111": {
+        "rank": 0,
+        "ms": [
+          2.8295
+        ]
+      }
+    },
+    {
+      "id": "KI10",
+      "field11111": {
+        "rank": 50,
+        "ms": [
+          1.3053
+        ]
+      },
+      "field21112": {
+        "rank": 27,
+        "ms": [
+          1.0878
+        ]
+      },
+      "overlap": {
+        "rank": 17,
+        "ms": [
+          4.6036
+        ]
+      },
+      "field42111": {
+        "rank": 3,
+        "ms": [
+          1.0904
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          22.741
+        ]
+      },
+      "completed": {
+        "rank": 17,
+        "ms": [
+          4.6813
+        ]
+      },
+      "withRecent": {
+        "rank": 18,
+        "ms": [
+          4.8689
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 5,
+        "ms": [
+          54.4582
+        ]
+      },
+      "fielded": {
+        "rank": 50,
+        "ms": [
+          1.2977
+        ]
+      },
+      "field22111": {
+        "rank": 11,
+        "ms": [
+          1.0969
+        ]
+      },
+      "sqliteAny": {
+        "rank": 4,
+        "ms": [
+          259.4785
+        ]
+      }
+    },
+    {
+      "id": "KI11",
+      "field21112": {
+        "rank": 4,
+        "ms": [
+          0.693
+        ]
+      },
+      "withRecent": {
+        "rank": 4,
+        "ms": [
+          2.3685
+        ]
+      },
+      "completed": {
+        "rank": 3,
+        "ms": [
+          2.0873
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 7,
+        "ms": [
+          41.3261
+        ]
+      },
+      "field42111": {
+        "rank": 2,
+        "ms": [
+          0.7027
+        ]
+      },
+      "sqliteAny": {
+        "rank": 5,
+        "ms": [
+          134.4643
+        ]
+      },
+      "strict": {
+        "rank": 10,
+        "ms": [
+          28.2268
+        ]
+      },
+      "overlap": {
+        "rank": 3,
+        "ms": [
+          2.2624
+        ]
+      },
+      "fielded": {
+        "rank": 3,
+        "ms": [
+          0.6212
+        ]
+      },
+      "field22111": {
+        "rank": 3,
+        "ms": [
+          0.603
+        ]
+      },
+      "field11111": {
+        "rank": 3,
+        "ms": [
+          0.5916
+        ]
+      }
+    },
+    {
+      "id": "KI12",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          5.964
+        ]
+      },
+      "sqliteAny": {
+        "rank": 0,
+        "ms": [
+          444.0589
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          5.921
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          6.4112
+        ]
+      },
+      "field22111": {
+        "rank": 0,
+        "ms": [
+          1.4275
+        ]
+      },
+      "field21112": {
+        "rank": 0,
+        "ms": [
+          1.4136
+        ]
+      },
+      "field42111": {
+        "rank": 0,
+        "ms": [
+          1.3955
+        ]
+      },
+      "field11111": {
+        "rank": 0,
+        "ms": [
+          1.4094
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 0,
+        "ms": [
+          77.3579
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          1.4795
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          24.0965
+        ]
+      }
+    },
+    {
+      "id": "KI13",
+      "strict": {
+        "rank": 0,
+        "ms": [
+          2.9484
+        ]
+      },
+      "completed": {
+        "rank": 5,
+        "ms": [
+          4.0092
+        ]
+      },
+      "sqliteAny": {
+        "rank": 3,
+        "ms": [
+          232.6715
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 3,
+        "ms": [
+          11.5736
+        ]
+      },
+      "field11111": {
+        "rank": 5,
+        "ms": [
+          1.2131
+        ]
+      },
+      "withRecent": {
+        "rank": 5,
+        "ms": [
+          4.0698
+        ]
+      },
+      "field42111": {
+        "rank": 2,
+        "ms": [
+          1.0665
+        ]
+      },
+      "field21112": {
+        "rank": 5,
+        "ms": [
+          1.0531
+        ]
+      },
+      "field22111": {
+        "rank": 3,
+        "ms": [
+          1.1056
+        ]
+      },
+      "fielded": {
+        "rank": 5,
+        "ms": [
+          1.0563
+        ]
+      },
+      "overlap": {
+        "rank": 5,
+        "ms": [
+          3.8263
+        ]
+      }
+    },
+    {
+      "id": "KI14",
+      "field11111": {
+        "rank": 1,
+        "ms": [
+          0.9545
+        ]
+      },
+      "field22111": {
+        "rank": 1,
+        "ms": [
+          0.8433
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          3.2084
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          35.8715
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          1.0466
+        ]
+      },
+      "field21112": {
+        "rank": 1,
+        "ms": [
+          0.8812
+        ]
+      },
+      "sqliteAny": {
+        "rank": 1,
+        "ms": [
+          253.5008
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 1,
+        "ms": [
+          15.8383
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          3.2308
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          3.0311
+        ]
+      },
+      "field42111": {
+        "rank": 1,
+        "ms": [
+          0.9007
+        ]
+      }
+    },
+    {
+      "id": "KI15",
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.2295
+        ]
+      },
+      "field11111": {
+        "rank": 1,
+        "ms": [
+          0.1444
+        ]
+      },
+      "field42111": {
+        "rank": 1,
+        "ms": [
+          0.1411
+        ]
+      },
+      "sqliteAny": {
+        "rank": 1,
+        "ms": [
+          3.781
+        ]
+      },
+      "field22111": {
+        "rank": 1,
+        "ms": [
+          0.1867
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          0.5088
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.2963
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 1,
+        "ms": [
+          3.3216
+        ]
+      },
+      "field21112": {
+        "rank": 1,
+        "ms": [
+          0.1723
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.2843
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.2026
+        ]
+      }
+    },
+    {
+      "id": "KI16",
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          3.7089
+        ]
+      },
+      "field22111": {
+        "rank": 1,
+        "ms": [
+          1.1125
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 1,
+        "ms": [
+          22.7306
+        ]
+      },
+      "field42111": {
+        "rank": 1,
+        "ms": [
+          1.166
+        ]
+      },
+      "field21112": {
+        "rank": 1,
+        "ms": [
+          1.1092
+        ]
+      },
+      "sqliteAny": {
+        "rank": 1,
+        "ms": [
+          389.013
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          1.2472
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          3.7207
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          3.4888
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          13.6621
+        ]
+      },
+      "field11111": {
+        "rank": 1,
+        "ms": [
+          1.1695
+        ]
+      }
+    },
+    {
+      "id": "KI17",
+      "sqliteTwoAnchors": {
+        "rank": 11,
+        "ms": [
+          93.7943
+        ]
+      },
+      "completed": {
+        "rank": 25,
+        "ms": [
+          9.4348
+        ]
+      },
+      "overlap": {
+        "rank": 25,
+        "ms": [
+          9.7897
+        ]
+      },
+      "field21112": {
+        "rank": 8,
+        "ms": [
+          2.2254
+        ]
+      },
+      "sqliteAny": {
+        "rank": 11,
+        "ms": [
+          732.8985
+        ]
+      },
+      "field22111": {
+        "rank": 11,
+        "ms": [
+          2.429
+        ]
+      },
+      "field11111": {
+        "rank": 10,
+        "ms": [
+          2.2037
+        ]
+      },
+      "withRecent": {
+        "rank": 26,
+        "ms": [
+          10.0543
+        ]
+      },
+      "field42111": {
+        "rank": 12,
+        "ms": [
+          2.1882
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          55.9794
+        ]
+      },
+      "fielded": {
+        "rank": 10,
+        "ms": [
+          2.3265
+        ]
+      }
+    },
+    {
+      "id": "KI18",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          3.7667
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          3.9101
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          22.7789
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 0,
+        "ms": [
+          44.9806
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          1.072
+        ]
+      },
+      "field42111": {
+        "rank": 0,
+        "ms": [
+          0.917
+        ]
+      },
+      "field21112": {
+        "rank": 0,
+        "ms": [
+          0.8975
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          3.6191
+        ]
+      },
+      "sqliteAny": {
+        "rank": 0,
+        "ms": [
+          227.501
+        ]
+      },
+      "field11111": {
+        "rank": 0,
+        "ms": [
+          1.127
+        ]
+      },
+      "field22111": {
+        "rank": 0,
+        "ms": [
+          0.9187
+        ]
+      }
+    },
+    {
+      "id": "KI19",
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          1.0647
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          4.0869
+        ]
+      },
+      "field42111": {
+        "rank": 10,
+        "ms": [
+          0.9611
+        ]
+      },
+      "field21112": {
+        "rank": 1,
+        "ms": [
+          0.9623
+        ]
+      },
+      "field22111": {
+        "rank": 1,
+        "ms": [
+          0.9643
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 1,
+        "ms": [
+          69.7567
+        ]
+      },
+      "field11111": {
+        "rank": 1,
+        "ms": [
+          1.2088
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          208.7394
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          4.6036
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          4.2007
+        ]
+      },
+      "sqliteAny": {
+        "rank": 1,
+        "ms": [
+          253.15
+        ]
+      }
+    },
+    {
+      "id": "KI20",
+      "field11111": {
+        "rank": 3,
+        "ms": [
+          2.0845
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          9.0712
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          8.9857
+        ]
+      },
+      "fielded": {
+        "rank": 3,
+        "ms": [
+          1.825
+        ]
+      },
+      "sqliteAny": {
+        "rank": 3,
+        "ms": [
+          596.6184
+        ]
+      },
+      "field21112": {
+        "rank": 3,
+        "ms": [
+          2.0537
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 0,
+        "ms": [
+          51.8675
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          211.2157
+        ]
+      },
+      "field42111": {
+        "rank": 3,
+        "ms": [
+          2.0591
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          9.7287
+        ]
+      },
+      "field22111": {
+        "rank": 3,
+        "ms": [
+          1.8284
+        ]
+      }
+    },
+    {
+      "id": "KI21",
+      "withRecent": {
+        "rank": 3,
+        "ms": [
+          0.9063
+        ]
+      },
+      "sqliteAny": {
+        "rank": 5,
+        "ms": [
+          53.017
+        ]
+      },
+      "fielded": {
+        "rank": 2,
+        "ms": [
+          0.4222
+        ]
+      },
+      "field11111": {
+        "rank": 2,
+        "ms": [
+          0.3259
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 3,
+        "ms": [
+          14.5833
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          5.9803
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.7651
+        ]
+      },
+      "field42111": {
+        "rank": 3,
+        "ms": [
+          0.3368
+        ]
+      },
+      "field21112": {
+        "rank": 3,
+        "ms": [
+          0.3227
+        ]
+      },
+      "overlap": {
+        "rank": 2,
+        "ms": [
+          0.669
+        ]
+      },
+      "field22111": {
+        "rank": 3,
+        "ms": [
+          0.3145
+        ]
+      }
+    },
+    {
+      "id": "KI22",
+      "field11111": {
+        "rank": 4,
+        "ms": [
+          1.4603
+        ]
+      },
+      "overlap": {
+        "rank": 4,
+        "ms": [
+          4.6438
+        ]
+      },
+      "fielded": {
+        "rank": 4,
+        "ms": [
+          1.3462
+        ]
+      },
+      "field21112": {
+        "rank": 4,
+        "ms": [
+          1.3078
+        ]
+      },
+      "field22111": {
+        "rank": 5,
+        "ms": [
+          1.2903
+        ]
+      },
+      "withRecent": {
+        "rank": 5,
+        "ms": [
+          4.9428
+        ]
+      },
+      "strict": {
+        "rank": 18,
+        "ms": [
+          14.6806
+        ]
+      },
+      "sqliteAny": {
+        "rank": 5,
+        "ms": [
+          478.8321
+        ]
+      },
+      "field42111": {
+        "rank": 4,
+        "ms": [
+          1.4285
+        ]
+      },
+      "completed": {
+        "rank": 4,
+        "ms": [
+          4.3798
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 13,
+        "ms": [
+          52.9475
+        ]
+      }
+    },
+    {
+      "id": "KI23",
+      "field22111": {
+        "rank": 14,
+        "ms": [
+          0.5792
+        ]
+      },
+      "withRecent": {
+        "rank": 3,
+        "ms": [
+          0.9659
+        ]
+      },
+      "sqliteAny": {
+        "rank": 3,
+        "ms": [
+          56.0096
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 10,
+        "ms": [
+          34.5142
+        ]
+      },
+      "overlap": {
+        "rank": 2,
+        "ms": [
+          0.9145
+        ]
+      },
+      "strict": {
+        "rank": 3,
+        "ms": [
+          5.776
+        ]
+      },
+      "field11111": {
+        "rank": 5,
+        "ms": [
+          0.4641
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.7437
+        ]
+      },
+      "field21112": {
+        "rank": 8,
+        "ms": [
+          0.3945
+        ]
+      },
+      "field42111": {
+        "rank": 0,
+        "ms": [
+          0.3828
+        ]
+      },
+      "fielded": {
+        "rank": 5,
+        "ms": [
+          0.376
+        ]
+      }
+    },
+    {
+      "id": "KI24",
+      "field21112": {
+        "rank": 1,
+        "ms": [
+          2.4611
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          210.7296
+        ]
+      },
+      "field11111": {
+        "rank": 1,
+        "ms": [
+          2.3956
+        ]
+      },
+      "field42111": {
+        "rank": 2,
+        "ms": [
+          2.2197
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          11.2848
+        ]
+      },
+      "sqliteAny": {
+        "rank": 1,
+        "ms": [
+          715.938
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 1,
+        "ms": [
+          140.2482
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          12.7306
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          11.7942
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          2.4547
+        ]
+      },
+      "field22111": {
+        "rank": 1,
+        "ms": [
+          2.3948
+        ]
+      }
+    },
+    {
+      "id": "KI25",
+      "field42111": {
+        "rank": 1,
+        "ms": [
+          1.3624
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          4.0994
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          4.3385
+        ]
+      },
+      "field22111": {
+        "rank": 1,
+        "ms": [
+          1.2483
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          14.2924
+        ]
+      },
+      "field21112": {
+        "rank": 1,
+        "ms": [
+          1.3219
+        ]
+      },
+      "sqliteAny": {
+        "rank": 1,
+        "ms": [
+          450.5256
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          1.457
+        ]
+      },
+      "field11111": {
+        "rank": 1,
+        "ms": [
+          1.2593
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          4.0915
+        ]
+      },
+      "sqliteTwoAnchors": {
+        "rank": 1,
+        "ms": [
+          26.3992
+        ]
+      }
+    }
+  ],
+  "freshReaders": [
+    {
+      "openAndFirstQueryMS": 6.3496,
+      "peakRSSIncreaseBytes": 9699328
+    },
+    {
+      "openAndFirstQueryMS": 11.7665,
+      "peakRSSIncreaseBytes": 11206656
+    },
+    {
+      "openAndFirstQueryMS": 1.797,
+      "peakRSSIncreaseBytes": 7159808
+    },
+    {
+      "openAndFirstQueryMS": 7.0435,
+      "peakRSSIncreaseBytes": 9011200
+    },
+    {
+      "openAndFirstQueryMS": 3.7129,
+      "peakRSSIncreaseBytes": 8994816
+    },
+    {
+      "openAndFirstQueryMS": 4.6603,
+      "peakRSSIncreaseBytes": 9371648
+    },
+    {
+      "openAndFirstQueryMS": 1.8731,
+      "peakRSSIncreaseBytes": 7405568
+    },
+    {
+      "openAndFirstQueryMS": 6.8469,
+      "peakRSSIncreaseBytes": 10387456
+    },
+    {
+      "openAndFirstQueryMS": 6.0721,
+      "peakRSSIncreaseBytes": 10027008
+    },
+    {
+      "openAndFirstQueryMS": 2.248,
+      "peakRSSIncreaseBytes": 8208384
+    },
+    {
+      "openAndFirstQueryMS": 5.6931,
+      "peakRSSIncreaseBytes": 9404416
+    },
+    {
+      "openAndFirstQueryMS": 12.1438,
+      "peakRSSIncreaseBytes": 10764288
+    }
+  ]
+}

@@ -163,11 +163,11 @@ reads, listings and history still go to Google: they are verification and must b
 Built 7 November 2026 on branch `mail/body-prefetch`; not deployed.
 
 **The fill.** After the scan has closed, the alarm stores content for every message without
-it, **newest first**, until it walks out of its window (`MAIL_FILL_DAYS`, default 183: the
-engine's default sync limit). Listings carry no dates, so the walk orders by the Gmail id —
+it, **newest first**, through the whole mailbox (since 26 Nov 2026: content search needs every
+body, [measured](../performance/mail-content-search.md); `MAIL_FILL_DAYS` is an optional cap). Listings carry no dates, so the walk orders by the Gmail id —
 `(length(id), id)` descending, a partial index `msg_fill` over rows with no content — which
 Gmail assigns in time order (ASSUMED of real ids; true of the fake's). It stops after 20
-messages in a row dated before the window (one imported old message cannot stop it). Spam and
+messages in a row dated before a cap, when one is set (one imported old message cannot stop it). Spam and
 Trash are skipped. Its watermark (`meta.fill`: the last id taken) survives alarm restarts and
 Durable Object eviction; a closing scan, or six hours after a finished walk, starts it again
 from the newest (cheap: the index holds only rows still without content). It reads on the
@@ -178,18 +178,35 @@ read every 811 ms. A person's read arriving during a fill burst waits at most on
 When Google says "too many" (a 429, or `rateLimitExceeded` on any of the mailbox's reads), the
 fill halves its rate for five minutes — again for each further limit, to an eighth — then ramps
 back to full over five more; interactive reads keep their existing behaviour. Listings,
-verification, history and new mail's content all run before it in the step order. Content inside the window is not dropped as "unused for 90 days".
+verification, history and new mail's content all run before it in the step order. Content the fill keeps (all of it, without a cap) is not dropped as "unused for 90 days".
 Storing content publishes the message again with `content: true`, so the devices learn from
 the feed what they can pull.
 
 Cost per account during the fill, in a quiet period: **4,440 messages and 266,400 Gmail units an
 hour** (74% of the 6,000-units-a-minute per-user quota; the ceiling is not raised). Whatever a
-person or a device reads in that time comes out of the fill's share. Six months at the engine's
-assumed 110 messages a day (≈ 20,000 messages) is about **four and a half hours**, once;
-afterwards only new mail. R2: Gmail's `full` JSON
-(base64 bodies, ≈ 1.35× the raw message) sealed; at an ASSUMED 50–75 KB a message, **1.0–1.5 GB
-a mailbox** for six months (≈ $0.015–0.02 a month at R2's storage price). Content over 16 MB is
+person or a device reads in that time comes out of the fill's share. A whole mailbox of 200,000 messages is about **45 hours**, once; afterwards only new mail. R2:
+Gmail's `full` JSON (base64 bodies, ≈ 1.35× the raw message) sealed; at an ASSUMED 50–75 KB a
+message, **10–15 GB** for that mailbox (≈ $0.15–0.23 a month at R2's storage price). Content over 16 MB is
 never stored.
+
+### 5b. Attachment text
+
+Added 26 Nov 2026 ([measured](../performance/mail-attachment-search.md): indexing attachment text
+lifted known-item search by half, to Gmail's level). When the mailbox stores a message's content it
+lists the parts worth reading: named, at most `CACHE_MOST` bytes, and a document
+(`pdf docx xlsx xlsm xlsb xls ods odt numbers`, converted by Workers AI `toMarkdown`, free for these
+formats) or text (`txt csv tsv ics md json xml html htm`, read as is). Images are left out: OCR
+barely helped. Content stored before this existed is queued once (`text_todo`, parts unknown) and
+looked at from its stored copy.
+
+A walk takes the newest queued message ahead of the content fill, on the same background lane (an
+attachment read is 20 units). Each part's text is saved as it is read, so waiting for Gmail's next
+slot resumes the message rather than starting it again. A failing conversion is tried three times.
+At most 50,000 characters of an attachment and 200,000 of a message are kept, as
+`{version: 1, parts: [{partId, name, text}]}`, sealed like the message beside it in R2
+(`…/a-<sha256("banana-attachment-text-v1")>`), dropped with it. The message is published again with
+`text: true` in its feed entry, and `POST /v1/mail/content` hands the text over with the message as
+`attachmentText`. Devices index it; they never download the files to search them.
 
 **Bulk content.** `POST /v1/mail/content {email, ids ≤ 50}` answers, for each id, the stored
 `full` message with the mailbox's current labels and position, `missing` (not stored yet),

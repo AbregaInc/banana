@@ -14,6 +14,8 @@ struct MailCloudFeedPage: Decodable, Equatable, Sendable {
         var deleted: Bool?
         /// The cloud holds this message's content: pull it (`contents`) rather than read Gmail.
         var content: Bool? = nil
+        /// The cloud read this message's attachment text (MAIL-CLOUD-SYNC §5b): pull it with the message.
+        var text: Bool? = nil
     }
     var epoch: String
     var cursor: String
@@ -31,8 +33,9 @@ enum MailCloudFeedError: Error, Equatable, Sendable {
 
 /// One message's answer in a bulk content pull (MAIL-CLOUD-SYNC §5a).
 enum MailCloudContent: Equatable, Sendable {
-    /// Gmail's `full` message as the cloud stored it, with the cloud's labels and position.
-    case message(GmailMessage)
+    /// Gmail's `full` message as the cloud stored it, with the cloud's labels and position, and the
+    /// text the cloud read from its attachments, when it has (MAIL-CLOUD-SYNC §5b).
+    case message(GmailMessage, text: [MailCloudText.Part]? = nil)
     /// Not stored in the cloud (yet): read it one by one, or wait for the feed to say it is.
     case missing(String)
     /// Gmail deleted it; the deletion arrives through the feed.
@@ -42,7 +45,7 @@ enum MailCloudContent: Equatable, Sendable {
 
     var id: String {
         switch self {
-        case .message(let m): return m.id ?? ""
+        case .message(let m, _): return m.id ?? ""
         case .missing(let id), .gone(let id), .later(let id): return id
         }
     }

@@ -34,6 +34,24 @@ final class NoteRepositoryTests: XCTestCase {
         XCTAssertEqual(bounded.count, 5)
     }
 
+    func testShortPageTotalsAcrossArchiveScopes() throws {
+        let notes = (0..<12).map { i in
+            VoiceNote(createdAt: Date(timeIntervalSince1970: Double(i)), archivedAt: i < 4 ? Date() : nil,
+                      audioFilename: "", transcript: "needle", status: .transcribed)
+        }
+        let (store, legacy) = try make(notes)
+        defer { try? FileManager.default.removeItem(at: legacy.deletingLastPathComponent()) }
+        for archived in [false, true] {
+            let expected = notes.reversed().filter { ($0.archivedAt != nil) == archived }
+            for (offset, limit) in [(0, 0), (0, 3), (0, 20), (2, 4), (3, 20), (8, 4), (15, 4)] {
+                let page = try store.page(search: "needle", archived: archived, offset: offset, limit: limit)
+                XCTAssertEqual(page.rows, Array(expected.dropFirst(offset).prefix(limit)))
+                XCTAssertEqual(page.total, expected.count)
+            }
+        }
+        XCTAssertEqual(try store.page(search: "missing", archived: false).total, 0)
+    }
+
     func testReminderIntentSurvivesReopenAndAcknowledgesAtomically() throws {
         let (store, legacy) = try make()
         defer { try? FileManager.default.removeItem(at: legacy.deletingLastPathComponent()) }

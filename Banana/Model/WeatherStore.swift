@@ -111,6 +111,8 @@ final class WeatherStore: NSObject, ObservableObject {
         let serviceName: String
     }
     @Published private(set) var lastError: String?
+    // Diagnostics do not change the forecast displayed by subscribers.
+    private(set) var debugStatus: String = "not run"
 
     /// Today's hours — what the Today stripe draws.
     var hourly: [HourlyWeather] { forecast(for: Date())?.hours ?? [] }

@@ -1,0 +1,1334 @@
+{
+  "scope": "Host SQLite projection and fetch; local copies; warm OS cache. No app decoding or UI.",
+  "sqliteVersion": "3.54.0",
+  "sourceSHA256": "b4110e030ecf5933909235b824938f1443cf7f4c3d8aa85e48a52dc5207a0a3a",
+  "referenceRevision": "f987bd34",
+  "samples": [
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 0,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 165.692,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 0,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": true,
+      "ms": 66.929167,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 0,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 165.948042,
+      "rows": 50
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 0,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": true,
+      "ms": 40.300166,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 0,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 9.278416,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 0,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": true,
+      "ms": 1.3865,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 0,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 9.644667,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 0,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": true,
+      "ms": 3.079042,
+      "rows": 50
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 0,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 0.241917,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 0,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 0.229,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 0,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 0.095458,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 0,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 0.115542,
+      "rows": 0
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 1,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 60.736166,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 1,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 202.765458,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 1,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 32.913041,
+      "rows": 50
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 1,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 142.594209,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 1,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 3.605875,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 1,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 9.3435,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 1,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 2.938459,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 1,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 9.189917,
+      "rows": 50
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 1,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.26125,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 1,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.171542,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 1,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.132541,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 1,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.093834,
+      "rows": 0
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 2,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 138.599917,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 2,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 42.666958,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 2,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 186.933417,
+      "rows": 50
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 2,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 43.366625,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 2,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 9.673167,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 2,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 1.306041,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 2,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 13.265667,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 2,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 2.817625,
+      "rows": 50
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 2,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.2475,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 2,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.154583,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 2,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.102292,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 2,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.115584,
+      "rows": 0
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 3,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 40.443,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 3,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 176.536291,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 3,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 53.271792,
+      "rows": 50
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 3,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 145.178833,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 3,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 1.303291,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 3,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 8.749792,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 3,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 2.75025,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 3,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 13.713833,
+      "rows": 50
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 3,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.264542,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 3,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.158917,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 3,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.127375,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 3,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.083833,
+      "rows": 0
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 4,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 218.416709,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 4,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 74.720333,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 4,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 192.092417,
+      "rows": 50
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 4,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 67.695459,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 4,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 11.463125,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 4,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 1.737041,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 4,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 13.745083,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 4,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 3.523084,
+      "rows": 50
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 4,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.321708,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 4,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.17125,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 4,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.096,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 4,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.120334,
+      "rows": 0
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 5,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 82.134167,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 5,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 177.236584,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 5,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 37.576458,
+      "rows": 50
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 5,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 153.267583,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 5,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 1.337834,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 5,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 19.55925,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 5,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 2.780459,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 5,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 23.550292,
+      "rows": 50
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 5,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.270583,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 5,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.168833,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 5,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.14025,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 5,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.09425,
+      "rows": 0
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 6,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 173.407584,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 6,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 47.1815,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 6,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 167.843083,
+      "rows": 50
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 6,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 32.971375,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 6,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 9.020541,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 6,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 1.265083,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 6,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 9.192875,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 6,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 2.732042,
+      "rows": 50
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 6,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.230291,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 6,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.14975,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 6,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.097417,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 6,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.115667,
+      "rows": 0
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 7,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 70.528125,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 7,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 168.499208,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 7,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 58.212542,
+      "rows": 50
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 7,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 192.918875,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 7,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 1.313625,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 7,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 8.921917,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 7,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 2.705333,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 7,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 30.703875,
+      "rows": 50
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 7,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.288084,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 7,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.165708,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 7,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.12675,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 7,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.087,
+      "rows": 0
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 8,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 168.657083,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 8,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 33.1525,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 8,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 168.385125,
+      "rows": 50
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 8,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 54.498917,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 8,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 9.903042,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 8,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 10.1185,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 8,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 16.755542,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 8,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": false,
+      "ms": 2.799417,
+      "rows": 50
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 8,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.239208,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 8,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.154792,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 8,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.0985,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 8,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": false,
+      "ms": 0.120667,
+      "rows": 0
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 9,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": true,
+      "ms": 46.334041,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 5,
+      "trial": 9,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 178.127833,
+      "rows": 5
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 9,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": true,
+      "ms": 51.177458,
+      "rows": 50
+    },
+    {
+      "term": "the",
+      "limit": 50,
+      "trial": 9,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 193.662958,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 9,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": true,
+      "ms": 1.44975,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 5,
+      "trial": 9,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 8.84425,
+      "rows": 5
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 9,
+      "candidate": true,
+      "route": "recent",
+      "sqliteCacheReleased": true,
+      "ms": 8.746084,
+      "rows": 50
+    },
+    {
+      "term": "project",
+      "limit": 50,
+      "trial": 9,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 12.141792,
+      "rows": 50
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 9,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 0.259417,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 5,
+      "trial": 9,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 0.164083,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 9,
+      "candidate": true,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 0.124709,
+      "rows": 0
+    },
+    {
+      "term": "zzqnomatchprobe",
+      "limit": 50,
+      "trial": 9,
+      "candidate": false,
+      "route": "full",
+      "sqliteCacheReleased": true,
+      "ms": 0.088458,
+      "rows": 0
+    }
+  ],
+  "writes": [
+    {
+      "batch": 0,
+      "candidate": false,
+      "ms": 7.934
+    },
+    {
+      "batch": 0,
+      "candidate": true,
+      "ms": 0.506458
+    },
+    {
+      "batch": 1,
+      "candidate": true,
+      "ms": 0.481917
+    },
+    {
+      "batch": 1,
+      "candidate": false,
+      "ms": 0.263417
+    },
+    {
+      "batch": 2,
+      "candidate": false,
+      "ms": 0.281291
+    },
+    {
+      "batch": 2,
+      "candidate": true,
+      "ms": 0.425416
+    },
+    {
+      "batch": 3,
+      "candidate": true,
+      "ms": 0.360291
+    },
+    {
+      "batch": 3,
+      "candidate": false,
+      "ms": 0.262584
+    },
+    {
+      "batch": 4,
+      "candidate": false,
+      "ms": 0.260084
+    },
+    {
+      "batch": 4,
+      "candidate": true,
+      "ms": 0.402917
+    },
+    {
+      "batch": 5,
+      "candidate": true,
+      "ms": 0.389875
+    },
+    {
+      "batch": 5,
+      "candidate": false,
+      "ms": 0.257458
+    },
+    {
+      "batch": 6,
+      "candidate": false,
+      "ms": 0.260375
+    },
+    {
+      "batch": 6,
+      "candidate": true,
+      "ms": 0.407709
+    },
+    {
+      "batch": 7,
+      "candidate": true,
+      "ms": 13.245375
+    },
+    {
+      "batch": 7,
+      "candidate": false,
+      "ms": 2.642792
+    },
+    {
+      "batch": 8,
+      "candidate": false,
+      "ms": 0.717084
+    },
+    {
+      "batch": 8,
+      "candidate": true,
+      "ms": 12.407667
+    },
+    {
+      "batch": 9,
+      "candidate": true,
+      "ms": 0.581416
+    },
+    {
+      "batch": 9,
+      "candidate": false,
+      "ms": 0.213375
+    },
+    {
+      "batch": 10,
+      "candidate": false,
+      "ms": 0.265542
+    },
+    {
+      "batch": 10,
+      "candidate": true,
+      "ms": 0.428584
+    },
+    {
+      "batch": 11,
+      "candidate": true,
+      "ms": 0.396916
+    },
+    {
+      "batch": 11,
+      "candidate": false,
+      "ms": 2.721834
+    }
+  ],
+  "migrationMS": 141.562209,
+  "indexBytes": 3411968,
+  "messages": 256207,
+  "threads": 189713
+}

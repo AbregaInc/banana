@@ -490,8 +490,7 @@ struct ShellField: View {
                 .submitLabel(.search)
                 .autocorrectionDisabled()
                 .onSubmit {
-                    // Return with words and an assistant asks; without one it only searches.
-                    if ShellAssistant.isAvailable, ShellSearchRules.query(search.text) != nil, search.groups.isEmpty {
+                    if ShellAssistant.isAvailable, ShellSearchRules.isDirectAsk(search.text) {
                         search.ask()
                     }
                 }

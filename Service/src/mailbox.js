@@ -28,12 +28,12 @@ const BACKOFF = MINUTE;
 // once; polling stays as the safety net, at a slower pace.
 const POLL_ACTIVE_WATCHED = MINUTE, POLL_RECENT_WATCHED = 10 * MINUTE, POLL_IDLE_WATCHED = 2 * 60 * MINUTE;
 export const WATCH_RENEW_BEFORE = DAY;         // Gmail ends a watch after 7 days
-// The content fill: every message inside the window, newest first, on the background lane only.
+// The content fill: every message, newest first, on the background lane only. Content search needs
+// the whole mailbox (docs/performance/mail-content-search.md); MAIL_FILL_DAYS can still cap it.
 // It uses whatever of the identity's read budget nobody else is using, up to the 4,500 units a
 // minute ceiling (mail-read-pacing.js) less one full-read slot a minute kept for a person: 74
 // units a second, one full read every 811 ms. A background read only takes a slot that is free
 // now, so a person's read never waits behind it for more than one slot (800 ms).
-export const FILL_DAYS = 183;                   // six months, the engine's default sync limit
 export const FILL_CEILING_UNITS_PER_MINUTE = 4500;
 export const FILL_RESERVE_UNITS = 60;           // one full read a minute, for interactive reads only
 export const FILL_UNITS_PER_SECOND = (FILL_CEILING_UNITS_PER_MINUTE - FILL_RESERVE_UNITS) / 60;
@@ -43,7 +43,7 @@ const FILL_READ_UNITS = 60;                     // a full message read (mail-rea
 export const FILL_BACKOFF = 5 * MINUTE;
 export const FILL_RAMP = 5 * MINUTE;
 const FILL_FLOOR = 0.125;
-const FILL_OLD_STOP = 20;                       // this many in a row older than the window: done
+const FILL_OLD_STOP = 20;                       // with a cap: this many in a row older than it, done
 const FILL_AGAIN = 6 * 60 * MINUTE;             // a finished fill looks again (skipped, new rows)
 // "New mail is here" to the devices: one silent push for a burst, at most one per this gap.
 export const PUSH_GAP = 15 * SECOND;
@@ -88,6 +88,56 @@ export async function contentKey(sub, id, attachmentID = null) {
 }
 export const contentAAD = (sub, id, attachmentID = null) => `mail-content:${sub}:${id}${attachmentID ? `:${attachmentID}` : ""}`;
 
+// ---- attachment text (MAIL-CLOUD-SYNC §5b) ----
+// Documents are converted by Workers AI's toMarkdown (free for these formats); text formats are
+// read as they are. Images are left out: OCR barely helped search (docs/performance/mail-attachment-search.md).
+// toMarkdown requires the file's media type (a Blob without one is refused: "Too small: expected
+// string to have >=1 characters").
+const TEXT_MEDIA = {
+  pdf: "application/pdf",
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  xlsm: "application/vnd.ms-excel.sheet.macroenabled.12",
+  xlsb: "application/vnd.ms-excel.sheet.binary.macroenabled.12",
+  xls: "application/vnd.ms-excel",
+  ods: "application/vnd.oasis.opendocument.spreadsheet",
+  odt: "application/vnd.oasis.opendocument.text",
+  numbers: "application/vnd.apple.numbers",
+};
+const TEXT_CONVERTED = new Set(Object.keys(TEXT_MEDIA));
+const TEXT_PLAIN = new Set(["txt", "csv", "ics", "md", "tsv", "json", "xml", "html", "htm"]);
+export const TEXT_FILE_MOST = CACHE_MOST;           // larger attachments are not read (isolate memory)
+export const TEXT_PART_CHARS = 50_000;             // kept of one attachment
+export const TEXT_MESSAGE_CHARS = 200_000;         // kept of one message
+export const TEXT_KEY = "banana-attachment-text-v1"; // stored beside the message, sealed like it
+const TEXT_TRIES = 3;
+const extension = (name) => (/\.([a-z0-9]{1,8})$/i.exec(name ?? "")?.[1] ?? "").toLowerCase();
+
+/** The parts of a Gmail `full` payload whose text is worth indexing: named, a supported type, not too large. */
+export function textParts(payload) {
+  const out = [];
+  const walk = (part) => {
+    if (!part) return;
+    const ext = extension(part.filename);
+    const size = Number(part.body?.size ?? 0);
+    if (part.filename && (TEXT_CONVERTED.has(ext) || TEXT_PLAIN.has(ext)) && size <= TEXT_FILE_MOST
+        && (part.body?.attachmentId || part.body?.data)) {
+      out.push({ partId: part.partId ?? "", name: part.filename, ext, attachmentId: part.body.attachmentId ?? null, data: part.body.attachmentId ? null : part.body.data ?? null });
+    }
+    for (const child of part.parts ?? []) walk(child);
+  };
+  walk(payload);
+  return out;
+}
+const fromBase64url = (value) => {
+  const s = value.replace(/-/g, "+").replace(/_/g, "/");
+  const bin = atob(s + "===".slice((s.length + 3) % 4));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+};
+const tidy = (text) => text.replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n").trim();
+
 /**
  * @param {{port: {exec: Function, transaction: Function}, deps: object, vault: object, blobs: object,
  *   alarm: {set(at: number): Promise<void>|void}, destroy?: () => Promise<void>|void}} parts
@@ -98,6 +148,9 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
   const inflight = new Map();        // content fetches by key: concurrent asks share one download
   let ready = false;
   const now = () => deps.now();
+  // What the attachment-text walk did since the last progress line (counts and times only).
+  let walk = { opened: 0, openMS: 0, reads: 0, readMS: 0, converted: 0, convertMS: 0, waits: 0, stored: 0, empty: 0, errors: {} };
+  const noteError = (kind) => { walk.errors[kind] = (walk.errors[kind] ?? 0) + 1; };
   const setup = () => { if (!ready) { box.migrate(port); ready = true; } };
 
   async function lock(work, { wait = true } = {}) {
@@ -432,23 +485,33 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     if (await verifyBatch(who)) return now();
     const scan = box.scanState(port);
     if (scan) return (await scanStep(who, scan)) ? now() : Math.max(now() + 100, await nextMailReadAt(deps, who.sub));
+    const textAt = await textStep(who);
+    if (textAt !== null && textAt <= now()) return now();
     const fillAt = await fillStep(who);
     if (fillAt !== null && fillAt <= now()) return now();
-    const dropped = box.maintain(port, { now: now(), keepSince: fillSince() });
+    const dropped = box.maintain(port, { now: now(), keepSince: fillSince() ?? 0 });
     if (dropped.length) await dropContent(dropped);
-    return Math.min(Number(box.getMeta(port, "polled_at") ?? now()) + pollEvery(), fillAt ?? Infinity, pushAt ?? Infinity);
+    return Math.min(Number(box.getMeta(port, "polled_at") ?? now()) + pollEvery(), fillAt ?? Infinity, pushAt ?? Infinity, textAt ?? Infinity);
   }
 
-  const fillSince = () => now() - (deps.config.mailFillDays ?? FILL_DAYS) * DAY;
+  /** The oldest date the fill takes, or null for every message (the default). */
+  const fillSince = () => (deps.config.mailFillDays ? now() - deps.config.mailFillDays * DAY : null);
 
   /** One read of the content fill. Returns when the fill can go on (now: at once), or null when it
    * has nothing to do. It takes only a background slot and at most half the pace, so a device's
    * read is never queued behind it, and stops once it walks out of its window. */
   async function fillStep(who) {
     const state = box.fillState(port);
+    // The window the walk covers: days, or null for every message. A walk that finished under a
+    // narrower one (a state from before 26 Nov 2026 has none: it was the 183-day default) is not
+    // finished for this one, so it starts again at once rather than after FILL_AGAIN.
+    const window = deps.config.mailFillDays ?? null;
+    const setFill = (next) => box.setFillState(port, { ...next, window });
+    const covered = state.window === undefined ? 183 : state.window;
+    const wider = covered !== null && (window === null || window > covered);
     if (state.done !== null) {
-      if (now() - state.done < FILL_AGAIN) return state.done + FILL_AGAIN;
-      box.setFillState(port, { after: null, old: 0, done: null });
+      if (!wider && now() - state.done < FILL_AGAIN) return state.done + FILL_AGAIN;
+      setFill({ after: null, old: 0, done: null });
       return now();
     }
     const nextAt = Number(box.getMeta(port, "fill_next_at") ?? 0);
@@ -458,12 +521,12 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     let after = state.after, old = state.old;
     for (let i = 0; i < 50; i++) {
       const [r] = box.fillNext(port, { after, limit: 1 });
-      if (!r) { box.setFillState(port, { after, old, done: now() }); return null; }
+      if (!r) { setFill({ after, old, done: now() }); return null; }
       if (!box.fillSkips(r, since)) break;
       after = r.id;
-      if (r.date !== null && r.date < since && ++old >= FILL_OLD_STOP) { box.setFillState(port, { after, old, done: now() }); return null; }
+      if (since !== null && r.date !== null && r.date < since && ++old >= FILL_OLD_STOP) { setFill({ after, old, done: now() }); return null; }
     }
-    if (after !== state.after) { box.setFillState(port, { after, old, done: null }); return now(); }
+    if (after !== state.after) { setFill({ after, old, done: null }); return now(); }
     const [next] = box.fillNext(port, { after, limit: 1 });
     let answer;
     try { answer = await content(who, next.id, null, { background: true }); }
@@ -480,12 +543,96 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
       throw error;
     }
     const date = box.contentState(port, next.id)?.date ?? null;
-    old = date !== null && date < since ? old + 1 : 0;
+    old = since !== null && date !== null && date < since ? old + 1 : 0;
     // The watermark moves past it whatever the answer (too large, refused, gone): a later walk
     // tries again; a device that opens it asks for it itself.
-    box.setFillState(port, { after: next.id, old, done: old >= FILL_OLD_STOP ? now() : null });
+    setFill({ after: next.id, old, done: old >= FILL_OLD_STOP ? now() : null });
     box.setMeta(port, "fill_next_at", now() + Math.ceil(FILL_READ_UNITS * 1000 / (FILL_UNITS_PER_SECOND * fillFactor())));
     if (answer?.fetched) box.setMeta(port, "filled", Number(box.getMeta(port, "filled") ?? 0) + 1);
+    return now();
+  }
+
+  /** The stored message's Gmail JSON, or null. */
+  async function storedMessage(who, id) {
+    const started = Date.now();
+    try { return await storedMessageTimed(who, id); } finally { walk.opened++; walk.openMS += Date.now() - started; }
+  }
+  async function storedMessageTimed(who, id) {
+    const object = await blobs.get(await contentKey(who.sub, id));
+    if (!object) return null;
+    try {
+      const plain = await vault.openBytes(contentAAD(who.sub, id), new Uint8Array(await new Response(object.body).arrayBuffer()));
+      return JSON.parse(new TextDecoder().decode(plain));
+    } catch { return null; }
+  }
+
+  /** One attachment's text, or "" when it has none. Throws Retry when Gmail's slot is not free. */
+  async function partText(who, id, part) {
+    let bytes;
+    if (part.data) bytes = fromBase64url(part.data);
+    else {
+      const started = Date.now();
+      const answer = await gmail(who, { resource: "attachment", id, attachmentID: part.attachmentId, query: [] }, { background: true });
+      walk.reads++; walk.readMS += Date.now() - started;
+      const { bytes: raw, tooLarge } = await answerBytes(answer, Math.ceil(TEXT_FILE_MOST * 1.4) + 4096);
+      if (tooLarge || answer.status !== 200) { noteError(tooLarge ? "read:too-large" : `read:${answer.status}`); return ""; }
+      const data = parse(raw)?.data;
+      if (typeof data !== "string") return "";
+      bytes = fromBase64url(data);
+    }
+    if (TEXT_PLAIN.has(part.ext)) return tidy(new TextDecoder("utf-8", { fatal: false }).decode(bytes)).slice(0, TEXT_PART_CHARS);
+    if (!deps.ai?.toMarkdown) return "";
+    const started = Date.now();
+    let result;
+    try { result = await deps.ai.toMarkdown({ name: part.name, blob: new Blob([bytes], { type: TEXT_MEDIA[part.ext] }) }); }
+    catch (error) {
+      // One file the converter refuses never costs the message its other files' text.
+      noteError(`convert-throw:${part.ext}:${error?.name}:${String(error?.message ?? "").slice(0, 60)}`);
+      return "";
+    }
+    walk.converted++; walk.convertMS += Date.now() - started;
+    const one = Array.isArray(result) ? result[0] : result;
+    if (one?.format === "error") noteError(`convert:${part.ext}:${String(one.error ?? "").slice(0, 60)}`);
+    else if (typeof one?.data !== "string") noteError(`convert:${part.ext}:no-data`);
+    return one?.format === "error" || typeof one?.data !== "string" ? "" : tidy(one.data).slice(0, TEXT_PART_CHARS);
+  }
+
+  /** One message's attachment text, read and stored. Returns when to go on (now: at once), or
+   * null when nothing is waiting. Background lane only, like the fill, and ahead of it. */
+  async function textStep(who) {
+    const nextAt = Number(box.getMeta(port, "text_next_at") ?? 0);
+    if (nextAt > now()) return nextAt;
+    // Messages with nothing to read are settled without a Gmail read, a batch at a time.
+    for (let i = 0; i < 50; i++) {
+      const job = box.textNext(port);
+      if (!job) return null;
+      const parts = job.parts ?? textParts((await storedMessage(who, job.id))?.payload);
+      if (!parts.length) { box.textDone(port, job.id, 2); continue; }
+      if (job.tries >= TEXT_TRIES) { box.textDone(port, job.id, 3); continue; }
+      try {
+        let total = parts.reduce((n, p) => n + (p.text?.length ?? 0), 0);
+        for (const part of parts) {
+          if (part.text !== undefined) continue;
+          part.text = total >= TEXT_MESSAGE_CHARS ? "" : (await partText(who, job.id, part)).slice(0, TEXT_MESSAGE_CHARS - total);
+          total += part.text.length;
+          box.textProgress(port, job.id, parts);
+        }
+      } catch (error) {
+        if (error instanceof Retry) { walk.waits++; return Math.max(now() + 100, await nextMailReadAt(deps, who.sub)); }
+        if (error instanceof Unauthorized) throw error;
+        noteError(`throw:${error?.name}:${String(error?.message ?? "").slice(0, 60)}`);
+        box.textTried(port, job.id);
+        return now();
+      }
+      const found = parts.filter((p) => p.text).map((p) => ({ partId: p.partId, name: p.name, text: p.text }));
+      if (!found.length) { walk.empty++; box.textDone(port, job.id, 2); return now(); }
+      const sealed = await vault.sealBytes(contentAAD(who.sub, job.id, TEXT_KEY), encoder.encode(JSON.stringify({ version: 1, parts: found })));
+      const sha = hex(new Uint8Array(await crypto.subtle.digest("SHA-256", sealed)));
+      if (!(await blobs.put(await contentKey(who.sub, job.id, TEXT_KEY), new Blob([sealed]).stream(), { sha256: sha }))) throw new Error("content store refused");
+      box.textDone(port, job.id, 1, sealed.length);
+      walk.stored++;
+      return now();
+    }
     return now();
   }
 
@@ -543,12 +690,25 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
         }
       }
       if (next === null) return null;
+      progressLine();
       // A snooze due before the next step: the alarm is set for it, idle or not.
       const wake = box.snoozeNext(port, { now: now() });
       await alarm.set(Math.max(wake === null ? next : Math.min(next, wake), now()));
       await recordWake(wake);
       return next;
     });
+  }
+
+  /** Once a minute, where the mailbox's walks stand: counts and times only, never an id or address. */
+  function progressLine() {
+    if (now() - Number(box.getMeta(port, "progress_logged_at") ?? 0) < MINUTE) return;
+    box.setMeta(port, "progress_logged_at", now());
+    const st = box.status(port);
+    const c = st.counts;
+    const states = Object.fromEntries(port.exec("SELECT state, COUNT(*) AS n FROM text GROUP BY state").map((r) => [`text${r.state}`, Number(r.n)]));
+    console.log(`mailbox: progress ${JSON.stringify({ messages: c.messages, cached: c.cached, scan: st.scanning, fillDone: st.fill?.done !== null,
+      verify: c.verify, fetch: c.fetch, textTodo: c.textTodo, ...states, ...walk })}`);
+    walk = { opened: 0, openMS: 0, reads: 0, readMS: 0, converted: 0, convertMS: 0, waits: 0, stored: 0, empty: 0, errors: {} };
   }
 
   /** The earliest pending wake, in D1 too: the quarter-hour job sets an alarm that was lost again. */
@@ -594,6 +754,11 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
       const sha = hex(new Uint8Array(await crypto.subtle.digest("SHA-256", sealed)));
       if (!(await blobs.put(key, new Blob([sealed]).stream(), { sha256: sha }))) throw new Error("content store refused");
       const published = box.markCached(port, id, sealed.length, now());
+      if (!attachmentID) {
+        const parts = textParts(body.payload);
+        if (parts.length) box.textQueue(port, id, parts);
+        else box.textDone(port, id, 2);
+      }
       // New mail (the fetch queue's prio 1) is worth waking the devices for; the fill is not.
       if (published && !background && box.isNewMail(port, id)) box.setMeta(port, "push_due", now());
       return { key, aad: contentAAD(who.sub, id, attachmentID), fetched: true, ...box.contentState(port, id) };
@@ -697,7 +862,9 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
         if (state?.gone) out.push({ id, gone: true });
         else if (state?.cached > 0) {
           box.touch(port, id, now());
-          out.push({ id, key: await contentKey(who.sub, id), aad: contentAAD(who.sub, id), known: state.known, labels: state.labels, history: state.history });
+          const text = box.textState(port, id) === 1
+            ? { textKey: await contentKey(who.sub, id, TEXT_KEY), textAAD: contentAAD(who.sub, id, TEXT_KEY) } : {};
+          out.push({ id, key: await contentKey(who.sub, id), aad: contentAAD(who.sub, id), known: state.known, labels: state.labels, history: state.history, ...text });
         } else out.push({ id, missing: true });
       }
       return out;

@@ -22,6 +22,8 @@ export class Mailbox extends DurableObject {
       // Silent pushes (new mail, a snooze woken), with the provider token every isolate shares.
       apns: createApns(config, (...args) => fetch(...args), Date.now, sharedProviderTokens(d1(env.DB))),
       now: Date.now, random, sleep: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+      // Workers AI: attachment text (toMarkdown). Absent: only text attachments are read.
+      ai: env.AI,
     };
     this.mailbox = createMailbox({
       port: {

@@ -1,0 +1,178 @@
+{
+ "tasks": 380,
+ "metric": "intended conversation in the first five",
+ "summary": {
+  "all": {
+   "tasks": 380,
+   "gmail": 109,
+   "banana": 144,
+   "chronological": 52,
+   "banana4+gmail1": 139,
+   "banana3+gmail2": 130,
+   "bananaReorderedByGmail10": 144,
+   "bananaReorderedByGmail50": 149,
+   "gmailOnly": 16,
+   "bananaOnly": 51
+  },
+  "family=complete-filename": {
+   "tasks": 40,
+   "gmail": 30,
+   "banana": 31,
+   "chronological": 5,
+   "banana4+gmail1": 31,
+   "banana3+gmail2": 31,
+   "bananaReorderedByGmail10": 31,
+   "bananaReorderedByGmail50": 31,
+   "gmailOnly": 0,
+   "bananaOnly": 1
+  },
+  "family=filename": {
+   "tasks": 100,
+   "gmail": 22,
+   "banana": 24,
+   "chronological": 2,
+   "banana4+gmail1": 24,
+   "banana3+gmail2": 24,
+   "bananaReorderedByGmail10": 22,
+   "bananaReorderedByGmail50": 21,
+   "gmailOnly": 6,
+   "bananaOnly": 8
+  },
+  "family=known": {
+   "tasks": 120,
+   "gmail": 23,
+   "banana": 31,
+   "chronological": 18,
+   "banana4+gmail1": 28,
+   "banana3+gmail2": 28,
+   "bananaReorderedByGmail10": 34,
+   "bananaReorderedByGmail50": 36,
+   "gmailOnly": 8,
+   "bananaOnly": 16
+  },
+  "family=recent-sender": {
+   "tasks": 120,
+   "gmail": 34,
+   "banana": 58,
+   "chronological": 27,
+   "banana4+gmail1": 56,
+   "banana3+gmail2": 47,
+   "bananaReorderedByGmail10": 57,
+   "bananaReorderedByGmail50": 61,
+   "gmailOnly": 2,
+   "bananaOnly": 26
+  },
+  "age=31-180d": {
+   "tasks": 102,
+   "gmail": 34,
+   "banana": 37,
+   "chronological": 13,
+   "banana4+gmail1": 37,
+   "banana3+gmail2": 37,
+   "bananaReorderedByGmail10": 40,
+   "bananaReorderedByGmail50": 42,
+   "gmailOnly": 6,
+   "bananaOnly": 9
+  },
+  "age=<=30d": {
+   "tasks": 84,
+   "gmail": 38,
+   "banana": 45,
+   "chronological": 27,
+   "banana4+gmail1": 44,
+   "banana3+gmail2": 44,
+   "bananaReorderedByGmail10": 48,
+   "bananaReorderedByGmail50": 49,
+   "gmailOnly": 9,
+   "bananaOnly": 16
+  },
+  "age=>180d": {
+   "tasks": 194,
+   "gmail": 37,
+   "banana": 62,
+   "chronological": 12,
+   "banana4+gmail1": 58,
+   "banana3+gmail2": 49,
+   "bananaReorderedByGmail10": 56,
+   "bananaReorderedByGmail50": 58,
+   "gmailOnly": 1,
+   "bananaOnly": 26
+  },
+  "body=False": {
+   "tasks": 61,
+   "gmail": 5,
+   "banana": 14,
+   "chronological": 4,
+   "banana4+gmail1": 13,
+   "banana3+gmail2": 10,
+   "bananaReorderedByGmail10": 13,
+   "bananaReorderedByGmail50": 14,
+   "gmailOnly": 0,
+   "bananaOnly": 9
+  },
+  "body=True": {
+   "tasks": 319,
+   "gmail": 104,
+   "banana": 130,
+   "chronological": 48,
+   "banana4+gmail1": 126,
+   "banana3+gmail2": 120,
+   "bananaReorderedByGmail10": 131,
+   "bananaReorderedByGmail50": 135,
+   "gmailOnly": 16,
+   "bananaOnly": 42
+  },
+  "words=1": {
+   "tasks": 168,
+   "gmail": 39,
+   "banana": 64,
+   "chronological": 32,
+   "banana4+gmail1": 62,
+   "banana3+gmail2": 54,
+   "bananaReorderedByGmail10": 65,
+   "bananaReorderedByGmail50": 70,
+   "gmailOnly": 4,
+   "bananaOnly": 29
+  },
+  "words=2": {
+   "tasks": 179,
+   "gmail": 44,
+   "banana": 54,
+   "chronological": 16,
+   "banana4+gmail1": 51,
+   "banana3+gmail2": 50,
+   "bananaReorderedByGmail10": 53,
+   "bananaReorderedByGmail50": 53,
+   "gmailOnly": 12,
+   "bananaOnly": 22
+  },
+  "words=3": {
+   "tasks": 33,
+   "gmail": 26,
+   "banana": 26,
+   "chronological": 4,
+   "banana4+gmail1": 26,
+   "banana3+gmail2": 26,
+   "bananaReorderedByGmail10": 26,
+   "bananaReorderedByGmail50": 26,
+   "gmailOnly": 0,
+   "bananaOnly": 0
+  }
+ },
+ "gmailMisses": {
+  "matched, ranks 6-50": 87,
+  "older target pushed past 50 by newer matches": 175,
+  "did not match target": 6,
+  "no results": 3
+ },
+ "bananaMisses": {
+  "ranks 6-50, body indexed": 38,
+  "not in first 50, body indexed": 151,
+  "not in first 50, headers only": 36,
+  "ranks 6-50, headers only": 11
+ },
+ "gmailViaServiceMS": {
+  "median": 402.5588541990146,
+  "p95": 967.1207081992179
+ }
+}

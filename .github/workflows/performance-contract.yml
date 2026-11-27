@@ -255,7 +255,7 @@ jobs:
       - name: Verify localized Notes matching and retain bridge samples
         run: |
           mkdir -p .build/notes-search
-          swiftc -O Banana/Model/LiveFilter.swift Banana/Model/VoiceNote.swift Banana/Model/NoteQueryCache.swift tools/notes-search-tests/main.swift -o .build/notes-search/checks
+          swiftc -O -D BANANA_MODULE_NOTES Banana/Model/LiveFilter.swift Banana/Model/VoiceNote.swift Banana/Model/NoteQueryCache.swift tools/notes-search-tests/main.swift -o .build/notes-search/checks
           .build/notes-search/checks .build/notes-search/bridge.json
       - uses: actions/upload-artifact@v4
         if: always()

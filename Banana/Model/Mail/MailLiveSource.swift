@@ -39,7 +39,7 @@ import GRDB
         try await access.mailAccessToken(accountID: account).value
     }
     /// Gmail's half of a search (MAIL-ENGINE 9.4), and the body index local search reads.
-    private lazy var gmailSearch = MailGmailSearch(stores: stores, dependencies: .init(
+    private lazy var gmailSearch = MailGmailSearch(stores: stores, ranked: MailRankedIndex(stores,writer:writer), dependencies: .init(
         api: api, token: { [access] account in try await access.mailAccessToken(accountID: account).value },
         store: { [writer] fetched, account in
             _ = try await writer.transact { db in
@@ -236,6 +236,7 @@ import GRDB
         kickCloud()
         kickReprepare(restart: true)
         searchIndexer.kick()
+        if !readAccounts.isEmpty { gmailSearch.warm() }
         kickDelivery()
     }
 
@@ -1180,8 +1181,8 @@ extension MailLiveSource {
                 guard let coordinator = self.actionCoordinator else { throw MailIntentStore.Failure.invalidGroup }
                 if case .scope(let scope, let from) = target {
                     let selection: MailActionCoordinator.Selection
-                    if case .search(let text) = scope.place {
-                        selection = .search(MailLocalSearchQuery(text: text, account: scope.account, filters: scope.filters, before: from))
+                    if let query = self.gmailSearch.actionQuery(scope, from: from, allowed: self.readAccounts) {
+                        selection = .search(query)
                     } else if let view = Self.view(for: scope) {
                         selection = .list(view: view, account: Self.account(for: scope), filters: scope.filters, from: from)
                     } else { throw MailIntentStore.Failure.invalidGroup }

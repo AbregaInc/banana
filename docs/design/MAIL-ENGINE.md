@@ -2446,7 +2446,7 @@ is an occasional `modify` that changes nothing, at 5 units.
   receipt with `count` 0 and announces `notSaved(.storeUnavailable)`.
 
 The free-space floor (11.3) is what keeps step 6 from failing in ordinary life: the fill stops
-with at least 1 GB free, and a change is a few hundred bytes.
+with at least 3 GB free on a phone or iPad (5 GB on a Mac), and a change is a few hundred bytes.
 
 ### 6.3 The life of an assertion
 
@@ -4219,8 +4219,9 @@ to the pure folder.
 - **Everything is in Application Support, never in `Caches`.** The system may empty `Caches`
   without asking, and "all mail cached locally" would then be untrue without a word. The
   ceilings are what bound it instead.
-- **The free-space floor (invariant 26).** The floor is **1 GiB on an iPhone or iPad and
-  5 GiB on a Mac**; the sizes of this bullet are binary, like the page caches of 4.2, which
+- **The free-space floor (invariant 26).** The floor is **3 GiB on an iPhone or iPad and
+  5 GiB on a Mac** (phone and iPad raised from 1 GiB on 26 Nov 2026, when the cloud fill grew to the
+  whole mailbox); the sizes of this bullet are binary, like the page caches of 4.2, which
   errs towards stopping early. Below it the fill, attachment prefetch, preparation and the
   indexer stop; eviction runs until free space is 500 MiB above the floor; then they resume.
   - **The rule is pure and has two thresholds**, so it is told its own previous answer:
@@ -8094,7 +8095,7 @@ three, six, a year or everything; per device; six months unless he changes it (5
 A device keeps what is inside the limit whole, and what he has a claim on at any age; older
 mail is in Gmail and found by search. The size ceilings this decision used to be about are a
 backstop now (11.3): attachments up to 2 GB, 4 GB and 20 GB, bodies up to 4 GB and 8 GB on an
-iPhone and an iPad, and always at least 1 GB free on a phone or iPad and 5 GB on a Mac. *If
+iPhone and an iPad, and always at least 3 GB free on a phone or iPad and 5 GB on a Mac. *If
 "everything":* 3–8 GB per 200,000 messages on that device plus attachments, and a first fill
 of about five days of allowance on a Mac and a week or more on a phone.
 

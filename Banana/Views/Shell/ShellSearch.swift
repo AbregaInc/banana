@@ -88,7 +88,13 @@ final class ShellSearch: ObservableObject {
     private func run(_ query: String) async {
         searchingNotes = true
         var next = ShellSearchGroups<ShellSearchHit>()
-        next.plan = Self.plan(query)
+        let snapshot = OccurrenceStore.shared.occurrences
+        let worker = Task.detached(priority: .userInitiated) {
+            Self.selectPlanOccurrences(query, in: snapshot, limit: ShellSearchGroups<ShellSearchHit>.shownPerGroup, now: Date())
+        }
+        let matches = await withTaskCancellationHandler { await worker.value } onCancel: { worker.cancel() }
+        guard !Task.isCancelled, ShellSearchRules.query(text) == query else { return }
+        next.plan = Self.plan(matches)
         next.mail = groups.mail.filter { _ in answered == query }
         groups = next
         answered = query
@@ -102,17 +108,40 @@ final class ShellSearch: ObservableObject {
     // MARK: Plan — the timeline already in memory (the assistant's search reads the same).
 
     static func matchingPlanOccurrences(_ query: String, limit: Int, now: Date = Date()) -> [Occurrence] {
-        let today = Calendar.current.startOfDay(for: now)
-        let matches = OccurrenceStore.shared.occurrences.filter {
-            ShellSearchRules.titleMatches($0.title, query: query)
-        }
-        let upcoming = matches.filter { $0.start >= today }.sorted { $0.start < $1.start }
-        let past = matches.filter { $0.start < today }.sorted { $0.start > $1.start }
-        return Array((upcoming + past).prefix(limit))
+        selectPlanOccurrences(query, in: OccurrenceStore.shared.occurrences, limit: limit, now: now)
     }
 
-    private static func plan(_ query: String) -> [ShellSearchHit] {
-        matchingPlanOccurrences(query, limit: ShellSearchGroups<ShellSearchHit>.shownPerGroup).map { occurrence in
+    nonisolated static func selectPlanOccurrences(_ query: String, in occurrences: [Occurrence], limit: Int, now: Date) -> [Occurrence] {
+        let wanted = ShellSearchRules.words(query)
+        guard !wanted.isEmpty, limit > 0 else { return [] }
+        let today = Calendar.current.startOfDay(for: now)
+        var titles: [Occurrence] = [], details: [Occurrence] = []
+        for item in occurrences {
+            if Task.isCancelled { return [] }
+            let remaining = wanted.filter { !ShellSearchRules.containsPrefix($0, in: item.title) }
+            if remaining.isEmpty {
+                titles.append(item)
+            } else if let meeting = item.meeting, !meeting.isAvailabilityOnly {
+                if remaining.allSatisfy({ word in
+                    ShellSearchRules.containsPrefix(word, in: meeting.address ?? "") ||
+                        ShellSearchRules.containsPrefix(word, in: meeting.searchDetails ?? "")
+                }) {
+                    details.append(item)
+                }
+            }
+        }
+        func ordered(_ matches: [Occurrence]) -> [Occurrence] {
+            matches.sorted { lhs, rhs in
+                if (lhs.start >= today) != (rhs.start >= today) { return lhs.start >= today }
+                return lhs.start >= today ? lhs.start < rhs.start : lhs.start > rhs.start
+            }
+        }
+        let first = Array(ordered(titles).prefix(limit))
+        return first.count == limit ? first : first + ordered(details).prefix(limit - first.count)
+    }
+
+    private static func plan(_ matches: [Occurrence]) -> [ShellSearchHit] {
+        matches.map { occurrence in
             let route = occurrence.meeting?.eventID.flatMap(GoogleCalendarIDs.rawEventRoute(from:))
             return ShellSearchHit(
                 id: "plan:" + occurrence.id,
@@ -348,7 +377,8 @@ struct ShellSearchResults: View {
             .buttonStyle(.plain)
             .accessibilityIdentifier("shell.ask")
         }
-        let groups = search.groups
+        let currentAnswer = search.answered != nil && search.answered == ShellSearchRules.query(search.text)
+        let groups = currentAnswer ? search.groups : ShellSearchGroups<ShellSearchHit>()
         ForEach(groups.nonEmpty, id: \.self) { group in
             Section {
                 ForEach(groups.items(group)) { hit in
@@ -365,7 +395,7 @@ struct ShellSearchResults: View {
                 }
             }
         }
-        if search.answered != nil, !search.searchingNotes, groups.isEmpty {
+        if currentAnswer, !search.searchingNotes, groups.isEmpty {
             Text("Nothing found")
                 .foregroundStyle(.secondary)
                 .listRowSeparator(.hidden)

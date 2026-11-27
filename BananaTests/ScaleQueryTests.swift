@@ -20,6 +20,18 @@ final class ScaleQueryTests: XCTestCase {
         XCTAssertTrue(index.overlapping(from: base, to: base.addingTimeInterval(-1)).isEmpty)
     }
 
+    func testIntervalIndexKeepsSourceOrderForEqualStartsAndOwnsItsSnapshot() {
+        let day = Date(timeIntervalSince1970: 1_700_000_000)
+        let late = day.addingTimeInterval(3600)
+        let rows = [Interval(id: 4, start: day, end: late), Interval(id: 3, start: day, end: late),
+                    Interval(id: 1, start: late, end: late.addingTimeInterval(1))]
+        for var input in [rows, [rows[2], rows[0], rows[1]]] {
+            let index = TimeRangeIndex(input, start: \.start, end: \.end)
+            input.removeAll()
+            XCTAssertEqual(index.overlapping(from: day, to: late.addingTimeInterval(2)).map(\.id), [4, 3, 1])
+        }
+    }
+
     func testBoundedPodcastSelectionPreservesOrderTiesAndCompletionRules() {
         var podcast = Podcast(feedURL: URL(string: "https://stress.invalid/feed")!, title: "Stress")
         podcast.episodes = (0..<300).map { i in

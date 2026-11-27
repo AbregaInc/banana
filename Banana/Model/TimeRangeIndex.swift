@@ -6,24 +6,39 @@ struct TimeRangeIndex<Element> {
     private let rows: [Element]
     private let starts: [Date]
     private let ends: [Date]
-    private var maximumEnds: [Date]
+    private let maximumEnds: [Date]
 
     init(_ values: [Element], start: (Element) -> Date, end: (Element) -> Date) {
-        rows = values.sorted { start($0) < start($1) }
-        starts = rows.map(start)
+        let dates = values.map(start)
+        if dates.indices.dropFirst().allSatisfy({ dates[$0 - 1] <= dates[$0] }) {
+            // The published timeline is normally chronological. Share its array storage.
+            rows = values
+            starts = dates
+        } else {
+            let order = dates.indices.sorted { dates[$0] < dates[$1] }
+            rows = order.map { values[$0] }
+            starts = order.map { dates[$0] }
+        }
         ends = rows.map(end)
-        maximumEnds = Array(repeating: .distantPast, count: rows.count)
-        if !rows.isEmpty { _ = build(0, rows.count) }
+        maximumEnds = Self.subtreeMaxima(ends)
     }
 
-    private mutating func build(_ lower: Int, _ upper: Int) -> Date {
-        guard lower < upper else { return .distantPast }
-        let middle = (lower + upper) / 2
-        let left = build(lower, middle)
-        let right = build(middle + 1, upper)
-        let value = max(ends[middle], max(left, right))
-        maximumEnds[middle] = value
-        return value
+    private static func subtreeMaxima(_ ends: [Date]) -> [Date] {
+        var maxima = ends
+        // Each midpoint starts with its own end. Visit only nonempty children and
+        // acquire mutable access to the output array once for the whole construction.
+        maxima.withUnsafeMutableBufferPointer { buffer in
+            func build(_ lower: Int, _ upper: Int) -> Date {
+                let middle = (lower + upper) / 2
+                var latest = buffer[middle]
+                if lower < middle { latest = max(latest, build(lower, middle)) }
+                if middle + 1 < upper { latest = max(latest, build(middle + 1, upper)) }
+                buffer[middle] = latest
+                return latest
+            }
+            if !buffer.isEmpty { _ = build(0, buffer.count) }
+        }
+        return maxima
     }
 
     func overlapping(from start: Date, to end: Date) -> [Element] {
