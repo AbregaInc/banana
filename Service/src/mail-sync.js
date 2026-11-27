@@ -180,7 +180,19 @@ export async function mailContent(deps, vault, account, request) {
       continue;
     }
     if (state.known) { body.labelIds = state.labels; body.historyId = String(state.history); }
-    messages.push({ id: state.id, message: body });
+    // Attachment text (MAIL-CLOUD-SYNC §5b), when the mailbox has read it: [{partId, name, text}].
+    let attachmentText;
+    if (state.textKey) {
+      try {
+        const object = await deps.blobs.get(state.textKey);
+        if (object) {
+          const plain = await vault.openBytes(state.textAAD, new Uint8Array(await new Response(object.body).arrayBuffer()));
+          bytes += plain.length;
+          attachmentText = JSON.parse(new TextDecoder().decode(plain)).parts;
+        }
+      } catch { attachmentText = undefined; }
+    }
+    messages.push({ id: state.id, message: body, ...(attachmentText ? { attachmentText } : {}) });
   }
   return { status: 200, body: { version: 1, messages } };
 }

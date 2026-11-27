@@ -176,6 +176,16 @@ final class NoteRepository: @unchecked Sendable {
         }
     }
 
+    // Most notes have no podcast context. Skip absent fields before running a string
+    // function or crossing the SQLite-to-Foundation bridge; stored blobs may contain NULs.
+    private static let searchFields = ["transcript", "episodeTitle", "podcastTitle", "excerpt"]
+    private static let asciiCandidates = searchFields.map {
+        "(\($0) IS NOT NULL AND instr(lower(\($0)), ?) > 0)"
+    }.joined(separator: " OR ")
+    private static let localizedMatches = searchFields.map {
+        "(\($0) IS NOT NULL AND localizedContains(CAST(\($0) AS BLOB), ?))"
+    }.joined(separator: " OR ")
+
     private static func selectPage(_ db: Database, search: String, archived: Bool, offset: Int,
                                    limit: Int, filter: LiveFilter?, countMatches: Bool) throws -> Page {
         var clause = "archived = ?"
@@ -192,19 +202,26 @@ final class NoteRepository: @unchecked Sendable {
             // bridging every field through Foundation. Unicode/control-containing rows
             // always reach the original localized predicate; this is only a prefilter.
             if Self.isPrintableASCII(search) {
-                clause += " AND (searchASCII = 0 OR instr(lower(coalesce(transcript, '')), ?) > 0 OR instr(lower(coalesce(episodeTitle, '')), ?) > 0 OR instr(lower(coalesce(podcastTitle, '')), ?) > 0 OR instr(lower(coalesce(excerpt, '')), ?) > 0)"
+                clause += " AND (searchASCII = 0 OR " + asciiCandidates + ")"
                 let folded = search.lowercased()
                 arguments += [folded, folded, folded, folded]
             }
-            clause += " AND (localizedContains(CAST(transcript AS BLOB), ?) OR localizedContains(CAST(episodeTitle AS BLOB), ?) OR localizedContains(CAST(podcastTitle AS BLOB), ?) OR localizedContains(CAST(excerpt AS BLOB), ?))"
+            clause += " AND (" + localizedMatches + ")"
             let bytes = Data(search.utf8)
             arguments += [bytes, bytes, bytes, bytes]
         }
-        let total = countMatches ? try Int.fetchOne(db, sql: "SELECT count(*) FROM notes WHERE \(clause)", arguments: arguments) : nil
-        arguments += [max(0, limit), max(0, offset)]
-        let rows = try Data.fetchAll(db, sql: "SELECT payload FROM notes WHERE \(clause) ORDER BY created DESC, id LIMIT ? OFFSET ?", arguments: arguments)
+        let limit = max(0, limit)
+        let offset = max(0, offset)
+        let pageArguments = arguments + [limit, offset]
+        let rows = try Data.fetchAll(db, sql: "SELECT payload FROM notes WHERE \(clause) ORDER BY created DESC, id LIMIT ? OFFSET ?", arguments: pageArguments)
             .map { try JSONDecoder().decode(VoiceNote.self, from: $0) }
-        return Page(rows: rows, total: total ?? rows.count)
+        guard countMatches else { return Page(rows: rows, total: rows.count) }
+        // A short, nonempty page identifies the end. An empty deep page can be past it.
+        if rows.count < limit && (offset == 0 || !rows.isEmpty) {
+            return Page(rows: rows, total: offset + rows.count)
+        }
+        let total = try Int.fetchOne(db, sql: "SELECT count(*) FROM notes WHERE \(clause)", arguments: arguments)!
+        return Page(rows: rows, total: total)
     }
 
     private static func isPrintableASCII(_ text: String) -> Bool {

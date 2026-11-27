@@ -345,6 +345,23 @@ import GRDB
         found = try await MailLocalSearch.rows(MailLocalSearchQuery(text: "weekly", account: nil), stores: stores)
         XCTAssertEqual(found.rows.map(\.thread), ["t1"])
 
+        try await stores.index.write { db in
+            try db.execute(sql: "UPDATE message SET from_name='Noór Haddad' WHERE gmail_id='m0'")
+        }
+        func personQuery(_ person: String) -> MailLocalSearchQuery {
+            let filter = LiveFilter(scope: "mail", terms: [
+                .init(field: "person", op: "contains", value: person),
+                .init(field: "text", op: "contains", value: "zeppel")
+            ])
+            return MailLocalSearchQuery(text: filter.searchExpression, account: nil)
+        }
+        let bySender = try await MailLocalSearch.rows(personQuery("hadd noo"), stores: stores)
+        XCTAssertEqual(bySender.rows.map(\.thread), ["t0"])
+        let insideName = try await MailLocalSearch.rows(personQuery("addad"), stores: stores)
+        XCTAssertTrue(insideName.rows.isEmpty)
+        let punctuation = try await MailLocalSearch.rows(personQuery("%%"), stores: stores)
+        XCTAssertTrue(punctuation.rows.isEmpty)
+
         // A message that is not the one indexed under its row never matches that text.
         try await stores.index.write { db in try db.execute(sql: "UPDATE message SET fts_state=0 WHERE gmail_id='m0'") }
         found = try await MailLocalSearch.rows(query, stores: stores)

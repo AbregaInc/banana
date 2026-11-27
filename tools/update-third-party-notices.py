@@ -24,6 +24,11 @@ def render(resolved, checkouts):
         for license_file in licenses:
             license_text = "\n".join(line.rstrip() for line in license_file.read_text().splitlines()).rstrip()
             sections.append(f"\n{license_file.name}\n{'-' * len(license_file.name)}\n\n{license_text}\n")
+    binding = ROOT / "Packages/MailTantivy"
+    sections.append("\n\ntantivy.swift\n=============\n\nSource: https://github.com/botisan-ai/tantivy.swift\n"
+                    "Version: 0.3.4\n\nLICENSE\n-------\n\n" + (binding / "LICENSE").read_text().rstrip() + "\n")
+    sections.append("\n\nTantivy\n========\n\nSource: https://github.com/quickwit-oss/tantivy\n"
+                    "Version: 0.25.0\n\nLICENSE\n-------\n\n" + (binding / "LICENSE-Tantivy").read_text().rstrip() + "\n")
     return "".join(sections)
 
 if __name__ == "__main__":

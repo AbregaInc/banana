@@ -8,7 +8,7 @@ conversion while keeping localized, case-insensitive matching.
 
 ```sh
 mkdir -p .build/notes-search
-swiftc -O Banana/Model/LiveFilter.swift Banana/Model/VoiceNote.swift Banana/Model/NoteQueryCache.swift \
+swiftc -O -D BANANA_MODULE_NOTES Banana/Model/LiveFilter.swift Banana/Model/VoiceNote.swift Banana/Model/NoteQueryCache.swift \
   tools/notes-search-tests/main.swift -o .build/notes-search/checks
 .build/notes-search/checks .build/notes-search/bridge.json
 ```

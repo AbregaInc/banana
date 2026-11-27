@@ -164,6 +164,14 @@ final class MailWriter: @unchecked Sendable {
         }
     }
 
+    /// Derived search hints need the writer queue and checkpoints but do not change any displayed conversation.
+    func maintainSearchIndex(_ update: @escaping @Sendable (Database) throws -> Void) async throws {
+        try await perform {
+            defer { self.checkpoints() }
+            try self.stores.index.write(update)
+        }
+    }
+
     /// A bounded provider/cache batch, in the same queue as durable user actions.
     /// User mutations must continue through writeIntent before their index step.
     func transact(_ body: @escaping (Database) throws -> MailStoreChange) async throws -> MailStoreChange {

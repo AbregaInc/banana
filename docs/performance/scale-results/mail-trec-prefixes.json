@@ -1,0 +1,3235 @@
+{
+  "environment": {
+    "referenceRevision": "f987bd34",
+    "sqlite": "3.54.0",
+    "python": "3.11.5",
+    "system": "Darwin",
+    "machine": "arm64",
+    "sourceSHA256": {
+      "Banana/Model/Mail/MailLocalSearch.swift": "de92cb25b6658546a1326bbf8d4a64f3a63463a39d48b20748ad7fc1c25db89c",
+      "Banana/Model/Mail/MailBodySearch.swift": "731ef1d469b777d2c1cbfd4eea866f4831115d70b0aa392759470f3e9c580140",
+      "tools/search-eval/mail_sql.py": "2dbd46c6958d82e211e949aa99fe55cb1112b58007b4068451ab20367dec42d7"
+    }
+  },
+  "schemas": [
+    {
+      "additionalOneCharacterIndex": false,
+      "buildSeconds": 61.25925645814277,
+      "collection": {
+        "documents": 174299,
+        "missingDate": 12,
+        "duplicateDocumentID": 0,
+        "bodyDocuments": 173280
+      },
+      "mail_header_searchBytes": 94007296,
+      "msg_ftsBytes": 611504128
+    },
+    {
+      "additionalOneCharacterIndex": true,
+      "buildSeconds": 63.85312812495977,
+      "collection": {
+        "documents": 174299,
+        "missingDate": 12,
+        "duplicateDocumentID": 0,
+        "bodyDocuments": 173280
+      },
+      "mail_header_searchBytes": 116703232,
+      "msg_ftsBytes": 696381440
+    }
+  ],
+  "note": "Both arms use the page-bounded cursor and unchanged prefix-AND results.",
+  "splits": {
+    "development": {
+      "topics": 25,
+      "corpusTargets": 25,
+      "top1": 4,
+      "successAt5": 6,
+      "successAt10": 8,
+      "successAt50": 11,
+      "mrrAt10": 0.1957142857142857,
+      "baseQueryMedianMS": 11.001542,
+      "candidateQueryMedianMS": 9.872375,
+      "baseQueryP95MS": 121.183459,
+      "candidateQueryP95MS": 33.550083,
+      "baseMaxMS": 222.004125,
+      "candidateMaxMS": 51.749625,
+      "medianPairedSavingMS": -0.05658299999999983,
+      "bootstrap95SavingMS": [
+        -0.1756669999999998,
+        0.09079200000000043
+      ]
+    },
+    "test": {
+      "topics": 125,
+      "corpusTargets": 125,
+      "top1": 10,
+      "successAt5": 30,
+      "successAt10": 38,
+      "successAt50": 57,
+      "mrrAt10": 0.15165396825396826,
+      "baseQueryMedianMS": 13.069708,
+      "candidateQueryMedianMS": 11.593625,
+      "baseQueryP95MS": 224.853375,
+      "candidateQueryP95MS": 35.292083,
+      "baseMaxMS": 858.616625,
+      "candidateMaxMS": 73.809292,
+      "medianPairedSavingMS": -0.10308300000000004,
+      "bootstrap95SavingMS": [
+        -0.11970799999999926,
+        -0.051249999999999574
+      ]
+    }
+  },
+  "queries": [
+    {
+      "id": "KI1",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        15.21675,
+        14.412,
+        15.278667,
+        15.2695,
+        14.770792
+      ],
+      "candidateMS": [
+        15.112291,
+        14.457541,
+        14.979,
+        14.945166,
+        14.826375
+      ],
+      "targetPresent": true,
+      "rankAt50": 21
+    },
+    {
+      "id": "KI2",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        20.976958,
+        20.969,
+        21.519416,
+        22.117708,
+        20.917667
+      ],
+      "candidateMS": [
+        20.695917,
+        20.695958,
+        25.755167,
+        21.646333,
+        20.695584
+      ],
+      "targetPresent": true,
+      "rankAt50": 7
+    },
+    {
+      "id": "KI3",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        4.8815,
+        4.602459,
+        4.882959,
+        4.782083,
+        4.441458
+      ],
+      "candidateMS": [
+        5.103334,
+        4.691291,
+        21.054709,
+        4.582292,
+        4.549417
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI4",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        2.212875,
+        2.154375,
+        2.182042,
+        2.1945,
+        2.04
+      ],
+      "candidateMS": [
+        2.377125,
+        2.140834,
+        2.259167,
+        2.236542,
+        2.238625
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI5",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        7.172125,
+        6.798333,
+        6.983542,
+        7.015458,
+        6.880459
+      ],
+      "candidateMS": [
+        7.803166,
+        6.859542,
+        9.815375,
+        7.159209,
+        7.155
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI6",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        23.56825,
+        22.440291,
+        23.040833,
+        22.854875,
+        23.344417
+      ],
+      "candidateMS": [
+        24.669209,
+        22.696583,
+        23.197875,
+        23.526292,
+        23.39275
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI7",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        10.925291,
+        10.969916,
+        11.001542,
+        11.109667,
+        12.449833
+      ],
+      "candidateMS": [
+        11.32525,
+        11.234541,
+        11.261834,
+        11.156958,
+        11.638208
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI8",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        3.117833,
+        3.046542,
+        3.099958,
+        2.996459,
+        3.1075
+      ],
+      "candidateMS": [
+        3.14225,
+        3.101541,
+        3.310209,
+        3.003042,
+        3.099125
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI9",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        33.569667,
+        33.140791,
+        33.4265,
+        75.156833,
+        36.567083
+      ],
+      "candidateMS": [
+        33.810667,
+        33.359625,
+        33.606,
+        50.037916,
+        38.836417
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI10",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        13.066292,
+        12.937333,
+        13.19275,
+        13.096417,
+        12.76175
+      ],
+      "candidateMS": [
+        13.082291,
+        12.995459,
+        13.582916,
+        13.126459,
+        13.986875
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI11",
+      "split": "development",
+      "singleCharacter": true,
+      "baseMS": [
+        15.898958,
+        15.613291,
+        15.609167,
+        15.8395,
+        15.035333
+      ],
+      "candidateMS": [
+        7.646167,
+        7.312583,
+        7.336792,
+        7.296416,
+        7.013833
+      ],
+      "targetPresent": true,
+      "rankAt50": 17
+    },
+    {
+      "id": "KI12",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        11.465583,
+        9.363584,
+        9.478917,
+        23.302833,
+        9.647833
+      ],
+      "candidateMS": [
+        11.254792,
+        9.647,
+        9.652542,
+        16.838208,
+        9.872375
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI13",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        3.289792,
+        3.353292,
+        3.34775,
+        3.206666,
+        3.320917
+      ],
+      "candidateMS": [
+        3.354459,
+        3.601583,
+        3.515208,
+        3.263292,
+        3.549125
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI14",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        16.389291,
+        16.249833,
+        16.603125,
+        45.52475,
+        16.332459
+      ],
+      "candidateMS": [
+        16.233375,
+        16.568125,
+        16.336791,
+        51.749625,
+        16.204959
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI15",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        0.620333,
+        0.507125,
+        0.572167,
+        0.534875,
+        0.493375
+      ],
+      "candidateMS": [
+        0.645333,
+        0.69875,
+        0.572583,
+        0.638209,
+        0.722
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI16",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        4.699958,
+        5.147834,
+        5.092291,
+        5.320041,
+        5.163875
+      ],
+      "candidateMS": [
+        4.889542,
+        5.464625,
+        5.2165,
+        5.385542,
+        5.401083
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI17",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        33.056416,
+        32.531167,
+        49.353875,
+        33.6145,
+        33.298709
+      ],
+      "candidateMS": [
+        34.111334,
+        32.970458,
+        47.511875,
+        33.550083,
+        33.237584
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI18",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        14.735125,
+        14.95575,
+        31.034375,
+        14.786541,
+        15.008834
+      ],
+      "candidateMS": [
+        14.549333,
+        14.870166,
+        14.894125,
+        15.082208,
+        15.479541
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI19",
+      "split": "development",
+      "singleCharacter": true,
+      "baseMS": [
+        121.183459,
+        119.90975,
+        153.083375,
+        177.310667,
+        120.076375
+      ],
+      "candidateMS": [
+        16.961834,
+        16.669708,
+        37.862333,
+        26.249084,
+        16.549083
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI20",
+      "split": "development",
+      "singleCharacter": true,
+      "baseMS": [
+        219.847209,
+        221.729875,
+        221.70475,
+        222.004125,
+        221.785208
+      ],
+      "candidateMS": [
+        16.251958,
+        16.293417,
+        16.00625,
+        16.121417,
+        16.233042
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI21",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        3.778375,
+        3.362167,
+        3.462833,
+        3.517458,
+        3.513375
+      ],
+      "candidateMS": [
+        3.704542,
+        3.48075,
+        3.607125,
+        3.599709,
+        3.6575
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI22",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        9.035084,
+        8.829291,
+        9.0815,
+        9.665,
+        8.931458
+      ],
+      "candidateMS": [
+        8.753875,
+        8.665417,
+        8.920375,
+        9.509,
+        9.251125
+      ],
+      "targetPresent": true,
+      "rankAt50": 6
+    },
+    {
+      "id": "KI23",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        3.497875,
+        3.5735,
+        3.683459,
+        3.595792,
+        3.402292
+      ],
+      "candidateMS": [
+        3.414458,
+        3.503,
+        3.740917,
+        3.699959,
+        3.527625
+      ],
+      "targetPresent": true,
+      "rankAt50": 3
+    },
+    {
+      "id": "KI24",
+      "split": "development",
+      "singleCharacter": true,
+      "baseMS": [
+        107.999375,
+        108.439083,
+        188.94475,
+        177.802209,
+        111.066667
+      ],
+      "candidateMS": [
+        26.263375,
+        26.312209,
+        42.192166,
+        27.112042,
+        27.299
+      ],
+      "targetPresent": true,
+      "rankAt50": 45
+    },
+    {
+      "id": "KI25",
+      "split": "development",
+      "singleCharacter": false,
+      "baseMS": [
+        6.761542,
+        6.477875,
+        6.446292,
+        6.68675,
+        6.643541
+      ],
+      "candidateMS": [
+        6.812458,
+        6.747084,
+        6.783542,
+        7.45625,
+        6.940625
+      ],
+      "targetPresent": true,
+      "rankAt50": 4
+    },
+    {
+      "id": "KI26",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        8.16475,
+        7.891667,
+        8.042375,
+        7.910708,
+        7.603458
+      ],
+      "candidateMS": [
+        8.215875,
+        8.077834,
+        8.265583,
+        8.058,
+        7.760958
+      ],
+      "targetPresent": true,
+      "rankAt50": 3
+    },
+    {
+      "id": "KI27",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        3.634083,
+        3.415541,
+        3.347625,
+        3.572708,
+        3.332292
+      ],
+      "candidateMS": [
+        3.671375,
+        3.601083,
+        3.387625,
+        3.663208,
+        3.510542
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI28",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        2.834292,
+        2.557625,
+        2.623458,
+        2.853583,
+        2.65725
+      ],
+      "candidateMS": [
+        3.067333,
+        2.623,
+        2.697958,
+        2.847375,
+        2.781792
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI29",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        27.542625,
+        27.537125,
+        27.602708,
+        26.354333,
+        27.293084
+      ],
+      "candidateMS": [
+        27.660292,
+        27.697792,
+        27.834875,
+        26.255084,
+        27.433666
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI30",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        2.178291,
+        2.147958,
+        2.086,
+        2.177833,
+        1.998083
+      ],
+      "candidateMS": [
+        2.204333,
+        2.188666,
+        2.155625,
+        2.151542,
+        2.11525
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI31",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        6.366667,
+        6.339833,
+        6.4965,
+        6.005459,
+        6.227875
+      ],
+      "candidateMS": [
+        6.350208,
+        6.513209,
+        6.273667,
+        6.302125,
+        6.185583
+      ],
+      "targetPresent": true,
+      "rankAt50": 10
+    },
+    {
+      "id": "KI32",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        14.173417,
+        14.151375,
+        37.844375,
+        14.488416,
+        14.168542
+      ],
+      "candidateMS": [
+        14.111666,
+        14.041875,
+        24.141875,
+        14.286625,
+        14.052958
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI33",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        9.013625,
+        8.300708,
+        8.127125,
+        7.884125,
+        7.991125
+      ],
+      "candidateMS": [
+        8.199583,
+        8.631292,
+        8.30575,
+        8.075,
+        8.213958
+      ],
+      "targetPresent": true,
+      "rankAt50": 5
+    },
+    {
+      "id": "KI34",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        85.344792,
+        84.556542,
+        85.708,
+        97.204292,
+        85.479667
+      ],
+      "candidateMS": [
+        18.209208,
+        17.945667,
+        17.824208,
+        18.227167,
+        18.042791
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI35",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        18.509375,
+        18.756625,
+        18.840292,
+        18.812042,
+        18.74925
+      ],
+      "candidateMS": [
+        18.336291,
+        19.016833,
+        18.799083,
+        30.126916,
+        19.308541
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI36",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        15.709333,
+        14.592792,
+        14.833209,
+        14.878292,
+        14.644375
+      ],
+      "candidateMS": [
+        15.4765,
+        14.946167,
+        15.059292,
+        15.211084,
+        14.980833
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI37",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        9.971125,
+        10.040125,
+        10.205083,
+        9.668375,
+        10.041792
+      ],
+      "candidateMS": [
+        10.213709,
+        10.192542,
+        10.371042,
+        9.804208,
+        10.279292
+      ],
+      "targetPresent": true,
+      "rankAt50": 15
+    },
+    {
+      "id": "KI38",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        29.266292,
+        30.665917,
+        30.398041,
+        30.371,
+        30.1775
+      ],
+      "candidateMS": [
+        30.3875,
+        30.587834,
+        30.763959,
+        30.672792,
+        30.252917
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI39",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        37.693666,
+        36.991541,
+        37.832,
+        35.353708,
+        48.639666
+      ],
+      "candidateMS": [
+        37.157375,
+        36.841125,
+        38.448458,
+        35.501667,
+        39.518042
+      ],
+      "targetPresent": true,
+      "rankAt50": 7
+    },
+    {
+      "id": "KI40",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        0.7905,
+        0.777875,
+        0.849042,
+        1.014958,
+        0.836709
+      ],
+      "candidateMS": [
+        0.939084,
+        0.767459,
+        0.99325,
+        0.96525,
+        0.9035
+      ],
+      "targetPresent": true,
+      "rankAt50": 15
+    },
+    {
+      "id": "KI41",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        5.800625,
+        5.676667,
+        5.749875,
+        5.847458,
+        5.465
+      ],
+      "candidateMS": [
+        5.938416,
+        5.820416,
+        5.99425,
+        6.284291,
+        5.924792
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI42",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        10.595041,
+        10.78125,
+        10.671292,
+        10.933042,
+        10.364125
+      ],
+      "candidateMS": [
+        10.960125,
+        10.997916,
+        10.869667,
+        11.088542,
+        10.568542
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI43",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        229.288875,
+        226.445209,
+        334.82875,
+        349.748166,
+        226.752666
+      ],
+      "candidateMS": [
+        21.622167,
+        20.327209,
+        35.405541,
+        20.817209,
+        20.70475
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI44",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        32.683791,
+        33.628584,
+        34.131792,
+        34.01225,
+        34.279708
+      ],
+      "candidateMS": [
+        32.854042,
+        33.515792,
+        33.79525,
+        33.773291,
+        33.388959
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI45",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        15.82175,
+        15.783708,
+        15.132167,
+        15.655,
+        15.398208
+      ],
+      "candidateMS": [
+        15.670833,
+        15.778083,
+        15.691417,
+        15.963,
+        15.666083
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI46",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        20.702458,
+        20.046458,
+        20.245791,
+        20.708208,
+        20.005541
+      ],
+      "candidateMS": [
+        20.538333,
+        19.873333,
+        20.096541,
+        20.439792,
+        19.777958
+      ],
+      "targetPresent": true,
+      "rankAt50": 4
+    },
+    {
+      "id": "KI47",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        4.855125,
+        4.867875,
+        12.729375,
+        4.988916,
+        5.268
+      ],
+      "candidateMS": [
+        4.902,
+        4.939625,
+        5.146375,
+        4.904042,
+        5.179125
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI48",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        5.632333,
+        5.359,
+        5.341958,
+        5.4435,
+        5.405708
+      ],
+      "candidateMS": [
+        5.566458,
+        5.237625,
+        5.408708,
+        5.492875,
+        5.431917
+      ],
+      "targetPresent": true,
+      "rankAt50": 2
+    },
+    {
+      "id": "KI49",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        26.873875,
+        27.198167,
+        27.105083,
+        28.698375,
+        27.222375
+      ],
+      "candidateMS": [
+        7.240291,
+        7.239166,
+        7.033125,
+        7.390625,
+        7.326625
+      ],
+      "targetPresent": true,
+      "rankAt50": 6
+    },
+    {
+      "id": "KI50",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        21.550167,
+        22.049375,
+        21.659,
+        22.169541,
+        21.042541
+      ],
+      "candidateMS": [
+        22.172208,
+        22.118625,
+        22.02075,
+        38.125166,
+        21.647625
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI51",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        3.276333,
+        3.295417,
+        3.283375,
+        3.358208,
+        3.38075
+      ],
+      "candidateMS": [
+        3.21725,
+        3.292083,
+        3.430959,
+        3.439041,
+        3.378791
+      ],
+      "targetPresent": true,
+      "rankAt50": 2
+    },
+    {
+      "id": "KI52",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        9.693542,
+        9.27875,
+        9.161917,
+        9.32125,
+        9.064125
+      ],
+      "candidateMS": [
+        10.060458,
+        9.534875,
+        9.590958,
+        9.544416,
+        9.341542
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI53",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        1.214708,
+        1.125958,
+        1.341667,
+        1.152166,
+        1.091625
+      ],
+      "candidateMS": [
+        1.243709,
+        1.261375,
+        1.304625,
+        1.329542,
+        1.170583
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI54",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        20.234917,
+        20.024458,
+        20.230875,
+        44.050791,
+        19.796792
+      ],
+      "candidateMS": [
+        20.479833,
+        20.275209,
+        20.35925,
+        37.248084,
+        19.845458
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI55",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        1.584125,
+        1.589834,
+        5.810708,
+        1.685917,
+        1.57125
+      ],
+      "candidateMS": [
+        1.877916,
+        1.701208,
+        1.9025,
+        1.8835,
+        1.669083
+      ],
+      "targetPresent": true,
+      "rankAt50": 9
+    },
+    {
+      "id": "KI56",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        39.590459,
+        39.038792,
+        39.249542,
+        39.66925,
+        38.988834
+      ],
+      "candidateMS": [
+        24.873208,
+        24.388375,
+        24.691333,
+        24.868208,
+        24.340583
+      ],
+      "targetPresent": true,
+      "rankAt50": 28
+    },
+    {
+      "id": "KI57",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        15.836,
+        15.764042,
+        15.444125,
+        15.642375,
+        15.685291
+      ],
+      "candidateMS": [
+        16.113667,
+        15.774792,
+        16.572375,
+        15.7,
+        15.848208
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI58",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        23.070334,
+        22.808,
+        43.2625,
+        39.638708,
+        23.03975
+      ],
+      "candidateMS": [
+        23.233042,
+        22.971958,
+        50.719,
+        23.155625,
+        23.1845
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI59",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        7.044167,
+        6.982083,
+        6.917208,
+        7.353583,
+        6.833291
+      ],
+      "candidateMS": [
+        7.099625,
+        6.86225,
+        7.033333,
+        7.412083,
+        6.897208
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI60",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        23.174291,
+        22.868958,
+        22.787208,
+        22.97225,
+        22.778333
+      ],
+      "candidateMS": [
+        22.880083,
+        22.267291,
+        22.777292,
+        22.715959,
+        22.595
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI61",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        233.756125,
+        228.487959,
+        229.346334,
+        228.591333,
+        228.425375
+      ],
+      "candidateMS": [
+        21.822209,
+        21.972209,
+        22.331583,
+        21.960584,
+        21.921375
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI62",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        27.644791,
+        27.379958,
+        27.258875,
+        49.779292,
+        27.426542
+      ],
+      "candidateMS": [
+        27.9,
+        27.883334,
+        27.115458,
+        28.384209,
+        27.417834
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI63",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        13.563292,
+        13.543125,
+        13.748792,
+        14.012541,
+        13.621584
+      ],
+      "candidateMS": [
+        14.080708,
+        13.612792,
+        14.044834,
+        34.794083,
+        13.722
+      ],
+      "targetPresent": true,
+      "rankAt50": 2
+    },
+    {
+      "id": "KI64",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        526.180042,
+        528.658375,
+        858.616625,
+        531.666167,
+        528.138334
+      ],
+      "candidateMS": [
+        28.075208,
+        28.673083,
+        42.373125,
+        28.248417,
+        27.787292
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI65",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        1.06775,
+        0.980792,
+        0.935542,
+        0.989666,
+        2.666
+      ],
+      "candidateMS": [
+        1.054625,
+        1.143125,
+        0.958542,
+        1.061625,
+        1.851333
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI66",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        8.793375,
+        8.789083,
+        8.798791,
+        8.9945,
+        8.743041
+      ],
+      "candidateMS": [
+        8.835375,
+        8.937709,
+        9.077833,
+        9.111208,
+        8.84925
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI67",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        17.443709,
+        16.638083,
+        16.976625,
+        16.941958,
+        16.729541
+      ],
+      "candidateMS": [
+        17.426791,
+        16.805,
+        16.669958,
+        16.73875,
+        16.492292
+      ],
+      "targetPresent": true,
+      "rankAt50": 30
+    },
+    {
+      "id": "KI68",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        67.180958,
+        65.643625,
+        66.236416,
+        66.628459,
+        67.070958
+      ],
+      "candidateMS": [
+        8.165208,
+        7.846833,
+        7.860041,
+        8.190959,
+        7.726583
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI69",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        14.117875,
+        14.179125,
+        14.655709,
+        14.543583,
+        13.524042
+      ],
+      "candidateMS": [
+        14.386667,
+        15.428792,
+        29.608042,
+        14.814542,
+        13.513166
+      ],
+      "targetPresent": true,
+      "rankAt50": 4
+    },
+    {
+      "id": "KI70",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        10.974792,
+        10.711791,
+        10.84675,
+        11.321708,
+        10.715875
+      ],
+      "candidateMS": [
+        11.27175,
+        10.862292,
+        11.079959,
+        11.1085,
+        10.92225
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI71",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        6.149584,
+        5.952167,
+        6.1005,
+        6.14025,
+        5.968
+      ],
+      "candidateMS": [
+        6.397166,
+        6.241625,
+        6.260208,
+        6.446875,
+        6.045208
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI72",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        11.303584,
+        11.406791,
+        11.612917,
+        12.13825,
+        11.686709
+      ],
+      "candidateMS": [
+        10.952375,
+        11.301625,
+        39.805042,
+        11.651125,
+        11.355375
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI73",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        9.024375,
+        8.761834,
+        8.72575,
+        9.328125,
+        8.96525
+      ],
+      "candidateMS": [
+        9.641083,
+        9.064083,
+        9.245792,
+        9.770791,
+        9.18975
+      ],
+      "targetPresent": true,
+      "rankAt50": 2
+    },
+    {
+      "id": "KI74",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        222.5895,
+        226.275625,
+        245.515375,
+        357.164083,
+        223.474708
+      ],
+      "candidateMS": [
+        18.535792,
+        18.181833,
+        21.104292,
+        18.536834,
+        18.334375
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI75",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        72.466417,
+        71.151417,
+        132.854584,
+        87.600458,
+        71.508417
+      ],
+      "candidateMS": [
+        3.346916,
+        3.4055,
+        3.488875,
+        14.779541,
+        3.507208
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI76",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        12.83175,
+        12.718792,
+        12.908125,
+        12.805584,
+        12.503125
+      ],
+      "candidateMS": [
+        12.870875,
+        12.978792,
+        13.02425,
+        12.913542,
+        12.679167
+      ],
+      "targetPresent": true,
+      "rankAt50": 8
+    },
+    {
+      "id": "KI77",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        26.619708,
+        26.4495,
+        26.708958,
+        26.712042,
+        25.92625
+      ],
+      "candidateMS": [
+        26.237291,
+        26.24425,
+        26.473084,
+        36.4925,
+        25.875125
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI78",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        1.67675,
+        1.672583,
+        1.819792,
+        1.675459,
+        1.702959
+      ],
+      "candidateMS": [
+        1.97275,
+        1.8335,
+        4.906083,
+        1.855917,
+        1.846291
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI79",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        4.543125,
+        4.558292,
+        4.43675,
+        4.564375,
+        4.601625
+      ],
+      "candidateMS": [
+        4.592875,
+        4.688333,
+        4.6675,
+        4.8595,
+        4.531792
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI80",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        13.788542,
+        13.91675,
+        13.250459,
+        13.778875,
+        13.320959
+      ],
+      "candidateMS": [
+        13.638917,
+        13.922375,
+        13.134375,
+        13.675291,
+        13.176125
+      ],
+      "targetPresent": true,
+      "rankAt50": 25
+    },
+    {
+      "id": "KI81",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        11.312792,
+        11.545042,
+        11.441458,
+        11.597583,
+        11.010208
+      ],
+      "candidateMS": [
+        11.237875,
+        11.086708,
+        11.485,
+        11.3885,
+        11.038
+      ],
+      "targetPresent": true,
+      "rankAt50": 3
+    },
+    {
+      "id": "KI82",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        41.154417,
+        41.73975,
+        41.713167,
+        42.188209,
+        41.314542
+      ],
+      "candidateMS": [
+        41.716542,
+        42.215375,
+        42.134917,
+        42.21225,
+        42.118917
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI83",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        787.8905,
+        785.7265,
+        793.185542,
+        790.557417,
+        783.457292
+      ],
+      "candidateMS": [
+        35.588625,
+        35.681833,
+        35.796041,
+        35.645291,
+        35.440875
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI84",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        12.042833,
+        12.563334,
+        11.690833,
+        12.191125,
+        11.528959
+      ],
+      "candidateMS": [
+        11.797167,
+        12.299,
+        12.2155,
+        12.421542,
+        11.68275
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI85",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        60.527792,
+        59.973833,
+        77.9595,
+        57.7575,
+        59.206875
+      ],
+      "candidateMS": [
+        60.99475,
+        59.840167,
+        73.809292,
+        58.158584,
+        60.397791
+      ],
+      "targetPresent": true,
+      "rankAt50": 9
+    },
+    {
+      "id": "KI86",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        6.436708,
+        6.748958,
+        6.73475,
+        6.614375,
+        6.632875
+      ],
+      "candidateMS": [
+        6.754042,
+        6.547875,
+        6.671083,
+        6.68475,
+        6.594625
+      ],
+      "targetPresent": true,
+      "rankAt50": 20
+    },
+    {
+      "id": "KI87",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        4.989375,
+        4.476125,
+        4.473167,
+        4.497166,
+        4.479
+      ],
+      "candidateMS": [
+        4.747333,
+        4.419458,
+        4.433333,
+        4.508,
+        4.398625
+      ],
+      "targetPresent": true,
+      "rankAt50": 38
+    },
+    {
+      "id": "KI88",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        8.726958,
+        8.853458,
+        8.769083,
+        8.977833,
+        8.3415
+      ],
+      "candidateMS": [
+        8.855833,
+        8.908083,
+        9.031334,
+        9.046625,
+        8.686541
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI89",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        17.511958,
+        18.2495,
+        18.1025,
+        18.098709,
+        18.16125
+      ],
+      "candidateMS": [
+        18.083958,
+        17.97625,
+        18.145291,
+        17.93075,
+        18.491625
+      ],
+      "targetPresent": true,
+      "rankAt50": 16
+    },
+    {
+      "id": "KI90",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        6.41475,
+        6.338791,
+        6.361458,
+        6.444417,
+        6.100958
+      ],
+      "candidateMS": [
+        6.528458,
+        6.313084,
+        6.744958,
+        6.587458,
+        6.141584
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI91",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        15.720375,
+        15.170875,
+        15.200292,
+        15.683542,
+        14.923292
+      ],
+      "candidateMS": [
+        15.550666,
+        14.900375,
+        15.282125,
+        15.445875,
+        14.757625
+      ],
+      "targetPresent": true,
+      "rankAt50": 4
+    },
+    {
+      "id": "KI92",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        2.726833,
+        2.689125,
+        2.752,
+        3.024542,
+        2.746166
+      ],
+      "candidateMS": [
+        2.696625,
+        2.865125,
+        3.004125,
+        2.935917,
+        2.872416
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI93",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        12.143458,
+        12.055084,
+        12.660708,
+        12.487625,
+        12.023958
+      ],
+      "candidateMS": [
+        12.416166,
+        12.164709,
+        12.710375,
+        12.721958,
+        12.251416
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI94",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        14.397917,
+        14.423958,
+        14.346625,
+        14.552042,
+        14.270083
+      ],
+      "candidateMS": [
+        14.341459,
+        14.306084,
+        14.2485,
+        14.521459,
+        14.075709
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI95",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        9.400167,
+        9.257875,
+        9.284792,
+        9.193,
+        9.344625
+      ],
+      "candidateMS": [
+        9.852875,
+        9.946958,
+        9.317,
+        9.403042,
+        10.285291
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI96",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        24.5225,
+        24.823,
+        24.890166,
+        24.448291,
+        24.34775
+      ],
+      "candidateMS": [
+        24.294834,
+        24.800291,
+        24.441417,
+        24.152417,
+        24.4555
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI97",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        21.535167,
+        22.403167,
+        21.971208,
+        22.337208,
+        21.734125
+      ],
+      "candidateMS": [
+        21.814875,
+        21.94775,
+        21.898542,
+        22.223292,
+        21.663541
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI98",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        18.727667,
+        18.970542,
+        42.894208,
+        19.317459,
+        18.989958
+      ],
+      "candidateMS": [
+        19.08875,
+        18.932166,
+        19.379833,
+        19.25225,
+        19.302083
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI99",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        13.7145,
+        13.951542,
+        13.521417,
+        13.093167,
+        13.768084
+      ],
+      "candidateMS": [
+        13.83425,
+        13.594625,
+        13.59875,
+        13.227125,
+        13.882917
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI100",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        2.012625,
+        2.083792,
+        2.038542,
+        2.032167,
+        2.131333
+      ],
+      "candidateMS": [
+        2.226459,
+        2.118167,
+        2.093541,
+        2.148666,
+        2.207083
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI101",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        23.962708,
+        24.157875,
+        36.729209,
+        24.158459,
+        26.610583
+      ],
+      "candidateMS": [
+        23.932791,
+        24.19575,
+        24.632833,
+        24.780875,
+        24.773708
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI102",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        1.186125,
+        1.174791,
+        1.345791,
+        1.195917,
+        1.2345
+      ],
+      "candidateMS": [
+        1.321,
+        1.251667,
+        1.563333,
+        1.204791,
+        1.3415
+      ],
+      "targetPresent": true,
+      "rankAt50": 2
+    },
+    {
+      "id": "KI103",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        17.214583,
+        16.474834,
+        16.449875,
+        17.053625,
+        16.480458
+      ],
+      "candidateMS": [
+        17.32,
+        16.8565,
+        16.941291,
+        17.040333,
+        16.595041
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI104",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        21.313833,
+        20.825208,
+        22.155834,
+        43.746041,
+        21.081666
+      ],
+      "candidateMS": [
+        22.10875,
+        21.277458,
+        22.135583,
+        30.243375,
+        21.247417
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI105",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        19.336041,
+        18.380041,
+        19.158917,
+        19.40075,
+        18.821667
+      ],
+      "candidateMS": [
+        18.775167,
+        18.661209,
+        18.968458,
+        19.247458,
+        18.524417
+      ],
+      "targetPresent": true,
+      "rankAt50": 44
+    },
+    {
+      "id": "KI106",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        1.660209,
+        1.588292,
+        1.648625,
+        1.709917,
+        1.562375
+      ],
+      "candidateMS": [
+        1.719708,
+        1.636083,
+        1.74975,
+        1.745125,
+        1.766375
+      ],
+      "targetPresent": true,
+      "rankAt50": 47
+    },
+    {
+      "id": "KI107",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        25.523708,
+        25.724041,
+        25.357833,
+        26.089667,
+        25.561375
+      ],
+      "candidateMS": [
+        25.688666,
+        25.403375,
+        25.681083,
+        26.055583,
+        25.397708
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI108",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        0.88575,
+        1.053292,
+        0.891417,
+        0.932042,
+        1.010792
+      ],
+      "candidateMS": [
+        1.111,
+        1.123792,
+        1.076416,
+        1.009042,
+        1.098917
+      ],
+      "targetPresent": true,
+      "rankAt50": 31
+    },
+    {
+      "id": "KI109",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        0.7265,
+        0.38975,
+        0.474792,
+        0.481708,
+        0.443333
+      ],
+      "candidateMS": [
+        1.103542,
+        0.475583,
+        0.479125,
+        0.602834,
+        0.495042
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI110",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        23.432375,
+        23.778083,
+        24.205167,
+        25.221875,
+        24.404625
+      ],
+      "candidateMS": [
+        24.034084,
+        24.96325,
+        24.836875,
+        24.20975,
+        24.431292
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI111",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        6.400917,
+        6.440084,
+        6.628083,
+        6.535,
+        6.595541
+      ],
+      "candidateMS": [
+        6.688167,
+        6.712375,
+        6.8515,
+        28.89225,
+        6.528792
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI112",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        212.022666,
+        207.681708,
+        208.242834,
+        208.921209,
+        206.442416
+      ],
+      "candidateMS": [
+        2.837916,
+        2.399959,
+        2.517292,
+        2.55225,
+        2.312041
+      ],
+      "targetPresent": true,
+      "rankAt50": 2
+    },
+    {
+      "id": "KI113",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        6.690667,
+        7.25575,
+        18.991,
+        6.756417,
+        6.803791
+      ],
+      "candidateMS": [
+        7.018375,
+        7.368208,
+        7.071208,
+        6.8175,
+        6.638959
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI114",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        5.388833,
+        5.695042,
+        5.452375,
+        5.824791,
+        5.555625
+      ],
+      "candidateMS": [
+        5.823,
+        5.6765,
+        5.567583,
+        5.901208,
+        5.616209
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI115",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        15.402166,
+        16.12575,
+        15.653542,
+        15.529875,
+        15.49975
+      ],
+      "candidateMS": [
+        15.390083,
+        15.849791,
+        16.378583,
+        15.538209,
+        15.507917
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI116",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        24.903542,
+        24.379333,
+        25.117542,
+        25.053125,
+        25.513375
+      ],
+      "candidateMS": [
+        24.807125,
+        25.23175,
+        25.402959,
+        25.09375,
+        25.16925
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI117",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        181.334041,
+        180.531625,
+        258.106,
+        175.155375,
+        179.767541
+      ],
+      "candidateMS": [
+        26.964417,
+        27.02225,
+        26.6575,
+        26.234458,
+        26.481541
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI118",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        3.499,
+        3.641417,
+        3.522042,
+        3.800208,
+        3.421041
+      ],
+      "candidateMS": [
+        3.747875,
+        3.691625,
+        3.734167,
+        3.893375,
+        3.593625
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI119",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        2.598625,
+        2.674625,
+        2.777708,
+        2.652584,
+        2.660375
+      ],
+      "candidateMS": [
+        2.649333,
+        2.814041,
+        2.695791,
+        2.74175,
+        2.652292
+      ],
+      "targetPresent": true,
+      "rankAt50": 4
+    },
+    {
+      "id": "KI120",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        12.603833,
+        11.324542,
+        11.453625,
+        11.390541,
+        11.285291
+      ],
+      "candidateMS": [
+        12.760667,
+        11.34425,
+        11.581375,
+        11.61025,
+        11.593625
+      ],
+      "targetPresent": true,
+      "rankAt50": 21
+    },
+    {
+      "id": "KI121",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        298.496708,
+        297.298667,
+        468.963375,
+        299.284625,
+        307.632667
+      ],
+      "candidateMS": [
+        26.355458,
+        25.9325,
+        27.538916,
+        26.286333,
+        26.50025
+      ],
+      "targetPresent": true,
+      "rankAt50": 2
+    },
+    {
+      "id": "KI122",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        9.338667,
+        9.04825,
+        9.528916,
+        9.510959,
+        9.154459
+      ],
+      "candidateMS": [
+        9.439125,
+        9.218417,
+        9.484125,
+        9.451792,
+        9.184958
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI123",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        2.086333,
+        2.013459,
+        2.192458,
+        2.200542,
+        2.038833
+      ],
+      "candidateMS": [
+        2.160584,
+        2.099958,
+        2.195334,
+        2.380917,
+        2.195833
+      ],
+      "targetPresent": true,
+      "rankAt50": 8
+    },
+    {
+      "id": "KI124",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        15.095375,
+        15.076,
+        15.635084,
+        15.134625,
+        15.401833
+      ],
+      "candidateMS": [
+        15.458875,
+        15.242542,
+        15.573375,
+        15.227042,
+        15.659708
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI125",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        6.549041,
+        6.413458,
+        6.425708,
+        6.480583,
+        6.318166
+      ],
+      "candidateMS": [
+        6.6125,
+        6.611042,
+        6.452125,
+        6.624417,
+        6.366417
+      ],
+      "targetPresent": true,
+      "rankAt50": 2
+    },
+    {
+      "id": "KI126",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        35.227834,
+        34.901458,
+        34.993125,
+        35.051,
+        34.029125
+      ],
+      "candidateMS": [
+        35.648917,
+        35.292083,
+        34.775625,
+        35.660958,
+        33.950417
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI127",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        4.097542,
+        4.327083,
+        4.41075,
+        4.472833,
+        3.866167
+      ],
+      "candidateMS": [
+        4.252791,
+        4.175708,
+        4.522333,
+        4.581875,
+        3.883959
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI128",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        9.226084,
+        9.010708,
+        9.350291,
+        9.964708,
+        8.800291
+      ],
+      "candidateMS": [
+        16.601125,
+        9.755875,
+        9.926417,
+        16.603333,
+        8.928958
+      ],
+      "targetPresent": true,
+      "rankAt50": 3
+    },
+    {
+      "id": "KI129",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        223.388459,
+        223.905917,
+        225.36825,
+        273.25025,
+        224.853375
+      ],
+      "candidateMS": [
+        20.650667,
+        20.31625,
+        20.86075,
+        20.923042,
+        20.765625
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI130",
+      "split": "test",
+      "singleCharacter": true,
+      "baseMS": [
+        81.138542,
+        80.92425,
+        82.63225,
+        80.61475,
+        82.259875
+      ],
+      "candidateMS": [
+        8.857291,
+        8.938375,
+        10.196917,
+        9.188125,
+        9.322083
+      ],
+      "targetPresent": true,
+      "rankAt50": 23
+    },
+    {
+      "id": "KI131",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        10.621959,
+        10.567167,
+        10.8975,
+        10.854583,
+        10.330667
+      ],
+      "candidateMS": [
+        10.745208,
+        10.813958,
+        11.147292,
+        19.580792,
+        10.563208
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI132",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        19.951542,
+        20.241583,
+        20.620958,
+        20.3215,
+        20.449708
+      ],
+      "candidateMS": [
+        20.293709,
+        20.135625,
+        20.776916,
+        21.091833,
+        20.426417
+      ],
+      "targetPresent": true,
+      "rankAt50": 23
+    },
+    {
+      "id": "KI133",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        3.917625,
+        3.7635,
+        3.816625,
+        3.865291,
+        3.7685
+      ],
+      "candidateMS": [
+        3.978834,
+        3.930917,
+        3.891542,
+        4.021875,
+        3.885542
+      ],
+      "targetPresent": true,
+      "rankAt50": 11
+    },
+    {
+      "id": "KI134",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        3.027958,
+        2.913125,
+        2.937667,
+        17.241,
+        2.927209
+      ],
+      "candidateMS": [
+        2.989959,
+        2.83725,
+        3.093375,
+        4.906584,
+        2.965667
+      ],
+      "targetPresent": true,
+      "rankAt50": 2
+    },
+    {
+      "id": "KI135",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        12.412125,
+        12.974417,
+        13.1915,
+        13.207083,
+        13.069708
+      ],
+      "candidateMS": [
+        12.765375,
+        12.785166,
+        12.782583,
+        13.005916,
+        13.093625
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI136",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        16.952042,
+        17.415042,
+        17.112709,
+        17.89875,
+        17.462834
+      ],
+      "candidateMS": [
+        17.382666,
+        17.398833,
+        17.367833,
+        34.326916,
+        17.821542
+      ],
+      "targetPresent": true,
+      "rankAt50": 2
+    },
+    {
+      "id": "KI137",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        28.272667,
+        27.547084,
+        27.574416,
+        27.655875,
+        26.75325
+      ],
+      "candidateMS": [
+        27.21875,
+        27.193667,
+        27.429417,
+        27.420292,
+        26.555417
+      ],
+      "targetPresent": true,
+      "rankAt50": 8
+    },
+    {
+      "id": "KI138",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        1.029958,
+        0.989875,
+        0.987208,
+        1.072375,
+        1.043583
+      ],
+      "candidateMS": [
+        1.186,
+        1.050833,
+        1.0765,
+        1.106208,
+        1.198959
+      ],
+      "targetPresent": true,
+      "rankAt50": 29
+    },
+    {
+      "id": "KI139",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        20.483042,
+        20.228791,
+        20.34425,
+        30.539584,
+        20.199792
+      ],
+      "candidateMS": [
+        20.617084,
+        20.406667,
+        20.733958,
+        57.795792,
+        20.088625
+      ],
+      "targetPresent": true,
+      "rankAt50": 16
+    },
+    {
+      "id": "KI140",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        1.419541,
+        1.477542,
+        1.503792,
+        1.431667,
+        1.490958
+      ],
+      "candidateMS": [
+        1.652667,
+        1.555958,
+        1.702667,
+        1.468,
+        1.580625
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI141",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        4.491416,
+        4.043875,
+        4.270041,
+        4.2845,
+        4.288292
+      ],
+      "candidateMS": [
+        4.476958,
+        4.153042,
+        4.371292,
+        4.461166,
+        4.403834
+      ],
+      "targetPresent": true,
+      "rankAt50": 42
+    },
+    {
+      "id": "KI142",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        10.078042,
+        10.530625,
+        10.28,
+        10.35325,
+        9.914125
+      ],
+      "candidateMS": [
+        10.267583,
+        10.270625,
+        10.381208,
+        10.238625,
+        10.116334
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI143",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        7.104209,
+        6.906833,
+        6.890458,
+        7.166417,
+        7.31375
+      ],
+      "candidateMS": [
+        7.1705,
+        7.037958,
+        6.98775,
+        7.247292,
+        7.11875
+      ],
+      "targetPresent": true,
+      "rankAt50": 12
+    },
+    {
+      "id": "KI144",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        11.801292,
+        11.969167,
+        11.91825,
+        12.203333,
+        11.992125
+      ],
+      "candidateMS": [
+        12.232792,
+        11.891667,
+        11.777292,
+        11.981375,
+        12.119
+      ],
+      "targetPresent": true,
+      "rankAt50": 2
+    },
+    {
+      "id": "KI145",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        13.617541,
+        12.625875,
+        13.817833,
+        13.477791,
+        13.34425
+      ],
+      "candidateMS": [
+        14.220917,
+        12.932417,
+        13.880916,
+        13.700833,
+        13.844417
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI146",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        7.839541,
+        7.570125,
+        7.707708,
+        7.744792,
+        7.4785
+      ],
+      "candidateMS": [
+        7.288583,
+        7.671708,
+        7.782625,
+        7.830959,
+        7.632916
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI147",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        16.700542,
+        16.440667,
+        17.188417,
+        16.481625,
+        16.611208
+      ],
+      "candidateMS": [
+        16.482,
+        16.414917,
+        17.501042,
+        16.862542,
+        15.904583
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    },
+    {
+      "id": "KI148",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        66.575292,
+        66.081542,
+        65.494291,
+        62.605667,
+        65.746291
+      ],
+      "candidateMS": [
+        65.367375,
+        66.146959,
+        65.344125,
+        62.477208,
+        64.780375
+      ],
+      "targetPresent": true,
+      "rankAt50": 4
+    },
+    {
+      "id": "KI149",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        7.932458,
+        7.827792,
+        8.027416,
+        18.326125,
+        8.097333
+      ],
+      "candidateMS": [
+        8.130708,
+        8.017,
+        37.916917,
+        24.934709,
+        8.265708
+      ],
+      "targetPresent": true,
+      "rankAt50": 1
+    },
+    {
+      "id": "KI150",
+      "split": "test",
+      "singleCharacter": false,
+      "baseMS": [
+        37.547917,
+        37.891459,
+        38.302209,
+        38.096083,
+        38.475708
+      ],
+      "candidateMS": [
+        37.997416,
+        38.158458,
+        38.353833,
+        39.643291,
+        38.070209
+      ],
+      "targetPresent": true,
+      "rankAt50": 0
+    }
+  ]
+}

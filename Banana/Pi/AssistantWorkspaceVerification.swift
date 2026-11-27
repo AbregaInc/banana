@@ -80,9 +80,9 @@ import Foundation
             let evening = cal.date(bySettingHour: 22, minute: 0, second: 0, of: base)!
             let morning = cal.date(bySettingHour: 9, minute: 0, second: 0, of: base)!
             let fields: [String: Any] = ["kind": "event", "title": "Dinner", "time": "17:00"]
-            let next = try AssistantWorkspace.prepare(fields, operation: UUID().uuidString, now: evening)
-            let same = try AssistantWorkspace.prepare(fields, operation: UUID().uuidString, now: morning)
-            let explicit = try AssistantWorkspace.prepare(fields.merging(["day": "today"]) { _, new in new }, operation: UUID().uuidString, now: evening)
+            let next = try await AssistantWorkspace.prepare(fields, operation: UUID().uuidString, now: evening)
+            let same = try await AssistantWorkspace.prepare(fields, operation: UUID().uuidString, now: morning)
+            let explicit = try await AssistantWorkspace.prepare(fields.merging(["day": "today"]) { _, new in new }, operation: UUID().uuidString, now: evening)
             guard next.day == "2026-11-03", same.day == "2026-11-02", explicit.day == "2026-11-02" else {
                 throw AssistantFailure(message: "Time-only events must use the next occurrence, preserving explicit days")
             }
@@ -169,7 +169,7 @@ import Foundation
                 ["kind": "meal", "foods": []], ["kind": "navigation", "section": "unknown"]
             ]
             for fields in invalidFields {
-                do { _ = try AssistantWorkspace.prepare(fields, operation: UUID().uuidString) }
+                do { _ = try await AssistantWorkspace.prepare(fields, operation: UUID().uuidString) }
                 catch { rejected += 1 }
             }
             guard rejected == 5 else { throw AssistantFailure(message: "Native workspace validation accepted malformed fields") }

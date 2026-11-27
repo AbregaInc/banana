@@ -85,8 +85,8 @@ struct MailAttachmentID: Hashable, Codable, Sendable {
 /// a search's match — so the UI compares and stores keys and never builds or interprets one.
 /// It contains nothing local to one device's store.
 struct MailOrderKey: Hashable, Comparable, Codable, Sendable {
-    /// 0, or 1 for rows to sort after everything in group 0. A search places what Gmail found
-    /// by date with the device's own rows (group 0; MAIL-ENGINE 9.4 as built).
+    /// Search uses -1 for ranked matches followed by local and Gmail date-ordered rows in group 0.
+    /// Group 1 sorts after group 0.
     let group: Int
     let sortKey: Int64
     /// A stable hash of the conversation id, so two rows with one `sortKey` still have an order

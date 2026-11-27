@@ -31,7 +31,7 @@ struct AssistantWorkspaceState: Decodable {
 #if BANANA_AI
 @MainActor
 enum AssistantWorkspace {
-    static func prepare(_ fields: [String: Any], operation: String, now: Date = Date()) throws -> AssistantAction {
+    static func prepare(_ fields: [String: Any], operation: String, now: Date = Date()) async throws -> AssistantAction {
         guard UUID(uuidString: operation) != nil,
               let raw = fields["kind"] as? String, let kind = AssistantAction.Kind(rawValue: raw) else {
             throw AssistantFailure(message: "That workspace action is invalid.")
@@ -96,7 +96,7 @@ enum AssistantWorkspace {
             if action.section == AppSection.plan.rawValue {
                 action.results = calendarSearch(query)
             } else {
-                action.results = search(query)
+                action.results = await search(query)
             }
         }
         return action
@@ -170,17 +170,17 @@ enum AssistantWorkspace {
         }
     }
 
-    private static func search(_ query: String) -> [AssistantAction.Result] {
+    private static func search(_ query: String) async -> [AssistantAction.Result] {
         var results: [AssistantAction.Result] = []
         var counts: [AppSection: Int] = [:]
-        func add(_ id: String, _ title: String, _ detail: String, _ section: AppSection) {
+        func add(_ id: String, _ title: String, _ detail: String, _ section: AppSection, matched: Bool = false) {
             guard results.count < 30, counts[section, default: 0] < 6,
-                  (title + " " + detail).localizedStandardContains(query) else { return }
+                  matched || (title + " " + detail).localizedStandardContains(query) else { return }
             counts[section, default: 0] += 1
             results.append(.init(id: id, title: title, detail: String(detail.prefix(240)), section: section.rawValue))
         }
-        for note in VoiceNoteStore.shared.matchingNotes(search: query, archived: false).prefix(6) {
-            let text = note.transcript ?? ""; add("note:\(note.id)", String(text.prefix(80)), text, .notes)
+        for note in await VoiceNoteStore.shared.searchResults(query, limit: 6) {
+            let text = note.transcript ?? ""; add("note:\(note.id)", note.displayTitle, text, .notes, matched: true)
         }
         for meal in WellnessStore.shared.meals.sorted(by: { $0.date > $1.date }) {
             // A result is named by what it is ("Chicken grain bowl, Greek yogurt"), not by its kind.

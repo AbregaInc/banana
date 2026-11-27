@@ -1,0 +1,9510 @@
+{
+  "split": "personal",
+  "library": "0.27.0",
+  "corpus": {
+    "messages": 199207,
+    "bodies": 92381,
+    "buildSeconds": 19.625205249991268,
+    "bytes": 40875676,
+    "retainedMessages": 256210,
+    "retainedThreads": 189716,
+    "bodyIndexRows": 93183,
+    "eligibleIndexedBodies": 92381
+  },
+  "summary": {
+    "strict": {
+      "medianMS": 5.48235,
+      "p95MS": 56.0588,
+      "maxMS": 168.9497,
+      "top1": 15,
+      "top5": 41,
+      "top10": 48,
+      "top50": 71,
+      "mrr10": 0.2071031746031746,
+      "gained5": 0,
+      "lost5": 0
+    },
+    "chronological": {
+      "medianMS": 3.0157,
+      "p95MS": 17.908,
+      "maxMS": 62.2409,
+      "top1": 10,
+      "top5": 26,
+      "top10": 37,
+      "top50": 61,
+      "mrr10": 0.1418287037037037,
+      "gained5": 6,
+      "lost5": 21
+    },
+    "fielded": {
+      "medianMS": 0.3026,
+      "p95MS": 0.8928,
+      "maxMS": 1.2615,
+      "top1": 14,
+      "top5": 27,
+      "top10": 41,
+      "top50": 64,
+      "mrr10": 0.17256283068783068,
+      "gained5": 5,
+      "lost5": 19
+    },
+    "overlap": {
+      "medianMS": 0.54935,
+      "p95MS": 2.044,
+      "maxMS": 2.7755,
+      "top1": 18,
+      "top5": 38,
+      "top10": 47,
+      "top50": 73,
+      "mrr10": 0.22308531746031746,
+      "gained5": 5,
+      "lost5": 8
+    },
+    "withRecent": {
+      "medianMS": 0.6852499999999999,
+      "p95MS": 2.6901,
+      "maxMS": 3.9482,
+      "top1": 18,
+      "top5": 37,
+      "top10": 46,
+      "top50": 73,
+      "mrr10": 0.2123445767195767,
+      "gained5": 6,
+      "lost5": 10
+    },
+    "completed": {
+      "medianMS": 0.6843,
+      "p95MS": 2.5647,
+      "maxMS": 3.4044,
+      "top1": 25,
+      "top5": 52,
+      "top10": 57,
+      "top50": 77,
+      "mrr10": 0.30375992063492063,
+      "gained5": 15,
+      "lost5": 4
+    }
+  },
+  "cases": [
+    {
+      "id": "last30d-sender-1",
+      "age": "last30d",
+      "family": "sender",
+      "chronological": {
+        "rank": 3,
+        "ms": [
+          0.7991,
+          0.6025,
+          0.6745
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.1082,
+          0.0777,
+          0.1325
+        ]
+      },
+      "strict": {
+        "rank": 6,
+        "ms": [
+          0.5543,
+          0.9405,
+          1.1122
+        ]
+      },
+      "withRecent": {
+        "rank": 7,
+        "ms": [
+          0.1054,
+          0.1145,
+          0.108
+        ]
+      },
+      "overlap": {
+        "rank": 6,
+        "ms": [
+          0.0553,
+          0.0572,
+          0.0592
+        ]
+      },
+      "fielded": {
+        "rank": 6,
+        "ms": [
+          0.0527,
+          0.0821,
+          0.0855
+        ]
+      },
+      "matchingThreads": 31,
+      "rankWithExtraSubjectWord": 2
+    },
+    {
+      "id": "last30d-subject-1",
+      "age": "last30d",
+      "family": "subject",
+      "overlap": {
+        "rank": 10,
+        "ms": [
+          0.6094,
+          0.596,
+          0.5535
+        ]
+      },
+      "withRecent": {
+        "rank": 2,
+        "ms": [
+          0.5893,
+          0.6258,
+          0.6135
+        ]
+      },
+      "fielded": {
+        "rank": 10,
+        "ms": [
+          0.2928,
+          0.3749,
+          0.3211
+        ]
+      },
+      "strict": {
+        "rank": 7,
+        "ms": [
+          3.2038,
+          3.3558,
+          3.6084
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.6833,
+          0.6827,
+          0.7475
+        ]
+      },
+      "chronological": {
+        "rank": 1,
+        "ms": [
+          1.8914,
+          2.287,
+          2.1687
+        ]
+      },
+      "matchingThreads": 203,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-sender-and-topic-1",
+      "age": "last30d",
+      "family": "sender-and-topic",
+      "strict": {
+        "rank": 1,
+        "ms": [
+          1.2822,
+          0.9718,
+          1.0876
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.4752,
+          0.2668,
+          0.3274
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.2089,
+          0.2306,
+          0.1902
+        ]
+      },
+      "chronological": {
+        "rank": 1,
+        "ms": [
+          1.0778,
+          1.1185,
+          0.9667
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.3497,
+          0.322,
+          0.3063
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.3147,
+          0.3563,
+          0.303
+        ]
+      },
+      "matchingThreads": 1,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-snippet-1",
+      "age": "last30d",
+      "family": "snippet",
+      "overlap": {
+        "rank": 43,
+        "ms": [
+          0.6055,
+          0.6531,
+          0.568
+        ]
+      },
+      "withRecent": {
+        "rank": 44,
+        "ms": [
+          0.7459,
+          0.7784,
+          0.7443
+        ]
+      },
+      "strict": {
+        "rank": 6,
+        "ms": [
+          9.7015,
+          10.0636,
+          9.4731
+        ]
+      },
+      "completed": {
+        "rank": 32,
+        "ms": [
+          0.8014,
+          0.7565,
+          0.8096
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2833,
+          0.289,
+          0.2707
+        ]
+      },
+      "chronological": {
+        "rank": 9,
+        "ms": [
+          5.41,
+          5.7222,
+          5.6599
+        ]
+      },
+      "matchingThreads": 178,
+      "rankWithExtraSubjectWord": 4
+    },
+    {
+      "id": "last30d-refinement-1",
+      "age": "last30d",
+      "family": "refinement",
+      "fielded": {
+        "rank": 22,
+        "ms": [
+          0.3787,
+          0.3556,
+          0.3112
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.8238,
+          0.8074,
+          0.7765
+        ]
+      },
+      "withRecent": {
+        "rank": 2,
+        "ms": [
+          0.8034,
+          0.8263,
+          0.8028
+        ]
+      },
+      "strict": {
+        "rank": 5,
+        "ms": [
+          12.4672,
+          12.2185,
+          11.9719
+        ]
+      },
+      "chronological": {
+        "rank": 1,
+        "ms": [
+          5.8075,
+          5.999,
+          5.6045
+        ]
+      },
+      "overlap": {
+        "rank": 5,
+        "ms": [
+          0.695,
+          0.7233,
+          0.6723
+        ]
+      },
+      "matchingThreads": 364,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-sender-2",
+      "age": "last30d",
+      "family": "sender",
+      "strict": {
+        "rank": 0,
+        "ms": [
+          44.8903,
+          38.5951,
+          40.4793
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.3932,
+          0.3927,
+          0.358
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2609,
+          0.2503,
+          0.3484
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          14.7762,
+          15.0515,
+          14.7882
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.5503,
+          0.4975,
+          0.4935
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.2864,
+          0.2844,
+          0.2762
+        ]
+      },
+      "matchingThreads": 7250,
+      "rankWithExtraSubjectWord": 5
+    },
+    {
+      "id": "last30d-subject-2",
+      "age": "last30d",
+      "family": "subject",
+      "fielded": {
+        "rank": 15,
+        "ms": [
+          0.2322,
+          0.1998,
+          0.1795
+        ]
+      },
+      "strict": {
+        "rank": 2,
+        "ms": [
+          2.1517,
+          1.7926,
+          2.173
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.4127,
+          0.384,
+          0.4805
+        ]
+      },
+      "overlap": {
+        "rank": 3,
+        "ms": [
+          0.2946,
+          0.3424,
+          0.2913
+        ]
+      },
+      "chronological": {
+        "rank": 4,
+        "ms": [
+          1.3458,
+          1.5861,
+          1.431
+        ]
+      },
+      "withRecent": {
+        "rank": 3,
+        "ms": [
+          0.3947,
+          0.3675,
+          0.3932
+        ]
+      },
+      "matchingThreads": 51,
+      "rankWithExtraSubjectWord": 3
+    },
+    {
+      "id": "last30d-sender-and-topic-2",
+      "age": "last30d",
+      "family": "sender-and-topic",
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3488,
+          0.3506,
+          0.3808
+        ]
+      },
+      "chronological": {
+        "rank": 37,
+        "ms": [
+          2.2223,
+          2.273,
+          2.1715
+        ]
+      },
+      "strict": {
+        "rank": 22,
+        "ms": [
+          4.7578,
+          4.8123,
+          5.2295
+        ]
+      },
+      "withRecent": {
+        "rank": 29,
+        "ms": [
+          0.9226,
+          0.8937,
+          0.9264
+        ]
+      },
+      "overlap": {
+        "rank": 28,
+        "ms": [
+          0.6362,
+          0.669,
+          0.6575
+        ]
+      },
+      "completed": {
+        "rank": 25,
+        "ms": [
+          0.7447,
+          0.7495,
+          0.8917
+        ]
+      },
+      "matchingThreads": 308,
+      "rankWithExtraSubjectWord": 5
+    },
+    {
+      "id": "last30d-snippet-2",
+      "age": "last30d",
+      "family": "snippet",
+      "completed": {
+        "rank": 43,
+        "ms": [
+          1.321,
+          1.3287,
+          1.225
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          1.3455,
+          1.3397,
+          1.4075
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          3.4614,
+          3.5068,
+          3.1055
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          1.0116,
+          0.9718,
+          0.967
+        ]
+      },
+      "chronological": {
+        "rank": 5,
+        "ms": [
+          2.0273,
+          2.0951,
+          2.2037
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.459,
+          0.4359,
+          0.4248
+        ]
+      },
+      "matchingThreads": 68,
+      "rankWithExtraSubjectWord": 21
+    },
+    {
+      "id": "last30d-refinement-2",
+      "age": "last30d",
+      "family": "refinement",
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.4758,
+          0.4567,
+          0.4252
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          4.378,
+          3.9494,
+          3.9233
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.5966,
+          0.5218,
+          0.4985
+        ]
+      },
+      "chronological": {
+        "rank": 18,
+        "ms": [
+          2.1917,
+          2.028,
+          2.3477
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2785,
+          0.2665,
+          0.3031
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.5375,
+          0.5187,
+          0.5123
+        ]
+      },
+      "matchingThreads": 264,
+      "rankWithExtraSubjectWord": 43
+    },
+    {
+      "id": "last30d-sender-3",
+      "age": "last30d",
+      "family": "sender",
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2172,
+          0.2234,
+          0.1638
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.2787,
+          0.374,
+          0.2903
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.1935,
+          0.2059,
+          0.2423
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          3.2352,
+          3.553,
+          3.1695
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.1948,
+          0.1755,
+          0.1625
+        ]
+      },
+      "chronological": {
+        "rank": 11,
+        "ms": [
+          1.3177,
+          1.621,
+          1.3468
+        ]
+      },
+      "matchingThreads": 655,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-subject-3",
+      "age": "last30d",
+      "family": "subject",
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.4016,
+          0.3681,
+          0.4275
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.8954,
+          0.9474,
+          0.9118
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.8919,
+          0.9322,
+          0.9307
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          4.6994,
+          4.4508,
+          4.4706
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.7226,
+          0.7253,
+          0.6952
+        ]
+      },
+      "chronological": {
+        "rank": 6,
+        "ms": [
+          2.5985,
+          2.9805,
+          3.108
+        ]
+      },
+      "matchingThreads": 92,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-sender-and-topic-3",
+      "age": "last30d",
+      "family": "sender-and-topic",
+      "strict": {
+        "rank": 0,
+        "ms": [
+          5.0321,
+          5.5436,
+          4.8571
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3381,
+          0.2485,
+          0.2822
+        ]
+      },
+      "chronological": {
+        "rank": 15,
+        "ms": [
+          2.0196,
+          2.4627,
+          2.4026
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.5412,
+          0.7065,
+          0.5597
+        ]
+      },
+      "completed": {
+        "rank": 20,
+        "ms": [
+          0.6376,
+          0.6915,
+          0.6274
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.6559,
+          0.7384,
+          0.6857
+        ]
+      },
+      "matchingThreads": 438,
+      "rankWithExtraSubjectWord": 49
+    },
+    {
+      "id": "last30d-snippet-3",
+      "age": "last30d",
+      "family": "snippet",
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.727,
+          0.7367,
+          0.7471
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.9484,
+          0.9867,
+          1.0152
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          5.284,
+          5.5044,
+          5.2117
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.9014,
+          0.8426,
+          0.8446
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          11.448,
+          11.7116,
+          11.5622
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3536,
+          0.303,
+          0.3054
+        ]
+      },
+      "matchingThreads": 1785,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "last30d-refinement-3",
+      "age": "last30d",
+      "family": "refinement",
+      "chronological": {
+        "rank": 1,
+        "ms": [
+          1.742,
+          1.8402,
+          1.7569
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.276,
+          0.2236,
+          0.2079
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          2.7026,
+          2.7552,
+          3.1851
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.3082,
+          0.2889,
+          0.3778
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.3955,
+          0.4216,
+          0.4872
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.3335,
+          0.3387,
+          0.3657
+        ]
+      },
+      "matchingThreads": 12,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-sender-4",
+      "age": "last30d",
+      "family": "sender",
+      "strict": {
+        "rank": 0,
+        "ms": [
+          18.7911,
+          19.5388,
+          19.018
+        ]
+      },
+      "overlap": {
+        "rank": 19,
+        "ms": [
+          0.2365,
+          0.2866,
+          0.2367
+        ]
+      },
+      "withRecent": {
+        "rank": 20,
+        "ms": [
+          0.3229,
+          0.3123,
+          0.3759
+        ]
+      },
+      "fielded": {
+        "rank": 19,
+        "ms": [
+          0.1754,
+          0.1861,
+          0.1818
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.2079,
+          0.2113,
+          0.2177
+        ]
+      },
+      "chronological": {
+        "rank": 18,
+        "ms": [
+          7.6864,
+          8.1355,
+          7.8685
+        ]
+      },
+      "matchingThreads": 4532,
+      "rankWithExtraSubjectWord": 2
+    },
+    {
+      "id": "last30d-subject-4",
+      "age": "last30d",
+      "family": "subject",
+      "fielded": {
+        "rank": 4,
+        "ms": [
+          0.2463,
+          0.2168,
+          0.2759
+        ]
+      },
+      "overlap": {
+        "rank": 4,
+        "ms": [
+          0.2712,
+          0.3175,
+          0.2717
+        ]
+      },
+      "strict": {
+        "rank": 3,
+        "ms": [
+          2.0655,
+          1.9629,
+          1.9486
+        ]
+      },
+      "chronological": {
+        "rank": 6,
+        "ms": [
+          0.8394,
+          1.1233,
+          1.0198
+        ]
+      },
+      "completed": {
+        "rank": 4,
+        "ms": [
+          0.3678,
+          0.3962,
+          0.3712
+        ]
+      },
+      "withRecent": {
+        "rank": 5,
+        "ms": [
+          0.3213,
+          0.3615,
+          0.3551
+        ]
+      },
+      "matchingThreads": 6,
+      "rankWithExtraSubjectWord": 4
+    },
+    {
+      "id": "last30d-sender-and-topic-4",
+      "age": "last30d",
+      "family": "sender-and-topic",
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.4283,
+          0.5107,
+          0.365
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.4527,
+          0.4381,
+          0.5853
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.2711,
+          0.28,
+          0.2727
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.4116,
+          0.421,
+          0.4506
+        ]
+      },
+      "chronological": {
+        "rank": 1,
+        "ms": [
+          3.027,
+          3.2822,
+          2.9692
+        ]
+      },
+      "strict": {
+        "rank": 2,
+        "ms": [
+          5.0826,
+          5.5634,
+          5.4322
+        ]
+      },
+      "matchingThreads": 3,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-snippet-4",
+      "age": "last30d",
+      "family": "snippet",
+      "strict": {
+        "rank": 4,
+        "ms": [
+          4.4734,
+          4.4726,
+          4.8457
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.5604,
+          0.4942,
+          0.4979
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.2038,
+          0.241,
+          0.2783
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.4686,
+          0.5285,
+          0.458
+        ]
+      },
+      "chronological": {
+        "rank": 2,
+        "ms": [
+          2.1821,
+          2.1627,
+          2.1993
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.4027,
+          0.375,
+          0.4494
+        ]
+      },
+      "matchingThreads": 275,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-refinement-4",
+      "age": "last30d",
+      "family": "refinement",
+      "completed": {
+        "rank": 15,
+        "ms": [
+          2.1604,
+          2.1818,
+          2.1855
+        ]
+      },
+      "strict": {
+        "rank": 20,
+        "ms": [
+          30.8877,
+          30.2869,
+          31.0837
+        ]
+      },
+      "withRecent": {
+        "rank": 25,
+        "ms": [
+          2.1874,
+          2.1578,
+          2.1642
+        ]
+      },
+      "overlap": {
+        "rank": 24,
+        "ms": [
+          1.845,
+          1.8577,
+          1.8391
+        ]
+      },
+      "fielded": {
+        "rank": 26,
+        "ms": [
+          1.0214,
+          1.0913,
+          1.1013
+        ]
+      },
+      "chronological": {
+        "rank": 2,
+        "ms": [
+          15.5324,
+          16.1755,
+          15.5668
+        ]
+      },
+      "matchingThreads": 37,
+      "rankWithExtraSubjectWord": 13
+    },
+    {
+      "id": "last30d-sender-5",
+      "age": "last30d",
+      "family": "sender",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.2964,
+          0.3897,
+          0.2665
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.2518,
+          0.2387,
+          0.2362
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          14.6323,
+          15.1568,
+          14.7954
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          58.0263,
+          54.3649,
+          59.9258
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.5865,
+          0.5534,
+          0.5349
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2542,
+          0.258,
+          0.2461
+        ]
+      },
+      "matchingThreads": 11034,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-subject-5",
+      "age": "last30d",
+      "family": "subject",
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2662,
+          0.2587,
+          0.2453
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.4809,
+          0.4802,
+          0.6472
+        ]
+      },
+      "chronological": {
+        "rank": 5,
+        "ms": [
+          2.788,
+          2.6317,
+          2.6092
+        ]
+      },
+      "strict": {
+        "rank": 25,
+        "ms": [
+          5.7356,
+          5.7006,
+          6.436
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.4577,
+          0.3971,
+          0.3962
+        ]
+      },
+      "completed": {
+        "rank": 3,
+        "ms": [
+          0.5007,
+          0.5308,
+          0.5801
+        ]
+      },
+      "matchingThreads": 690,
+      "rankWithExtraSubjectWord": 3
+    },
+    {
+      "id": "last30d-sender-and-topic-5",
+      "age": "last30d",
+      "family": "sender-and-topic",
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.3307,
+          0.3906,
+          0.3008
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.7266,
+          0.8098,
+          0.7348
+        ]
+      },
+      "strict": {
+        "rank": 11,
+        "ms": [
+          7.3814,
+          7.9792,
+          7.5325
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.7883,
+          0.7875,
+          0.7832
+        ]
+      },
+      "chronological": {
+        "rank": 21,
+        "ms": [
+          3.4642,
+          4.487,
+          3.5378
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.6085,
+          0.599,
+          0.5556
+        ]
+      },
+      "matchingThreads": 409,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-snippet-5",
+      "age": "last30d",
+      "family": "snippet",
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          2.3733,
+          2.3002,
+          2.3098
+        ]
+      },
+      "chronological": {
+        "rank": 6,
+        "ms": [
+          19.3875,
+          17.908,
+          17.7126
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          1.2238,
+          1.0389,
+          1.0404
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          38.1207,
+          38.828,
+          37.4566
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          2.8959,
+          2.7505,
+          2.7637
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          3.0317,
+          3.0157,
+          2.9802
+        ]
+      },
+      "matchingThreads": 1135,
+      "rankWithExtraSubjectWord": 7
+    },
+    {
+      "id": "last30d-refinement-5",
+      "age": "last30d",
+      "family": "refinement",
+      "chronological": {
+        "rank": 27,
+        "ms": [
+          4.5082,
+          4.4377,
+          4.7012
+        ]
+      },
+      "withRecent": {
+        "rank": 8,
+        "ms": [
+          1.0604,
+          1.0953,
+          1.0522
+        ]
+      },
+      "overlap": {
+        "rank": 7,
+        "ms": [
+          0.7287,
+          0.792,
+          0.7341
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          13.0624,
+          13.7075,
+          14.2718
+        ]
+      },
+      "fielded": {
+        "rank": 7,
+        "ms": [
+          0.4082,
+          0.4538,
+          0.4228
+        ]
+      },
+      "completed": {
+        "rank": 4,
+        "ms": [
+          0.916,
+          0.9186,
+          0.9504
+        ]
+      },
+      "matchingThreads": 2193,
+      "rankWithExtraSubjectWord": 7
+    },
+    {
+      "id": "last30d-sender-6",
+      "age": "last30d",
+      "family": "sender",
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3499,
+          0.3044,
+          0.3464
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.3182,
+          0.3189,
+          0.3122
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.5731,
+          0.5744,
+          0.5812
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.3455,
+          0.3762,
+          0.3501
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          17.9184,
+          18.9603,
+          18.6459
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          64.0568,
+          64.4193,
+          64.7898
+        ]
+      },
+      "matchingThreads": 18653,
+      "rankWithExtraSubjectWord": 13
+    },
+    {
+      "id": "last30d-subject-6",
+      "age": "last30d",
+      "family": "subject",
+      "overlap": {
+        "rank": 25,
+        "ms": [
+          0.5832,
+          0.6275,
+          0.5641
+        ]
+      },
+      "completed": {
+        "rank": 20,
+        "ms": [
+          0.691,
+          0.7697,
+          0.7061
+        ]
+      },
+      "chronological": {
+        "rank": 35,
+        "ms": [
+          2.3501,
+          2.7102,
+          2.1986
+        ]
+      },
+      "strict": {
+        "rank": 45,
+        "ms": [
+          4.237,
+          4.6401,
+          4.6996
+        ]
+      },
+      "fielded": {
+        "rank": 30,
+        "ms": [
+          0.319,
+          0.2997,
+          0.3314
+        ]
+      },
+      "withRecent": {
+        "rank": 25,
+        "ms": [
+          0.7218,
+          0.8062,
+          0.6981
+        ]
+      },
+      "matchingThreads": 244,
+      "rankWithExtraSubjectWord": 34
+    },
+    {
+      "id": "last30d-sender-and-topic-6",
+      "age": "last30d",
+      "family": "sender-and-topic",
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.4595,
+          0.416,
+          0.4068
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.2479,
+          0.2816,
+          0.2579
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          2.8823,
+          2.69,
+          2.8593
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.386,
+          0.3844,
+          0.3645
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.4328,
+          0.4605,
+          0.508
+        ]
+      },
+      "chronological": {
+        "rank": 1,
+        "ms": [
+          1.3627,
+          1.5549,
+          1.3136
+        ]
+      },
+      "matchingThreads": 2,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-snippet-6",
+      "age": "last30d",
+      "family": "snippet",
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          1.0376,
+          0.825,
+          0.8298
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.3527,
+          0.3359,
+          0.3473
+        ]
+      },
+      "chronological": {
+        "rank": 15,
+        "ms": [
+          7.5782,
+          7.5308,
+          7.1294
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.6981,
+          0.6804,
+          0.6979
+        ]
+      },
+      "strict": {
+        "rank": 15,
+        "ms": [
+          14.9336,
+          15.1923,
+          15.5681
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.8531,
+          0.8648,
+          0.8662
+        ]
+      },
+      "matchingThreads": 584,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-refinement-6",
+      "age": "last30d",
+      "family": "refinement",
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2764,
+          0.2825,
+          0.2503
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          3.737,
+          3.506,
+          3.787
+        ]
+      },
+      "chronological": {
+        "rank": 5,
+        "ms": [
+          2.0336,
+          2.2698,
+          2.1083
+        ]
+      },
+      "completed": {
+        "rank": 5,
+        "ms": [
+          0.5943,
+          0.5582,
+          0.5394
+        ]
+      },
+      "withRecent": {
+        "rank": 30,
+        "ms": [
+          0.5508,
+          0.5454,
+          0.5824
+        ]
+      },
+      "overlap": {
+        "rank": 29,
+        "ms": [
+          0.415,
+          0.49,
+          0.4552
+        ]
+      },
+      "matchingThreads": 205,
+      "rankWithExtraSubjectWord": 2
+    },
+    {
+      "id": "last30d-sender-7",
+      "age": "last30d",
+      "family": "sender",
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          10.9912,
+          11.1145,
+          10.909
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.3576,
+          0.3398,
+          0.2339
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.2803,
+          0.267,
+          0.2638
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          34.5152,
+          32.1028,
+          32.1392
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.294,
+          0.2285,
+          0.2257
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.4193,
+          0.4362,
+          0.4425
+        ]
+      },
+      "matchingThreads": 8760,
+      "rankWithExtraSubjectWord": 6
+    },
+    {
+      "id": "last30d-subject-7",
+      "age": "last30d",
+      "family": "subject",
+      "withRecent": {
+        "rank": 29,
+        "ms": [
+          0.876,
+          0.8685,
+          0.7368
+        ]
+      },
+      "chronological": {
+        "rank": 30,
+        "ms": [
+          2.5213,
+          2.3284,
+          2.4655
+        ]
+      },
+      "fielded": {
+        "rank": 28,
+        "ms": [
+          0.3323,
+          0.2871,
+          0.2925
+        ]
+      },
+      "completed": {
+        "rank": 24,
+        "ms": [
+          0.698,
+          0.6899,
+          0.7446
+        ]
+      },
+      "overlap": {
+        "rank": 28,
+        "ms": [
+          0.5464,
+          0.5382,
+          0.6106
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          3.875,
+          3.9442,
+          3.9557
+        ]
+      },
+      "matchingThreads": 264
+    },
+    {
+      "id": "last30d-sender-and-topic-7",
+      "age": "last30d",
+      "family": "sender-and-topic",
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.7571,
+          0.6856,
+          0.7251
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.5629,
+          0.606,
+          0.5635
+        ]
+      },
+      "strict": {
+        "rank": 2,
+        "ms": [
+          5.3137,
+          4.9868,
+          5.0498
+        ]
+      },
+      "chronological": {
+        "rank": 1,
+        "ms": [
+          2.8965,
+          3.207,
+          3.218
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.7312,
+          0.682,
+          0.7292
+        ]
+      },
+      "fielded": {
+        "rank": 7,
+        "ms": [
+          0.3212,
+          0.3639,
+          0.3407
+        ]
+      },
+      "matchingThreads": 79,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-snippet-7",
+      "age": "last30d",
+      "family": "snippet",
+      "strict": {
+        "rank": 2,
+        "ms": [
+          7.3777,
+          7.3454,
+          7.2059
+        ]
+      },
+      "withRecent": {
+        "rank": 6,
+        "ms": [
+          0.9664,
+          0.8711,
+          0.8766
+        ]
+      },
+      "completed": {
+        "rank": 4,
+        "ms": [
+          0.8188,
+          0.9213,
+          0.8144
+        ]
+      },
+      "chronological": {
+        "rank": 14,
+        "ms": [
+          3.1818,
+          3.513,
+          3.3008
+        ]
+      },
+      "fielded": {
+        "rank": 12,
+        "ms": [
+          0.3463,
+          0.3264,
+          0.3673
+        ]
+      },
+      "overlap": {
+        "rank": 5,
+        "ms": [
+          0.6805,
+          0.7136,
+          0.7
+        ]
+      },
+      "matchingThreads": 594,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "last30d-refinement-7",
+      "age": "last30d",
+      "family": "refinement",
+      "fielded": {
+        "rank": 22,
+        "ms": [
+          0.3424,
+          0.3688,
+          0.3528
+        ]
+      },
+      "strict": {
+        "rank": 5,
+        "ms": [
+          5.773,
+          5.7615,
+          5.6823
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.9025,
+          0.8942,
+          0.8759
+        ]
+      },
+      "overlap": {
+        "rank": 5,
+        "ms": [
+          0.6712,
+          0.6755,
+          0.7849
+        ]
+      },
+      "chronological": {
+        "rank": 6,
+        "ms": [
+          2.3327,
+          2.3356,
+          2.56
+        ]
+      },
+      "withRecent": {
+        "rank": 6,
+        "ms": [
+          0.9869,
+          0.972,
+          0.9703
+        ]
+      },
+      "matchingThreads": 587,
+      "rankWithExtraSubjectWord": 3
+    },
+    {
+      "id": "last30d-sender-8",
+      "age": "last30d",
+      "family": "sender",
+      "fielded": {
+        "rank": 46,
+        "ms": [
+          0.1546,
+          0.1242,
+          0.1577
+        ]
+      },
+      "withRecent": {
+        "rank": 47,
+        "ms": [
+          0.203,
+          0.2651,
+          0.2308
+        ]
+      },
+      "chronological": {
+        "rank": 17,
+        "ms": [
+          1.4728,
+          1.5349,
+          1.4771
+        ]
+      },
+      "completed": {
+        "rank": 27,
+        "ms": [
+          0.1862,
+          0.1527,
+          0.1525
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          3.1267,
+          3.0954,
+          3.0873
+        ]
+      },
+      "overlap": {
+        "rank": 46,
+        "ms": [
+          0.1603,
+          0.1341,
+          0.1746
+        ]
+      },
+      "matchingThreads": 610,
+      "rankWithExtraSubjectWord": 23
+    },
+    {
+      "id": "last30d-subject-8",
+      "age": "last30d",
+      "family": "subject",
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.6248,
+          0.6125,
+          0.6413
+        ]
+      },
+      "withRecent": {
+        "rank": 3,
+        "ms": [
+          0.5232,
+          0.5612,
+          0.7687
+        ]
+      },
+      "chronological": {
+        "rank": 3,
+        "ms": [
+          3.0044,
+          2.7189,
+          3.2012
+        ]
+      },
+      "strict": {
+        "rank": 2,
+        "ms": [
+          4.3692,
+          4.7736,
+          4.9372
+        ]
+      },
+      "overlap": {
+        "rank": 2,
+        "ms": [
+          0.4912,
+          0.4355,
+          0.484
+        ]
+      },
+      "fielded": {
+        "rank": 19,
+        "ms": [
+          0.2715,
+          0.2674,
+          0.2921
+        ]
+      },
+      "matchingThreads": 40,
+      "rankWithExtraSubjectWord": 2
+    },
+    {
+      "id": "last30d-sender-and-topic-8",
+      "age": "last30d",
+      "family": "sender-and-topic",
+      "strict": {
+        "rank": 8,
+        "ms": [
+          4.5685,
+          4.6913,
+          4.8675
+        ]
+      },
+      "overlap": {
+        "rank": 10,
+        "ms": [
+          0.7205,
+          0.6165,
+          0.6568
+        ]
+      },
+      "withRecent": {
+        "rank": 11,
+        "ms": [
+          0.8394,
+          0.8461,
+          1.0377
+        ]
+      },
+      "completed": {
+        "rank": 6,
+        "ms": [
+          0.8321,
+          0.8992,
+          0.9589
+        ]
+      },
+      "chronological": {
+        "rank": 20,
+        "ms": [
+          2.5018,
+          2.3982,
+          2.5756
+        ]
+      },
+      "fielded": {
+        "rank": 10,
+        "ms": [
+          0.3547,
+          0.3429,
+          0.3679
+        ]
+      },
+      "matchingThreads": 157,
+      "rankWithExtraSubjectWord": 17
+    },
+    {
+      "id": "last30d-snippet-8",
+      "age": "last30d",
+      "family": "snippet",
+      "overlap": {
+        "rank": 3,
+        "ms": [
+          0.6714,
+          0.6876,
+          0.6994
+        ]
+      },
+      "withRecent": {
+        "rank": 4,
+        "ms": [
+          0.8102,
+          0.9355,
+          0.8213
+        ]
+      },
+      "fielded": {
+        "rank": 3,
+        "ms": [
+          0.3139,
+          0.3335,
+          0.347
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.802,
+          0.8538,
+          0.8188
+        ]
+      },
+      "chronological": {
+        "rank": 2,
+        "ms": [
+          2.0535,
+          1.9534,
+          2.1097
+        ]
+      },
+      "strict": {
+        "rank": 7,
+        "ms": [
+          4.0471,
+          4.6007,
+          4.1472
+        ]
+      },
+      "matchingThreads": 422,
+      "rankWithExtraSubjectWord": 3
+    },
+    {
+      "id": "last30d-refinement-8",
+      "age": "last30d",
+      "family": "refinement",
+      "fielded": {
+        "rank": 3,
+        "ms": [
+          0.2371,
+          0.1765,
+          0.3137
+        ]
+      },
+      "chronological": {
+        "rank": 3,
+        "ms": [
+          1.1315,
+          0.9873,
+          1.0446
+        ]
+      },
+      "withRecent": {
+        "rank": 3,
+        "ms": [
+          0.3953,
+          0.3782,
+          0.4133
+        ]
+      },
+      "strict": {
+        "rank": 3,
+        "ms": [
+          1.3873,
+          1.606,
+          1.7021
+        ]
+      },
+      "completed": {
+        "rank": 3,
+        "ms": [
+          0.379,
+          0.3555,
+          0.3893
+        ]
+      },
+      "overlap": {
+        "rank": 3,
+        "ms": [
+          0.2828,
+          0.3133,
+          0.3165
+        ]
+      },
+      "matchingThreads": 21,
+      "rankWithExtraSubjectWord": 2
+    },
+    {
+      "id": "31to180d-sender-1",
+      "age": "31to180d",
+      "family": "sender",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.2835,
+          0.3835,
+          0.3638
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          55.8385,
+          54.7608,
+          53.5147
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.4943,
+          0.437,
+          0.4378
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          14.5998,
+          15.5892,
+          14.6647
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3275,
+          0.2587,
+          0.2394
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.2428,
+          0.3517,
+          0.2314
+        ]
+      },
+      "matchingThreads": 11034,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "31to180d-subject-1",
+      "age": "31to180d",
+      "family": "subject",
+      "completed": {
+        "rank": 2,
+        "ms": [
+          1.7532,
+          1.7101,
+          1.8232
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          7.5339,
+          7.5149,
+          7.6856
+        ]
+      },
+      "withRecent": {
+        "rank": 27,
+        "ms": [
+          1.9743,
+          1.9747,
+          1.9439
+        ]
+      },
+      "fielded": {
+        "rank": 31,
+        "ms": [
+          0.5489,
+          0.6192,
+          0.5747
+        ]
+      },
+      "strict": {
+        "rank": 19,
+        "ms": [
+          16.6537,
+          16.5154,
+          16.5428
+        ]
+      },
+      "overlap": {
+        "rank": 26,
+        "ms": [
+          1.4011,
+          1.4407,
+          1.3852
+        ]
+      },
+      "matchingThreads": 1013
+    },
+    {
+      "id": "31to180d-sender-and-topic-1",
+      "age": "31to180d",
+      "family": "sender-and-topic",
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.2565,
+          0.2371,
+          0.2018
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.1365,
+          0.152,
+          0.182
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.1731,
+          0.1854,
+          0.2325
+        ]
+      },
+      "chronological": {
+        "rank": 1,
+        "ms": [
+          0.4337,
+          0.4308,
+          0.4359
+        ]
+      },
+      "fielded": {
+        "rank": 3,
+        "ms": [
+          0.0972,
+          0.2082,
+          0.1022
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          0.3782,
+          0.6455,
+          0.6665
+        ]
+      },
+      "matchingThreads": 1,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-snippet-1",
+      "age": "31to180d",
+      "family": "snippet",
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.4831,
+          0.4417,
+          0.4686
+        ]
+      },
+      "strict": {
+        "rank": 3,
+        "ms": [
+          4.2503,
+          4.2911,
+          4.3017
+        ]
+      },
+      "fielded": {
+        "rank": 2,
+        "ms": [
+          0.246,
+          0.2602,
+          0.207
+        ]
+      },
+      "chronological": {
+        "rank": 11,
+        "ms": [
+          2.4462,
+          2.4444,
+          2.4461
+        ]
+      },
+      "withRecent": {
+        "rank": 3,
+        "ms": [
+          0.4942,
+          0.4609,
+          0.49
+        ]
+      },
+      "overlap": {
+        "rank": 2,
+        "ms": [
+          0.331,
+          0.3787,
+          0.3361
+        ]
+      },
+      "matchingThreads": 111,
+      "rankWithExtraSubjectWord": 2
+    },
+    {
+      "id": "31to180d-refinement-1",
+      "age": "31to180d",
+      "family": "refinement",
+      "fielded": {
+        "rank": 22,
+        "ms": [
+          1.2034,
+          1.0872,
+          1.1083
+        ]
+      },
+      "withRecent": {
+        "rank": 23,
+        "ms": [
+          2.8032,
+          2.9218,
+          2.7875
+        ]
+      },
+      "overlap": {
+        "rank": 22,
+        "ms": [
+          2.183,
+          2.192,
+          2.3122
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          22.464,
+          22.3286,
+          22.4306
+        ]
+      },
+      "completed": {
+        "rank": 5,
+        "ms": [
+          2.8056,
+          2.7147,
+          2.8553
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          47.34,
+          47.9552,
+          48.5105
+        ]
+      },
+      "matchingThreads": 2555,
+      "rankWithExtraSubjectWord": 2
+    },
+    {
+      "id": "31to180d-sender-2",
+      "age": "31to180d",
+      "family": "sender",
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.2885,
+          0.3676,
+          0.2435
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.2762,
+          0.3473,
+          0.2773
+        ]
+      },
+      "strict": {
+        "rank": 37,
+        "ms": [
+          43.3839,
+          44.6814,
+          40.8565
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.5373,
+          0.4383,
+          0.5382
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          14.5982,
+          14.8783,
+          14.404
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3277,
+          0.2565,
+          0.3563
+        ]
+      },
+      "matchingThreads": 7250,
+      "rankWithExtraSubjectWord": 42
+    },
+    {
+      "id": "31to180d-subject-2",
+      "age": "31to180d",
+      "family": "subject",
+      "strict": {
+        "rank": 1,
+        "ms": [
+          1.0607,
+          0.9534,
+          1.1342
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.747,
+          0.6919,
+          0.6744
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.8374,
+          0.8023,
+          0.8935
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.7182,
+          0.753,
+          0.7543
+        ]
+      },
+      "chronological": {
+        "rank": 1,
+        "ms": [
+          0.9646,
+          1.0918,
+          1.0045
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.4075,
+          0.4073,
+          0.4698
+        ]
+      },
+      "matchingThreads": 1,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-sender-and-topic-2",
+      "age": "31to180d",
+      "family": "sender-and-topic",
+      "strict": {
+        "rank": 0,
+        "ms": [
+          8.0523,
+          7.6102,
+          8.1088
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          1.3071,
+          1.1409,
+          1.1729
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.377,
+          0.368,
+          0.4077
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.8374,
+          0.8624,
+          0.901
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          1.0412,
+          1.1926,
+          1.1043
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          3.3056,
+          3.5615,
+          3.2301
+        ]
+      },
+      "matchingThreads": 690,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-snippet-2",
+      "age": "31to180d",
+      "family": "snippet",
+      "overlap": {
+        "rank": 36,
+        "ms": [
+          0.8656,
+          0.8099,
+          0.8271
+        ]
+      },
+      "fielded": {
+        "rank": 36,
+        "ms": [
+          0.3438,
+          0.3692,
+          0.3582
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          9.3411,
+          9.4101,
+          10.6947
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          3.7462,
+          3.8785,
+          4.1565
+        ]
+      },
+      "completed": {
+        "rank": 15,
+        "ms": [
+          1.0646,
+          1.0727,
+          1.059
+        ]
+      },
+      "withRecent": {
+        "rank": 37,
+        "ms": [
+          1.1337,
+          1.1893,
+          1.1767
+        ]
+      },
+      "matchingThreads": 930,
+      "rankWithExtraSubjectWord": 3
+    },
+    {
+      "id": "31to180d-refinement-2",
+      "age": "31to180d",
+      "family": "refinement",
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.3164,
+          0.279,
+          0.2608
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.7898,
+          2.6312,
+          2.6086
+        ]
+      },
+      "strict": {
+        "rank": 30,
+        "ms": [
+          5.2186,
+          5.003,
+          4.9558
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.4308,
+          0.3396,
+          0.3458
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.1731,
+          0.2071,
+          0.1678
+        ]
+      },
+      "completed": {
+        "rank": 7,
+        "ms": [
+          0.386,
+          0.4288,
+          0.4023
+        ]
+      },
+      "matchingThreads": 400,
+      "rankWithExtraSubjectWord": 7
+    },
+    {
+      "id": "31to180d-sender-3",
+      "age": "31to180d",
+      "family": "sender",
+      "withRecent": {
+        "rank": 16,
+        "ms": [
+          0.197,
+          0.2238,
+          0.1799
+        ]
+      },
+      "overlap": {
+        "rank": 15,
+        "ms": [
+          0.1146,
+          0.1098,
+          0.1189
+        ]
+      },
+      "strict": {
+        "rank": 8,
+        "ms": [
+          0.9103,
+          0.9631,
+          0.6255
+        ]
+      },
+      "fielded": {
+        "rank": 15,
+        "ms": [
+          0.1257,
+          0.1139,
+          0.1583
+        ]
+      },
+      "chronological": {
+        "rank": 15,
+        "ms": [
+          0.6302,
+          0.5929,
+          0.9148
+        ]
+      },
+      "completed": {
+        "rank": 17,
+        "ms": [
+          0.151,
+          0.1435,
+          0.1379
+        ]
+      },
+      "matchingThreads": 59,
+      "rankWithExtraSubjectWord": 3
+    },
+    {
+      "id": "31to180d-subject-3",
+      "age": "31to180d",
+      "family": "subject",
+      "withRecent": {
+        "rank": 4,
+        "ms": [
+          1.1134,
+          1.0712,
+          1.0919
+        ]
+      },
+      "fielded": {
+        "rank": 3,
+        "ms": [
+          0.3072,
+          0.305,
+          0.3078
+        ]
+      },
+      "overlap": {
+        "rank": 3,
+        "ms": [
+          0.7063,
+          0.704,
+          0.707
+        ]
+      },
+      "strict": {
+        "rank": 3,
+        "ms": [
+          3.157,
+          3.3415,
+          3.2343
+        ]
+      },
+      "chronological": {
+        "rank": 36,
+        "ms": [
+          1.6367,
+          1.7306,
+          1.7842
+        ]
+      },
+      "completed": {
+        "rank": 3,
+        "ms": [
+          0.9366,
+          0.9884,
+          0.8928
+        ]
+      },
+      "matchingThreads": 179,
+      "rankWithExtraSubjectWord": 2
+    },
+    {
+      "id": "31to180d-sender-and-topic-3",
+      "age": "31to180d",
+      "family": "sender-and-topic",
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          1.6822,
+          1.7707,
+          1.6605
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          1.1458,
+          1.2135,
+          1.2661
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          1.4311,
+          1.6837,
+          1.4398
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          21.0194,
+          22.7993,
+          20.4134
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.5152,
+          0.6074,
+          0.5199
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          7.3529,
+          8.1389,
+          7.8003
+        ]
+      },
+      "matchingThreads": 2756,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-snippet-3",
+      "age": "31to180d",
+      "family": "snippet",
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3405,
+          0.3282,
+          0.3308
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          20.7859,
+          20.1585,
+          20.8904
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.9172,
+          0.836,
+          0.9618
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.669,
+          0.7406,
+          0.6781
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          6.5421,
+          6.4191,
+          7.2125
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          1.023,
+          1.0076,
+          1.0966
+        ]
+      },
+      "matchingThreads": 3139,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "31to180d-refinement-3",
+      "age": "31to180d",
+      "family": "refinement",
+      "completed": {
+        "rank": 29,
+        "ms": [
+          1.6341,
+          1.63,
+          1.6162
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          3.0753,
+          3.053,
+          2.9429
+        ]
+      },
+      "fielded": {
+        "rank": 29,
+        "ms": [
+          0.5477,
+          0.5122,
+          0.5159
+        ]
+      },
+      "overlap": {
+        "rank": 29,
+        "ms": [
+          1.2643,
+          1.2996,
+          1.2567
+        ]
+      },
+      "withRecent": {
+        "rank": 30,
+        "ms": [
+          1.7925,
+          1.8686,
+          1.8885
+        ]
+      },
+      "strict": {
+        "rank": 20,
+        "ms": [
+          5.9389,
+          5.9241,
+          6.1441
+        ]
+      },
+      "matchingThreads": 322,
+      "rankWithExtraSubjectWord": 29
+    },
+    {
+      "id": "31to180d-sender-4",
+      "age": "31to180d",
+      "family": "sender",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.2315,
+          0.2491,
+          0.2903
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          7.8833,
+          7.5989,
+          7.8793
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2262,
+          0.19,
+          0.2705
+        ]
+      },
+      "strict": {
+        "rank": 13,
+        "ms": [
+          20.327,
+          19.7949,
+          19.807
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.3382,
+          0.2838,
+          0.2783
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.172,
+          0.2155,
+          0.1681
+        ]
+      },
+      "matchingThreads": 3064,
+      "rankWithExtraSubjectWord": 7
+    },
+    {
+      "id": "31to180d-subject-4",
+      "age": "31to180d",
+      "family": "subject",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          2.7697,
+          2.6473,
+          2.5129
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          2.044,
+          2.0365,
+          2.3595
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.7834,
+          0.8416,
+          0.964
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          2.926,
+          2.9259,
+          3.1692
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          50.459,
+          53.3806,
+          51.0382
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          16.0615,
+          16.2912,
+          18.4159
+        ]
+      },
+      "matchingThreads": 5968,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "31to180d-sender-and-topic-4",
+      "age": "31to180d",
+      "family": "sender-and-topic",
+      "strict": {
+        "rank": 0,
+        "ms": [
+          15.8635,
+          15.605,
+          15.691
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          1.877,
+          1.8552,
+          1.8164
+        ]
+      },
+      "withRecent": {
+        "rank": 42,
+        "ms": [
+          2.2027,
+          2.1438,
+          2.0846
+        ]
+      },
+      "overlap": {
+        "rank": 41,
+        "ms": [
+          1.4932,
+          1.5255,
+          1.4456
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          6.8,
+          6.8962,
+          7.4851
+        ]
+      },
+      "fielded": {
+        "rank": 42,
+        "ms": [
+          0.5787,
+          0.5306,
+          0.5088
+        ]
+      },
+      "matchingThreads": 1560,
+      "rankWithExtraSubjectWord": 18
+    },
+    {
+      "id": "31to180d-snippet-4",
+      "age": "31to180d",
+      "family": "snippet",
+      "overlap": {
+        "rank": 2,
+        "ms": [
+          1.3168,
+          1.2775,
+          1.3973
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          9.6154,
+          9.7217,
+          9.7641
+        ]
+      },
+      "withRecent": {
+        "rank": 3,
+        "ms": [
+          1.9427,
+          2.0809,
+          1.8776
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          1.5612,
+          1.7231,
+          1.581
+        ]
+      },
+      "strict": {
+        "rank": 15,
+        "ms": [
+          38.2279,
+          38.8583,
+          37.1299
+        ]
+      },
+      "fielded": {
+        "rank": 2,
+        "ms": [
+          0.5414,
+          0.5408,
+          0.5445
+        ]
+      },
+      "matchingThreads": 6962,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-refinement-4",
+      "age": "31to180d",
+      "family": "refinement",
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.1739,
+          0.1923,
+          0.1598
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.3045,
+          0.3305,
+          0.3377
+        ]
+      },
+      "chronological": {
+        "rank": 6,
+        "ms": [
+          1.2254,
+          1.2801,
+          1.3304
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.3163,
+          0.311,
+          0.3102
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.228,
+          0.2261,
+          0.2671
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          1.084,
+          1.1444,
+          1.1461
+        ]
+      },
+      "matchingThreads": 78,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-sender-5",
+      "age": "31to180d",
+      "family": "sender",
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2858,
+          0.3372,
+          0.2664
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          15.0117,
+          14.6903,
+          15.1445
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.363,
+          0.2409,
+          0.3472
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.2731,
+          0.2708,
+          0.2635
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          62.6558,
+          56.0588,
+          52.5207
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.5838,
+          0.5486,
+          0.4334
+        ]
+      },
+      "matchingThreads": 11034,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-subject-5",
+      "age": "31to180d",
+      "family": "subject",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.9799,
+          0.9051,
+          0.9078
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.7065,
+          0.7834,
+          0.7902
+        ]
+      },
+      "strict": {
+        "rank": 33,
+        "ms": [
+          9.1864,
+          8.5706,
+          8.6547
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          1.0365,
+          1.033,
+          0.9879
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          4.6543,
+          4.6859,
+          4.8446
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3835,
+          0.3321,
+          0.389
+        ]
+      },
+      "matchingThreads": 1204,
+      "rankWithExtraSubjectWord": 4
+    },
+    {
+      "id": "31to180d-sender-and-topic-5",
+      "age": "31to180d",
+      "family": "sender-and-topic",
+      "chronological": {
+        "rank": 4,
+        "ms": [
+          1.043,
+          0.8503,
+          0.8909
+        ]
+      },
+      "overlap": {
+        "rank": 4,
+        "ms": [
+          0.329,
+          0.2925,
+          0.3327
+        ]
+      },
+      "fielded": {
+        "rank": 4,
+        "ms": [
+          0.1882,
+          0.2535,
+          0.1874
+        ]
+      },
+      "strict": {
+        "rank": 4,
+        "ms": [
+          1.4049,
+          1.5998,
+          1.6787
+        ]
+      },
+      "withRecent": {
+        "rank": 4,
+        "ms": [
+          0.3502,
+          0.3308,
+          0.3608
+        ]
+      },
+      "completed": {
+        "rank": 3,
+        "ms": [
+          0.3345,
+          0.332,
+          0.3696
+        ]
+      },
+      "matchingThreads": 7,
+      "rankWithExtraSubjectWord": 4
+    },
+    {
+      "id": "31to180d-snippet-5",
+      "age": "31to180d",
+      "family": "snippet",
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.3253,
+          0.267,
+          0.3379
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.3305,
+          0.3435,
+          0.3574
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.1895,
+          0.2102,
+          0.2344
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          1.6207,
+          1.6322,
+          1.7135
+        ]
+      },
+      "chronological": {
+        "rank": 1,
+        "ms": [
+          0.887,
+          0.9135,
+          1.0017
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.3869,
+          0.397,
+          0.4986
+        ]
+      },
+      "matchingThreads": 4,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-refinement-5",
+      "age": "31to180d",
+      "family": "refinement",
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.2696,
+          0.2698,
+          0.2371
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.1765,
+          0.211,
+          0.2152
+        ]
+      },
+      "chronological": {
+        "rank": 4,
+        "ms": [
+          4.001,
+          4.0359,
+          4.1034
+        ]
+      },
+      "strict": {
+        "rank": 2,
+        "ms": [
+          7.0214,
+          7.018,
+          7.043
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.1694,
+          0.1502,
+          0.1273
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.2391,
+          0.2335,
+          0.2559
+        ]
+      },
+      "matchingThreads": 7,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "31to180d-sender-6",
+      "age": "31to180d",
+      "family": "sender",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.2111,
+          0.1933,
+          0.236
+        ]
+      },
+      "fielded": {
+        "rank": 38,
+        "ms": [
+          0.1606,
+          0.2196,
+          0.1578
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          8.9943,
+          8.6084,
+          8.6783
+        ]
+      },
+      "withRecent": {
+        "rank": 39,
+        "ms": [
+          0.3169,
+          0.2677,
+          0.2839
+        ]
+      },
+      "overlap": {
+        "rank": 38,
+        "ms": [
+          0.1607,
+          0.2212,
+          0.1497
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.4106,
+          2.5486,
+          2.4143
+        ]
+      },
+      "matchingThreads": 2368,
+      "rankWithExtraSubjectWord": 9
+    },
+    {
+      "id": "31to180d-subject-6",
+      "age": "31to180d",
+      "family": "subject",
+      "completed": {
+        "rank": 1,
+        "ms": [
+          1.9365,
+          1.7186,
+          1.6773
+        ]
+      },
+      "overlap": {
+        "rank": 7,
+        "ms": [
+          1.4236,
+          1.3379,
+          1.4695
+        ]
+      },
+      "chronological": {
+        "rank": 21,
+        "ms": [
+          6.9856,
+          6.8369,
+          6.6303
+        ]
+      },
+      "withRecent": {
+        "rank": 8,
+        "ms": [
+          1.681,
+          1.6743,
+          1.6204
+        ]
+      },
+      "strict": {
+        "rank": 11,
+        "ms": [
+          13.3558,
+          13.4742,
+          13.9382
+        ]
+      },
+      "fielded": {
+        "rank": 7,
+        "ms": [
+          0.7497,
+          0.6903,
+          0.6935
+        ]
+      },
+      "matchingThreads": 229,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-sender-and-topic-6",
+      "age": "31to180d",
+      "family": "sender-and-topic",
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.4246,
+          0.5275,
+          0.3984
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.426,
+          0.5185,
+          0.4325
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          1.2115,
+          1.3933,
+          1.1354
+        ]
+      },
+      "chronological": {
+        "rank": 6,
+        "ms": [
+          0.6865,
+          0.7579,
+          0.915
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.4628,
+          0.452,
+          0.5553
+        ]
+      },
+      "fielded": {
+        "rank": 4,
+        "ms": [
+          0.2402,
+          0.2567,
+          0.2422
+        ]
+      },
+      "matchingThreads": 8,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-snippet-6",
+      "age": "31to180d",
+      "family": "snippet",
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.323,
+          0.3172,
+          0.3448
+        ]
+      },
+      "chronological": {
+        "rank": 3,
+        "ms": [
+          0.8385,
+          0.6278,
+          0.6985
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.3585,
+          0.343,
+          0.4218
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          0.8023,
+          1.0697,
+          1.1517
+        ]
+      },
+      "fielded": {
+        "rank": 2,
+        "ms": [
+          0.1652,
+          0.1575,
+          0.1694
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.3502,
+          0.3427,
+          0.3715
+        ]
+      },
+      "matchingThreads": 13,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-refinement-6",
+      "age": "31to180d",
+      "family": "refinement",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          1.5417,
+          1.5651,
+          1.4832
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          34.1145,
+          35.2337,
+          33.5734
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          1.2482,
+          1.2516,
+          1.2605
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          1.6991,
+          1.7862,
+          1.7133
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          10.8829,
+          11.7641,
+          11.0855
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.5176,
+          0.601,
+          0.4574
+        ]
+      },
+      "matchingThreads": 3830,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "31to180d-sender-7",
+      "age": "31to180d",
+      "family": "sender",
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.1678,
+          0.1475,
+          0.1486
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.1417,
+          0.2255,
+          0.1344
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.1657,
+          0.198,
+          0.2297
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          6.7907,
+          6.7073,
+          6.9915
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.2733,
+          0.2355,
+          0.2249
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          3.5215,
+          3.5718,
+          3.2476
+        ]
+      },
+      "matchingThreads": 1235,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "31to180d-subject-7",
+      "age": "31to180d",
+      "family": "subject",
+      "withRecent": {
+        "rank": 2,
+        "ms": [
+          0.7395,
+          0.7075,
+          0.6902
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.8069,
+          0.8373,
+          0.8883
+        ]
+      },
+      "chronological": {
+        "rank": 2,
+        "ms": [
+          4.9649,
+          5.0654,
+          5.1117
+        ]
+      },
+      "strict": {
+        "rank": 2,
+        "ms": [
+          8.8153,
+          8.9643,
+          8.9075
+        ]
+      },
+      "overlap": {
+        "rank": 2,
+        "ms": [
+          0.6804,
+          0.6947,
+          0.6539
+        ]
+      },
+      "fielded": {
+        "rank": 2,
+        "ms": [
+          0.3844,
+          0.4439,
+          0.3784
+        ]
+      },
+      "matchingThreads": 15,
+      "rankWithExtraSubjectWord": 2
+    },
+    {
+      "id": "31to180d-sender-and-topic-7",
+      "age": "31to180d",
+      "family": "sender-and-topic",
+      "strict": {
+        "rank": 4,
+        "ms": [
+          5.7305,
+          5.4245,
+          5.8525
+        ]
+      },
+      "withRecent": {
+        "rank": 14,
+        "ms": [
+          0.9535,
+          0.8767,
+          0.9609
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.9167,
+          3.1913,
+          2.998
+        ]
+      },
+      "fielded": {
+        "rank": 14,
+        "ms": [
+          0.3824,
+          0.3807,
+          0.3462
+        ]
+      },
+      "overlap": {
+        "rank": 13,
+        "ms": [
+          0.6884,
+          0.6864,
+          0.6708
+        ]
+      },
+      "completed": {
+        "rank": 12,
+        "ms": [
+          0.8497,
+          0.9178,
+          0.8573
+        ]
+      },
+      "matchingThreads": 202,
+      "rankWithExtraSubjectWord": 10
+    },
+    {
+      "id": "31to180d-snippet-7",
+      "age": "31to180d",
+      "family": "snippet",
+      "overlap": {
+        "rank": 24,
+        "ms": [
+          0.4628,
+          0.3792,
+          0.422
+        ]
+      },
+      "withRecent": {
+        "rank": 25,
+        "ms": [
+          0.4962,
+          0.4946,
+          0.5135
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.4172,
+          2.082,
+          2.1124
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          4.1632,
+          4.5834,
+          4.8331
+        ]
+      },
+      "fielded": {
+        "rank": 24,
+        "ms": [
+          0.2929,
+          0.261,
+          0.2756
+        ]
+      },
+      "completed": {
+        "rank": 29,
+        "ms": [
+          0.5308,
+          0.5245,
+          0.5407
+        ]
+      },
+      "matchingThreads": 586,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "31to180d-refinement-7",
+      "age": "31to180d",
+      "family": "refinement",
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.6123,
+          0.5667,
+          0.6745
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          4.0386,
+          3.8001,
+          3.8987
+        ]
+      },
+      "completed": {
+        "rank": 48,
+        "ms": [
+          0.5817,
+          0.5456,
+          0.6198
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2432,
+          0.3078,
+          0.2433
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.3491,
+          2.6015,
+          2.7022
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.4789,
+          0.451,
+          0.441
+        ]
+      },
+      "matchingThreads": 309,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "31to180d-sender-8",
+      "age": "31to180d",
+      "family": "sender",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.3015,
+          0.3203,
+          0.2713
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.2498,
+          0.3199,
+          0.2472
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2361,
+          0.2522,
+          0.3084
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.413,
+          0.672,
+          0.562
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          44.9784,
+          42.5065,
+          40.8961
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          14.4215,
+          14.727,
+          14.8711
+        ]
+      },
+      "matchingThreads": 7250,
+      "rankWithExtraSubjectWord": 4
+    },
+    {
+      "id": "31to180d-subject-8",
+      "age": "31to180d",
+      "family": "subject",
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.848,
+          0.8196,
+          0.8325
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.739,
+          0.8073,
+          0.8093
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          4.4949,
+          4.5998,
+          5.0585
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.6308,
+          0.5874,
+          0.6801
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.288,
+          0.3204,
+          0.3668
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.237,
+          2.2733,
+          2.5393
+        ]
+      },
+      "matchingThreads": 271,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-sender-and-topic-8",
+      "age": "31to180d",
+      "family": "sender-and-topic",
+      "overlap": {
+        "rank": 2,
+        "ms": [
+          0.2389,
+          0.1841,
+          0.2038
+        ]
+      },
+      "fielded": {
+        "rank": 10,
+        "ms": [
+          0.1259,
+          0.1342,
+          0.1229
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          0.5094,
+          0.5656,
+          0.384
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.2193,
+          0.277,
+          0.2108
+        ]
+      },
+      "withRecent": {
+        "rank": 3,
+        "ms": [
+          0.2134,
+          0.3102,
+          0.2132
+        ]
+      },
+      "chronological": {
+        "rank": 3,
+        "ms": [
+          0.3697,
+          0.5276,
+          0.4528
+        ]
+      },
+      "matchingThreads": 4,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "31to180d-snippet-8",
+      "age": "31to180d",
+      "family": "snippet",
+      "strict": {
+        "rank": 0,
+        "ms": [
+          16.9039,
+          17.7647,
+          16.8651
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          1.1542,
+          1.121,
+          1.1062
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          1.4908,
+          1.5856,
+          1.5197
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.4535,
+          0.633,
+          0.4523
+        ]
+      },
+      "completed": {
+        "rank": 37,
+        "ms": [
+          1.2859,
+          1.3869,
+          1.3885
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          6.2545,
+          6.8554,
+          6.5006
+        ]
+      },
+      "matchingThreads": 1640,
+      "rankWithExtraSubjectWord": 49
+    },
+    {
+      "id": "31to180d-refinement-8",
+      "age": "31to180d",
+      "family": "refinement",
+      "fielded": {
+        "rank": 8,
+        "ms": [
+          0.437,
+          0.445,
+          0.4192
+        ]
+      },
+      "strict": {
+        "rank": 13,
+        "ms": [
+          14.0471,
+          14.2225,
+          14.3712
+        ]
+      },
+      "completed": {
+        "rank": 8,
+        "ms": [
+          1.3725,
+          1.3589,
+          1.3133
+        ]
+      },
+      "overlap": {
+        "rank": 8,
+        "ms": [
+          1.0423,
+          1.1002,
+          1.0327
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          6.048,
+          6.1071,
+          6.1894
+        ]
+      },
+      "withRecent": {
+        "rank": 9,
+        "ms": [
+          1.5674,
+          1.5131,
+          1.6239
+        ]
+      },
+      "matchingThreads": 634,
+      "rankWithExtraSubjectWord": 3
+    },
+    {
+      "id": "older-sender-1",
+      "age": "older",
+      "family": "sender",
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.3343,
+          0.4002,
+          0.3095
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.5338,
+          0.641,
+          0.6671
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.3325,
+          0.3375,
+          0.4387
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          20.8309,
+          20.6974,
+          21.0268
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.4027,
+          0.2975,
+          0.3081
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          51.6025,
+          49.1383,
+          48.7106
+        ]
+      },
+      "matchingThreads": 12840,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "older-subject-1",
+      "age": "older",
+      "family": "subject",
+      "overlap": {
+        "rank": 26,
+        "ms": [
+          0.4171,
+          0.4469,
+          0.4568
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2181,
+          0.2228,
+          0.2832
+        ]
+      },
+      "strict": {
+        "rank": 2,
+        "ms": [
+          2.669,
+          2.6858,
+          2.9509
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          1.567,
+          1.6154,
+          1.7619
+        ]
+      },
+      "withRecent": {
+        "rank": 27,
+        "ms": [
+          0.5655,
+          0.5449,
+          0.5424
+        ]
+      },
+      "completed": {
+        "rank": 3,
+        "ms": [
+          0.4751,
+          0.506,
+          0.5424
+        ]
+      },
+      "matchingThreads": 72,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "older-sender-and-topic-1",
+      "age": "older",
+      "family": "sender-and-topic",
+      "overlap": {
+        "rank": 17,
+        "ms": [
+          0.169,
+          0.1045,
+          0.1115
+        ]
+      },
+      "strict": {
+        "rank": 14,
+        "ms": [
+          0.624,
+          0.4544,
+          0.8312
+        ]
+      },
+      "chronological": {
+        "rank": 22,
+        "ms": [
+          0.3713,
+          0.603,
+          0.4961
+        ]
+      },
+      "withRecent": {
+        "rank": 18,
+        "ms": [
+          0.1727,
+          0.1893,
+          0.2107
+        ]
+      },
+      "fielded": {
+        "rank": 20,
+        "ms": [
+          0.0667,
+          0.0687,
+          0.069
+        ]
+      },
+      "completed": {
+        "rank": 17,
+        "ms": [
+          0.1406,
+          0.1409,
+          0.1911
+        ]
+      },
+      "matchingThreads": 25,
+      "rankWithExtraSubjectWord": 14
+    },
+    {
+      "id": "older-snippet-1",
+      "age": "older",
+      "family": "snippet",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          1.2455,
+          1.2248,
+          1.2204
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          1.3536,
+          1.4707,
+          1.3896
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3706,
+          0.4011,
+          0.4457
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          4.4672,
+          4.5203,
+          4.6162
+        ]
+      },
+      "strict": {
+        "rank": 40,
+        "ms": [
+          16.6083,
+          16.8653,
+          16.6359
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.9946,
+          0.932,
+          0.9556
+        ]
+      },
+      "matchingThreads": 2535,
+      "rankWithExtraSubjectWord": 13
+    },
+    {
+      "id": "older-refinement-1",
+      "age": "older",
+      "family": "refinement",
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.4833,
+          0.4522,
+          0.4495
+        ]
+      },
+      "fielded": {
+        "rank": 2,
+        "ms": [
+          0.2233,
+          0.2415,
+          0.2208
+        ]
+      },
+      "overlap": {
+        "rank": 2,
+        "ms": [
+          0.3441,
+          0.3569,
+          0.4515
+        ]
+      },
+      "chronological": {
+        "rank": 3,
+        "ms": [
+          1.3553,
+          1.4015,
+          1.1595
+        ]
+      },
+      "withRecent": {
+        "rank": 3,
+        "ms": [
+          0.4384,
+          0.6097,
+          0.4301
+        ]
+      },
+      "strict": {
+        "rank": 4,
+        "ms": [
+          1.8101,
+          1.8233,
+          1.9411
+        ]
+      },
+      "matchingThreads": 5,
+      "rankWithExtraSubjectWord": 2
+    },
+    {
+      "id": "older-sender-2",
+      "age": "older",
+      "family": "sender",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.4519,
+          0.5268,
+          0.5173
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.3793,
+          0.3993,
+          0.4833
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          88.6794,
+          91.8424,
+          88.0504
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          30.5357,
+          32.0404,
+          30.6115
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.5112,
+          0.5076,
+          0.3949
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.7275,
+          0.7453,
+          0.7259
+        ]
+      },
+      "matchingThreads": 23846,
+      "rankWithExtraSubjectWord": 40
+    },
+    {
+      "id": "older-subject-2",
+      "age": "older",
+      "family": "subject",
+      "fielded": {
+        "rank": 7,
+        "ms": [
+          0.302,
+          0.2565,
+          0.2162
+        ]
+      },
+      "overlap": {
+        "rank": 2,
+        "ms": [
+          0.3933,
+          0.3748,
+          0.4008
+        ]
+      },
+      "chronological": {
+        "rank": 23,
+        "ms": [
+          1.2594,
+          1.2474,
+          1.0475
+        ]
+      },
+      "strict": {
+        "rank": 4,
+        "ms": [
+          1.4145,
+          1.4387,
+          1.734
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.5398,
+          0.4882,
+          0.4861
+        ]
+      },
+      "withRecent": {
+        "rank": 3,
+        "ms": [
+          0.4815,
+          0.4564,
+          0.5324
+        ]
+      },
+      "matchingThreads": 28,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "older-sender-and-topic-2",
+      "age": "older",
+      "family": "sender-and-topic",
+      "completed": {
+        "rank": 25,
+        "ms": [
+          2.6526,
+          2.4438,
+          2.5647
+        ]
+      },
+      "fielded": {
+        "rank": 32,
+        "ms": [
+          1.069,
+          1.0437,
+          1.169
+        ]
+      },
+      "overlap": {
+        "rank": 26,
+        "ms": [
+          2.1171,
+          2.0037,
+          2.0966
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          17.7605,
+          17.7515,
+          17.3983
+        ]
+      },
+      "strict": {
+        "rank": 42,
+        "ms": [
+          32.5427,
+          31.9296,
+          32.0589
+        ]
+      },
+      "withRecent": {
+        "rank": 27,
+        "ms": [
+          2.7763,
+          2.4065,
+          2.6901
+        ]
+      },
+      "matchingThreads": 161,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "older-snippet-2",
+      "age": "older",
+      "family": "snippet",
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          1.4413,
+          1.5179,
+          1.3858
+        ]
+      },
+      "overlap": {
+        "rank": 7,
+        "ms": [
+          0.396,
+          0.3475,
+          0.469
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2025,
+          0.2422,
+          0.2028
+        ]
+      },
+      "withRecent": {
+        "rank": 8,
+        "ms": [
+          0.4313,
+          0.4371,
+          0.4538
+        ]
+      },
+      "strict": {
+        "rank": 4,
+        "ms": [
+          1.9395,
+          1.9614,
+          2.2891
+        ]
+      },
+      "completed": {
+        "rank": 6,
+        "ms": [
+          0.452,
+          0.4812,
+          0.4911
+        ]
+      },
+      "matchingThreads": 86,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "older-refinement-2",
+      "age": "older",
+      "family": "refinement",
+      "strict": {
+        "rank": 38,
+        "ms": [
+          1.1899,
+          0.975,
+          1.1696
+        ]
+      },
+      "completed": {
+        "rank": 5,
+        "ms": [
+          0.4772,
+          0.3428,
+          0.3332
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.178,
+          0.1695,
+          0.1758
+        ]
+      },
+      "chronological": {
+        "rank": 13,
+        "ms": [
+          0.852,
+          1.1014,
+          0.7451
+        ]
+      },
+      "overlap": {
+        "rank": 25,
+        "ms": [
+          0.2732,
+          0.3368,
+          0.24
+        ]
+      },
+      "withRecent": {
+        "rank": 26,
+        "ms": [
+          0.3191,
+          0.3193,
+          0.3362
+        ]
+      },
+      "matchingThreads": 39,
+      "rankWithExtraSubjectWord": 4
+    },
+    {
+      "id": "older-sender-3",
+      "age": "older",
+      "family": "sender",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.1826,
+          0.1521,
+          0.1877
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          1.7797,
+          1.5924,
+          1.7941
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.1627,
+          0.1577,
+          0.174
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.191,
+          0.1903,
+          0.194
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          2.7888,
+          2.8488,
+          2.6244
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.1463,
+          0.174,
+          0.1285
+        ]
+      },
+      "matchingThreads": 440,
+      "rankWithExtraSubjectWord": 6
+    },
+    {
+      "id": "older-subject-3",
+      "age": "older",
+      "family": "subject",
+      "overlap": {
+        "rank": 25,
+        "ms": [
+          0.7419,
+          0.6796,
+          0.7592
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.8618,
+          0.8915,
+          0.871
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          6.9378,
+          6.6115,
+          6.856
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3598,
+          0.3749,
+          0.3108
+        ]
+      },
+      "withRecent": {
+        "rank": 26,
+        "ms": [
+          0.9669,
+          0.9327,
+          0.9362
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          3.09,
+          3.3725,
+          3.1655
+        ]
+      },
+      "matchingThreads": 624,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "older-sender-and-topic-3",
+      "age": "older",
+      "family": "sender-and-topic",
+      "strict": {
+        "rank": 0,
+        "ms": [
+          11.002,
+          11.1533,
+          11.0433
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          5.3751,
+          5.4473,
+          5.6414
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          1.0986,
+          1.0117,
+          1.0912
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.4126,
+          0.406,
+          0.407
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.9821,
+          1.08,
+          1.0733
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.7714,
+          0.7786,
+          0.8614
+        ]
+      },
+      "matchingThreads": 370,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "older-snippet-3",
+      "age": "older",
+      "family": "snippet",
+      "overlap": {
+        "rank": 2,
+        "ms": [
+          0.5665,
+          0.5125,
+          0.4991
+        ]
+      },
+      "fielded": {
+        "rank": 9,
+        "ms": [
+          0.256,
+          0.2679,
+          0.3143
+        ]
+      },
+      "strict": {
+        "rank": 4,
+        "ms": [
+          5.986,
+          5.5325,
+          5.422
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.7014,
+          0.7086,
+          0.6115
+        ]
+      },
+      "withRecent": {
+        "rank": 3,
+        "ms": [
+          0.705,
+          0.7137,
+          0.6947
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.8708,
+          3.0969,
+          2.9922
+        ]
+      },
+      "matchingThreads": 395,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "older-refinement-3",
+      "age": "older",
+      "family": "refinement",
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.747,
+          0.7131,
+          0.788
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          6.9485,
+          6.8591,
+          7.8225
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          1.7533,
+          1.711,
+          1.8377
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          1.364,
+          1.4303,
+          1.5829
+        ]
+      },
+      "strict": {
+        "rank": 32,
+        "ms": [
+          16.1425,
+          16.1285,
+          17.1322
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          1.7419,
+          1.7571,
+          1.9263
+        ]
+      },
+      "matchingThreads": 728,
+      "rankWithExtraSubjectWord": 16
+    },
+    {
+      "id": "older-sender-4",
+      "age": "older",
+      "family": "sender",
+      "fielded": {
+        "rank": 12,
+        "ms": [
+          0.4843,
+          0.1409,
+          0.1687
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.6901,
+          2.3626,
+          2.4354
+        ]
+      },
+      "completed": {
+        "rank": 14,
+        "ms": [
+          0.2079,
+          0.136,
+          0.1438
+        ]
+      },
+      "overlap": {
+        "rank": 12,
+        "ms": [
+          0.1338,
+          0.1193,
+          0.1466
+        ]
+      },
+      "withRecent": {
+        "rank": 13,
+        "ms": [
+          0.2199,
+          0.1716,
+          0.1839
+        ]
+      },
+      "strict": {
+        "rank": 29,
+        "ms": [
+          1.646,
+          1.7885,
+          1.6389
+        ]
+      },
+      "matchingThreads": 503,
+      "rankWithExtraSubjectWord": 4
+    },
+    {
+      "id": "older-subject-4",
+      "age": "older",
+      "family": "subject",
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.4556,
+          0.5335,
+          0.4865
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          3.5108,
+          3.2616,
+          3.0867
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.2988,
+          2.7435,
+          2.6071
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3128,
+          0.2812,
+          0.2463
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.5528,
+          0.608,
+          0.5335
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.511,
+          0.5214,
+          0.578
+        ]
+      },
+      "matchingThreads": 213,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "older-sender-and-topic-4",
+      "age": "older",
+      "family": "sender-and-topic",
+      "fielded": {
+        "rank": 18,
+        "ms": [
+          0.196,
+          0.1875,
+          0.2061
+        ]
+      },
+      "overlap": {
+        "rank": 16,
+        "ms": [
+          0.2273,
+          0.2208,
+          0.3905
+        ]
+      },
+      "completed": {
+        "rank": 15,
+        "ms": [
+          0.295,
+          0.3134,
+          0.3322
+        ]
+      },
+      "withRecent": {
+        "rank": 16,
+        "ms": [
+          0.2718,
+          0.2923,
+          0.307
+        ]
+      },
+      "chronological": {
+        "rank": 10,
+        "ms": [
+          0.728,
+          0.7405,
+          0.6107
+        ]
+      },
+      "strict": {
+        "rank": 11,
+        "ms": [
+          0.6963,
+          0.6987,
+          1.0278
+        ]
+      },
+      "matchingThreads": 25,
+      "rankWithExtraSubjectWord": 3
+    },
+    {
+      "id": "older-snippet-4",
+      "age": "older",
+      "family": "snippet",
+      "strict": {
+        "rank": 0,
+        "ms": [
+          10.8434,
+          10.2467,
+          10.8427
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.4251,
+          0.4219,
+          0.4357
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.9508,
+          0.95,
+          0.9795
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.9981,
+          0.9983,
+          1.0561
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          4.6495,
+          4.6305,
+          5.3353
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.8047,
+          0.7272,
+          0.8081
+        ]
+      },
+      "matchingThreads": 767,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "older-refinement-4",
+      "age": "older",
+      "family": "refinement",
+      "strict": {
+        "rank": 0,
+        "ms": [
+          60.528,
+          59.8608,
+          62.2038
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          3.4044,
+          3.2902,
+          3.2457
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          3.8696,
+          3.9482,
+          3.8928
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          17.1352,
+          16.7721,
+          17.4537
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.9848,
+          0.906,
+          1.0143
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          2.683,
+          2.5634,
+          2.7755
+        ]
+      },
+      "matchingThreads": 11811,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "older-sender-5",
+      "age": "older",
+      "family": "sender",
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          1.1287,
+          1.0762,
+          1.255
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.5544,
+          0.552,
+          0.5822
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.5448,
+          0.5645,
+          0.5695
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          150.4045,
+          142.712,
+          168.9497
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.7444,
+          0.7032,
+          0.6073
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          59.1513,
+          58.0011,
+          62.2409
+        ]
+      },
+      "matchingThreads": 31997,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "older-subject-5",
+      "age": "older",
+      "family": "subject",
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.696,
+          0.6595,
+          0.7824
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3231,
+          0.3852,
+          0.3369
+        ]
+      },
+      "strict": {
+        "rank": 42,
+        "ms": [
+          4.2162,
+          3.6869,
+          5.0015
+        ]
+      },
+      "chronological": {
+        "rank": 39,
+        "ms": [
+          2.768,
+          3.2068,
+          3.1892
+        ]
+      },
+      "completed": {
+        "rank": 35,
+        "ms": [
+          0.9153,
+          0.8254,
+          0.9609
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.8581,
+          0.8992,
+          0.9499
+        ]
+      },
+      "matchingThreads": 269,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "older-sender-and-topic-5",
+      "age": "older",
+      "family": "sender-and-topic",
+      "fielded": {
+        "rank": 6,
+        "ms": [
+          0.3693,
+          0.3168,
+          0.4209
+        ]
+      },
+      "overlap": {
+        "rank": 2,
+        "ms": [
+          0.5272,
+          0.6657,
+          0.5523
+        ]
+      },
+      "withRecent": {
+        "rank": 3,
+        "ms": [
+          0.6094,
+          0.6633,
+          0.7093
+        ]
+      },
+      "chronological": {
+        "rank": 46,
+        "ms": [
+          3.8112,
+          3.6438,
+          4.066
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          5.6528,
+          6.3739,
+          5.9946
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.6853,
+          0.6912,
+          0.6387
+        ]
+      },
+      "matchingThreads": 49,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "older-snippet-5",
+      "age": "older",
+      "family": "snippet",
+      "completed": {
+        "rank": 6,
+        "ms": [
+          0.5749,
+          0.5487,
+          0.5515
+        ]
+      },
+      "fielded": {
+        "rank": 6,
+        "ms": [
+          0.2902,
+          0.2842,
+          0.322
+        ]
+      },
+      "overlap": {
+        "rank": 6,
+        "ms": [
+          0.42,
+          0.4326,
+          0.4627
+        ]
+      },
+      "strict": {
+        "rank": 2,
+        "ms": [
+          3.2332,
+          3.0377,
+          3.2428
+        ]
+      },
+      "withRecent": {
+        "rank": 7,
+        "ms": [
+          0.525,
+          0.5541,
+          0.4986
+        ]
+      },
+      "chronological": {
+        "rank": 6,
+        "ms": [
+          1.8235,
+          2.0416,
+          1.806
+        ]
+      },
+      "matchingThreads": 10,
+      "rankWithExtraSubjectWord": 4
+    },
+    {
+      "id": "older-refinement-5",
+      "age": "older",
+      "family": "refinement",
+      "overlap": {
+        "rank": 3,
+        "ms": [
+          0.683,
+          0.7024,
+          0.613
+        ]
+      },
+      "withRecent": {
+        "rank": 4,
+        "ms": [
+          0.6843,
+          0.7178,
+          0.851
+        ]
+      },
+      "fielded": {
+        "rank": 4,
+        "ms": [
+          0.385,
+          0.3967,
+          0.3825
+        ]
+      },
+      "strict": {
+        "rank": 4,
+        "ms": [
+          9.0685,
+          8.8653,
+          8.7772
+        ]
+      },
+      "chronological": {
+        "rank": 8,
+        "ms": [
+          4.6937,
+          5.1479,
+          5.0862
+        ]
+      },
+      "completed": {
+        "rank": 2,
+        "ms": [
+          0.8745,
+          0.881,
+          0.8155
+        ]
+      },
+      "matchingThreads": 8,
+      "rankWithExtraSubjectWord": 2
+    },
+    {
+      "id": "older-sender-6",
+      "age": "older",
+      "family": "sender",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.2063,
+          0.2135,
+          0.1961
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          4.8102,
+          4.2001,
+          4.2811
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          3.5572,
+          3.7008,
+          3.5536
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.206,
+          0.1306,
+          0.1681
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.2062,
+          0.1938,
+          0.1982
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.1191,
+          0.117,
+          0.1739
+        ]
+      },
+      "matchingThreads": 940,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "older-subject-6",
+      "age": "older",
+      "family": "subject",
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3008,
+          0.2998,
+          0.264
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          4.64,
+          4.4508,
+          4.3575
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.7115,
+          0.6944,
+          0.6619
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.2823,
+          2.2,
+          2.535
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.573,
+          0.5355,
+          0.6057
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.7287,
+          0.7659,
+          0.7233
+        ]
+      },
+      "matchingThreads": 397,
+      "rankWithExtraSubjectWord": 7
+    },
+    {
+      "id": "older-sender-and-topic-6",
+      "age": "older",
+      "family": "sender-and-topic",
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3502,
+          0.2605,
+          0.327
+        ]
+      },
+      "withRecent": {
+        "rank": 45,
+        "ms": [
+          0.7127,
+          0.6655,
+          0.7706
+        ]
+      },
+      "strict": {
+        "rank": 10,
+        "ms": [
+          3.5661,
+          3.3269,
+          3.6704
+        ]
+      },
+      "chronological": {
+        "rank": 37,
+        "ms": [
+          2.0799,
+          2.5228,
+          2.3373
+        ]
+      },
+      "overlap": {
+        "rank": 44,
+        "ms": [
+          0.5545,
+          0.5353,
+          0.5901
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.6605,
+          0.7387,
+          0.6999
+        ]
+      },
+      "matchingThreads": 43,
+      "rankWithExtraSubjectWord": 4
+    },
+    {
+      "id": "older-snippet-6",
+      "age": "older",
+      "family": "snippet",
+      "strict": {
+        "rank": 5,
+        "ms": [
+          8.5499,
+          8.2688,
+          8.6105
+        ]
+      },
+      "overlap": {
+        "rank": 4,
+        "ms": [
+          0.6696,
+          0.5916,
+          0.5873
+        ]
+      },
+      "withRecent": {
+        "rank": 5,
+        "ms": [
+          0.6733,
+          0.6863,
+          0.6958
+        ]
+      },
+      "completed": {
+        "rank": 3,
+        "ms": [
+          0.7922,
+          0.7935,
+          0.7913
+        ]
+      },
+      "fielded": {
+        "rank": 10,
+        "ms": [
+          0.3593,
+          0.4228,
+          0.3573
+        ]
+      },
+      "chronological": {
+        "rank": 21,
+        "ms": [
+          4.5609,
+          4.8105,
+          4.5808
+        ]
+      },
+      "matchingThreads": 28,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "older-refinement-6",
+      "age": "older",
+      "family": "refinement",
+      "strict": {
+        "rank": 0,
+        "ms": [
+          62.1576,
+          62.951,
+          59.0685
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          2.4467,
+          2.3499,
+          2.491
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          24.4342,
+          23.7839,
+          23.6668
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          3.831,
+          3.7529,
+          3.452
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          3.1623,
+          3.0819,
+          3.1603
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.9001,
+          0.8656,
+          0.8928
+        ]
+      },
+      "matchingThreads": 12129,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "older-sender-7",
+      "age": "older",
+      "family": "sender",
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.2189,
+          0.1908,
+          0.261
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.1536,
+          0.1522,
+          0.1916
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.7938,
+          2.792,
+          3.1567
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.1682,
+          0.1427,
+          0.1279
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.1197,
+          0.1673,
+          0.1772
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          3.0358,
+          3.164,
+          3.3545
+        ]
+      },
+      "matchingThreads": 673,
+      "rankWithExtraSubjectWord": 3
+    },
+    {
+      "id": "older-subject-7",
+      "age": "older",
+      "family": "subject",
+      "withRecent": {
+        "rank": 14,
+        "ms": [
+          0.4511,
+          0.3948,
+          0.4347
+        ]
+      },
+      "chronological": {
+        "rank": 6,
+        "ms": [
+          1.6011,
+          1.3062,
+          1.3443
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.2475,
+          0.2756,
+          0.208
+        ]
+      },
+      "completed": {
+        "rank": 3,
+        "ms": [
+          0.4545,
+          0.4472,
+          0.4397
+        ]
+      },
+      "strict": {
+        "rank": 4,
+        "ms": [
+          2.1568,
+          2.2545,
+          2.3556
+        ]
+      },
+      "overlap": {
+        "rank": 13,
+        "ms": [
+          0.3658,
+          0.3534,
+          0.3256
+        ]
+      },
+      "matchingThreads": 15,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "older-sender-and-topic-7",
+      "age": "older",
+      "family": "sender-and-topic",
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          4.2632,
+          4.4781,
+          4.5055
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          9.4412,
+          9.4144,
+          9.004
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.2269,
+          0.1471,
+          0.1443
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.1487,
+          0.1855,
+          0.1721
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.2347,
+          0.2569,
+          0.2485
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.1749,
+          0.1807,
+          0.2327
+        ]
+      },
+      "matchingThreads": 1781,
+      "rankWithExtraSubjectWord": 7
+    },
+    {
+      "id": "older-snippet-7",
+      "age": "older",
+      "family": "snippet",
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          1.077,
+          1.0152,
+          1.0061
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.9605,
+          0.9678,
+          0.9526
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          4.705,
+          4.8911,
+          4.6083
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          7.3892,
+          7.065,
+          6.8607
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3891,
+          0.3886,
+          0.3282
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.775,
+          0.7758,
+          0.8189
+        ]
+      },
+      "matchingThreads": 810,
+      "rankWithExtraSubjectWord": 9
+    },
+    {
+      "id": "older-refinement-7",
+      "age": "older",
+      "family": "refinement",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.9635,
+          0.9209,
+          1.0631
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.9874,
+          1.03,
+          1.0104
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3608,
+          0.371,
+          0.3633
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.719,
+          0.7738,
+          0.7244
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          11.2674,
+          11.5768,
+          11.5515
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          4.3814,
+          4.443,
+          4.808
+        ]
+      },
+      "matchingThreads": 1720,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "older-sender-8",
+      "age": "older",
+      "family": "sender",
+      "strict": {
+        "rank": 0,
+        "ms": [
+          5.3169,
+          5.1135,
+          5.3465
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.2623,
+          0.199,
+          0.3412
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.1293,
+          0.1656,
+          0.1345
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.1221,
+          0.1895,
+          0.1414
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.1615,
+          0.179,
+          0.2768
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          4.1635,
+          4.2262,
+          4.0055
+        ]
+      },
+      "matchingThreads": 1329,
+      "rankWithExtraSubjectWord": 2
+    },
+    {
+      "id": "older-subject-8",
+      "age": "older",
+      "family": "subject",
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.7206,
+          0.7069,
+          0.6738
+        ]
+      },
+      "overlap": {
+        "rank": 1,
+        "ms": [
+          0.523,
+          0.5673,
+          0.5795
+        ]
+      },
+      "strict": {
+        "rank": 1,
+        "ms": [
+          3.7255,
+          3.8447,
+          3.5766
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.2221,
+          2.3607,
+          2.5612
+        ]
+      },
+      "fielded": {
+        "rank": 1,
+        "ms": [
+          0.3239,
+          0.2772,
+          0.3055
+        ]
+      },
+      "withRecent": {
+        "rank": 1,
+        "ms": [
+          0.6921,
+          0.6786,
+          0.6848
+        ]
+      },
+      "matchingThreads": 90,
+      "rankWithExtraSubjectWord": 1
+    },
+    {
+      "id": "older-sender-and-topic-8",
+      "age": "older",
+      "family": "sender-and-topic",
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          2.343,
+          2.1951,
+          2.3123
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          0.667,
+          0.577,
+          0.5623
+        ]
+      },
+      "completed": {
+        "rank": 0,
+        "ms": [
+          0.7228,
+          0.7362,
+          0.8538
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          4.8236,
+          5.0033,
+          5.1591
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          0.3304,
+          0.3528,
+          0.299
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          0.7657,
+          0.7983,
+          0.7626
+        ]
+      },
+      "matchingThreads": 339,
+      "rankWithExtraSubjectWord": 0
+    },
+    {
+      "id": "older-snippet-8",
+      "age": "older",
+      "family": "snippet",
+      "completed": {
+        "rank": 0,
+        "ms": [
+          3.2664,
+          3.1361,
+          3.1464
+        ]
+      },
+      "strict": {
+        "rank": 0,
+        "ms": [
+          27.1903,
+          26.1554,
+          25.7905
+        ]
+      },
+      "fielded": {
+        "rank": 0,
+        "ms": [
+          1.2615,
+          1.1836,
+          1.1918
+        ]
+      },
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          13.9036,
+          14.3606,
+          14.1283
+        ]
+      },
+      "overlap": {
+        "rank": 0,
+        "ms": [
+          2.6685,
+          2.6124,
+          2.5952
+        ]
+      },
+      "withRecent": {
+        "rank": 0,
+        "ms": [
+          3.229,
+          3.3839,
+          3.1313
+        ]
+      },
+      "matchingThreads": 948,
+      "rankWithExtraSubjectWord": 40
+    },
+    {
+      "id": "older-refinement-8",
+      "age": "older",
+      "family": "refinement",
+      "chronological": {
+        "rank": 0,
+        "ms": [
+          1.8885,
+          1.8406,
+          1.7952
+        ]
+      },
+      "fielded": {
+        "rank": 6,
+        "ms": [
+          0.3266,
+          0.2739,
+          0.2732
+        ]
+      },
+      "overlap": {
+        "rank": 6,
+        "ms": [
+          0.553,
+          0.597,
+          0.5443
+        ]
+      },
+      "completed": {
+        "rank": 1,
+        "ms": [
+          0.6963,
+          0.7418,
+          0.7983
+        ]
+      },
+      "strict": {
+        "rank": 5,
+        "ms": [
+          2.424,
+          3.0292,
+          2.8358
+        ]
+      },
+      "withRecent": {
+        "rank": 7,
+        "ms": [
+          0.7685,
+          0.7659,
+          0.8046
+        ]
+      },
+      "matchingThreads": 107,
+      "rankWithExtraSubjectWord": 2
+    }
+  ],
+  "asOf": "2026-11-25",
+  "seed": 73123,
+  "byAge": {
+    "31to180d": {
+      "strict": {
+        "medianMS": 8.3535,
+        "p95MS": 51.0382,
+        "maxMS": 62.6558,
+        "top1": 8,
+        "top5": 14,
+        "top10": 15,
+        "top50": 24,
+        "mrr10": 0.25729166666666664,
+        "gained5": 0,
+        "lost5": 0
+      },
+      "chronological": {
+        "medianMS": 3.7,
+        "p95MS": 15.0117,
+        "maxMS": 22.464,
+        "top1": 3,
+        "top5": 8,
+        "top10": 10,
+        "top50": 14,
+        "mrr10": 0.125,
+        "gained5": 0,
+        "lost5": 6
+      },
+      "fielded": {
+        "medianMS": 0.31379999999999997,
+        "p95MS": 0.6935,
+        "maxMS": 1.2034,
+        "top1": 4,
+        "top5": 12,
+        "top10": 15,
+        "top50": 24,
+        "mrr10": 0.18836309523809525,
+        "gained5": 1,
+        "lost5": 3
+      },
+      "overlap": {
+        "medianMS": 0.5409,
+        "p95MS": 1.4932,
+        "maxMS": 2.3595,
+        "top1": 7,
+        "top5": 13,
+        "top10": 15,
+        "top50": 24,
+        "mrr10": 0.24627976190476192,
+        "gained5": 1,
+        "lost5": 2
+      },
+      "withRecent": {
+        "medianMS": 0.6598999999999999,
+        "p95MS": 2.1438,
+        "maxMS": 3.1692,
+        "top1": 7,
+        "top5": 13,
+        "top10": 15,
+        "top50": 24,
+        "mrr10": 0.2309027777777778,
+        "gained5": 1,
+        "lost5": 2
+      },
+      "completed": {
+        "medianMS": 0.6945,
+        "p95MS": 1.8552,
+        "maxMS": 2.8553,
+        "top1": 8,
+        "top5": 17,
+        "top10": 19,
+        "top50": 26,
+        "mrr10": 0.30336309523809524,
+        "gained5": 4,
+        "lost5": 1
+      }
+    },
+    "last30d": {
+      "strict": {
+        "medianMS": 4.792949999999999,
+        "p95MS": 40.4793,
+        "maxMS": 64.7898,
+        "top1": 5,
+        "top5": 15,
+        "top10": 20,
+        "top50": 26,
+        "mrr10": 0.23901785714285714,
+        "gained5": 0,
+        "lost5": 0
+      },
+      "chronological": {
+        "medianMS": 2.48365,
+        "p95MS": 15.5668,
+        "maxMS": 19.3875,
+        "top1": 7,
+        "top5": 17,
+        "top10": 22,
+        "top50": 35,
+        "mrr10": 0.27819444444444447,
+        "gained5": 6,
+        "lost5": 4
+      },
+      "fielded": {
+        "medianMS": 0.28275,
+        "p95MS": 0.4359,
+        "maxMS": 1.2238,
+        "top1": 8,
+        "top5": 11,
+        "top10": 16,
+        "top50": 26,
+        "mrr10": 0.23922619047619048,
+        "gained5": 3,
+        "lost5": 7
+      },
+      "overlap": {
+        "medianMS": 0.5152,
+        "p95MS": 0.9718,
+        "maxMS": 2.3733,
+        "top1": 9,
+        "top5": 17,
+        "top10": 21,
+        "top50": 29,
+        "mrr10": 0.2964880952380952,
+        "gained5": 3,
+        "lost5": 1
+      },
+      "withRecent": {
+        "medianMS": 0.59395,
+        "p95MS": 1.3455,
+        "maxMS": 3.0317,
+        "top1": 9,
+        "top5": 16,
+        "top10": 20,
+        "top50": 29,
+        "mrr10": 0.3012797619047619,
+        "gained5": 4,
+        "lost5": 3
+      },
+      "completed": {
+        "medianMS": 0.6312,
+        "p95MS": 1.321,
+        "maxMS": 2.8959,
+        "top1": 14,
+        "top5": 23,
+        "top10": 24,
+        "top50": 32,
+        "mrr10": 0.4320833333333333,
+        "gained5": 9,
+        "lost5": 1
+      }
+    },
+    "older": {
+      "strict": {
+        "medianMS": 5.1601,
+        "p95MS": 62.1576,
+        "maxMS": 168.9497,
+        "top1": 2,
+        "top5": 12,
+        "top10": 13,
+        "top50": 21,
+        "mrr10": 0.125,
+        "gained5": 0,
+        "lost5": 0
+      },
+      "chronological": {
+        "medianMS": 3.17735,
+        "p95MS": 23.7839,
+        "maxMS": 62.2409,
+        "top1": 0,
+        "top5": 1,
+        "top10": 5,
+        "top50": 12,
+        "mrr10": 0.022291666666666664,
+        "gained5": 0,
+        "lost5": 11
+      },
+      "fielded": {
+        "medianMS": 0.30679999999999996,
+        "p95MS": 0.9848,
+        "maxMS": 1.2615,
+        "top1": 2,
+        "top5": 4,
+        "top10": 10,
+        "top50": 14,
+        "mrr10": 0.09009920634920635,
+        "gained5": 1,
+        "lost5": 9
+      },
+      "overlap": {
+        "medianMS": 0.5526500000000001,
+        "p95MS": 2.4467,
+        "maxMS": 2.7755,
+        "top1": 2,
+        "top5": 8,
+        "top10": 11,
+        "top50": 20,
+        "mrr10": 0.12648809523809523,
+        "gained5": 1,
+        "lost5": 5
+      },
+      "withRecent": {
+        "medianMS": 0.69565,
+        "p95MS": 3.229,
+        "maxMS": 3.9482,
+        "top1": 2,
+        "top5": 8,
+        "top10": 11,
+        "top50": 20,
+        "mrr10": 0.10485119047619047,
+        "gained5": 1,
+        "lost5": 5
+      },
+      "completed": {
+        "medianMS": 0.6971499999999999,
+        "p95MS": 3.1464,
+        "maxMS": 3.4044,
+        "top1": 3,
+        "top5": 12,
+        "top10": 14,
+        "top50": 19,
+        "mrr10": 0.17583333333333334,
+        "gained5": 2,
+        "lost5": 2
+      }
+    }
+  },
+  "freshReaders": [
+    {
+      "openAndFirstQueryMS": 1.6826,
+      "peakRSSIncreaseBytes": 5767168
+    },
+    {
+      "openAndFirstQueryMS": 1.4069,
+      "peakRSSIncreaseBytes": 6455296
+    },
+    {
+      "openAndFirstQueryMS": 1.469,
+      "peakRSSIncreaseBytes": 6963200
+    },
+    {
+      "openAndFirstQueryMS": 1.9308,
+      "peakRSSIncreaseBytes": 6733824
+    },
+    {
+      "openAndFirstQueryMS": 1.3995,
+      "peakRSSIncreaseBytes": 6569984
+    },
+    {
+      "openAndFirstQueryMS": 2.7806,
+      "peakRSSIncreaseBytes": 7176192
+    },
+    {
+      "openAndFirstQueryMS": 1.9158,
+      "peakRSSIncreaseBytes": 7225344
+    },
+    {
+      "openAndFirstQueryMS": 1.2965,
+      "peakRSSIncreaseBytes": 6144000
+    },
+    {
+      "openAndFirstQueryMS": 1.1958,
+      "peakRSSIncreaseBytes": 5832704
+    },
+    {
+      "openAndFirstQueryMS": 2.521,
+      "peakRSSIncreaseBytes": 7110656
+    },
+    {
+      "openAndFirstQueryMS": 2.1254,
+      "peakRSSIncreaseBytes": 6717440
+    },
+    {
+      "openAndFirstQueryMS": 1.9341,
+      "peakRSSIncreaseBytes": 6668288
+    }
+  ],
+  "pageLookup": {
+    "summary": {
+      "chronological": {
+        "medianMS": 6.43355,
+        "p95MS": 39.7466,
+        "maxMS": 140.8533,
+        "top1": 10,
+        "top5": 26,
+        "top10": 37,
+        "top50": 61,
+        "mrr10": 0.1418287037037037
+      },
+      "ranked": {
+        "medianMS": 1.3187,
+        "p95MS": 4.1495,
+        "maxMS": 20.807,
+        "top1": 25,
+        "top5": 52,
+        "top10": 57,
+        "top50": 77,
+        "mrr10": 0.30375992063492063
+      }
+    },
+    "cases": [
+      {
+        "id": "last30d-sender-1",
+        "age": "last30d",
+        "family": "sender",
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            0.7618,
+            0.4402,
+            0.6358
+          ]
+        },
+        "chronological": {
+          "rank": 3,
+          "ms": [
+            3.3501,
+            4.0094,
+            0.936
+          ]
+        }
+      },
+      {
+        "id": "last30d-subject-1",
+        "age": "last30d",
+        "family": "subject",
+        "chronological": {
+          "rank": 1,
+          "ms": [
+            5.6879,
+            9.0793,
+            2.6018
+          ]
+        },
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            2.2422,
+            1.5612,
+            0.9862
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-and-topic-1",
+        "age": "last30d",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            1.7536,
+            0.7461,
+            0.8634
+          ]
+        },
+        "chronological": {
+          "rank": 1,
+          "ms": [
+            3.5307,
+            1.2179,
+            1.4042
+          ]
+        }
+      },
+      {
+        "id": "last30d-snippet-1",
+        "age": "last30d",
+        "family": "snippet",
+        "ranked": {
+          "rank": 32,
+          "ms": [
+            1.5368,
+            1.0782,
+            6.0675
+          ]
+        },
+        "chronological": {
+          "rank": 9,
+          "ms": [
+            14.2261,
+            5.7616,
+            6.0467
+          ]
+        }
+      },
+      {
+        "id": "last30d-refinement-1",
+        "age": "last30d",
+        "family": "refinement",
+        "chronological": {
+          "rank": 1,
+          "ms": [
+            9.5255,
+            6.8506,
+            6.6209
+          ]
+        },
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            1.7083,
+            3.4722,
+            1.3266
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-2",
+        "age": "last30d",
+        "family": "sender",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            24.0553,
+            36.1685,
+            15.4635
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.6046,
+            0.9317,
+            0.5895
+          ]
+        }
+      },
+      {
+        "id": "last30d-subject-2",
+        "age": "last30d",
+        "family": "subject",
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            4.2038,
+            0.7588,
+            0.7133
+          ]
+        },
+        "chronological": {
+          "rank": 4,
+          "ms": [
+            5.1908,
+            9.4546,
+            1.7276
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-and-topic-2",
+        "age": "last30d",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 25,
+          "ms": [
+            2.8701,
+            1.111,
+            7.0867
+          ]
+        },
+        "chronological": {
+          "rank": 37,
+          "ms": [
+            5.942,
+            2.4088,
+            9.5512
+          ]
+        }
+      },
+      {
+        "id": "last30d-snippet-2",
+        "age": "last30d",
+        "family": "snippet",
+        "ranked": {
+          "rank": 43,
+          "ms": [
+            4.0572,
+            5.1067,
+            3.4027
+          ]
+        },
+        "chronological": {
+          "rank": 5,
+          "ms": [
+            6.9452,
+            8.0994,
+            2.4279
+          ]
+        }
+      },
+      {
+        "id": "last30d-refinement-2",
+        "age": "last30d",
+        "family": "refinement",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            1.4144,
+            1.799,
+            1.9015
+          ]
+        },
+        "chronological": {
+          "rank": 18,
+          "ms": [
+            5.4573,
+            6.4331,
+            6.1302
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-3",
+        "age": "last30d",
+        "family": "sender",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.9827,
+            0.5644,
+            0.5607
+          ]
+        },
+        "chronological": {
+          "rank": 11,
+          "ms": [
+            2.8788,
+            1.9979,
+            4.0978
+          ]
+        }
+      },
+      {
+        "id": "last30d-subject-3",
+        "age": "last30d",
+        "family": "subject",
+        "chronological": {
+          "rank": 6,
+          "ms": [
+            3.744,
+            12.9567,
+            3.2418
+          ]
+        },
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            1.332,
+            1.2872,
+            1.306
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-and-topic-3",
+        "age": "last30d",
+        "family": "sender-and-topic",
+        "chronological": {
+          "rank": 15,
+          "ms": [
+            5.9872,
+            2.761,
+            2.6964
+          ]
+        },
+        "ranked": {
+          "rank": 20,
+          "ms": [
+            1.6818,
+            1.0636,
+            1.3868
+          ]
+        }
+      },
+      {
+        "id": "last30d-snippet-3",
+        "age": "last30d",
+        "family": "snippet",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            2.356,
+            1.7832,
+            3.6296
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            15.533,
+            15.3954,
+            9.409
+          ]
+        }
+      },
+      {
+        "id": "last30d-refinement-3",
+        "age": "last30d",
+        "family": "refinement",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            3.494,
+            0.6953,
+            1.0453
+          ]
+        },
+        "chronological": {
+          "rank": 1,
+          "ms": [
+            7.6616,
+            1.9372,
+            3.4903
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-4",
+        "age": "last30d",
+        "family": "sender",
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            0.519,
+            0.6717,
+            2.6565
+          ]
+        },
+        "chronological": {
+          "rank": 18,
+          "ms": [
+            9.4873,
+            20.517,
+            14.1879
+          ]
+        }
+      },
+      {
+        "id": "last30d-subject-4",
+        "age": "last30d",
+        "family": "subject",
+        "ranked": {
+          "rank": 4,
+          "ms": [
+            2.3573,
+            4.8453,
+            2.0993
+          ]
+        },
+        "chronological": {
+          "rank": 6,
+          "ms": [
+            5.9407,
+            7.1055,
+            2.0962
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-and-topic-4",
+        "age": "last30d",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            1.3122,
+            0.7635,
+            0.722
+          ]
+        },
+        "chronological": {
+          "rank": 1,
+          "ms": [
+            6.1873,
+            3.1643,
+            4.1577
+          ]
+        }
+      },
+      {
+        "id": "last30d-snippet-4",
+        "age": "last30d",
+        "family": "snippet",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            2.3522,
+            13.1169,
+            0.7957
+          ]
+        },
+        "chronological": {
+          "rank": 2,
+          "ms": [
+            9.2668,
+            3.5499,
+            6.6392
+          ]
+        }
+      },
+      {
+        "id": "last30d-refinement-4",
+        "age": "last30d",
+        "family": "refinement",
+        "chronological": {
+          "rank": 2,
+          "ms": [
+            25.3983,
+            52.1978,
+            30.3511
+          ]
+        },
+        "ranked": {
+          "rank": 15,
+          "ms": [
+            2.6585,
+            7.4174,
+            2.7273
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-5",
+        "age": "last30d",
+        "family": "sender",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            24.6057,
+            19.6457,
+            26.2638
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.7189,
+            0.56,
+            0.9622
+          ]
+        }
+      },
+      {
+        "id": "last30d-subject-5",
+        "age": "last30d",
+        "family": "subject",
+        "chronological": {
+          "rank": 5,
+          "ms": [
+            7.458,
+            2.8847,
+            2.8025
+          ]
+        },
+        "ranked": {
+          "rank": 3,
+          "ms": [
+            2.3509,
+            0.8403,
+            0.7979
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-and-topic-5",
+        "age": "last30d",
+        "family": "sender-and-topic",
+        "chronological": {
+          "rank": 21,
+          "ms": [
+            9.0687,
+            4.4411,
+            4.6714
+          ]
+        },
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            1.7897,
+            1.2822,
+            1.3239
+          ]
+        }
+      },
+      {
+        "id": "last30d-snippet-5",
+        "age": "last30d",
+        "family": "snippet",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            5.3803,
+            5.4741,
+            3.7259
+          ]
+        },
+        "chronological": {
+          "rank": 6,
+          "ms": [
+            32.0588,
+            46.7683,
+            41.5683
+          ]
+        }
+      },
+      {
+        "id": "last30d-refinement-5",
+        "age": "last30d",
+        "family": "refinement",
+        "chronological": {
+          "rank": 27,
+          "ms": [
+            12.5008,
+            7.1333,
+            4.8001
+          ]
+        },
+        "ranked": {
+          "rank": 4,
+          "ms": [
+            1.7332,
+            1.265,
+            1.2062
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-6",
+        "age": "last30d",
+        "family": "sender",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            1.1687,
+            0.644,
+            2.6132
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            30.6088,
+            24.4585,
+            54.7133
+          ]
+        }
+      },
+      {
+        "id": "last30d-subject-6",
+        "age": "last30d",
+        "family": "subject",
+        "ranked": {
+          "rank": 20,
+          "ms": [
+            1.3179,
+            1.128,
+            1.1234
+          ]
+        },
+        "chronological": {
+          "rank": 35,
+          "ms": [
+            6.066,
+            2.6976,
+            4.2706
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-and-topic-6",
+        "age": "last30d",
+        "family": "sender-and-topic",
+        "chronological": {
+          "rank": 1,
+          "ms": [
+            4.9486,
+            5.5676,
+            1.9508
+          ]
+        },
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            1.4472,
+            0.9139,
+            0.9802
+          ]
+        }
+      },
+      {
+        "id": "last30d-snippet-6",
+        "age": "last30d",
+        "family": "snippet",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            2.1165,
+            1.1534,
+            1.3722
+          ]
+        },
+        "chronological": {
+          "rank": 15,
+          "ms": [
+            17.5527,
+            8.3095,
+            21.636
+          ]
+        }
+      },
+      {
+        "id": "last30d-refinement-6",
+        "age": "last30d",
+        "family": "refinement",
+        "chronological": {
+          "rank": 5,
+          "ms": [
+            9.1538,
+            2.4907,
+            6.9262
+          ]
+        },
+        "ranked": {
+          "rank": 5,
+          "ms": [
+            1.4189,
+            0.8527,
+            1.013
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-7",
+        "age": "last30d",
+        "family": "sender",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            18.205,
+            26.3749,
+            30.7874
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            1.2421,
+            1.5968,
+            1.9462
+          ]
+        }
+      },
+      {
+        "id": "last30d-subject-7",
+        "age": "last30d",
+        "family": "subject",
+        "ranked": {
+          "rank": 24,
+          "ms": [
+            1.776,
+            3.7324,
+            0.9702
+          ]
+        },
+        "chronological": {
+          "rank": 30,
+          "ms": [
+            5.3315,
+            10.6239,
+            2.579
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-and-topic-7",
+        "age": "last30d",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            1.9504,
+            1.0631,
+            1.1474
+          ]
+        },
+        "chronological": {
+          "rank": 1,
+          "ms": [
+            6.2928,
+            6.1679,
+            3.6579
+          ]
+        }
+      },
+      {
+        "id": "last30d-snippet-7",
+        "age": "last30d",
+        "family": "snippet",
+        "ranked": {
+          "rank": 4,
+          "ms": [
+            2.8032,
+            7.5911,
+            1.186
+          ]
+        },
+        "chronological": {
+          "rank": 14,
+          "ms": [
+            8.3208,
+            20.9403,
+            3.9191
+          ]
+        }
+      },
+      {
+        "id": "last30d-refinement-7",
+        "age": "last30d",
+        "family": "refinement",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            2.2718,
+            1.3205,
+            1.3688
+          ]
+        },
+        "chronological": {
+          "rank": 6,
+          "ms": [
+            6.0696,
+            2.7805,
+            9.95
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-8",
+        "age": "last30d",
+        "family": "sender",
+        "ranked": {
+          "rank": 27,
+          "ms": [
+            0.9997,
+            0.4482,
+            0.3927
+          ]
+        },
+        "chronological": {
+          "rank": 17,
+          "ms": [
+            2.5821,
+            7.1041,
+            1.6088
+          ]
+        }
+      },
+      {
+        "id": "last30d-subject-8",
+        "age": "last30d",
+        "family": "subject",
+        "chronological": {
+          "rank": 3,
+          "ms": [
+            7.0411,
+            6.5099,
+            11.0148
+          ]
+        },
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            3.067,
+            1.0876,
+            0.9665
+          ]
+        }
+      },
+      {
+        "id": "last30d-sender-and-topic-8",
+        "age": "last30d",
+        "family": "sender-and-topic",
+        "chronological": {
+          "rank": 20,
+          "ms": [
+            6.6766,
+            6.4616,
+            3.0012
+          ]
+        },
+        "ranked": {
+          "rank": 6,
+          "ms": [
+            1.6198,
+            5.4825,
+            1.165
+          ]
+        }
+      },
+      {
+        "id": "last30d-snippet-8",
+        "age": "last30d",
+        "family": "snippet",
+        "chronological": {
+          "rank": 2,
+          "ms": [
+            3.7998,
+            3.8264,
+            5.9517
+          ]
+        },
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            1.4412,
+            1.3046,
+            4.8236
+          ]
+        }
+      },
+      {
+        "id": "last30d-refinement-8",
+        "age": "last30d",
+        "family": "refinement",
+        "ranked": {
+          "rank": 3,
+          "ms": [
+            0.7049,
+            1.7422,
+            0.886
+          ]
+        },
+        "chronological": {
+          "rank": 3,
+          "ms": [
+            2.324,
+            3.3683,
+            3.1501
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-1",
+        "age": "31to180d",
+        "family": "sender",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.568,
+            0.5788,
+            0.9589
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            36.8285,
+            21.3021,
+            27.1194
+          ]
+        }
+      },
+      {
+        "id": "31to180d-subject-1",
+        "age": "31to180d",
+        "family": "subject",
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            4.6766,
+            4.704,
+            2.1211
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            22.0031,
+            14.3368,
+            8.911
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-and-topic-1",
+        "age": "31to180d",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            0.6032,
+            0.6673,
+            0.741
+          ]
+        },
+        "chronological": {
+          "rank": 1,
+          "ms": [
+            1.5843,
+            0.6663,
+            0.4845
+          ]
+        }
+      },
+      {
+        "id": "31to180d-snippet-1",
+        "age": "31to180d",
+        "family": "snippet",
+        "chronological": {
+          "rank": 11,
+          "ms": [
+            4.9347,
+            8.1826,
+            3.1019
+          ]
+        },
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            1.1176,
+            0.974,
+            1.5733
+          ]
+        }
+      },
+      {
+        "id": "31to180d-refinement-1",
+        "age": "31to180d",
+        "family": "refinement",
+        "ranked": {
+          "rank": 5,
+          "ms": [
+            3.3295,
+            6.4621,
+            4.4365
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            27.0577,
+            58.2137,
+            39.7466
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-2",
+        "age": "31to180d",
+        "family": "sender",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.627,
+            0.5517,
+            0.7939
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            17.6432,
+            24.6045,
+            31.0543
+          ]
+        }
+      },
+      {
+        "id": "31to180d-subject-2",
+        "age": "31to180d",
+        "family": "subject",
+        "chronological": {
+          "rank": 1,
+          "ms": [
+            2.8304,
+            1.153,
+            1.2776
+          ]
+        },
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            5.1227,
+            1.1851,
+            1.1884
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-and-topic-2",
+        "age": "31to180d",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            2.0977,
+            3.5626,
+            1.4733
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            7.8985,
+            8.208,
+            3.7266
+          ]
+        }
+      },
+      {
+        "id": "31to180d-snippet-2",
+        "age": "31to180d",
+        "family": "snippet",
+        "ranked": {
+          "rank": 15,
+          "ms": [
+            2.0671,
+            1.514,
+            2.1048
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            7.3336,
+            4.3595,
+            9.1871
+          ]
+        }
+      },
+      {
+        "id": "31to180d-refinement-2",
+        "age": "31to180d",
+        "family": "refinement",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            6.4777,
+            2.8599,
+            4.7025
+          ]
+        },
+        "ranked": {
+          "rank": 7,
+          "ms": [
+            0.8498,
+            0.73,
+            0.8416
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-3",
+        "age": "31to180d",
+        "family": "sender",
+        "chronological": {
+          "rank": 15,
+          "ms": [
+            5.6396,
+            1.413,
+            1.5025
+          ]
+        },
+        "ranked": {
+          "rank": 17,
+          "ms": [
+            1.4163,
+            0.6569,
+            2.7209
+          ]
+        }
+      },
+      {
+        "id": "31to180d-subject-3",
+        "age": "31to180d",
+        "family": "subject",
+        "chronological": {
+          "rank": 36,
+          "ms": [
+            5.2683,
+            2.0142,
+            1.9692
+          ]
+        },
+        "ranked": {
+          "rank": 3,
+          "ms": [
+            2.0501,
+            1.2761,
+            1.2391
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-and-topic-3",
+        "age": "31to180d",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            1.9243,
+            1.8805,
+            2.4378
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            14.4521,
+            8.117,
+            18.2178
+          ]
+        }
+      },
+      {
+        "id": "31to180d-snippet-3",
+        "age": "31to180d",
+        "family": "snippet",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            1.5634,
+            1.2058,
+            1.19
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            20.9285,
+            6.9045,
+            22.6182
+          ]
+        }
+      },
+      {
+        "id": "31to180d-refinement-3",
+        "age": "31to180d",
+        "family": "refinement",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            6.4055,
+            11.5541,
+            3.4639
+          ]
+        },
+        "ranked": {
+          "rank": 29,
+          "ms": [
+            2.4126,
+            6.5636,
+            2.0122
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-4",
+        "age": "31to180d",
+        "family": "sender",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            8.7306,
+            8.2385,
+            20.3292
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.8527,
+            2.0746,
+            0.7147
+          ]
+        }
+      },
+      {
+        "id": "31to180d-subject-4",
+        "age": "31to180d",
+        "family": "subject",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            18.0905,
+            47.9487,
+            26.1269
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            3.1375,
+            20.807,
+            2.961
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-and-topic-4",
+        "age": "31to180d",
+        "family": "sender-and-topic",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            11.7717,
+            28.2827,
+            17.5027
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            3.7182,
+            4.778,
+            2.2503
+          ]
+        }
+      },
+      {
+        "id": "31to180d-snippet-4",
+        "age": "31to180d",
+        "family": "snippet",
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            2.8607,
+            2.525,
+            2.2302
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            21.6998,
+            21.4995,
+            11.791
+          ]
+        }
+      },
+      {
+        "id": "31to180d-refinement-4",
+        "age": "31to180d",
+        "family": "refinement",
+        "chronological": {
+          "rank": 6,
+          "ms": [
+            3.7319,
+            1.4092,
+            1.598
+          ]
+        },
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            0.7227,
+            0.6807,
+            0.7163
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-5",
+        "age": "31to180d",
+        "family": "sender",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            1.3822,
+            0.632,
+            0.9189
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            18.6345,
+            28.1394,
+            54.947
+          ]
+        }
+      },
+      {
+        "id": "31to180d-subject-5",
+        "age": "31to180d",
+        "family": "subject",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            7.2899,
+            3.0737,
+            1.4147
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            94.3384,
+            8.9975,
+            14.7077
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-and-topic-5",
+        "age": "31to180d",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 3,
+          "ms": [
+            0.6762,
+            0.672,
+            0.8318
+          ]
+        },
+        "chronological": {
+          "rank": 4,
+          "ms": [
+            1.8327,
+            1.1033,
+            1.2417
+          ]
+        }
+      },
+      {
+        "id": "31to180d-snippet-5",
+        "age": "31to180d",
+        "family": "snippet",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            1.1134,
+            2.0513,
+            1.6722
+          ]
+        },
+        "chronological": {
+          "rank": 1,
+          "ms": [
+            3.1424,
+            3.1,
+            1.3705
+          ]
+        }
+      },
+      {
+        "id": "31to180d-refinement-5",
+        "age": "31to180d",
+        "family": "refinement",
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            4.1744,
+            1.2817,
+            0.7147
+          ]
+        },
+        "chronological": {
+          "rank": 4,
+          "ms": [
+            29.517,
+            9.0405,
+            4.6349
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-6",
+        "age": "31to180d",
+        "family": "sender",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            3.7851,
+            6.0788,
+            2.7363
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.5007,
+            1.7299,
+            0.4569
+          ]
+        }
+      },
+      {
+        "id": "31to180d-subject-6",
+        "age": "31to180d",
+        "family": "subject",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            2.1932,
+            2.3432,
+            2.5186
+          ]
+        },
+        "chronological": {
+          "rank": 21,
+          "ms": [
+            11.3704,
+            12.6083,
+            34.1426
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-and-topic-6",
+        "age": "31to180d",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            3.6002,
+            0.8307,
+            0.8503
+          ]
+        },
+        "chronological": {
+          "rank": 6,
+          "ms": [
+            6.6285,
+            1.0718,
+            3.005
+          ]
+        }
+      },
+      {
+        "id": "31to180d-snippet-6",
+        "age": "31to180d",
+        "family": "snippet",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            2.0582,
+            8.6175,
+            0.711
+          ]
+        },
+        "chronological": {
+          "rank": 3,
+          "ms": [
+            6.5686,
+            2.2775,
+            0.9054
+          ]
+        }
+      },
+      {
+        "id": "31to180d-refinement-6",
+        "age": "31to180d",
+        "family": "refinement",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            12.6483,
+            14.2434,
+            11.3867
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            2.5272,
+            4.0197,
+            1.8873
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-7",
+        "age": "31to180d",
+        "family": "sender",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.6049,
+            0.5551,
+            1.2635
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            10.629,
+            11.2391,
+            13.0361
+          ]
+        }
+      },
+      {
+        "id": "31to180d-subject-7",
+        "age": "31to180d",
+        "family": "subject",
+        "chronological": {
+          "rank": 2,
+          "ms": [
+            6.4852,
+            6.3331,
+            5.5875
+          ]
+        },
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            1.3291,
+            1.1683,
+            1.2661
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-and-topic-7",
+        "age": "31to180d",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 12,
+          "ms": [
+            1.7691,
+            1.2309,
+            1.2751
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            5.9833,
+            3.3951,
+            5.8402
+          ]
+        }
+      },
+      {
+        "id": "31to180d-snippet-7",
+        "age": "31to180d",
+        "family": "snippet",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            4.3982,
+            2.5158,
+            2.8216
+          ]
+        },
+        "ranked": {
+          "rank": 29,
+          "ms": [
+            0.8693,
+            5.8645,
+            0.8069
+          ]
+        }
+      },
+      {
+        "id": "31to180d-refinement-7",
+        "age": "31to180d",
+        "family": "refinement",
+        "ranked": {
+          "rank": 48,
+          "ms": [
+            2.3241,
+            0.8301,
+            4.9798
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            4.7545,
+            2.6748,
+            5.7639
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-8",
+        "age": "31to180d",
+        "family": "sender",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            1.4438,
+            0.5724,
+            0.9574
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            17.5993,
+            20.0003,
+            22.2672
+          ]
+        }
+      },
+      {
+        "id": "31to180d-subject-8",
+        "age": "31to180d",
+        "family": "subject",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            2.8881,
+            2.903,
+            1.1158
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            7.317,
+            5.0061,
+            5.2138
+          ]
+        }
+      },
+      {
+        "id": "31to180d-sender-and-topic-8",
+        "age": "31to180d",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            0.53,
+            1.3926,
+            0.5785
+          ]
+        },
+        "chronological": {
+          "rank": 3,
+          "ms": [
+            0.7032,
+            1.4547,
+            0.5978
+          ]
+        }
+      },
+      {
+        "id": "31to180d-snippet-8",
+        "age": "31to180d",
+        "family": "snippet",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            14.024,
+            6.9181,
+            7.0819
+          ]
+        },
+        "ranked": {
+          "rank": 37,
+          "ms": [
+            1.9323,
+            1.6758,
+            2.7637
+          ]
+        }
+      },
+      {
+        "id": "31to180d-refinement-8",
+        "age": "31to180d",
+        "family": "refinement",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            18.179,
+            9.1382,
+            11.7517
+          ]
+        },
+        "ranked": {
+          "rank": 8,
+          "ms": [
+            4.8153,
+            4.0508,
+            1.7767
+          ]
+        }
+      },
+      {
+        "id": "older-sender-1",
+        "age": "older",
+        "family": "sender",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.6489,
+            0.598,
+            0.7223
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            29.5627,
+            31.2007,
+            27.315
+          ]
+        }
+      },
+      {
+        "id": "older-subject-1",
+        "age": "older",
+        "family": "subject",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            4.5314,
+            5.8813,
+            1.9226
+          ]
+        },
+        "ranked": {
+          "rank": 3,
+          "ms": [
+            1.7967,
+            0.8301,
+            1.4938
+          ]
+        }
+      },
+      {
+        "id": "older-sender-and-topic-1",
+        "age": "older",
+        "family": "sender-and-topic",
+        "chronological": {
+          "rank": 22,
+          "ms": [
+            1.7964,
+            1.9156,
+            0.6082
+          ]
+        },
+        "ranked": {
+          "rank": 17,
+          "ms": [
+            0.4815,
+            1.1881,
+            0.4383
+          ]
+        }
+      },
+      {
+        "id": "older-snippet-1",
+        "age": "older",
+        "family": "snippet",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            1.8915,
+            4.2441,
+            4.1495
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            10.5496,
+            6.1819,
+            6.8463
+          ]
+        }
+      },
+      {
+        "id": "older-refinement-1",
+        "age": "older",
+        "family": "refinement",
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            1.3119,
+            0.8465,
+            0.8348
+          ]
+        },
+        "chronological": {
+          "rank": 3,
+          "ms": [
+            4.6962,
+            2.7543,
+            1.449
+          ]
+        }
+      },
+      {
+        "id": "older-sender-2",
+        "age": "older",
+        "family": "sender",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            41.5966,
+            71.9425,
+            44.9213
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.8522,
+            1.1341,
+            2.2329
+          ]
+        }
+      },
+      {
+        "id": "older-subject-2",
+        "age": "older",
+        "family": "subject",
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            6.1606,
+            0.902,
+            1.2031
+          ]
+        },
+        "chronological": {
+          "rank": 23,
+          "ms": [
+            6.4073,
+            1.3688,
+            2.1069
+          ]
+        }
+      },
+      {
+        "id": "older-sender-and-topic-2",
+        "age": "older",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 25,
+          "ms": [
+            3.4826,
+            6.1193,
+            6.1522
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            23.9095,
+            46.0769,
+            59.1148
+          ]
+        }
+      },
+      {
+        "id": "older-snippet-2",
+        "age": "older",
+        "family": "snippet",
+        "ranked": {
+          "rank": 6,
+          "ms": [
+            1.3458,
+            0.8207,
+            1.488
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            4.4975,
+            3.7499,
+            2.0754
+          ]
+        }
+      },
+      {
+        "id": "older-refinement-2",
+        "age": "older",
+        "family": "refinement",
+        "ranked": {
+          "rank": 5,
+          "ms": [
+            1.1911,
+            0.6863,
+            0.6216
+          ]
+        },
+        "chronological": {
+          "rank": 13,
+          "ms": [
+            3.4186,
+            1.0496,
+            1.0746
+          ]
+        }
+      },
+      {
+        "id": "older-sender-3",
+        "age": "older",
+        "family": "sender",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            2.9407,
+            1.9263,
+            2.3187
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.4353,
+            0.3643,
+            8.2985
+          ]
+        }
+      },
+      {
+        "id": "older-subject-3",
+        "age": "older",
+        "family": "subject",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            6.5042,
+            3.7893,
+            7.4074
+          ]
+        },
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            1.9707,
+            1.313,
+            3.9997
+          ]
+        }
+      },
+      {
+        "id": "older-sender-and-topic-3",
+        "age": "older",
+        "family": "sender-and-topic",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            7.8833,
+            11.9908,
+            6.0628
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            1.4918,
+            1.5136,
+            1.5548
+          ]
+        }
+      },
+      {
+        "id": "older-snippet-3",
+        "age": "older",
+        "family": "snippet",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            15.5354,
+            6.0302,
+            3.5869
+          ]
+        },
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            1.5244,
+            1.0885,
+            0.947
+          ]
+        }
+      },
+      {
+        "id": "older-refinement-3",
+        "age": "older",
+        "family": "refinement",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            2.3624,
+            9.409,
+            2.2017
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            14.8387,
+            20.1067,
+            10.5729
+          ]
+        }
+      },
+      {
+        "id": "older-sender-4",
+        "age": "older",
+        "family": "sender",
+        "ranked": {
+          "rank": 14,
+          "ms": [
+            1.0657,
+            0.4598,
+            0.4098
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            5.6299,
+            39.3077,
+            2.6621
+          ]
+        }
+      },
+      {
+        "id": "older-subject-4",
+        "age": "older",
+        "family": "subject",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            1.3413,
+            0.9318,
+            0.9673
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            3.6638,
+            10.8122,
+            2.7863
+          ]
+        }
+      },
+      {
+        "id": "older-sender-and-topic-4",
+        "age": "older",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 15,
+          "ms": [
+            1.27,
+            0.6664,
+            1.8781
+          ]
+        },
+        "chronological": {
+          "rank": 10,
+          "ms": [
+            12.4345,
+            0.7518,
+            10.3656
+          ]
+        }
+      },
+      {
+        "id": "older-snippet-4",
+        "age": "older",
+        "family": "snippet",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            11.7903,
+            19.8579,
+            11.7937
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            3.9362,
+            3.6633,
+            1.8136
+          ]
+        }
+      },
+      {
+        "id": "older-refinement-4",
+        "age": "older",
+        "family": "refinement",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            3.7025,
+            3.789,
+            15.7979
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            29.7247,
+            42.287,
+            32.2951
+          ]
+        }
+      },
+      {
+        "id": "older-sender-5",
+        "age": "older",
+        "family": "sender",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            90.2512,
+            130.5787,
+            140.8533
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            4.0388,
+            5.1332,
+            1.2854
+          ]
+        }
+      },
+      {
+        "id": "older-subject-5",
+        "age": "older",
+        "family": "subject",
+        "chronological": {
+          "rank": 39,
+          "ms": [
+            11.8323,
+            8.4464,
+            21.8242
+          ]
+        },
+        "ranked": {
+          "rank": 35,
+          "ms": [
+            2.1217,
+            2.8923,
+            1.4994
+          ]
+        }
+      },
+      {
+        "id": "older-sender-and-topic-5",
+        "age": "older",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            1.3579,
+            1.1203,
+            0.9852
+          ]
+        },
+        "chronological": {
+          "rank": 46,
+          "ms": [
+            7.0476,
+            5.3505,
+            18.9608
+          ]
+        }
+      },
+      {
+        "id": "older-snippet-5",
+        "age": "older",
+        "family": "snippet",
+        "ranked": {
+          "rank": 6,
+          "ms": [
+            1.4709,
+            1.1514,
+            4.6393
+          ]
+        },
+        "chronological": {
+          "rank": 6,
+          "ms": [
+            4.8354,
+            2.4171,
+            2.5162
+          ]
+        }
+      },
+      {
+        "id": "older-refinement-5",
+        "age": "older",
+        "family": "refinement",
+        "chronological": {
+          "rank": 8,
+          "ms": [
+            6.2145,
+            20.6081,
+            16.2855
+          ]
+        },
+        "ranked": {
+          "rank": 2,
+          "ms": [
+            1.2191,
+            3.0112,
+            2.116
+          ]
+        }
+      },
+      {
+        "id": "older-sender-6",
+        "age": "older",
+        "family": "sender",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.9629,
+            0.4445,
+            0.5064
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            7.0625,
+            5.6521,
+            13.8825
+          ]
+        }
+      },
+      {
+        "id": "older-subject-6",
+        "age": "older",
+        "family": "subject",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            2.2972,
+            1.3135,
+            1.0249
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            5.2017,
+            4.5524,
+            6.2655
+          ]
+        }
+      },
+      {
+        "id": "older-sender-and-topic-6",
+        "age": "older",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            2.5031,
+            1.1372,
+            2.7015
+          ]
+        },
+        "chronological": {
+          "rank": 37,
+          "ms": [
+            10.7905,
+            2.7786,
+            11.3281
+          ]
+        }
+      },
+      {
+        "id": "older-snippet-6",
+        "age": "older",
+        "family": "snippet",
+        "ranked": {
+          "rank": 3,
+          "ms": [
+            1.8649,
+            1.2358,
+            1.2305
+          ]
+        },
+        "chronological": {
+          "rank": 21,
+          "ms": [
+            6.5596,
+            5.2617,
+            5.8009
+          ]
+        }
+      },
+      {
+        "id": "older-refinement-6",
+        "age": "older",
+        "family": "refinement",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            6.8316,
+            14.4015,
+            7.8261
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            43.7707,
+            56.9723,
+            40.5945
+          ]
+        }
+      },
+      {
+        "id": "older-sender-7",
+        "age": "older",
+        "family": "sender",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            1.1874,
+            0.4594,
+            0.4843
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            6.6975,
+            3.1184,
+            6.8716
+          ]
+        }
+      },
+      {
+        "id": "older-subject-7",
+        "age": "older",
+        "family": "subject",
+        "chronological": {
+          "rank": 6,
+          "ms": [
+            3.5354,
+            4.8898,
+            3.0257
+          ]
+        },
+        "ranked": {
+          "rank": 3,
+          "ms": [
+            2.4708,
+            0.8328,
+            0.7954
+          ]
+        }
+      },
+      {
+        "id": "older-sender-and-topic-7",
+        "age": "older",
+        "family": "sender-and-topic",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.9196,
+            0.995,
+            0.4632
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            6.6642,
+            11.5113,
+            4.9095
+          ]
+        }
+      },
+      {
+        "id": "older-snippet-7",
+        "age": "older",
+        "family": "snippet",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            2.5632,
+            12.082,
+            2.1507
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            13.9722,
+            83.2578,
+            11.5768
+          ]
+        }
+      },
+      {
+        "id": "older-refinement-7",
+        "age": "older",
+        "family": "refinement",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            2.0194,
+            2.4973,
+            1.3306
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            5.0261,
+            4.9405,
+            5.3402
+          ]
+        }
+      },
+      {
+        "id": "older-sender-8",
+        "age": "older",
+        "family": "sender",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            0.6903,
+            0.6847,
+            1.847
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            10.228,
+            11.0565,
+            12.0721
+          ]
+        }
+      },
+      {
+        "id": "older-subject-8",
+        "age": "older",
+        "family": "subject",
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            1.4644,
+            12.1158,
+            1.0915
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            4.9016,
+            6.1312,
+            2.8968
+          ]
+        }
+      },
+      {
+        "id": "older-sender-and-topic-8",
+        "age": "older",
+        "family": "sender-and-topic",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            6.5556,
+            4.716,
+            2.8721
+          ]
+        },
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            1.0826,
+            2.1411,
+            6.869
+          ]
+        }
+      },
+      {
+        "id": "older-snippet-8",
+        "age": "older",
+        "family": "snippet",
+        "ranked": {
+          "rank": 0,
+          "ms": [
+            5.6725,
+            4.2153,
+            3.86
+          ]
+        },
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            56.1281,
+            46.1309,
+            25.1969
+          ]
+        }
+      },
+      {
+        "id": "older-refinement-8",
+        "age": "older",
+        "family": "refinement",
+        "chronological": {
+          "rank": 0,
+          "ms": [
+            10.2136,
+            2.2951,
+            3.0694
+          ]
+        },
+        "ranked": {
+          "rank": 1,
+          "ms": [
+            14.897,
+            1.139,
+            2.3124
+          ]
+        }
+      }
+    ]
+  }
+}

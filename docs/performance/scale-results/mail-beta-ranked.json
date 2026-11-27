@@ -1,0 +1,4021 @@
+{
+  "messages": 256208,
+  "threads": 189714,
+  "bodyDocuments": 93181,
+  "asOf": "2026-11-25",
+  "seed": 73123,
+  "subjects": "Newest locally fetched message per eligible sampled conversation",
+  "scope": "Cue-derived proxy tasks, no query logs. Merged header/body SQL, no UI, live provider or app decoding.",
+  "all": {
+    "topics": 120,
+    "corpusTargets": 120,
+    "top1": 10,
+    "successAt5": 26,
+    "successAt10": 37,
+    "successAt50": 61,
+    "mrrAt10": 0.1418287037037037,
+    "baseQueryMedianMS": 4.631145500000001,
+    "candidateQueryMedianMS": 3.343688,
+    "baseQueryP95MS": 21.1045,
+    "candidateQueryP95MS": 20.5675,
+    "baseMaxMS": 76.99975,
+    "candidateMaxMS": 87.268375,
+    "medianPairedSavingMS": 0.6608545000000019,
+    "bootstrap95SavingMS": [
+      0.3117080000000003,
+      1.0506250000000001
+    ]
+  },
+  "offlineBM25Fusion": {
+    "topics": 120,
+    "top1": 15,
+    "successAt5": 41,
+    "successAt10": 48,
+    "successAt50": 71,
+    "mrrAt10": 0.2071031746031746,
+    "gainedAt5": 21,
+    "lostAt5": 6,
+    "lookupMedianMS": 6.657,
+    "lookupP95MS": 68.736208
+  },
+  "lexicalByAge": {
+    "31to180d": {
+      "topics": 40,
+      "top1": 8,
+      "successAt5": 14,
+      "successAt10": 15,
+      "successAt50": 24,
+      "mrrAt10": 0.25729166666666664,
+      "gainedAt5": 6,
+      "lostAt5": 0,
+      "lookupMedianMS": 9.523875,
+      "lookupP95MS": 63.403875
+    },
+    "last30d": {
+      "topics": 40,
+      "top1": 5,
+      "successAt5": 15,
+      "successAt10": 20,
+      "successAt50": 26,
+      "mrrAt10": 0.23901785714285714,
+      "gainedAt5": 4,
+      "lostAt5": 6,
+      "lookupMedianMS": 6.181125,
+      "lookupP95MS": 61.217791
+    },
+    "older": {
+      "topics": 40,
+      "top1": 2,
+      "successAt5": 12,
+      "successAt10": 13,
+      "successAt50": 21,
+      "mrrAt10": 0.125,
+      "gainedAt5": 11,
+      "lostAt5": 0,
+      "lookupMedianMS": 6.3542085,
+      "lookupP95MS": 84.163209
+    }
+  },
+  "age": {
+    "31to180d": {
+      "topics": 40,
+      "corpusTargets": 40,
+      "top1": 3,
+      "successAt5": 8,
+      "successAt10": 10,
+      "successAt50": 14,
+      "mrrAt10": 0.125,
+      "baseQueryMedianMS": 5.3481665,
+      "candidateQueryMedianMS": 4.298875,
+      "baseQueryP95MS": 17.356375,
+      "candidateQueryP95MS": 17.334125,
+      "baseMaxMS": 29.052333,
+      "candidateMaxMS": 27.454375,
+      "medianPairedSavingMS": 0.9199164999999996,
+      "bootstrap95SavingMS": [
+        0.25568750000000007,
+        1.3859374999999998
+      ]
+    },
+    "last30d": {
+      "topics": 40,
+      "corpusTargets": 40,
+      "top1": 7,
+      "successAt5": 17,
+      "successAt10": 22,
+      "successAt50": 35,
+      "mrrAt10": 0.27819444444444447,
+      "baseQueryMedianMS": 4.0955625,
+      "candidateQueryMedianMS": 2.8872085,
+      "baseQueryP95MS": 18.068167,
+      "candidateQueryP95MS": 17.262417,
+      "baseMaxMS": 24.880667,
+      "candidateMaxMS": 29.817583,
+      "medianPairedSavingMS": 0.8212715000000002,
+      "bootstrap95SavingMS": [
+        0.3019584999999998,
+        1.2989584999999997
+      ]
+    },
+    "older": {
+      "topics": 40,
+      "corpusTargets": 40,
+      "top1": 0,
+      "successAt5": 1,
+      "successAt10": 5,
+      "successAt50": 12,
+      "mrrAt10": 0.022291666666666664,
+      "baseQueryMedianMS": 5.224895999999999,
+      "candidateQueryMedianMS": 3.5792289999999998,
+      "baseQueryP95MS": 26.706375,
+      "candidateQueryP95MS": 24.876958,
+      "baseMaxMS": 76.99975,
+      "candidateMaxMS": 87.268375,
+      "medianPairedSavingMS": 0.3117080000000003,
+      "bootstrap95SavingMS": [
+        0.13720850000000007,
+        0.7544380000000017
+      ]
+    }
+  },
+  "families": {
+    "sender": {
+      "topics": 24,
+      "corpusTargets": 24,
+      "top1": 0,
+      "successAt5": 1,
+      "successAt10": 1,
+      "successAt50": 5,
+      "mrrAt10": 0.013888888888888888,
+      "baseQueryMedianMS": 10.129437,
+      "candidateQueryMedianMS": 8.5307705,
+      "baseQueryP95MS": 35.924334,
+      "candidateQueryP95MS": 35.292083,
+      "baseMaxMS": 76.99975,
+      "candidateMaxMS": 87.268375,
+      "medianPairedSavingMS": 0.9498329999999995,
+      "bootstrap95SavingMS": [
+        0.2678750000000001,
+        1.5818329999999996
+      ]
+    },
+    "subject": {
+      "topics": 24,
+      "corpusTargets": 24,
+      "top1": 2,
+      "successAt5": 6,
+      "successAt10": 9,
+      "successAt50": 15,
+      "mrrAt10": 0.15763888888888888,
+      "baseQueryMedianMS": 3.6394795,
+      "candidateQueryMedianMS": 2.8573125,
+      "baseQueryP95MS": 10.999041,
+      "candidateQueryP95MS": 8.707625,
+      "baseMaxMS": 21.303292,
+      "candidateMaxMS": 20.658708,
+      "medianPairedSavingMS": 0.4308955000000001,
+      "bootstrap95SavingMS": [
+        0.19158300000000006,
+        1.4729999999999999
+      ]
+    },
+    "sender-and-topic": {
+      "topics": 24,
+      "corpusTargets": 24,
+      "top1": 5,
+      "successAt5": 7,
+      "successAt10": 9,
+      "successAt50": 16,
+      "mrrAt10": 0.24375,
+      "baseQueryMedianMS": 3.987042,
+      "candidateQueryMedianMS": 2.8454165,
+      "baseQueryP95MS": 10.307416,
+      "candidateQueryP95MS": 8.379417,
+      "baseMaxMS": 22.029208,
+      "candidateMaxMS": 22.57125,
+      "medianPairedSavingMS": 0.5946670000000001,
+      "bootstrap95SavingMS": [
+        0.15443800000000002,
+        1.5092919999999999
+      ]
+    },
+    "snippet": {
+      "topics": 24,
+      "corpusTargets": 24,
+      "top1": 1,
+      "successAt5": 5,
+      "successAt10": 8,
+      "successAt50": 12,
+      "mrrAt10": 0.12407407407407407,
+      "baseQueryMedianMS": 5.6020835,
+      "candidateQueryMedianMS": 4.7726255,
+      "baseQueryP95MS": 16.671625,
+      "candidateQueryP95MS": 14.889041,
+      "baseMaxMS": 23.422375,
+      "candidateMaxMS": 21.187417,
+      "medianPairedSavingMS": 0.6510205000000004,
+      "bootstrap95SavingMS": [
+        0.1985430000000008,
+        1.1101260000000002
+      ]
+    },
+    "refinement": {
+      "topics": 24,
+      "corpusTargets": 24,
+      "top1": 2,
+      "successAt5": 7,
+      "successAt10": 10,
+      "successAt50": 13,
+      "mrrAt10": 0.16979166666666667,
+      "baseQueryMedianMS": 5.406813,
+      "candidateQueryMedianMS": 4.298875,
+      "baseQueryP95MS": 26.706375,
+      "candidateQueryP95MS": 24.08075,
+      "baseMaxMS": 29.89725,
+      "candidateMaxMS": 31.676542,
+      "medianPairedSavingMS": 0.6280209999999995,
+      "bootstrap95SavingMS": [
+        -0.028999999999999915,
+        1.5025204999999997
+      ]
+    }
+  },
+  "firstRefinementAttempt": {
+    "topics": 24,
+    "corpusTargets": 24,
+    "top1": 0,
+    "successAt5": 1,
+    "successAt10": 2,
+    "successAt50": 4,
+    "mrrAt10": 0.020833333333333332,
+    "baseQueryMedianMS": 10.072750500000001,
+    "candidateQueryMedianMS": 8.82,
+    "baseQueryP95MS": 40.150958,
+    "candidateQueryP95MS": 38.665125,
+    "baseMaxMS": 95.05675,
+    "candidateMaxMS": 103.34,
+    "medianPairedSavingMS": 1.1852494999999998,
+    "bootstrap95SavingMS": [
+      0.6397500000000012,
+      1.4772920000000003
+    ]
+  },
+  "replays": [
+    {
+      "id": "last30d-sender-1",
+      "family": "sender",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.0325,
+        0.532875,
+        0.967,
+        0.571917,
+        0.991167
+      ],
+      "candidateMS": [
+        0.682125,
+        0.780666,
+        0.728667,
+        1.151292,
+        0.687458
+      ],
+      "route": "full",
+      "rankAt50": 3,
+      "rows": 31,
+      "lexicalLookupMS": 6.597375,
+      "lexicalRankAt50": 6
+    },
+    {
+      "id": "last30d-subject-1",
+      "family": "subject",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        2.547208,
+        2.882708,
+        2.769375,
+        3.947708,
+        2.463375
+      ],
+      "candidateMS": [
+        2.572291,
+        2.215084,
+        2.595667,
+        4.40925,
+        2.577792
+      ],
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 50,
+      "lexicalLookupMS": 10.325958,
+      "lexicalRankAt50": 7
+    },
+    {
+      "id": "last30d-sender-and-topic-1",
+      "family": "sender-and-topic",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.310125,
+        1.0585,
+        1.525542,
+        1.406542,
+        1.280458
+      ],
+      "candidateMS": [
+        1.007833,
+        1.232417,
+        1.28,
+        1.248167,
+        1.034125
+      ],
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 1.41375,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "last30d-snippet-1",
+      "family": "snippet",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        6.355041,
+        6.844417,
+        6.411375,
+        7.046125,
+        6.739709
+      ],
+      "candidateMS": [
+        6.657334,
+        5.667917,
+        6.264792,
+        7.020125,
+        6.541166
+      ],
+      "route": "full",
+      "rankAt50": 9,
+      "rows": 50,
+      "lexicalLookupMS": 17.394333,
+      "lexicalRankAt50": 6
+    },
+    {
+      "id": "last30d-refinement-1",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.874833,
+        4.103875,
+        5.47625,
+        4.308917,
+        3.885583
+      ],
+      "candidateMS": [
+        2.1375,
+        2.650583,
+        2.512125,
+        2.954125,
+        2.111541
+      ],
+      "route": "full",
+      "rankAt50": 6,
+      "rows": 50,
+      "lexicalLookupMS": 32.16275,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-refinement-1",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        7.284875,
+        8.041209,
+        8.460625,
+        9.3345,
+        8.017542
+      ],
+      "candidateMS": [
+        6.368166,
+        6.217291,
+        6.944458,
+        5.972959,
+        6.120417
+      ],
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 50,
+      "lexicalLookupMS": 12.765542,
+      "lexicalRankAt50": 5
+    },
+    {
+      "id": "last30d-sender-2",
+      "family": "sender",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        18.014,
+        19.959333,
+        18.101125,
+        18.068167,
+        15.643
+      ],
+      "candidateMS": [
+        18.802917,
+        29.817583,
+        16.393458,
+        16.276583,
+        15.13525
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 62.197458,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-subject-2",
+      "family": "subject",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.424584,
+        2.20775,
+        1.731666,
+        1.944917,
+        1.5755
+      ],
+      "candidateMS": [
+        1.837625,
+        1.711833,
+        2.323375,
+        1.500958,
+        1.999
+      ],
+      "route": "full",
+      "rankAt50": 4,
+      "rows": 50,
+      "lexicalLookupMS": 2.506708,
+      "lexicalRankAt50": 2
+    },
+    {
+      "id": "last30d-sender-and-topic-2",
+      "family": "sender-and-topic",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.270208,
+        4.600416,
+        6.059,
+        4.68775,
+        4.245791
+      ],
+      "candidateMS": [
+        2.184042,
+        2.672875,
+        2.481042,
+        2.675917,
+        2.278417
+      ],
+      "route": "full",
+      "rankAt50": 37,
+      "rows": 50,
+      "lexicalLookupMS": 6.1095,
+      "lexicalRankAt50": 22
+    },
+    {
+      "id": "last30d-snippet-2",
+      "family": "snippet",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        2.262917,
+        3.574458,
+        2.298875,
+        2.66425,
+        2.203458
+      ],
+      "candidateMS": [
+        2.522375,
+        2.517291,
+        2.717625,
+        4.273,
+        2.508792
+      ],
+      "route": "full",
+      "rankAt50": 5,
+      "rows": 50,
+      "lexicalLookupMS": 3.743958,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "last30d-refinement-2",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        9.489,
+        8.520334,
+        9.845209,
+        11.828416,
+        9.878333
+      ],
+      "candidateMS": [
+        8.12675,
+        8.41275,
+        9.969333,
+        9.30575,
+        8.415875
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 20.167208,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-refinement-2",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        3.337375,
+        4.480791,
+        4.051792,
+        6.8705,
+        3.295583
+      ],
+      "candidateMS": [
+        2.998541,
+        4.480958,
+        2.762,
+        2.774875,
+        2.520916
+      ],
+      "route": "full",
+      "rankAt50": 18,
+      "rows": 50,
+      "lexicalLookupMS": 4.36375,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-sender-3",
+      "family": "sender",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        2.683833,
+        3.555125,
+        3.962875,
+        4.270208,
+        3.332
+      ],
+      "candidateMS": [
+        1.25825,
+        1.847083,
+        1.759333,
+        1.708583,
+        1.443292
+      ],
+      "route": "full",
+      "rankAt50": 11,
+      "rows": 50,
+      "lexicalLookupMS": 4.024167,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-subject-3",
+      "family": "subject",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.469667,
+        3.248334,
+        3.579583,
+        4.999125,
+        3.262125
+      ],
+      "candidateMS": [
+        3.75775,
+        2.679458,
+        3.664583,
+        3.25575,
+        3.231584
+      ],
+      "route": "full",
+      "rankAt50": 6,
+      "rows": 50,
+      "lexicalLookupMS": 5.434709,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "last30d-sender-and-topic-3",
+      "family": "sender-and-topic",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.845458,
+        3.849667,
+        3.642333,
+        3.386917,
+        4.72675
+      ],
+      "candidateMS": [
+        2.336166,
+        3.258334,
+        2.295667,
+        2.756208,
+        2.211542
+      ],
+      "route": "full",
+      "rankAt50": 15,
+      "rows": 50,
+      "lexicalLookupMS": 6.25275,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-snippet-3",
+      "family": "snippet",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        6.269125,
+        6.897708,
+        6.523834,
+        8.420459,
+        6.233667
+      ],
+      "candidateMS": [
+        5.960459,
+        6.533875,
+        6.177875,
+        7.207208,
+        5.707667
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 13.071542,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-refinement-3",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        10.539666,
+        9.893416,
+        11.235542,
+        10.7655,
+        10.0635
+      ],
+      "candidateMS": [
+        9.135958,
+        9.224125,
+        10.013542,
+        9.943042,
+        9.076458
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 23.640792,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-refinement-3",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        1.726291,
+        2.223,
+        1.91425,
+        2.125708,
+        1.893833
+      ],
+      "candidateMS": [
+        1.94325,
+        1.743584,
+        2.067958,
+        1.784833,
+        2.124833
+      ],
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 12,
+      "lexicalLookupMS": 3.188458,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "last30d-sender-4",
+      "family": "sender",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        10.70625,
+        9.088041,
+        9.799916,
+        11.367459,
+        10.451291
+      ],
+      "candidateMS": [
+        8.869458,
+        8.765667,
+        9.0695,
+        9.119125,
+        8.339458
+      ],
+      "route": "full",
+      "rankAt50": 17,
+      "rows": 50,
+      "lexicalLookupMS": 22.6935,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-subject-4",
+      "family": "subject",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.073292,
+        1.627625,
+        1.188458,
+        1.363583,
+        1.032583
+      ],
+      "candidateMS": [
+        2.116416,
+        1.215209,
+        1.5375,
+        1.037041,
+        1.380166
+      ],
+      "route": "full",
+      "rankAt50": 6,
+      "rows": 6,
+      "lexicalLookupMS": 3.679958,
+      "lexicalRankAt50": 3
+    },
+    {
+      "id": "last30d-sender-and-topic-4",
+      "family": "sender-and-topic",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.252917,
+        3.513083,
+        3.600875,
+        3.552583,
+        3.556916
+      ],
+      "candidateMS": [
+        3.059875,
+        3.3625,
+        3.162583,
+        3.421375,
+        3.106333
+      ],
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 3,
+      "lexicalLookupMS": 5.785417,
+      "lexicalRankAt50": 2
+    },
+    {
+      "id": "last30d-snippet-4",
+      "family": "snippet",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.068958,
+        4.310083,
+        3.726459,
+        3.965667,
+        3.418542
+      ],
+      "candidateMS": [
+        2.616333,
+        2.652875,
+        2.874625,
+        2.545584,
+        2.603292
+      ],
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 50,
+      "lexicalLookupMS": 5.220209,
+      "lexicalRankAt50": 4
+    },
+    {
+      "id": "last30d-refinement-4",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.475083,
+        0.95675,
+        1.428833,
+        1.03975,
+        1.134958
+      ],
+      "candidateMS": [
+        0.992917,
+        1.209083,
+        0.864375,
+        3.0055,
+        0.839333
+      ],
+      "route": "full",
+      "rankAt50": 3,
+      "rows": 50,
+      "lexicalLookupMS": 1.284125,
+      "lexicalRankAt50": 20
+    },
+    {
+      "id": "last30d-refinement-4",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        17.217667,
+        17.723125,
+        17.26675,
+        18.929,
+        17.028209
+      ],
+      "candidateMS": [
+        17.262417,
+        16.935458,
+        18.471833,
+        17.634875,
+        17.093083
+      ],
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 37,
+      "lexicalLookupMS": 32.511166,
+      "lexicalRankAt50": 20
+    },
+    {
+      "id": "last30d-sender-5",
+      "family": "sender",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        16.366875,
+        16.511959,
+        18.438875,
+        16.827833,
+        16.409375
+      ],
+      "candidateMS": [
+        15.35625,
+        16.013042,
+        17.411042,
+        16.102458,
+        16.172958
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 61.217791,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-subject-5",
+      "family": "subject",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.0995,
+        6.07825,
+        4.249375,
+        5.244708,
+        4.2075
+      ],
+      "candidateMS": [
+        3.048292,
+        2.860542,
+        2.99325,
+        2.928375,
+        2.908083
+      ],
+      "route": "full",
+      "rankAt50": 5,
+      "rows": 50,
+      "lexicalLookupMS": 6.617625,
+      "lexicalRankAt50": 25
+    },
+    {
+      "id": "last30d-sender-and-topic-5",
+      "family": "sender-and-topic",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        5.898375,
+        9.740167,
+        6.745417,
+        6.216458,
+        7.87925
+      ],
+      "candidateMS": [
+        3.674958,
+        4.845708,
+        4.041417,
+        4.219958,
+        4.800416
+      ],
+      "route": "full",
+      "rankAt50": 21,
+      "rows": 50,
+      "lexicalLookupMS": 8.083375,
+      "lexicalRankAt50": 11
+    },
+    {
+      "id": "last30d-snippet-5",
+      "family": "snippet",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        23.365792,
+        20.715875,
+        21.735167,
+        23.422375,
+        20.966084
+      ],
+      "candidateMS": [
+        20.5675,
+        19.070417,
+        21.187417,
+        21.108167,
+        19.774167
+      ],
+      "route": "full",
+      "rankAt50": 6,
+      "rows": 50,
+      "lexicalLookupMS": 40.072834,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-refinement-5",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        6.532959,
+        7.765834,
+        9.579958,
+        6.292709,
+        6.481542
+      ],
+      "candidateMS": [
+        5.524375,
+        6.099875,
+        6.009167,
+        5.552958,
+        4.66775
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 31.925458,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-refinement-5",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        5.703875,
+        10.88925,
+        6.786208,
+        7.039917,
+        5.784541
+      ],
+      "candidateMS": [
+        4.8325,
+        4.721875,
+        5.294041,
+        5.489875,
+        4.924333
+      ],
+      "route": "full",
+      "rankAt50": 27,
+      "rows": 50,
+      "lexicalLookupMS": 15.098541,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-sender-6",
+      "family": "sender",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        20.216458,
+        21.1045,
+        24.880667,
+        21.308084,
+        20.163625
+      ],
+      "candidateMS": [
+        19.045125,
+        21.788917,
+        21.205917,
+        21.9215,
+        18.68525
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 79.219416,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-subject-6",
+      "family": "subject",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.157917,
+        8.973542,
+        4.25925,
+        4.946458,
+        4.128209
+      ],
+      "candidateMS": [
+        2.451125,
+        2.78625,
+        3.217958,
+        2.737292,
+        2.937167
+      ],
+      "route": "full",
+      "rankAt50": 35,
+      "rows": 50,
+      "lexicalLookupMS": 5.320917,
+      "lexicalRankAt50": 45
+    },
+    {
+      "id": "last30d-sender-and-topic-6",
+      "family": "sender-and-topic",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.984416,
+        1.547041,
+        1.771209,
+        1.865459,
+        1.783708
+      ],
+      "candidateMS": [
+        1.733666,
+        1.820375,
+        1.597917,
+        1.83975,
+        1.5405
+      ],
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 2,
+      "lexicalLookupMS": 3.335667,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "last30d-snippet-6",
+      "family": "snippet",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        9.165417,
+        9.013458,
+        9.314167,
+        10.050333,
+        8.695417
+      ],
+      "candidateMS": [
+        8.414917,
+        7.582209,
+        8.470417,
+        7.855208,
+        8.377959
+      ],
+      "route": "full",
+      "rankAt50": 15,
+      "rows": 50,
+      "lexicalLookupMS": 17.86775,
+      "lexicalRankAt50": 15
+    },
+    {
+      "id": "last30d-refinement-6",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.495417,
+        7.330541,
+        4.925833,
+        6.252917,
+        5.437292
+      ],
+      "candidateMS": [
+        3.110958,
+        6.78825,
+        3.386167,
+        3.96,
+        5.425209
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 10.114125,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-refinement-6",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        2.480458,
+        5.777083,
+        3.094916,
+        6.64225,
+        2.784459
+      ],
+      "candidateMS": [
+        2.332875,
+        2.84875,
+        2.684084,
+        6.214417,
+        2.592291
+      ],
+      "route": "full",
+      "rankAt50": 5,
+      "rows": 50,
+      "lexicalLookupMS": 4.656875,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-sender-7",
+      "family": "sender",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        12.140125,
+        17.819875,
+        13.155375,
+        12.572167,
+        12.851875
+      ],
+      "candidateMS": [
+        10.604042,
+        12.900208,
+        11.80125,
+        10.806667,
+        12.656958
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 48.210334,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-subject-7",
+      "family": "subject",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.941125,
+        3.525625,
+        3.803916,
+        5.251208,
+        3.673792
+      ],
+      "candidateMS": [
+        2.739583,
+        2.001791,
+        2.759667,
+        2.416292,
+        2.671625
+      ],
+      "route": "full",
+      "rankAt50": 30,
+      "rows": 50,
+      "lexicalLookupMS": 5.337916,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-sender-and-topic-7",
+      "family": "sender-and-topic",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.039459,
+        3.731417,
+        4.180667,
+        5.899542,
+        4.06425
+      ],
+      "candidateMS": [
+        3.221375,
+        3.425208,
+        3.264916,
+        4.207917,
+        3.151583
+      ],
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 50,
+      "lexicalLookupMS": 6.381833,
+      "lexicalRankAt50": 2
+    },
+    {
+      "id": "last30d-snippet-7",
+      "family": "snippet",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.742125,
+        7.491917,
+        5.231125,
+        5.506792,
+        6.510583
+      ],
+      "candidateMS": [
+        3.498375,
+        3.55125,
+        3.885542,
+        3.343458,
+        3.94425
+      ],
+      "route": "full",
+      "rankAt50": 14,
+      "rows": 50,
+      "lexicalLookupMS": 10.527709,
+      "lexicalRankAt50": 2
+    },
+    {
+      "id": "last30d-refinement-7",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        5.18075,
+        4.138708,
+        5.02075,
+        5.550542,
+        5.311834
+      ],
+      "candidateMS": [
+        3.330667,
+        3.62225,
+        4.003583,
+        3.692708,
+        3.647625
+      ],
+      "route": "full",
+      "rankAt50": 25,
+      "rows": 50,
+      "lexicalLookupMS": 16.634333,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-refinement-7",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        4.157084,
+        7.782458,
+        4.574166,
+        4.905375,
+        4.040417
+      ],
+      "candidateMS": [
+        2.710917,
+        3.21525,
+        2.888708,
+        2.346334,
+        2.846042
+      ],
+      "route": "full",
+      "rankAt50": 6,
+      "rows": 50,
+      "lexicalLookupMS": 7.12275,
+      "lexicalRankAt50": 5
+    },
+    {
+      "id": "last30d-sender-8",
+      "family": "sender",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.712583,
+        5.896458,
+        3.447958,
+        6.213792,
+        2.915667
+      ],
+      "candidateMS": [
+        1.570584,
+        3.063625,
+        1.722542,
+        2.227083,
+        1.328042
+      ],
+      "route": "full",
+      "rankAt50": 17,
+      "rows": 50,
+      "lexicalLookupMS": 4.868917,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-subject-8",
+      "family": "subject",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.123,
+        3.622208,
+        2.992917,
+        3.469958,
+        2.849125
+      ],
+      "candidateMS": [
+        3.685292,
+        3.247792,
+        3.338292,
+        3.010375,
+        3.449292
+      ],
+      "route": "full",
+      "rankAt50": 3,
+      "rows": 40,
+      "lexicalLookupMS": 5.454917,
+      "lexicalRankAt50": 2
+    },
+    {
+      "id": "last30d-sender-and-topic-8",
+      "family": "sender-and-topic",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.458625,
+        4.763416,
+        4.637083,
+        4.126875,
+        3.810458
+      ],
+      "candidateMS": [
+        2.548875,
+        3.45,
+        3.283666,
+        3.436834,
+        2.709625
+      ],
+      "route": "full",
+      "rankAt50": 20,
+      "rows": 50,
+      "lexicalLookupMS": 5.264875,
+      "lexicalRankAt50": 8
+    },
+    {
+      "id": "last30d-snippet-8",
+      "family": "snippet",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.869042,
+        7.912375,
+        4.811125,
+        5.128417,
+        3.714542
+      ],
+      "candidateMS": [
+        2.42075,
+        2.853958,
+        2.495209,
+        2.17075,
+        2.3575
+      ],
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 50,
+      "lexicalLookupMS": 5.153917,
+      "lexicalRankAt50": 7
+    },
+    {
+      "id": "last30d-refinement-8",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.814709,
+        9.8415,
+        5.875666,
+        5.974,
+        4.423333
+      ],
+      "candidateMS": [
+        2.904334,
+        3.985708,
+        3.198042,
+        4.330209,
+        2.646542
+      ],
+      "route": "full",
+      "rankAt50": 49,
+      "rows": 50,
+      "lexicalLookupMS": 5.623416,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "last30d-refinement-8",
+      "family": "refinement",
+      "age": "last30d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        1.032375,
+        1.7535,
+        1.176959,
+        1.589292,
+        1.057625
+      ],
+      "candidateMS": [
+        1.194875,
+        1.788958,
+        1.309,
+        1.012292,
+        1.362958
+      ],
+      "route": "full",
+      "rankAt50": 3,
+      "rows": 21,
+      "lexicalLookupMS": 1.776416,
+      "lexicalRankAt50": 3
+    },
+    {
+      "id": "31to180d-sender-1",
+      "family": "sender",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        16.263625,
+        17.356375,
+        17.446041,
+        18.633791,
+        15.821292
+      ],
+      "candidateMS": [
+        14.886125,
+        17.4895,
+        17.334125,
+        27.454375,
+        15.224375
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 63.403875,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-subject-1",
+      "family": "subject",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        9.459166,
+        12.038958,
+        9.673167,
+        14.769083,
+        10.999041
+      ],
+      "candidateMS": [
+        8.420708,
+        10.771625,
+        8.707625,
+        10.680833,
+        8.40925
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 18.836833,
+      "lexicalRankAt50": 19
+    },
+    {
+      "id": "31to180d-sender-and-topic-1",
+      "family": "sender-and-topic",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        0.585792,
+        0.351875,
+        0.549459,
+        0.744417,
+        0.474708
+      ],
+      "candidateMS": [
+        0.380042,
+        0.493209,
+        0.368291,
+        0.640416,
+        0.359625
+      ],
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 0.661,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "31to180d-snippet-1",
+      "family": "snippet",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        2.912709,
+        5.056292,
+        3.344458,
+        3.566333,
+        3.093875
+      ],
+      "candidateMS": [
+        2.777417,
+        3.814334,
+        3.133875,
+        3.895875,
+        3.007667
+      ],
+      "route": "full",
+      "rankAt50": 11,
+      "rows": 50,
+      "lexicalLookupMS": 4.68375,
+      "lexicalRankAt50": 3
+    },
+    {
+      "id": "31to180d-refinement-1",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        14.475958,
+        12.354667,
+        15.729833,
+        13.493958,
+        12.184875
+      ],
+      "candidateMS": [
+        13.019542,
+        11.950917,
+        15.47425,
+        13.682917,
+        11.693833
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 33.210833,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-refinement-1",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        23.492792,
+        28.138167,
+        26.840125,
+        29.052333,
+        23.704625
+      ],
+      "candidateMS": [
+        23.275916,
+        26.298875,
+        24.08075,
+        22.673792,
+        24.231791
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 53.5245,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-sender-2",
+      "family": "sender",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        15.443833,
+        17.122666,
+        18.795334,
+        18.384417,
+        15.482458
+      ],
+      "candidateMS": [
+        14.780792,
+        18.034084,
+        16.654334,
+        15.057041,
+        16.099625
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 52.931917,
+      "lexicalRankAt50": 37
+    },
+    {
+      "id": "31to180d-subject-2",
+      "family": "subject",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.067334,
+        1.429125,
+        1.066167,
+        1.230583,
+        1.098208
+      ],
+      "candidateMS": [
+        1.213042,
+        1.235458,
+        1.315792,
+        1.071833,
+        1.280625
+      ],
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 1,
+      "lexicalLookupMS": 1.407875,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "31to180d-sender-and-topic-2",
+      "family": "sender-and-topic",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        5.429083,
+        6.171833,
+        5.639875,
+        5.21925,
+        4.780542
+      ],
+      "candidateMS": [
+        3.387084,
+        3.888625,
+        3.560459,
+        4.501542,
+        3.197833
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 9.077291,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-snippet-2",
+      "family": "snippet",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        5.140917,
+        6.579166,
+        5.07025,
+        6.038625,
+        5.003583
+      ],
+      "candidateMS": [
+        4.44275,
+        4.016083,
+        4.398709,
+        4.432,
+        4.24675
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 10.352459,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-refinement-2",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        9.549208,
+        16.31325,
+        11.138458,
+        9.679125,
+        10.300292
+      ],
+      "candidateMS": [
+        8.903042,
+        15.321084,
+        9.431334,
+        9.789708,
+        9.34275
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 27.850667,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-refinement-2",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        4.591209,
+        6.755291,
+        6.866417,
+        5.698416,
+        5.919791
+      ],
+      "candidateMS": [
+        2.853334,
+        3.210125,
+        3.848667,
+        2.575292,
+        3.119416
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 5.976875,
+      "lexicalRankAt50": 30
+    },
+    {
+      "id": "31to180d-sender-3",
+      "family": "sender",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.023292,
+        0.888917,
+        1.131666,
+        0.77575,
+        1.05975
+      ],
+      "candidateMS": [
+        0.719,
+        1.706667,
+        0.6965,
+        1.74775,
+        0.779792
+      ],
+      "route": "full",
+      "rankAt50": 15,
+      "rows": 50,
+      "lexicalLookupMS": 1.15525,
+      "lexicalRankAt50": 8
+    },
+    {
+      "id": "31to180d-subject-3",
+      "family": "subject",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        2.79225,
+        4.557166,
+        2.967292,
+        3.193958,
+        2.499125
+      ],
+      "candidateMS": [
+        2.1505,
+        3.150833,
+        2.124084,
+        1.583583,
+        2.2095
+      ],
+      "route": "full",
+      "rankAt50": 36,
+      "rows": 50,
+      "lexicalLookupMS": 3.611,
+      "lexicalRankAt50": 3
+    },
+    {
+      "id": "31to180d-sender-and-topic-3",
+      "family": "sender-and-topic",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        10.307416,
+        8.959917,
+        10.612792,
+        12.840958,
+        9.566833
+      ],
+      "candidateMS": [
+        8.337375,
+        8.512625,
+        8.379417,
+        11.678541,
+        7.836208
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 24.764666,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-snippet-3",
+      "family": "snippet",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        7.450291,
+        9.640167,
+        7.827042,
+        8.637584,
+        7.6115
+      ],
+      "candidateMS": [
+        7.220083,
+        8.96475,
+        7.536125,
+        6.921584,
+        6.88925
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 23.513083,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-refinement-3",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        24.260458,
+        28.27825,
+        28.144917,
+        28.050708,
+        22.242
+      ],
+      "candidateMS": [
+        21.937375,
+        21.883458,
+        27.461959,
+        30.509708,
+        21.786083
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 66.820916,
+      "lexicalRankAt50": 37
+    },
+    {
+      "id": "31to180d-refinement-3",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        4.792417,
+        6.34025,
+        5.487917,
+        8.68125,
+        4.422167
+      ],
+      "candidateMS": [
+        4.726208,
+        5.723042,
+        3.746666,
+        4.212458,
+        3.59075
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 7.31125,
+      "lexicalRankAt50": 20
+    },
+    {
+      "id": "31to180d-sender-4",
+      "family": "sender",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        10.029708,
+        8.211417,
+        9.807583,
+        10.802166,
+        8.855625
+      ],
+      "candidateMS": [
+        8.192083,
+        8.098,
+        8.659458,
+        10.037,
+        7.593542
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 35.500542,
+      "lexicalRankAt50": 13
+    },
+    {
+      "id": "31to180d-subject-4",
+      "family": "subject",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        21.242042,
+        21.303292,
+        19.495,
+        20.684792,
+        18.208917
+      ],
+      "candidateMS": [
+        17.990167,
+        20.658708,
+        19.056084,
+        19.103584,
+        17.827125
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 68.736208,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-sender-and-topic-4",
+      "family": "sender-and-topic",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        8.865375,
+        9.930166,
+        9.895375,
+        8.666917,
+        8.613417
+      ],
+      "candidateMS": [
+        6.709,
+        8.0455,
+        7.890792,
+        7.546292,
+        6.980958
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 17.735875,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-snippet-4",
+      "family": "snippet",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        11.305,
+        14.299583,
+        11.374333,
+        14.925791,
+        14.139333
+      ],
+      "candidateMS": [
+        10.955584,
+        10.676125,
+        11.11,
+        10.712917,
+        12.059583
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 52.632416,
+      "lexicalRankAt50": 15
+    },
+    {
+      "id": "31to180d-refinement-4",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.843667,
+        3.662459,
+        5.618625,
+        6.446791,
+        4.438042
+      ],
+      "candidateMS": [
+        2.0555,
+        2.352958,
+        2.442458,
+        4.853875,
+        2.431125
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 8.687167,
+      "lexicalRankAt50": 6
+    },
+    {
+      "id": "31to180d-refinement-4",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        1.06575,
+        1.508792,
+        1.304875,
+        2.330667,
+        2.748667
+      ],
+      "candidateMS": [
+        1.371833,
+        1.173458,
+        1.561709,
+        2.896792,
+        1.596042
+      ],
+      "route": "full",
+      "rankAt50": 6,
+      "rows": 50,
+      "lexicalLookupMS": 1.868708,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "31to180d-sender-5",
+      "family": "sender",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        17.314625,
+        19.291125,
+        16.61925,
+        17.171584,
+        16.298625
+      ],
+      "candidateMS": [
+        17.33725,
+        18.816958,
+        15.916291,
+        17.279583,
+        15.824958
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 71.149125,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-subject-5",
+      "family": "subject",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        6.794416,
+        8.6145,
+        9.019,
+        9.405167,
+        6.753542
+      ],
+      "candidateMS": [
+        5.260917,
+        6.663542,
+        5.618334,
+        7.15675,
+        5.333
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 14.334084,
+      "lexicalRankAt50": 33
+    },
+    {
+      "id": "31to180d-sender-and-topic-5",
+      "family": "sender-and-topic",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.09075,
+        1.28825,
+        1.266334,
+        0.988666,
+        1.121417
+      ],
+      "candidateMS": [
+        0.910458,
+        1.976,
+        1.262458,
+        1.237458,
+        0.934959
+      ],
+      "route": "full",
+      "rankAt50": 4,
+      "rows": 7,
+      "lexicalLookupMS": 2.19975,
+      "lexicalRankAt50": 4
+    },
+    {
+      "id": "31to180d-snippet-5",
+      "family": "snippet",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        0.965958,
+        1.216958,
+        1.088083,
+        2.182542,
+        1.043209
+      ],
+      "candidateMS": [
+        1.109791,
+        1.044459,
+        1.663791,
+        1.733917,
+        1.335208
+      ],
+      "route": "full",
+      "rankAt50": 1,
+      "rows": 4,
+      "lexicalLookupMS": 1.779542,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "31to180d-refinement-5",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        21.199709,
+        23.176334,
+        23.199083,
+        22.624167,
+        21.58325
+      ],
+      "candidateMS": [
+        19.937375,
+        22.903709,
+        21.383834,
+        21.388041,
+        20.531083
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 62.181542,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-refinement-5",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        4.056458,
+        4.485083,
+        4.257417,
+        4.873458,
+        3.930458
+      ],
+      "candidateMS": [
+        4.112292,
+        4.08875,
+        4.786042,
+        4.385292,
+        4.44625
+      ],
+      "route": "full",
+      "rankAt50": 4,
+      "rows": 7,
+      "lexicalLookupMS": 7.931458,
+      "lexicalRankAt50": 2
+    },
+    {
+      "id": "31to180d-sender-6",
+      "family": "sender",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.159334,
+        3.14325,
+        4.42975,
+        5.220084,
+        5.522875
+      ],
+      "candidateMS": [
+        2.627208,
+        2.683375,
+        2.632584,
+        2.862042,
+        2.843208
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 13.891458,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-subject-6",
+      "family": "subject",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        9.092334,
+        12.645834,
+        8.812375,
+        9.298625,
+        9.209167
+      ],
+      "candidateMS": [
+        8.447833,
+        7.702292,
+        7.660542,
+        7.241,
+        8.380959
+      ],
+      "route": "full",
+      "rankAt50": 21,
+      "rows": 50,
+      "lexicalLookupMS": 15.520833,
+      "lexicalRankAt50": 11
+    },
+    {
+      "id": "31to180d-sender-and-topic-6",
+      "family": "sender-and-topic",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.077541,
+        0.712,
+        1.417667,
+        0.764666,
+        1.383083
+      ],
+      "candidateMS": [
+        0.772916,
+        0.804625,
+        0.966916,
+        1.090125,
+        0.863792
+      ],
+      "route": "full",
+      "rankAt50": 6,
+      "rows": 8,
+      "lexicalLookupMS": 1.455166,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "31to180d-snippet-6",
+      "family": "snippet",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        0.717958,
+        0.926208,
+        2.227584,
+        1.145333,
+        0.704375
+      ],
+      "candidateMS": [
+        0.890542,
+        0.737417,
+        1.664958,
+        0.760708,
+        1.017417
+      ],
+      "route": "full",
+      "rankAt50": 3,
+      "rows": 13,
+      "lexicalLookupMS": 1.460417,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "31to180d-refinement-6",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        17.402375,
+        17.130042,
+        17.361666,
+        20.536542,
+        17.344584
+      ],
+      "candidateMS": [
+        16.22275,
+        15.823708,
+        17.532167,
+        17.679209,
+        16.347584
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 59.504208,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-refinement-6",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        12.2615,
+        19.994791,
+        13.4195,
+        16.417041,
+        12.742916
+      ],
+      "candidateMS": [
+        11.371375,
+        18.521583,
+        12.686959,
+        12.925292,
+        11.797084
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 40.573542,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-sender-7",
+      "family": "sender",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.770125,
+        4.977,
+        6.668833,
+        6.221833,
+        4.855584
+      ],
+      "candidateMS": [
+        3.418833,
+        3.525042,
+        6.331583,
+        4.9045,
+        3.387
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 8.176917,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-subject-7",
+      "family": "subject",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        5.035458,
+        5.26725,
+        5.454083,
+        5.825,
+        5.025791
+      ],
+      "candidateMS": [
+        5.41175,
+        5.351083,
+        5.869,
+        5.182375,
+        5.462
+      ],
+      "route": "full",
+      "rankAt50": 2,
+      "rows": 15,
+      "lexicalLookupMS": 9.970459,
+      "lexicalRankAt50": 2
+    },
+    {
+      "id": "31to180d-sender-and-topic-7",
+      "family": "sender-and-topic",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.369834,
+        5.63,
+        5.232458,
+        4.500792,
+        4.432625
+      ],
+      "candidateMS": [
+        3.299542,
+        4.035625,
+        3.358833,
+        3.775917,
+        3.21775
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 6.850625,
+      "lexicalRankAt50": 4
+    },
+    {
+      "id": "31to180d-snippet-7",
+      "family": "snippet",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.385,
+        4.446417,
+        4.053792,
+        3.948917,
+        3.514791
+      ],
+      "candidateMS": [
+        2.53325,
+        2.291,
+        2.682708,
+        2.501125,
+        2.476375
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 6.68175,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-refinement-7",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        17.034958,
+        18.805875,
+        14.672,
+        14.980875,
+        14.231833
+      ],
+      "candidateMS": [
+        13.6415,
+        13.488958,
+        14.28225,
+        14.610375,
+        13.278875
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 23.450625,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-refinement-7",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        3.372625,
+        4.718459,
+        3.894375,
+        4.577542,
+        3.322792
+      ],
+      "candidateMS": [
+        2.669834,
+        2.823333,
+        3.134125,
+        2.538542,
+        2.71825
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 4.362208,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-sender-8",
+      "family": "sender",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        15.636125,
+        18.336958,
+        17.762958,
+        16.560875,
+        15.200209
+      ],
+      "candidateMS": [
+        14.858833,
+        17.278458,
+        16.293,
+        16.917333,
+        14.90125
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 43.609958,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-subject-8",
+      "family": "subject",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.370791,
+        4.23025,
+        4.284875,
+        5.72425,
+        3.971709
+      ],
+      "candidateMS": [
+        2.464125,
+        2.428292,
+        3.087084,
+        2.71775,
+        2.927959
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 5.150666,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "31to180d-sender-and-topic-8",
+      "family": "sender-and-topic",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        0.623708,
+        0.588625,
+        0.823,
+        0.417542,
+        0.606708
+      ],
+      "candidateMS": [
+        0.38675,
+        0.828417,
+        0.494791,
+        0.576625,
+        0.444042
+      ],
+      "route": "full",
+      "rankAt50": 3,
+      "rows": 4,
+      "lexicalLookupMS": 0.555542,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "31to180d-snippet-8",
+      "family": "snippet",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        7.749375,
+        10.054459,
+        8.306917,
+        11.200333,
+        8.320458
+      ],
+      "candidateMS": [
+        7.343333,
+        8.54425,
+        7.707875,
+        8.43925,
+        7.553333
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 18.589875,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-refinement-8",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        37.21425,
+        48.647334,
+        40.271417,
+        40.150958,
+        36.914417
+      ],
+      "candidateMS": [
+        37.867458,
+        42.780166,
+        39.44125,
+        38.665125,
+        36.538625
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 88.9345,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "31to180d-refinement-8",
+      "family": "refinement",
+      "age": "31to180d",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        8.009167,
+        9.9675,
+        8.403167,
+        8.702875,
+        7.614834
+      ],
+      "candidateMS": [
+        7.02175,
+        7.398291,
+        7.079084,
+        7.500625,
+        6.838708
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 15.802667,
+      "lexicalRankAt50": 13
+    },
+    {
+      "id": "older-sender-1",
+      "family": "sender",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        21.375625,
+        26.803958,
+        26.943459,
+        23.851792,
+        23.604541
+      ],
+      "candidateMS": [
+        21.980459,
+        28.47875,
+        24.876958,
+        25.425458,
+        22.575166
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 65.490792,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-subject-1",
+      "family": "subject",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.772417,
+        2.546833,
+        2.519083,
+        2.623334,
+        1.9745
+      ],
+      "candidateMS": [
+        1.977375,
+        2.371333,
+        2.366708,
+        1.70925,
+        2.180833
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 5.317916,
+      "lexicalRankAt50": 2
+    },
+    {
+      "id": "older-sender-and-topic-1",
+      "family": "sender-and-topic",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        0.84275,
+        0.484417,
+        0.923666,
+        0.495833,
+        0.807208
+      ],
+      "candidateMS": [
+        0.527458,
+        0.65975,
+        0.793667,
+        0.799709,
+        0.511834
+      ],
+      "route": "full",
+      "rankAt50": 22,
+      "rows": 25,
+      "lexicalLookupMS": 1.13525,
+      "lexicalRankAt50": 14
+    },
+    {
+      "id": "older-snippet-1",
+      "family": "snippet",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        5.799709,
+        7.112375,
+        5.962209,
+        7.004959,
+        5.738292
+      ],
+      "candidateMS": [
+        5.132166,
+        6.776,
+        5.146542,
+        6.14075,
+        4.969417
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 23.331833,
+      "lexicalRankAt50": 40
+    },
+    {
+      "id": "older-refinement-1",
+      "family": "refinement",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.51025,
+        1.293167,
+        1.719958,
+        1.238125,
+        1.803125
+      ],
+      "candidateMS": [
+        1.048583,
+        1.459625,
+        1.275666,
+        1.482459,
+        1.302041
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 2.650584,
+      "lexicalRankAt50": 15
+    },
+    {
+      "id": "older-refinement-1",
+      "family": "refinement",
+      "age": "older",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        1.301833,
+        1.495667,
+        1.273583,
+        1.416375,
+        1.277167
+      ],
+      "candidateMS": [
+        1.516084,
+        1.534208,
+        1.631333,
+        1.326709,
+        1.533792
+      ],
+      "route": "full",
+      "rankAt50": 3,
+      "rows": 5,
+      "lexicalLookupMS": 3.45025,
+      "lexicalRankAt50": 4
+    },
+    {
+      "id": "older-sender-2",
+      "family": "sender",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        33.714667,
+        38.408208,
+        38.487375,
+        35.924334,
+        35.445292
+      ],
+      "candidateMS": [
+        33.209125,
+        40.965667,
+        36.631042,
+        35.292083,
+        32.648458
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 101.380792,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-subject-2",
+      "family": "subject",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.244458,
+        1.500417,
+        1.06775,
+        1.89475,
+        1.108542
+      ],
+      "candidateMS": [
+        1.531291,
+        1.135125,
+        1.489125,
+        1.324083,
+        1.409208
+      ],
+      "route": "full",
+      "rankAt50": 23,
+      "rows": 28,
+      "lexicalLookupMS": 6.690625,
+      "lexicalRankAt50": 4
+    },
+    {
+      "id": "older-sender-and-topic-2",
+      "family": "sender-and-topic",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        18.8535,
+        19.058333,
+        21.66775,
+        22.029208,
+        20.077625
+      ],
+      "candidateMS": [
+        17.670833,
+        22.57125,
+        18.381042,
+        20.061875,
+        20.027458
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 35.370541,
+      "lexicalRankAt50": 42
+    },
+    {
+      "id": "older-snippet-2",
+      "family": "snippet",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.833833,
+        1.986459,
+        3.5905,
+        2.831,
+        1.979209
+      ],
+      "candidateMS": [
+        1.8595,
+        1.422416,
+        2.481,
+        1.650541,
+        2.492917
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 2.796,
+      "lexicalRankAt50": 4
+    },
+    {
+      "id": "older-refinement-2",
+      "family": "refinement",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.780292,
+        4.270416,
+        3.821417,
+        5.606667,
+        3.397458
+      ],
+      "candidateMS": [
+        1.84525,
+        3.759208,
+        1.787833,
+        2.772458,
+        1.604583
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 3.36525,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-refinement-2",
+      "family": "refinement",
+      "age": "older",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        0.999584,
+        1.143625,
+        0.86425,
+        1.064417,
+        0.993041
+      ],
+      "candidateMS": [
+        1.357833,
+        0.869459,
+        1.271916,
+        0.916791,
+        1.217292
+      ],
+      "route": "full",
+      "rankAt50": 13,
+      "rows": 39,
+      "lexicalLookupMS": 1.163333,
+      "lexicalRankAt50": 38
+    },
+    {
+      "id": "older-sender-3",
+      "family": "sender",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.281167,
+        4.80225,
+        4.851,
+        4.661875,
+        3.178708
+      ],
+      "candidateMS": [
+        1.565625,
+        3.177333,
+        2.107208,
+        3.175416,
+        1.741542
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 3.64275,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-subject-3",
+      "family": "subject",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        5.197792,
+        9.9705,
+        9.645625,
+        7.827166,
+        5.680917
+      ],
+      "candidateMS": [
+        3.899459,
+        8.005917,
+        4.483208,
+        4.144041,
+        3.829417
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 8.245208,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-sender-and-topic-3",
+      "family": "sender-and-topic",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        13.103875,
+        7.496042,
+        8.911709,
+        9.861708,
+        7.826167
+      ],
+      "candidateMS": [
+        11.370791,
+        5.796083,
+        6.02325,
+        9.062791,
+        5.737
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 12.316416,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-snippet-3",
+      "family": "snippet",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.801584,
+        6.821458,
+        7.270291,
+        5.697375,
+        4.856083
+      ],
+      "candidateMS": [
+        3.239416,
+        3.043292,
+        3.89,
+        3.027375,
+        3.213333
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 6.594959,
+      "lexicalRankAt50": 4
+    },
+    {
+      "id": "older-refinement-3",
+      "family": "refinement",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        78.351,
+        86.554916,
+        95.05675,
+        79.334375,
+        75.702125
+      ],
+      "candidateMS": [
+        80.326625,
+        98.166542,
+        103.34,
+        79.882667,
+        76.996916
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 246.65575,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-refinement-3",
+      "family": "refinement",
+      "age": "older",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        10.19525,
+        10.680834,
+        9.478375,
+        9.227583,
+        9.083083
+      ],
+      "candidateMS": [
+        7.914459,
+        7.718875,
+        8.087041,
+        7.097291,
+        7.62675
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 22.066792,
+      "lexicalRankAt50": 32
+    },
+    {
+      "id": "older-sender-4",
+      "family": "sender",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        2.408709,
+        3.298125,
+        2.576291,
+        2.513917,
+        2.703042
+      ],
+      "candidateMS": [
+        1.974333,
+        4.340792,
+        2.132375,
+        3.623917,
+        2.294917
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 2.986667,
+      "lexicalRankAt50": 29
+    },
+    {
+      "id": "older-subject-4",
+      "family": "subject",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        3.012584,
+        3.63425,
+        3.202417,
+        4.776542,
+        4.315417
+      ],
+      "candidateMS": [
+        3.952208,
+        2.603166,
+        3.206459,
+        3.624333,
+        3.349084
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 4.243083,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-sender-and-topic-4",
+      "family": "sender-and-topic",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        0.843916,
+        0.700833,
+        1.096709,
+        0.714792,
+        0.8995
+      ],
+      "candidateMS": [
+        0.616,
+        0.860666,
+        0.698083,
+        0.953166,
+        0.643125
+      ],
+      "route": "full",
+      "rankAt50": 10,
+      "rows": 25,
+      "lexicalLookupMS": 1.036333,
+      "lexicalRankAt50": 11
+    },
+    {
+      "id": "older-snippet-4",
+      "family": "snippet",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        5.832583,
+        6.578875,
+        6.24375,
+        8.12975,
+        6.081875
+      ],
+      "candidateMS": [
+        5.383334,
+        5.830834,
+        5.554292,
+        6.515916,
+        5.174125
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 13.790167,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-refinement-4",
+      "family": "refinement",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        36.496875,
+        40.390333,
+        36.647459,
+        39.272292,
+        37.464292
+      ],
+      "candidateMS": [
+        33.825833,
+        43.390417,
+        38.710625,
+        38.360667,
+        34.240709
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 147.0295,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-refinement-4",
+      "family": "refinement",
+      "age": "older",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        18.798542,
+        21.654125,
+        19.319834,
+        22.0935,
+        18.399833
+      ],
+      "candidateMS": [
+        18.518541,
+        20.261709,
+        19.950208,
+        18.796333,
+        18.212333
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 84.163209,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-sender-5",
+      "family": "sender",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        62.348625,
+        75.0235,
+        69.552917,
+        76.99975,
+        63.194
+      ],
+      "candidateMS": [
+        61.346167,
+        87.268375,
+        71.23325,
+        70.311125,
+        61.151833
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 191.423167,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-subject-5",
+      "family": "subject",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        2.911,
+        3.644709,
+        4.765791,
+        4.040083,
+        2.961542
+      ],
+      "candidateMS": [
+        3.219875,
+        3.998792,
+        5.225542,
+        3.365958,
+        3.218708
+      ],
+      "route": "full",
+      "rankAt50": 39,
+      "rows": 50,
+      "lexicalLookupMS": 4.665,
+      "lexicalRankAt50": 42
+    },
+    {
+      "id": "older-sender-and-topic-5",
+      "family": "sender-and-topic",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.130625,
+        3.609541,
+        4.003875,
+        3.372125,
+        3.909834
+      ],
+      "candidateMS": [
+        3.7925,
+        4.000375,
+        3.749958,
+        4.029792,
+        3.507958
+      ],
+      "route": "full",
+      "rankAt50": 46,
+      "rows": 49,
+      "lexicalLookupMS": 6.63225,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "older-snippet-5",
+      "family": "snippet",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.99775,
+        2.118792,
+        1.872,
+        2.391333,
+        1.983209
+      ],
+      "candidateMS": [
+        2.4535,
+        2.192417,
+        2.319792,
+        1.921834,
+        2.403625
+      ],
+      "route": "full",
+      "rankAt50": 6,
+      "rows": 10,
+      "lexicalLookupMS": 3.611458,
+      "lexicalRankAt50": 2
+    },
+    {
+      "id": "older-refinement-5",
+      "family": "refinement",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.112125,
+        1.073917,
+        1.075125,
+        3.299875,
+        1.03225
+      ],
+      "candidateMS": [
+        0.803625,
+        1.464208,
+        2.082916,
+        1.33125,
+        0.735792
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 1.02275,
+      "lexicalRankAt50": 37
+    },
+    {
+      "id": "older-refinement-5",
+      "family": "refinement",
+      "age": "older",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        5.495625,
+        5.325709,
+        5.229541,
+        5.559083,
+        5.221167
+      ],
+      "candidateMS": [
+        5.6125,
+        5.28175,
+        5.814125,
+        5.255292,
+        5.790958
+      ],
+      "route": "full",
+      "rankAt50": 8,
+      "rows": 8,
+      "lexicalLookupMS": 10.016583,
+      "lexicalRankAt50": 4
+    },
+    {
+      "id": "older-sender-6",
+      "family": "sender",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        5.378792,
+        7.068792,
+        6.603875,
+        6.681708,
+        5.491459
+      ],
+      "candidateMS": [
+        3.347792,
+        4.902666,
+        5.052292,
+        4.364041,
+        3.612792
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 5.052042,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-subject-6",
+      "family": "subject",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        5.462125,
+        5.963041,
+        5.37175,
+        4.628625,
+        3.7825
+      ],
+      "candidateMS": [
+        3.163541,
+        2.708125,
+        3.311625,
+        3.716167,
+        2.862375
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 5.49375,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-sender-and-topic-6",
+      "family": "sender-and-topic",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        2.635084,
+        2.32225,
+        2.965833,
+        2.250125,
+        2.671625
+      ],
+      "candidateMS": [
+        2.326584,
+        2.743625,
+        2.472041,
+        2.883125,
+        2.189125
+      ],
+      "route": "full",
+      "rankAt50": 37,
+      "rows": 43,
+      "lexicalLookupMS": 3.978334,
+      "lexicalRankAt50": 10
+    },
+    {
+      "id": "older-snippet-6",
+      "family": "snippet",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.948458,
+        6.017709,
+        5.124083,
+        5.669541,
+        4.964541
+      ],
+      "candidateMS": [
+        5.623,
+        5.703542,
+        6.3665,
+        7.295292,
+        5.501833
+      ],
+      "route": "full",
+      "rankAt50": 21,
+      "rows": 28,
+      "lexicalLookupMS": 9.449875,
+      "lexicalRankAt50": 5
+    },
+    {
+      "id": "older-refinement-6",
+      "family": "refinement",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        34.753167,
+        41.096,
+        38.391042,
+        34.7055,
+        35.7495
+      ],
+      "candidateMS": [
+        32.438042,
+        43.391375,
+        37.838125,
+        35.160959,
+        34.191667
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 100.687375,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-refinement-6",
+      "family": "refinement",
+      "age": "older",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        25.3275,
+        29.89725,
+        29.282542,
+        26.706375,
+        25.502
+      ],
+      "candidateMS": [
+        24.588292,
+        31.676542,
+        28.106375,
+        24.478,
+        24.539917
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 72.368708,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-sender-7",
+      "family": "sender",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.361666,
+        5.629083,
+        3.887959,
+        3.508167,
+        3.886209
+      ],
+      "candidateMS": [
+        3.011334,
+        4.276,
+        2.908792,
+        3.221875,
+        2.836042
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 4.456334,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-subject-7",
+      "family": "subject",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        1.373042,
+        1.699625,
+        1.6105,
+        1.668333,
+        1.367959
+      ],
+      "candidateMS": [
+        1.631125,
+        1.48,
+        1.951916,
+        1.360041,
+        1.678875
+      ],
+      "route": "full",
+      "rankAt50": 6,
+      "rows": 15,
+      "lexicalLookupMS": 2.757958,
+      "lexicalRankAt50": 4
+    },
+    {
+      "id": "older-sender-and-topic-7",
+      "family": "sender-and-topic",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        6.013625,
+        7.815417,
+        6.564,
+        6.820292,
+        5.680833
+      ],
+      "candidateMS": [
+        4.089041,
+        7.60825,
+        4.891292,
+        4.524,
+        3.894333
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 11.59125,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-snippet-7",
+      "family": "snippet",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        5.3065,
+        6.2955,
+        5.812292,
+        7.337583,
+        4.903416
+      ],
+      "candidateMS": [
+        5.503625,
+        6.896125,
+        5.813958,
+        6.969042,
+        5.212834
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 9.071417,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-refinement-7",
+      "family": "refinement",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        7.94275,
+        8.3735,
+        9.50875,
+        8.741458,
+        9.058084
+      ],
+      "candidateMS": [
+        6.645917,
+        7.333167,
+        8.207541,
+        8.844167,
+        7.611292
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 31.163,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-refinement-7",
+      "family": "refinement",
+      "age": "older",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        5.77125,
+        6.332959,
+        5.841958,
+        6.349375,
+        5.775292
+      ],
+      "candidateMS": [
+        5.5335,
+        5.208,
+        5.378583,
+        5.07725,
+        5.444333
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 14.707542,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-sender-8",
+      "family": "sender",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        5.894125,
+        5.92825,
+        6.476,
+        6.385791,
+        5.239084
+      ],
+      "candidateMS": [
+        4.002083,
+        6.252833,
+        4.42975,
+        5.228375,
+        3.751375
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 6.070625,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-subject-8",
+      "family": "subject",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        2.489583,
+        3.11975,
+        3.195958,
+        3.179542,
+        2.51775
+      ],
+      "candidateMS": [
+        2.809583,
+        2.363916,
+        3.542708,
+        2.258417,
+        2.596209
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 4.347292,
+      "lexicalRankAt50": 1
+    },
+    {
+      "id": "older-sender-and-topic-8",
+      "family": "sender-and-topic",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        4.382583,
+        4.244958,
+        4.651791,
+        5.936167,
+        4.037375
+      ],
+      "candidateMS": [
+        2.509291,
+        2.52825,
+        2.532708,
+        2.97575,
+        2.220959
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 6.113458,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-snippet-8",
+      "family": "snippet",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        15.184541,
+        16.671625,
+        17.032125,
+        21.465833,
+        15.901917
+      ],
+      "candidateMS": [
+        14.72825,
+        14.467084,
+        17.16,
+        18.368792,
+        14.889041
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 28.4625,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-refinement-8",
+      "family": "refinement",
+      "age": "older",
+      "step": 1,
+      "targetPresent": true,
+      "baseMS": [
+        13.375291,
+        14.043208,
+        13.30975,
+        12.75975,
+        13.951083
+      ],
+      "candidateMS": [
+        11.889333,
+        11.869667,
+        13.391667,
+        12.8555,
+        12.735541
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 20.897834,
+      "lexicalRankAt50": 0
+    },
+    {
+      "id": "older-refinement-8",
+      "family": "refinement",
+      "age": "older",
+      "step": 2,
+      "targetPresent": true,
+      "baseMS": [
+        2.086375,
+        4.642625,
+        2.335709,
+        2.495334,
+        2.260625
+      ],
+      "candidateMS": [
+        2.218833,
+        2.467958,
+        2.494792,
+        2.0295,
+        2.466208
+      ],
+      "route": "full",
+      "rankAt50": 0,
+      "rows": 50,
+      "lexicalLookupMS": 3.616708,
+      "lexicalRankAt50": 5
+    }
+  ],
+  "environment": {
+    "referenceRevision": "f987bd34",
+    "sqlite": "3.54.0",
+    "python": "3.11.5",
+    "system": "Darwin",
+    "machine": "arm64",
+    "sourceSHA256": {
+      "Banana/Model/Mail/MailLocalSearch.swift": "de92cb25b6658546a1326bbf8d4a64f3a63463a39d48b20748ad7fc1c25db89c",
+      "Banana/Model/Mail/MailBodySearch.swift": "731ef1d469b777d2c1cbfd4eea866f4831115d70b0aa392759470f3e9c580140",
+      "tools/search-eval/mail_sql.py": "2dbd46c6958d82e211e949aa99fe55cb1112b58007b4068451ab20367dec42d7"
+    }
+  }
+}

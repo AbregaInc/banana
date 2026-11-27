@@ -347,13 +347,7 @@ struct ShellWideField: View {
                 .textFieldStyle(.plain)
                 .focused($focused)
                 .onSubmit {
-                    #if os(macOS)
                     if ShellAssistant.isAvailable, ShellSearchRules.isDirectAsk(search.text) { search.ask() }
-                    #else
-                    if ShellAssistant.isAvailable, ShellSearchRules.query(search.text) != nil, search.groups.isEmpty {
-                        search.ask()
-                    }
-                    #endif
                 }
                 #if os(macOS)
                 .onExitCommand { search.clear() }

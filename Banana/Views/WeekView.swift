@@ -4674,8 +4674,12 @@ struct WeekView: View {
     private func mobileDayListView(_ day: DayData) -> some View {
         NavigationStack {
             List {
-                ForEach(day.items.filter {
-                    mobileDayListQuery.isEmpty || ($0.title as NSString).localizedCaseInsensitiveContains(mobileDayListQuery)
+                ForEach(day.items.filter { item in
+                    if mobileDayListQuery.isEmpty || (item.title as NSString).localizedCaseInsensitiveContains(mobileDayListQuery) { return true }
+                    guard let meeting = item.meeting, !meeting.isAvailabilityOnly else { return false }
+                    return [meeting.address, meeting.searchDetails].contains { field in
+                        field.map { ($0 as NSString).localizedCaseInsensitiveContains(mobileDayListQuery) } ?? false
+                    }
                 }) { occurrence in
                     Button {
                         mobileDayListSelection = occurrence

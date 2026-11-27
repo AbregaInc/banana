@@ -1,0 +1,32 @@
+{
+  "status": "fail",
+  "scope": "Simulator components, not UI acceptance",
+  "baselineVersion": 1,
+  "failures": {
+    "scale-1d": [
+      "podcasts.nextAcrossCatalog.p95MS: 3.193 > 0.777 + 2.000 ms",
+      "peak RSS regression or ceiling exceeded: 364.30 MB"
+    ],
+    "scale-7d": [
+      "peak RSS regression or ceiling exceeded: 404.45 MB"
+    ],
+    "scale-30d": [
+      "peak RSS regression or ceiling exceeded: 488.66 MB"
+    ],
+    "scale-90d": [
+      "peak RSS regression or ceiling exceeded: 720.62 MB"
+    ],
+    "redraw-notes": [
+      "peak RSS regression or ceiling exceeded: 488.69 MB"
+    ],
+    "redraw-library": [
+      "peak RSS regression or ceiling exceeded: 495.05 MB"
+    ],
+    "redraw-plan": [
+      "peak RSS regression or ceiling exceeded: 509.94 MB"
+    ],
+    "redraw-mail": [
+      "peak RSS regression or ceiling exceeded: 495.22 MB"
+    ]
+  }
+}

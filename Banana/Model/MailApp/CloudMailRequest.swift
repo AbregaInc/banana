@@ -117,6 +117,7 @@ struct CloudMailFeed: MailCloudFeedSource {
             var missing: Bool?
             var gone: Bool?
             var later: Bool?
+            var attachmentText: [MailCloudText.Part]?
         }
         var messages: [Item]
     }
@@ -133,7 +134,7 @@ struct CloudMailFeed: MailCloudFeedSource {
             let asked = Set(ids)
             return answer.messages.compactMap { item in
                 guard asked.contains(item.id) else { return nil }
-                if let message = item.message { return message.id == item.id ? .message(message) : .missing(item.id) }
+                if let message = item.message { return message.id == item.id ? .message(message, text: item.attachmentText) : .missing(item.id) }
                 if item.gone == true { return .gone(item.id) }
                 if item.later == true { return .later(item.id) }
                 return .missing(item.id)

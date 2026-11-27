@@ -68,15 +68,15 @@ enum AssistantVerification {
                 throw AssistantFailure(message: "Expected one native note; found \(matches.count)")
             }
             let readRequest: [String: Any] = ["name": "read_note", "arguments": ["id": note.id.uuidString]]
-            let readResult = try AssistantCapabilities.execute(String(decoding: try JSONSerialization.data(withJSONObject: readRequest), as: UTF8.self))
+            let readResult = try await AssistantCapabilities.execute(String(decoding: try JSONSerialization.data(withJSONObject: readRequest), as: UTF8.self))
             guard readResult.contains(note.id.uuidString) else { throw AssistantFailure(message: "The note reader could not find the created note") }
             let listRequest: [String: Any] = ["name": "list_notes", "arguments": ["limit": 10]]
-            let listResult = try AssistantCapabilities.execute(String(decoding: try JSONSerialization.data(withJSONObject: listRequest), as: UTF8.self))
+            let listResult = try await AssistantCapabilities.execute(String(decoding: try JSONSerialization.data(withJSONObject: listRequest), as: UTF8.self))
             guard listResult.contains(note.id.uuidString) else { throw AssistantFailure(message: "The note list omitted the newly created note") }
             let request: [String: Any] = ["name": "create_note", "operationId": note.id.uuidString,
                                          "arguments": ["text": note.transcript ?? text]]
             let raw = String(decoding: try JSONSerialization.data(withJSONObject: request), as: UTF8.self)
-            _ = try AssistantCapabilities.execute(raw)
+            _ = try await AssistantCapabilities.execute(raw)
             guard VoiceNoteStore.shared.notes.filter({ $0.id == note.id }).count == 1 else {
                 throw AssistantFailure(message: "Native operation was duplicated")
             }

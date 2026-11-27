@@ -61,9 +61,37 @@ const SCHEMA = [
   "CREATE INDEX IF NOT EXISTS snooze_due ON snooze (due) WHERE due IS NOT NULL",
   // Conversations whose labels changed since their snooze row was worked out.
   "CREATE TABLE IF NOT EXISTS snooze_dirty (thread TEXT PRIMARY KEY) WITHOUT ROWID",
+  // Attachment text (MAIL-CLOUD-SYNC §5b). text_todo: stored messages whose attachments are still
+  // to be read; parts is the JSON list of extractable parts, NULL when the stored content must be
+  // read to find them (content stored before this existed). text: 1 text stored, 2 nothing to
+  // extract, 3 extraction failed for good.
+  "CREATE TABLE IF NOT EXISTS text_todo (id TEXT PRIMARY KEY, parts TEXT, tries INTEGER NOT NULL DEFAULT 0) WITHOUT ROWID",
+  "CREATE INDEX IF NOT EXISTS text_todo_order ON text_todo (length(id), id)",
+  "CREATE TABLE IF NOT EXISTS text (id TEXT PRIMARY KEY, state INTEGER NOT NULL, bytes INTEGER NOT NULL DEFAULT 0) WITHOUT ROWID",
 ];
 
-export function migrate(port) { for (const sql of SCHEMA) port.exec(sql); }
+export function migrate(port) {
+  for (const sql of SCHEMA) port.exec(sql);
+  // Content stored before attachment text existed: read once each to find its attachments.
+  if (getMeta(port, "text_backfilled") === null) {
+    port.exec("INSERT OR IGNORE INTO text_todo (id, parts) SELECT id, NULL FROM msg WHERE cached > 0 AND gone = 0");
+    setMeta(port, "text_backfilled", 1);
+  }
+  // Once: messages settled without text in the first days are looked at again (26 Nov 2026).
+  if (getMeta(port, "text_requeued") === null) {
+    port.exec("INSERT OR IGNORE INTO text_todo (id, parts) SELECT id, NULL FROM text WHERE state IN (2, 3)");
+    port.exec("DELETE FROM text WHERE state IN (2, 3)");
+    port.exec("INSERT OR IGNORE INTO text_todo (id, parts) SELECT id, NULL FROM msg WHERE cached > 0 AND gone = 0 AND id NOT IN (SELECT id FROM text)");
+    setMeta(port, "text_requeued", 1);
+  }
+  // Once more: every document conversion failed until the media type was passed (26 Nov 2026).
+  if (getMeta(port, "text_requeued_media") === null) {
+    port.exec("INSERT OR IGNORE INTO text_todo (id, parts) SELECT id, NULL FROM text WHERE state IN (2, 3)");
+    port.exec("DELETE FROM text WHERE state IN (2, 3)");
+    port.exec("UPDATE text_todo SET tries = 0");
+    setMeta(port, "text_requeued_media", 1);
+  }
+}
 
 export function getMeta(port, key) { return port.exec("SELECT value FROM meta WHERE key = ?", key)[0]?.value ?? null; }
 export function setMeta(port, key, value) {
@@ -386,7 +414,8 @@ export function check(port, ids, now) {
 export function feed(port, { after, era = 0, limit }) {
   const horizon = Number(getMeta(port, "horizon") ?? 0), current = Number(getMeta(port, "era") ?? 0);
   if (after !== null && era < current && after < horizon) return { expired: true };
-  const rows = port.exec("SELECT id, thread, hist, labels, date, gone, seq, cached FROM msg WHERE seq > ? ORDER BY seq LIMIT ?", after ?? 0, limit);
+  const rows = port.exec(`SELECT id, thread, hist, labels, date, gone, seq, cached,
+    (SELECT state FROM text WHERE text.id = msg.id) AS text FROM msg WHERE seq > ? ORDER BY seq LIMIT ?`, after ?? 0, limit);
   const seq = rows.length ? rows.at(-1).seq : after ?? 0;
   return {
     epoch: getMeta(port, "epoch"),
@@ -395,7 +424,7 @@ export function feed(port, { after, era = 0, limit }) {
     complete: complete(port),
     entries: rows.map((r) => r.gone
       ? { id: r.id, history: String(r.hist), deleted: true }
-      : { id: r.id, thread: r.thread, history: String(r.hist), date: r.date, labels: labelsOf(r), ...(r.cached > 0 ? { content: true } : {}) }),
+      : { id: r.id, thread: r.thread, history: String(r.hist), date: r.date, labels: labelsOf(r), ...(r.cached > 0 ? { content: true } : {}), ...(r.cached > 0 && r.text === 1 ? { text: true } : {}) }),
   };
 }
 
@@ -416,7 +445,39 @@ export function markCached(port, id, bytes, now) {
   });
 }
 export function touch(port, id, now) { port.exec("UPDATE msg SET used_at = ? WHERE id = ? AND cached > 0", now, id); }
-export function uncache(port, id) { port.exec("UPDATE msg SET cached = 0, used_at = NULL WHERE id = ?", id); }
+export function uncache(port, id) {
+  port.exec("UPDATE msg SET cached = 0, used_at = NULL WHERE id = ?", id);
+  port.exec("DELETE FROM text WHERE id = ?", id);
+  port.exec("DELETE FROM text_todo WHERE id = ?", id);
+}
+
+// ---- attachment text (MAIL-CLOUD-SYNC §5b) ----
+
+/** A stored message's attachments are to be read: `parts` as found, or null to look. */
+export function textQueue(port, id, parts) {
+  port.exec("INSERT INTO text_todo (id, parts) VALUES (?, ?) ON CONFLICT (id) DO UPDATE SET parts = excluded.parts, tries = 0",
+    id, parts === null ? null : JSON.stringify(parts));
+}
+/** The newest message whose attachments are still to be read. */
+export function textNext(port) {
+  const r = port.exec("SELECT id, parts, tries FROM text_todo ORDER BY length(id) DESC, id DESC LIMIT 1")[0];
+  return r ? { id: r.id, parts: r.parts === null ? null : JSON.parse(r.parts), tries: r.tries } : null;
+}
+export function textTried(port, id) { port.exec("UPDATE text_todo SET tries = tries + 1 WHERE id = ?", id); }
+/** Parts read so far (each with its `text`), so a wait for Gmail's next slot resumes, not restarts. */
+export function textProgress(port, id, parts) { port.exec("UPDATE text_todo SET parts = ? WHERE id = ?", JSON.stringify(parts), id); }
+/** Done with a message: `state` 1 stored (published again, so the devices pull it), 2 none, 3 failed. */
+export function textDone(port, id, state, bytes = 0) {
+  return port.transaction(() => {
+    port.exec("DELETE FROM text_todo WHERE id = ?", id);
+    const r = row(port, id);
+    if (!r || r.gone || r.cached === 0) return false;
+    port.exec("INSERT INTO text (id, state, bytes) VALUES (?, ?, ?) ON CONFLICT (id) DO UPDATE SET state = excluded.state, bytes = excluded.bytes", id, state, bytes);
+    if (state === 1 && r.known) { publish(port, id); return true; }
+    return false;
+  });
+}
+export function textState(port, id) { return port.exec("SELECT state FROM text WHERE id = ?", id)[0]?.state ?? null; }
 
 /** Tombstones older than RETAIN_GONE go; a cursor from before them can't be served (410). Content
  * nobody has read for `unusedFor` is dropped. Returns the ids whose stored content must go. */
@@ -448,7 +509,8 @@ export function checkLabelAbsence(port, { label, listed, floor, now }) {
 
 export function status(port) {
   const counts = port.exec(`SELECT COUNT(*) AS messages, SUM(known) AS known, SUM(gone) AS gone, SUM(cached > 0) AS cached, SUM(cached) AS bytes,
-    (SELECT COUNT(*) FROM verify) AS verify, (SELECT COUNT(*) FROM fetch) AS fetch FROM msg`)[0];
+    (SELECT COUNT(*) FROM verify) AS verify, (SELECT COUNT(*) FROM fetch) AS fetch,
+    (SELECT COUNT(*) FROM text_todo) AS textTodo, (SELECT COUNT(*) FROM text WHERE state = 1) AS textStored FROM msg`)[0];
   const scan = scanState(port);
   return { ...identity(port), checkpoint: checkpoint(port), complete: complete(port), scanning: scan ? scan.phase : null,
     head: Number(getMeta(port, "seq") ?? 0), fill: fillState(port), watchExpires: num(getMeta(port, "watch_expires")), counts: Object.fromEntries(Object.entries(counts).map(([k, v]) => [k, Number(v ?? 0)])) };

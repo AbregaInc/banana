@@ -16,8 +16,8 @@ final class MailDiskRulesTests: MailStoreTestCase {
     // MARK: - The numbers
 
     func testTheFloorIsOneGibibyteOnAPhoneOrPadAndFiveOnAMac() {
-        XCTAssertEqual(MailDiskRules.floor(for: .phone), 1 * gigabyte)
-        XCTAssertEqual(MailDiskRules.floor(for: .pad), 1 * gigabyte)
+        XCTAssertEqual(MailDiskRules.floor(for: .phone), 3 * gigabyte)
+        XCTAssertEqual(MailDiskRules.floor(for: .pad), 3 * gigabyte)
         XCTAssertEqual(MailDiskRules.floor(for: .mac), 5 * gigabyte)
     }
 

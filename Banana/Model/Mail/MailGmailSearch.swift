@@ -72,11 +72,15 @@ import GRDB
     var hitsPerStep = 50
     var pageSize = 50
     private let stores: MailStores
+    private let ranked: MailRankedIndex?
+    private var maintenance: Task<Void, Never>?
+    private var resumeMaintenance = false
+    private var promoted: [Key:[Int64]] = [:]
     private let deps: Dependencies
     private var sessions: [Key: Session] = [:]
 
-    init(stores: MailStores, dependencies: Dependencies) {
-        self.stores = stores; deps = dependencies
+    init(stores: MailStores, ranked: MailRankedIndex? = nil, dependencies: Dependencies) {
+        self.stores = stores; self.ranked = ranked; deps = dependencies
     }
 
     // MARK: - Driving
@@ -112,12 +116,63 @@ import GRDB
     /// Keeps the sessions of these scopes; every other one is cancelled with its requests.
     func keep(_ scopes: [MailScope]) {
         let wanted = Set(scopes.compactMap(Key.init))
+        promoted = promoted.filter { wanted.contains($0.key) }
         for (key, session) in sessions where !wanted.contains(key) {
             session.task?.cancel(); sessions[key] = nil
         }
     }
 
-    func cancelAll() { keep([]) }
+    func cancelAll() {
+        keep([])
+        resumeMaintenance = false
+        maintenance?.cancel()
+    }
+
+    func warm() {
+        if let ranked { catchUp(ranked) }
+    }
+
+    private func catchUp(_ ranked: MailRankedIndex) {
+        if let maintenance {
+            if maintenance.isCancelled { resumeMaintenance = true }
+            return
+        }
+        maintenance = Task(priority: .utility) { [weak self] in
+            let finished: Bool
+            do {
+                try await ranked.synchronize()
+                try Task.checkCancellation()
+                finished = true
+            } catch { finished = false }
+            guard let self else { return }
+            self.maintenance = nil
+            if self.resumeMaintenance {
+                self.resumeMaintenance = false
+                self.catchUp(ranked)
+            } else if finished {
+                self.deps.changed()
+            }
+        }
+    }
+
+    func actionQuery(_ scope: MailScope, from: MailOrderKey?, allowed: Set<String>) -> MailLocalSearchQuery? {
+        guard let key = Key(scope) else { return nil }
+        guard from?.group != -1 || promoted[key] != nil else { return nil }
+        let ids = promoted[key] ?? []
+        let head = Self.remainingRanks(ids, before: from, inclusive: true)
+        return MailLocalSearchQuery(text:key.text,account:key.account,filters:key.filters,
+            before:from?.group == -1 ? nil : from,allowedAccounts:allowed,
+            excludingThreads:ids.filter { !head.contains($0) },includingThreads:head)
+    }
+
+    private static func remainingRanks<T>(_ ranked: [T], before: MailOrderKey?, inclusive: Bool = false) -> [T] {
+        guard let before else { return ranked }
+        guard before.group == -1 else { return [] }
+        return ranked.enumerated().compactMap { slot, value in
+            let rank = -Int64(slot)
+            return (inclusive ? rank <= before.sortKey : rank < before.sortKey) ? value : nil
+        }
+    }
 
     /// After a snapshot of `scope` was delivered: nothing at or above its last row goes away.
     func delivered(_ snapshot: MailListSnapshot) {
@@ -256,21 +311,65 @@ import GRDB
     func snapshot(_ scope: MailScope, limit: Int, fresh: Bool, allowedAccounts: Set<String>, through: UInt64,
                   row: (IndexRow) -> MailRow) async throws -> MailListSnapshot {
         guard case .search(let text) = scope.place else { throw MailIndexReader.Failure.unsupportedGroup }
-        let query = MailLocalSearchQuery(text: text, account: scope.account, filters: scope.filters,
+        guard (1...MailTuning.listCap).contains(limit) else { throw MailIndexReader.Failure.invalidLimit }
+        var query = MailLocalSearchQuery(text: text, account: scope.account, filters: scope.filters,
                                          before: scope.before, limit: limit, allowedAccounts: allowedAccounts)
-        let local = try await MailLocalSearch.rows(query, stores: stores)
+        var head: [MailRow] = []
+        var remaining = 0
+        if let key = Key(scope), maintenance != nil { promoted.removeValue(forKey: key) }
+        if maintenance == nil, let ranked, let words = query.rankText, let key = Key(scope) {
+            let accounts = Set(allowedAccounts.filter { key.account == nil || $0.lowercased() == key.account })
+            do {
+                let matches = try await ranked.page(words, allowed: accounts, before: scope.before, limit: limit)
+                try Task.checkCancellation()
+                if let matches {
+                    promoted[key] = matches.ids
+                    remaining = matches.remaining
+                    head = matches.rows.enumerated().map { slot, match in
+                        var result = row(match)
+                        result.key = MailOrderKey(group: -1, sortKey: -Int64(matches.offset + slot), tie: result.key.tie)
+                        return result
+                    }
+                } else {
+                    promoted.removeValue(forKey: key)
+                    catchUp(ranked)
+                }
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch {
+                promoted.removeValue(forKey: key)
+            }
+        }
+        query.excludingThreads = Key(scope).flatMap { promoted[$0] } ?? []
+        let pinnedIDs = Set(query.excludingThreads)
+        if query.before?.group == -1 { query.before = nil }
+        let tailLimit = max(0, limit - head.count)
+        query.limit = max(1, tailLimit)
+        // A further ranked row proves continuation without a second disk search (notably for shell's five).
+        let local: (rows: [IndexRow], more: Bool)
+        if remaining > limit {
+            local = ([], false)
+        } else if tailLimit == 0 {
+            local = ([], try await MailLocalSearch.hasContinuation(query, stores: stores))
+        } else {
+            local = try await MailLocalSearch.rows(query, stores: stores)
+        }
+        try Task.checkCancellation()
         let session = self.session(for: scope, retry: fresh)
         var remote: [IndexRow] = []
-        if let session, session.resolved > 0 {
+        if remaining <= limit, let session, session.resolved > 0 {
             let hits = Array(session.listed.prefix(session.resolved))
+            let boundary = query.before
             remote = try await stores.index.read {
                 try MailIndexReader.threads(hits.map { (account: $0.account, thread: $0.thread) }, filters: scope.filters,
-                                            before: scope.before, allowedAccounts: allowedAccounts, in: $0)
+                                            before: boundary, allowedAccounts: allowedAccounts, in: $0)
             }
         }
         var merged = MailSearchMerge.merge(local: local.rows.map(row), localMore: local.more,
-            remote: remote.map(row), gmailMore: session?.hasMore ?? false,
-            frontier: scope.before == nil ? session?.frontier : nil, limit: limit)
+            remote: remote.filter { !pinnedIDs.contains($0.threadPK) }.map(row), gmailMore: session?.hasMore ?? false,
+            frontier: scope.before == nil && session?.frontier?.group == 0 ? session?.frontier : nil, limit: tailLimit)
+        merged.hasMore = merged.hasMore || remaining > limit
+        merged.rows = head + merged.rows
         if let brought = session?.brought, !brought.isEmpty {
             for index in merged.rows.indices where !merged.rows[index].fromGmailSearch && brought.contains(merged.rows[index].id) {
                 merged.rows[index].fromGmailSearch = true; merged.added += 1

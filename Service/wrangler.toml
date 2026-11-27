@@ -61,6 +61,10 @@ new_sqlite_classes = ["DesktopRelayRoom"]
 binding = "BLOBS"
 bucket_name = "banana-blobs"
 
+# Workers AI: the mail text of PDF and Office attachments (toMarkdown; free for these formats).
+[ai]
+binding = "AI"
+
 # The change stream (§9), off until the pipeline exists (The author's yes):
 # [[pipelines]]
 # pipeline = "banana-changes"
@@ -129,7 +133,7 @@ GOOGLE_REDIRECT_URI = ""                                    # empty for iOS serv
 # MAIL_PUSH_TOPIC = ""                 # projects/<PROJECT_ID>/topics/<TOPIC>
 # MAIL_PUSH_SERVICE_ACCOUNT = ""       # the push subscription's OIDC service account
 # MAIL_PUSH_AUDIENCE = ""              # optional; default <PUBLIC_URL>/v1/mail/push
-# MAIL_FILL_DAYS = ""                  # optional; days of mail the mailbox fills with content (183)
+# MAIL_FILL_DAYS = ""                  # optional cap in days on the content fill; unset fills all mail
 
 # The booking pages' fonts, served as they are from public/book/; the Worker answers every other path.
 [assets]
@@ -178,6 +182,9 @@ new_sqlite_classes = ["DesktopRelayRoom"]
 [[env.beta.r2_buckets]]
 binding = "BLOBS"
 bucket_name = "banana-blobs-beta"
+
+[env.beta.ai]
+binding = "AI"
 
 # [[env.beta.pipelines]]
 # pipeline = "banana-changes-beta"
@@ -240,7 +247,7 @@ GOOGLE_REDIRECT_URI = ""
 # MAIL_PUSH_TOPIC = ""                 # projects/<PROJECT_ID>/topics/<TOPIC>
 # MAIL_PUSH_SERVICE_ACCOUNT = ""       # the push subscription's OIDC service account
 # MAIL_PUSH_AUDIENCE = ""              # optional; default <PUBLIC_URL>/v1/mail/push
-# MAIL_FILL_DAYS = ""                  # optional; days of mail the mailbox fills with content (183)
+# MAIL_FILL_DAYS = ""                  # optional cap in days on the content fill; unset fills all mail
 
 [env.beta.assets]
 directory = "./public"

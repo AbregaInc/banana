@@ -254,6 +254,8 @@ packages:
   GRDB:
     url: https://github.com/groue/GRDB.swift.git
     revision: b83108d10f42680d78f23fe4d4d80fc88dab3212   # v7.11.1
+  MailTantivy:
+    path: Packages/MailTantivy
   SwiftSoup:
     url: https://github.com/scinfu/SwiftSoup.git
     revision: 18b80329749eca5ea29fc50211dca5c7eff5bfec   # 2.13.9
@@ -446,6 +448,7 @@ targets:
       - package: FluidAudio
       - package: GoogleSignIn
       - package: GRDB
+      - package: MailTantivy
       - package: SwiftSoup
       - target: BananaWidgetExtension
       # Into the app's Watch folder (BANANA_WATCH_EMBED_PATH), or beside the app in a build that
@@ -621,6 +624,7 @@ targets:
       - package: FluidAudio
       - package: GoogleSignIn
       - package: GRDB
+      - package: MailTantivy
       - package: SwiftSoup
     postBuildScripts:
       - name: Gate local features and resources
@@ -1271,6 +1275,7 @@ targets:
     # The engine folder imports these two, so the bundle that compiles it links them.
     dependencies:
       - package: GRDB
+      - package: MailTantivy
       - package: SwiftSoup
     settings:
       base:
@@ -1620,6 +1625,7 @@ targetTemplates:
       - package: FluidAudio
       - package: GoogleSignIn
       - package: GRDB
+      - package: MailTantivy
       - package: SwiftSoup
     postBuildScripts:
       - name: Gate local features and resources
@@ -1746,6 +1752,7 @@ targetTemplates:
       - package: FluidAudio
       - package: GoogleSignIn
       - package: GRDB
+      - package: MailTantivy
       - package: SwiftSoup
 
     postBuildScripts:
