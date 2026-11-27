@@ -36,6 +36,18 @@ enum BananaService {
 
     // MARK: - What goes back and forth
 
+    /// The service keeps a device for 30 days (`Service/src/job.js`); a day is well inside that.
+    static let registrationLasts: TimeInterval = 24 * 60 * 60
+
+    /// Whether the service needs to hear about this device: never told under this session, or told
+    /// something else, or told over a day ago. Launches sent the same registration two or three
+    /// times within a second.
+    static func registrationDue(_ device: Device, session: String,
+                                last: (device: Device, session: String, at: Date)?, now: Date) -> Bool {
+        guard let last, last.device == device, last.session == session else { return true }
+        return now.timeIntervalSince(last.at) >= registrationLasts
+    }
+
     struct Device: Codable, Equatable {
         var id: String
         /// iphone, ipad or mac.

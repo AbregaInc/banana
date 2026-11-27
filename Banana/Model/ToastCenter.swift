@@ -33,7 +33,17 @@ final class ToastCenter: ObservableObject {
         var actionTitle = "Undo"
     }
 
-    @Published private(set) var toast: Toast?
+    /// The toast on screen, in an object of its own: only the toast view watches it. Published on
+    /// the center, every toast's arrival and departure redrew each page that watches `hiddenIDs`,
+    /// the hidden ones behind the section in front included.
+    final class Current: ObservableObject {
+        @Published fileprivate(set) var toast: Toast?
+    }
+    let current = Current()
+    var toast: Toast? {
+        get { current.toast }
+        set { if current.toast != newValue { current.toast = newValue } }
+    }
     /// Ids of items whose removal is waiting on the undo window. Lists leave these out.
     @Published private(set) var hiddenIDs: Set<String> = []
 
@@ -245,7 +255,8 @@ extension View {
 }
 
 struct ToastView: View {
-    @ObservedObject private var center = ToastCenter.shared
+    @ObservedObject private var current = ToastCenter.shared.current
+    private var center: ToastCenter { .shared }
     /// On a page under the bottom bar, the toast stands above the bar (and the player on it): the
     /// shell hands its measured height down (`toastBottomInset`). A sheet (`isPresented`) has no
     /// bar under it.
@@ -255,7 +266,7 @@ struct ToastView: View {
 
     var body: some View {
         ZStack {
-            if let toast = center.toast {
+            if let toast = current.toast {
                 HStack(spacing: DS.Space.m) {
                     Text(toast.message)
                         .font(.callout)
@@ -294,7 +305,7 @@ struct ToastView: View {
                 .id(toast.id)
             }
         }
-        .animation(.snappy(duration: 0.22), value: center.toast)
+        .animation(.snappy(duration: 0.22), value: current.toast)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
     }
 }

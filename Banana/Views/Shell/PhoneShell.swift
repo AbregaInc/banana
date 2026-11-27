@@ -177,11 +177,11 @@ struct ShellBarHost: View {
     let open: (ShellPage) -> Void
     let expandPlayer: () -> Void
     @ObservedObject private var chrome = ShellChrome.shared
-    @ObservedObject private var search = ShellSearch.shared
+    @ObservedObject private var field = ShellSearch.shared.fieldMode
 
     var body: some View {
         // Mail's composer is the bar's own: the keyboard is up for it, and the bar holds the box.
-        if !chrome.keyboardUp || search.mode != .idle || (section == .mail && chrome.mailComposing) {
+        if !chrome.keyboardUp || field.mode != .idle || (section == .mail && chrome.mailComposing) {
             ShellBottomBar(section: section, pages: pages, open: open, expandPlayer: expandPlayer)
                 .modifier(ShellSkipNoticeHost())
                 .onAppear { chrome.setBarShown(true) }
@@ -199,7 +199,7 @@ struct ShellBottomBar: View {
     let expandPlayer: () -> Void
 
     @ObservedObject private var chrome = ShellChrome.shared
-    @ObservedObject private var search = ShellSearch.shared
+    @ObservedObject private var field = ShellSearch.shared.fieldMode
     /// The switcher's badge. Publishes only when a count moves (`ActionBadges`).
     @ObservedObject private var badges = ActionBadges.shared
     #if BANANA_MODULE_PODCASTS
@@ -213,7 +213,7 @@ struct ShellBottomBar: View {
 
     var body: some View {
         let _ = RenderStats.note("ShellBottomBar")
-        let mode = search.mode
+        let mode = field.mode
         let composing = section == .mail && chrome.mailComposing
         #if BANANA_MODULE_PODCASTS
         let loaded = player.currentEpisode != nil
@@ -241,7 +241,7 @@ struct ShellBottomBar: View {
                     if switcherShown {
                         switcherButton
                     }
-                    ShellFieldRow(section: section, search: search, showsChip: placement == .chip)
+                    ShellFieldRow(section: section, search: ShellSearch.shared, showsChip: placement == .chip)
                     if !mode.hidesSideButtons, !composing, ShellAssistant.isAvailable {
                         roundButton("sparkle", label: "Ask Banana", identifier: "shell.ai") {
                             chrome.switcherOpen = false
@@ -638,12 +638,12 @@ struct ShellResultsOverlay: View {
     var headerBottom: CGFloat? = nil
     /// Native navigation bars reserve this row; custom headers supply their measured boundary.
     private static let topRow: CGFloat = 54
-    @ObservedObject private var search = ShellSearch.shared
+    @ObservedObject private var field = ShellSearch.shared.fieldMode
     @ObservedObject private var chrome = ShellChrome.shared
 
     var body: some View {
-        if search.mode != .idle {
-            ShellSearchResults(search: search, section: section)
+        if field.mode != .idle {
+            ShellSearchResults(search: ShellSearch.shared, section: section)
                 .background(Color(.systemBackground))
                 // The page's top row stays in view above it, as in the approved design.
                 .padding(.top, max(0, headerBottom ?? Self.topRow))

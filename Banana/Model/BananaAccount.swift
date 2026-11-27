@@ -328,13 +328,26 @@ final class BananaAccount: ObservableObject {
         Task { await registerDevice() }
     }
 
+    /// What the service last accepted from this device, under which session, and when.
+    private var registered: (device: BananaService.Device, session: String, at: Date)?
+    private var registering: Task<Void, Never>?
     private func registerDevice() async {
-        guard isSignedIn else { return }
+        guard isSignedIn, let session else { return }
+        if let inFlight = registering {
+            await inFlight.value
+            return await registerDevice()
+        }
         let device = device()
-        guard case let (_, status)? = await send(.device(device)) else { return }
-        guard status == 204 else { return }
-        pushRegistered = device.push != nil
-        PlaybackDiagnostics.shared.log("☁️ account", "device registered, push \(device.push == nil ? "no" : "yes") (\(device.pushEnv))")
+        guard BananaService.registrationDue(device, session: session, last: registered, now: Date()) else { return }
+        let task = Task { [weak self] in
+            guard let self, case let (_, status)? = await self.send(.device(device)), status == 204 else { return }
+            self.registered = (device, session, Date())
+            self.pushRegistered = device.push != nil
+            PlaybackDiagnostics.shared.log("☁️ account", "device registered, push \(device.push == nil ? "no" : "yes") (\(device.pushEnv))")
+        }
+        registering = task
+        await task.value
+        registering = nil
     }
 
     /// This install's id, as the service knows the device; the data platform's clocks carry it.
@@ -742,6 +755,7 @@ final class BananaAccount: ObservableObject {
         FeatureAccessStore.shared.bind(session: nil, host: BananaService.host)
         account = nil
         pushRegistered = false
+        registered = nil
         reportedHeld = nil
         reportedAlertSettings = nil
         SyncedKeychain.delete(service: AppVariant.current.googleKeychainService, account: Self.keychainAccount)
