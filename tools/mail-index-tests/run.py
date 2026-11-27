@@ -80,7 +80,7 @@ import PackageDescription
 let package = Package(name: "MailIndexChecks", platforms: [.macOS(.v14)],
     dependencies: [DEPENDENCY, SOUP_DEPENDENCY, MAIL_TANTIVY],
     targets: [.testTarget(name: "MailIndexChecks", dependencies: [.product(name: "MailTantivy", package: "MailTantivy"), .product(name: "GRDB", package: "GRDB.swift"), .product(name: "SwiftSoup", package: "SwiftSoup")],
-        path: "Tests", swiftSettings: [.swiftLanguageMode(.v5), .define("MAIL_FIXTURES")])])
+        path: "Tests", swiftSettings: [.swiftLanguageMode(.v5), .define("MAIL_FIXTURES"), .define("MAIL_ENGINE_HARNESS")])])
 '''.replace('MAIL_TANTIVY', f'.package(path: {json.dumps(str(root / "Packages/MailTantivy"))})').replace('SOUP_DEPENDENCY', soup_dependency).replace('DEPENDENCY', dependency))
 command = ['swift', 'test', '--package-path', str(out), '-c', 'release', '--jobs', os.environ.get('BUILD_JOBS') or str(os.cpu_count() or 4)]
 if args.scratch_path:
@@ -112,7 +112,8 @@ with (out / 'test.log').open('w') as log:
     with HostMonitor(out / 'host.json', workload_pid=process.pid):
         exit_code = process.wait()
 log = (out / 'test.log').read_text()
-counts = [(int(a), int(b)) for a, b in re.findall(r'Executed (\d+) tests?, with (\d+) failures?', log)]
+# XCTest says "with N failures", or "with K tests skipped and N failures" when some are skipped.
+counts = [(int(a), int(b)) for a, b in re.findall(r'Executed (\d+) tests?, with (?:\d+ tests? skipped and )?(\d+) failures?', log)]
 tests = max((a for a, _ in counts), default=0)
 passed = exit_code == 0 and tests >= (1 if args.filter else 237) and not any(b for _, b in counts)
 passed = passed and not re.search(r'Test Case .* skipped', log)
