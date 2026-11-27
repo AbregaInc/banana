@@ -89,6 +89,8 @@ enum MailFixtureConversations {
         var files: [(name: String, bytes: Int)] = []
         /// For a file that is not what its name says: its name, and the extension of what it is.
         var actually: [String: String] = [:]
+        /// What a file says, as Banana Cloud would read it (MailCloudText): its name, and its words.
+        var fileText: [String: String] = [:]
         var replyTo: [MailPerson] = []
         /// Which of his addresses it was sent to; the account's own when nil. A reply is from the
         /// identity the message was sent to.
@@ -288,7 +290,11 @@ enum MailFixtureConversations {
                         body: ["Signed copy attached, plus the logo pack.",
                                "The zip is large; it is also in the shared folder."],
                         files: [("Services-agreement-signed.pdf", 2_400_000), ("logo-mark.png", 800_000),
-                                ("brand-assets.zip", 48_000_000)])
+                                ("brand-assets.zip", 48_000_000)],
+                        fileText: ["Services-agreement-signed.pdf":
+                            "Services Agreement. This agreement is between Northwind Studio and the client. "
+                            + "The monthly retainer is 4,800 dollars, invoiced on the first business day of each month. "
+                            + "Either party may end the agreement with 30 days written notice."])
             ]),
             Sample(key: "attachments-many", subject: "Receipts for the offsite", messages: [
                 Message(from: tom, day: -5, hour: 9, minute: 14, unread: true,

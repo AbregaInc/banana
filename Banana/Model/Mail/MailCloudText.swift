@@ -26,9 +26,11 @@ enum MailCloudText {
             .joined(separator: String(partEnd)).prefix(charactersMost))
     }
 
-    /// The file a search's words were found in and the words around the first of them, as a search
-    /// row's excerpt ("lease.pdf · …monthly rent 2,400…"); nil when no word is in any file.
-    static func excerpt(_ stored: String, words: [String], before: Int = 50, after: Int = 110) -> String? {
+    /// The words around the first match and the file they are in, as a search row's excerpt
+    /// ("…monthly rent is 2,400 dollars… · lease.pdf"): the words first, since a row shows one line
+    /// and the paperclip already says there is a file. Starts a couple of words before the match, on
+    /// a word boundary. nil when no word is in any file.
+    static func excerpt(_ stored: String, words: [String], before: Int = 18, after: Int = 110) -> String? {
         let options: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
         for part in stored.split(separator: partEnd, omittingEmptySubsequences: true) {
             let fields = part.split(separator: nameEnd, maxSplits: 1, omittingEmptySubsequences: false)
@@ -36,13 +38,18 @@ enum MailCloudText {
             let name = String(fields[0]), text = fields[1]
             let found = words.compactMap { text.range(of: $0, options: options) }.min { $0.lowerBound < $1.lowerBound }
             guard let found else { continue }
-            let start = text.index(found.lowerBound, offsetBy: -before, limitedBy: text.startIndex) ?? text.startIndex
-            let end = text.index(found.upperBound, offsetBy: after, limitedBy: text.endIndex) ?? text.endIndex
-            let words = text[start..<end].split(whereSeparator: \.isWhitespace).joined(separator: " ")
-            return name + " · " + (start > text.startIndex ? "…" : "") + words + (end < text.endIndex ? "…" : "")
+            var start = text.index(found.lowerBound, offsetBy: -before, limitedBy: text.startIndex) ?? text.startIndex
+            if start > text.startIndex, let space = text[start..<found.lowerBound].firstIndex(where: \.isWhitespace) {
+                start = text.index(after: space)
+            }
+            var end = text.index(found.upperBound, offsetBy: after, limitedBy: text.endIndex) ?? text.endIndex
+            if end < text.endIndex, let space = text[found.upperBound..<end].lastIndex(where: \.isWhitespace) { end = space }
+            let shown = text[start..<end].split(whereSeparator: \.isWhitespace).joined(separator: " ")
+            return (start > text.startIndex ? "…" : "") + shown + (end < text.endIndex ? "…" : "") + " · " + name
         }
         return nil
     }
+
 
     static func register(in migrations: inout MailMigrations) {
         migrations.index.registerMigration("v16-cloud-text") { db in

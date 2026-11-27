@@ -62,7 +62,7 @@ final class MailLocalSearchTests: XCTestCase {
         try await index.synchronize()
         let found = try await index.top("hetzner invoice", allowed: ["a@example.com"])
         XCTAssertEqual(found?.first?.threadPK, 2)
-        XCTAssertEqual(found?.first?.snippet, "statement.pdf · Hetzner invoice for November",
+        XCTAssertEqual(found?.first?.snippet, "Hetzner invoice for November · statement.pdf",
                        "a row found by its file shows the file and its words")
         let bySubject = try await index.top("summary", allowed: ["a@example.com"])
         XCTAssertFalse(bySubject?.contains { $0.snippet.contains("statement.pdf") } ?? true, "a row its own text explains keeps its snippet")
@@ -79,10 +79,9 @@ final class MailLocalSearchTests: XCTestCase {
         let stored = MailCloudText.indexed([.init(partId: "1", name: "notes.txt", text: "grocery list"),
                                             .init(partId: "2", name: "Lease Final.pdf", text: long)])
         let excerpt = MailCloudText.excerpt(stored, words: ["rent"])
-        XCTAssertTrue(excerpt?.hasPrefix("Lease Final.pdf · …") == true, excerpt ?? "nil")
-        XCTAssertTrue(excerpt?.contains("Monthly rent is 2,400 dollars") == true)
-        XCTAssertTrue(excerpt?.hasSuffix("…") == true)
-        XCTAssertEqual(MailCloudText.excerpt(stored, words: ["grocery"]), "notes.txt · grocery list")
+        XCTAssertTrue(excerpt?.hasPrefix("…Monthly rent is 2,400 dollars") == true, excerpt ?? "nil")
+        XCTAssertTrue(excerpt?.hasSuffix("… · Lease Final.pdf") == true, excerpt ?? "nil")
+        XCTAssertEqual(MailCloudText.excerpt(stored, words: ["grocery"]), "grocery list · notes.txt")
         XCTAssertNil(MailCloudText.excerpt(stored, words: ["passport"]))
     }
 
