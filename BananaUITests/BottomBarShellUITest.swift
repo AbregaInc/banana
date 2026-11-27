@@ -433,6 +433,26 @@ final class BottomBarShellUITest: XCTestCase {
         XCTAssertEqual(count("day.performance.renderCount"), plan, "the plan redrew on a tick")
     }
 
+    /// Typing in the field and results arriving redraw the field and the results, not the bar:
+    /// the bar follows only the field's mode (empty, typed, closed). It redrew with every
+    /// keystroke and result, five times a second while typing on the owner's phone.
+    func testTypingASearchRedrawsTheBarOnlyWhenTheFieldModeChanges() throws {
+        let app = try launch(["--tab", "plan", "--mail-fresh", "--perf-trace"])
+        func count(_ id: String) -> Int { Int(any(app, id).value as? String ?? "") ?? -1 }
+        XCTAssertTrue(waitUntil(timeout: 10) { count("shell.performance.bar") > 0 }, app.debugDescription)
+        let field = app.textFields["shell.field"]
+        field.tap()
+        XCTAssertTrue(waitUntil(timeout: 3) { app.keyboards.count > 0 })
+        _ = waitUntil(timeout: 1) { false }   // the open's redraw settles
+        let bar = count("shell.performance.bar")
+        field.typeText("meeting")
+        // The results for the typed words come in after typing settles.
+        _ = waitUntil(timeout: 3) { false }
+        let redrawn = count("shell.performance.bar") - bar
+        print("bar redrawn \(redrawn) times for 7 keystrokes and their results")
+        XCTAssertLessThanOrEqual(redrawn, 2, "the bar redrew \(redrawn) times while typing")
+    }
+
     /// The screen in front comes first: with Mail in front, timeline publications do not make
     /// Plan, kept alive behind it, prepare its days; back in front it draws them once.
     func testPlanBehindMailWaitsToPrepareItsDays() throws {

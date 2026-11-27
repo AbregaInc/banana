@@ -199,6 +199,7 @@ enum PerfWatchdog {
         s.append(MealInboxStore.shared.objectWillChange.sink { _ in RenderStats.note("mealInbox↻") })
         #endif
         s.append(ToastCenter.shared.objectWillChange.sink { _ in RenderStats.note("toasts↻") })
+        s.append(ToastCenter.shared.current.objectWillChange.sink { _ in RenderStats.note("toast↻") })
         s.append(NotificationCenter.default.publisher(
             for: ProcessInfo.thermalStateDidChangeNotification
         ).sink { _ in

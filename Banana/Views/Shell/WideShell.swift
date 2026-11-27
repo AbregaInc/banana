@@ -417,16 +417,16 @@ struct ShellAIButton: View {
 /// What the field found, as a panel hanging under the toolbar's middle. Solid: it is content.
 struct ShellWideResults: View {
     let section: AppSection
-    @ObservedObject private var search = ShellSearch.shared
+    @ObservedObject private var field = ShellSearch.shared.fieldMode
 
     var body: some View {
-        if search.mode != .idle {
+        if field.mode != .idle {
             ZStack(alignment: .top) {
                 // A click beside the panel puts it away.
                 Color.black.opacity(0.0001)
-                    .onTapGesture { search.clear() }
+                    .onTapGesture { ShellSearch.shared.clear() }
                     .accessibilityHidden(true)
-                ShellSearchResults(search: search, section: section)
+                ShellSearchResults(search: ShellSearch.shared, section: section)
                     .frame(maxWidth: 560, maxHeight: 520)
                     .background(DS.Palette.page, in: RoundedRectangle(cornerRadius: DS.Radius.card, style: .continuous))
                     .clipShape(RoundedRectangle(cornerRadius: DS.Radius.card, style: .continuous))

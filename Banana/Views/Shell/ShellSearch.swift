@@ -30,15 +30,30 @@ struct ShellSearchHit: Identifiable, Equatable {
 final class ShellSearch: ObservableObject {
     static let shared = ShellSearch()
 
-    @Published var text = ""
+    @Published var text = "" { didSet { updateFieldMode() } }
     /// The field has the keyboard. Mirrored from the field's focus, for the bar and the results.
     @Published var focused = false {
         didSet {
             if focused && !presented { presented = true }
+            updateFieldMode()
         }
     }
     /// A scroll may dismiss the keyboard while the picker remains the task in progress.
-    @Published private(set) var presented = false
+    @Published private(set) var presented = false { didSet { updateFieldMode() } }
+
+    /// The field's mode alone. The bar and the shell observe this, not the search: a keystroke or
+    /// a result arriving changes the mode only when the field empties, fills, opens or closes, and
+    /// they redraw only then (the bar redrew with every keystroke and result, five times a
+    /// second while typing on the owner's phone).
+    final class FieldModeState: ObservableObject {
+        @Published fileprivate(set) var mode: ShellFieldMode = .idle
+    }
+    let fieldMode = FieldModeState()
+
+    private func updateFieldMode() {
+        let mode = self.mode
+        if fieldMode.mode != mode { fieldMode.mode = mode }
+    }
     @Published private(set) var groups = ShellSearchGroups<ShellSearchHit>()
     /// The words `groups` answers, so a result list is never shown under other words.
     @Published private(set) var answered: String?
