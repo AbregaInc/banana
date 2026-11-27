@@ -22,7 +22,7 @@ export function parseFilters(sentence,scope,sources=[]){
   }
   for(const [r,re] of compiled)if(r.scopes.includes(scope))take(re,m=>result.terms.push({field:r.field,op:r.op,value:r.value.replace('$1',typeof m[1]==='string'?m[1].toLowerCase():'').replace(/^cancelled$/,'canceled')}));
   if(['mail','plan'].includes(scope))take(/\b(?:from|with)\s+([^,;]+?)(?=\s+(?:about|excluding|except)\b|[,;]|$)/gi,m=>{
-    const value=trim(m[1]);if(value)result.terms.push({field:'person',op:'contains',value,label:`Containing “${value}”`});
+    const value=trim(m[1]);if(value)result.terms.push({field:'person',op:'contains',value,heading:scope==='mail'?'From':'With'});
   });
   rest=trim(rest.replace(/\b(?:show me|show|my|all|emails?|notes?|workouts?|events?|about)\b/gi,' ').replace(/[,;]\s*/g,' '));
   if(rest)result.terms.push({field:'text',op:'contains',value:rest});
@@ -35,7 +35,7 @@ export const dateLabels={today:'Today',yesterday:'Yesterday',tomorrow:'Tomorrow'
 export function filterTitle(t){
   const names={date:'Date',calendar:'Calendar',text:'Text',person:'Person',kind:'Type',status:'Status',duration:'Minutes',archived:'Archive',unread:'Read state',starred:'Star',important:'Important',allDay:'All day'};
   const bool=t.field==='archived'?(t.value==='true'?'Archived':'Unarchived'):t.field==='unread'?(t.value==='true'?'Unread':'Read'):t.value;
-  return `${names[t.field]??t.field}: ${t.op==='not'?'Not ':t.op==='gt'?'Over ':t.op==='lt'?'Under ':''}${t.label??dateLabels[t.value]??bool}`;
+  return `${t.heading??names[t.field]??t.field}: ${t.op==='not'?'Not ':t.op==='gt'?'Over ':t.op==='lt'?'Under ':''}${t.label??dateLabels[t.value]??bool}`;
 }
 export function filterInterval(filter,now=new Date(),firstWeekday=2){
   const key=filter.terms.find(t=>t.field==='date')?.value;if(!key)return null;

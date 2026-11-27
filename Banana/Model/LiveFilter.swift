@@ -8,9 +8,11 @@ struct LiveFilter: Codable, Hashable, Sendable {
         var op: String
         var value: String
         var label: String? = nil
+        /// What the chip calls the field when the scope gives it a plainer word ("From" in Mail).
+        var heading: String? = nil
         var id: String { field + ":" + op + ":" + value }
         var title: String {
-            let name = ["date":"Date", "calendar":"Calendar", "text":"Text", "person":"Person", "kind":"Type", "status":"Status", "duration":"Minutes", "archived":"Archive", "unread":"Read state", "starred":"Star", "important":"Important", "allDay":"All day"][field] ?? field
+            let name = heading ?? ["date":"Date", "calendar":"Calendar", "text":"Text", "person":"Person", "kind":"Type", "status":"Status", "duration":"Minutes", "archived":"Archive", "unread":"Read state", "starred":"Star", "important":"Important", "allDay":"All day"][field] ?? field
             let display = label ?? ["today":"Today", "yesterday":"Yesterday", "tomorrow":"Tomorrow", "thisWeek":"This week", "nextWeek":"Next week", "lastWeek":"Last week", "thisMonth":"This month", "lastMonth":"Last month", "7days":"Last 7 days", "30days":"Last 30 days"][value] ?? value
             let bool = field == "archived" ? (value == "true" ? "Archived" : "Unarchived") : field == "unread" ? (value == "true" ? "Unread" : "Read") : value
             let shown = ["archived", "unread"].contains(field) ? bool : display
@@ -139,7 +141,8 @@ enum LiveFilterParser {
             let pattern = #"\b(?:from|with)\s+([^,;]+?)(?=\s+(?:about|excluding|except)\b|[,;]|$)"#
             take(try! NSRegularExpression(pattern: pattern, options: .caseInsensitive)) { m, s in
                 let value = s.substring(with: m.range(at: 1)).trimmingCharacters(in: .whitespacesAndNewlines)
-                if !value.isEmpty { result.terms.append(.init(field: "person", op: "contains", value: value, label: "Containing “\(value)”")) }
+                // Mail matches the sender; Plan matches anyone at the event.
+                if !value.isEmpty { result.terms.append(.init(field: "person", op: "contains", value: value, heading: scope == "mail" ? "From" : "With")) }
             }
         }
         rest = rest.replacingOccurrences(of: #"\b(?:show me|show|my|all|emails?|notes?|workouts?|events?|about)\b"#, with: " ", options: [.regularExpression, .caseInsensitive])
