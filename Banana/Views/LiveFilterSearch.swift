@@ -6,6 +6,8 @@ struct LiveFilterSearch: View {
     let scope: String
     var sources: [LiveFilterParser.Source] = []
     @Binding var filter: LiveFilter
+    /// Words already in the field when it appears, read as if typed (screenshots of the typed state).
+    var typed: String? = nil
     @State private var sentence = ""
     @State private var typing = false
     @State private var editing: LiveFilter.Term?
@@ -28,11 +30,10 @@ struct LiveFilterSearch: View {
                 }
             }
             .padding(10).background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
-            if typing { Text("Updating filters…").font(.caption).foregroundStyle(.secondary).accessibilityAddTraits(.updatesFrequently) }
-            if !filter.terms.isEmpty {
+            if !chips.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 8) {
-                        ForEach(filter.terms) { term in
+                        ForEach(chips) { term in
                             HStack(spacing: 0) {
                                 Button { editorIndex = filter.terms.firstIndex(where: { $0.id == term.id }) ?? 0; editing = term } label: { Text(term.title).padding(.leading, 10).padding(.vertical, 9) }
                                     .accessibilityLabel("Edit \(term.title)")
@@ -47,6 +48,10 @@ struct LiveFilterSearch: View {
             ForEach(filter.issues, id: \.self) { Text($0).font(.caption).foregroundStyle(.secondary) }
         }
         .onChange(of: sentence) { _, _ in if !manualEdit { typing = true } }
+        .onAppear {
+            if let typed, sentence.isEmpty { sentence = typed } else { showOutsideText() }
+        }
+        .onChange(of: filter) { _, _ in showOutsideText() }
         .task(id: ParseKey(sentence: sentence, sources: sources)) {
             if manualEdit { manualEdit = false; typing = false; return }
             guard typing || !sentence.isEmpty else { return }
@@ -98,6 +103,20 @@ struct LiveFilterSearch: View {
             #endif
         }
     }
+    /// Chips are for what the sentence turned into: a person, a date, a state. Words to find are
+    /// already in the field, so they get a chip only when the field is empty.
+    private var chips: [LiveFilter.Term] {
+        filter.terms.filter { $0.field != "text" || sentence.isEmpty }
+    }
+
+    /// A search set from outside the field (a route, a restored place) that is only words shows
+    /// those words in the field, not as a chip. They are not parsed again.
+    private func showOutsideText() {
+        guard sentence.isEmpty, !filter.terms.isEmpty, filter.terms.allSatisfy({ $0.field == "text" }) else { return }
+        manualEdit = true
+        sentence = filter.text
+    }
+
     private func choice(_ term: LiveFilter.Term, value: String, label: String? = nil) -> some View {
         var changed = term
         changed.value = value; changed.label = label

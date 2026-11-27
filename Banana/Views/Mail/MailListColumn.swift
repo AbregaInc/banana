@@ -222,9 +222,17 @@ private struct MailSearchField: View {
     let scope: MailScope
     @State private var filter = LiveFilter(scope: "mail")
     @State private var returnScope: MailScope?
+    /// `--mail-search-typed <words>` (Debug): the search field opens with words typed in it.
+    private static var typed: String? {
+        #if DEBUG
+        let arguments = ProcessInfo.processInfo.arguments
+        if let index = arguments.firstIndex(of: "--mail-search-typed"), arguments.indices.contains(index + 1) { return arguments[index + 1] }
+        #endif
+        return nil
+    }
 
     var body: some View {
-        LiveFilterSearch(scope: "mail", filter: $filter)
+        LiveFilterSearch(scope: "mail", filter: $filter, typed: Self.typed)
             .padding(.horizontal, DS.Space.l).padding(.vertical, DS.Space.s)
             .onChange(of: filter) { _, value in
                 if value.isEmpty {
