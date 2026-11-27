@@ -135,8 +135,7 @@ final class TranscriptCoordinator: ObservableObject {
     /// safe to call from a view's `.task`.
     @discardableResult
     func ensureTranscript(for episode: Episode, force: Bool = false,
-                          keepAwake: Bool = true,
-                          isCancelled: @escaping () -> Bool = { false }) async -> Transcript? {
+                          keepAwake: Bool = true) async -> Transcript? {
         let id = episode.id
         let existing = force ? nil : await TranscriptStore.shared.transcriptAsync(for: id)
         if let existing,
@@ -146,26 +145,32 @@ final class TranscriptCoordinator: ObservableObject {
             status[id] = .ready
             return existing
         }
-        guard !inFlight.contains(id) else { return nil }
+        guard !Task.isCancelled, !inFlight.contains(id) else { return nil }
         inFlight.insert(id)
         let power = PowerTrace.begin("transcription")
-        defer { inFlight.remove(id); PowerTrace.end(power) }
+        defer {
+            inFlight.remove(id)
+            PowerTrace.end(power)
+            if Task.isCancelled, status[id] != .ready { status[id] = .idle }
+        }
         status[id] = .working(0)
 
         // 1. Publisher transcript — cheapest, fastest and usually the creator's canonical text.
         // Try every Podcasting 2.0 candidate: one dead JSON link must not hide a working VTT/SRT.
-        if !episode.availableTranscriptSources.isEmpty { publisherAttempted.insert(id) }
         for source in episode.availableTranscriptSources {
+            guard !Task.isCancelled else { return nil }
             if let payload = await TranscriptionService.feedTranscript(from: source),
-               !payload.words.isEmpty {
+               !payload.words.isEmpty, !Task.isCancelled {
                 let transcript = await finalize(
                     episodeID: id, words: payload.words, source: .feed,
                     speakerNames: payload.speakerNames)
-                _ = await credits(for: episode)
+                if !Task.isCancelled { _ = await credits(for: episode) }
                 status[id] = .ready
                 return transcript
             }
         }
+        guard !Task.isCancelled else { return nil }
+        if !episode.availableTranscriptSources.isEmpty { publisherAttempted.insert(id) }
         // A local/cloud-generated transcript remains useful even if every newly-advertised
         // publisher URL is broken. Do not re-run ASR just because an upgrade attempt failed.
         if let existing {
@@ -189,78 +194,66 @@ final class TranscriptCoordinator: ObservableObject {
                 return nil
             }
 
-            // Transcribing runs ~35× realtime, so a four-hour episode is minutes of compute, not
-            // hours. But it dies the instant the phone auto-locks: iOS suspends us and the job
-            // freezes — which is exactly what "stuck at 1% forever" was. Hold the screen awake for
-            // the duration (scoped to this app, released the moment we're done), and take a
-            // background assertion so briefly switching away doesn't kill it outright.
-            //
-            // The overnight batch passes keepAwake: false — it already runs under a BGProcessingTask
-            // assertion, and it has no business lighting up the screen at 3am.
             #if os(iOS)
-            var bgTask = UIBackgroundTaskIdentifier.invalid
-            #endif
             if keepAwake {
-                #if os(iOS)
-                KeepAwake.acquire()   // refcounted — another holder coming and going can't undo this
-                bgTask = UIApplication.shared.beginBackgroundTask(withName: "transcribe") { }
-                #endif
+                KeepAwake.acquire()
+                let job = Task { await self.transcribeLocal(episode, fileURL: fileURL, engine: engine) }
+                let assertion = AppBackgroundTask(named: "transcribe") { job.cancel() }
+                defer { assertion.end(); KeepAwake.release() }
+                return await withTaskCancellationHandler { await job.value } onCancel: { job.cancel() }
             }
-            defer {
-                if keepAwake {
-                    #if os(iOS)
-                    KeepAwake.release()
-                    if bgTask != .invalid { UIApplication.shared.endBackgroundTask(bgTask) }
-                    #endif
-                }
-            }
-            startedAt[id] = Date()
-            defer { startedAt[id] = nil }
-
-            do {
-                if engine == .parakeet {
-                    let stageHandler: @Sendable (TranscriptionService.Stage) -> Void = { [weak self] stage in
-                        Task { @MainActor in
-                            switch stage {
-                            case .installingModel: self?.status[id] = .preparing
-                            case .transcribing(let progress): self?.status[id] = .working(progress)
-                            }
-                        }
-                    }
-                    let words = try await TranscriptionService.transcribeParakeet(
-                        fileURL: fileURL, stage: stageHandler)
-                    let transcript = await finalize(
-                        episodeID: id, words: words, source: .parakeet, audio: fileURL)
-                    _ = await credits(for: episode)
-                    clearPartial(id)
-                    if failCounts[id] != nil { discardPartial(id) }
-                    status[id] = .ready
-                    return transcript
-                }
-
-                guard let words = try await transcribeResumable(id: id, fileURL: fileURL,
-                                                                isCancelled: isCancelled) else {
-                    status[id] = .idle   // interrupted — progress is on disk, we pick it up next time
-                    return nil
-                }
-                let transcript = await finalize(episodeID: id, words: words, source: .onDevice, audio: fileURL)
-                _ = await credits(for: episode)
-                clearPartial(id)
-                if failCounts[id] != nil { discardPartial(id) }   // success clears the strike count
-                status[id] = .ready
-                return transcript
-            } catch {
-                // Log the actual error. "Transcription failed" told us nothing tonight; the useful
-                // information (e.g. SFSpeechError.assetLocaleNotAllocated) was in here all along.
-                Log.wake.error("transcribe FAILED for \(id, privacy: .public) — \(String(describing: error), privacy: .public)")
-                noteFailure(id)
-                status[id] = .failed
-                return nil
-            }
+            #endif
+            return await transcribeLocal(episode, fileURL: fileURL, engine: engine)
         }
-
         status[id] = .unavailable
         return nil
+    }
+
+    @available(iOS 26, *)
+    private func transcribeLocal(_ episode: Episode, fileURL: URL, engine: LocalTranscriptionEngine) async -> Transcript? {
+        let id = episode.id
+        startedAt[id] = Date()
+        defer { startedAt[id] = nil }
+
+        do {
+            if engine == .parakeet {
+                let stageHandler: @Sendable (TranscriptionService.Stage) -> Void = { [weak self] stage in
+                    Task { @MainActor in
+                        switch stage {
+                        case .installingModel: self?.status[id] = .preparing
+                        case .transcribing(let progress): self?.status[id] = .working(progress)
+                        }
+                    }
+                }
+                let words = try await TranscriptionService.transcribeParakeet(
+                    fileURL: fileURL, stage: stageHandler)
+                try Task.checkCancellation()
+                let transcript = await finalize(
+                    episodeID: id, words: words, source: .parakeet, audio: fileURL)
+                if !Task.isCancelled { _ = await credits(for: episode) }
+                clearPartial(id)
+                if failCounts[id] != nil { discardPartial(id) }
+                status[id] = .ready
+                return transcript
+            }
+
+            let words = try await transcribeResumable(id: id, fileURL: fileURL)
+            try Task.checkCancellation()
+            let transcript = await finalize(episodeID: id, words: words, source: .onDevice, audio: fileURL)
+            if !Task.isCancelled { _ = await credits(for: episode) }
+            clearPartial(id)
+            if failCounts[id] != nil { discardPartial(id) }   // success clears the strike count
+            status[id] = .ready
+            return transcript
+        } catch {
+            if Task.isCancelled || error is CancellationError { status[id] = .idle; return nil }
+            // Log the actual error. "Transcription failed" told us nothing tonight; the useful
+            // information (e.g. SFSpeechError.assetLocaleNotAllocated) was in here all along.
+            Log.wake.error("transcribe FAILED for \(id, privacy: .public) — \(String(describing: error), privacy: .public)")
+            noteFailure(id)
+            status[id] = .failed
+            return nil
+        }
     }
 
     // MARK: - Resumable transcription
@@ -277,8 +270,8 @@ final class TranscriptCoordinator: ObservableObject {
     private nonisolated static let rewindSeconds = 10.0
 
     /// Transcribe in one continuous pass from the top. A resumed pass is bounded into temporary
-    /// slices, checkpointing the words as they stream. Returns nil if interrupted; the partial
-    /// stays on disk and the next run resumes from it.
+    /// slices, checkpointing the words as they stream. Cancellation leaves the partial on disk
+    /// for the next run.
     ///
     /// A fresh run remains unchunked (SpeechAnalyzer streams the compressed source itself). Only a
     /// resume needs PCM extraction. Extracting "the rest of a four-hour episode" created a ~500 MB
@@ -286,12 +279,16 @@ final class TranscriptCoordinator: ObservableObject {
     /// slices. Adjacent slices overlap by `rewindSeconds`; words in the overlap are discarded and
     /// re-created with acoustic/language context, avoiding clipped mid-word seams.
     @available(iOS 26, *)
-    private func transcribeResumable(id: String, fileURL: URL,
-                                     isCancelled: @escaping () -> Bool) async throws -> [TranscriptWord]? {
+    private func transcribeResumable(id: String, fileURL: URL) async throws -> [TranscriptWord] {
+        try Task.checkCancellation()
         let total = TranscriptionService.duration(of: fileURL)
         guard total > 0 else { return [] }
 
-        var kept = loadPartialWords(id)
+        var kept: [TranscriptWord] = await withCheckedContinuation { continuation in
+            Self.partialIO.async { continuation.resume(returning: Self.loadPartialWords(id)) }
+        }
+        try Task.checkCancellation()
+        let savedThrough = kept.last?.end ?? -.infinity
         var startAt = 0.0
         if let last = kept.last?.end {
             startAt = max(0, last - Self.rewindSeconds)
@@ -301,16 +298,16 @@ final class TranscriptCoordinator: ObservableObject {
         guard startAt < total - 0.5 else { return kept }
 
         let base = kept
-        resetPartial(id, to: base)   // trims the rewind window on disk; checkpoints append from here
         let work = Task.detached(priority: .utility) { () -> [TranscriptWord] in
             // From the top, hand the analyzer the original file. Routing through transcribeSegment
             // would first decode the WHOLE episode into a temp 16k file — a minute of silent work
             // on a 4.5h episode with NSProgress pinned at zero, which is precisely what got the
             // continued-processing task expired: "tasks that appear stalled may be forcibly
             // expired". Only a resume needs a slice cut out of the middle.
-            let checkpointHandler: @Sendable ([TranscriptWord]) -> Void = { [weak self] words in
-                guard self != nil else { return }
-                Self.appendPartial(id, newWords: words)
+            // Keep the previous suffix durable until the re-decoded slice is ready to replace it.
+            // A second expiry during the rewind must not move the checkpoint backward.
+            func checkpoint(after end: Double) -> @Sendable ([TranscriptWord]) -> Void {
+                { words in Self.appendPartial(id, newWords: words.filter { $0.end > end }) }
             }
 
             if startAt <= 0.01 {
@@ -324,7 +321,7 @@ final class TranscriptCoordinator: ObservableObject {
                     }
                 }
                 return try await TranscriptionService.transcribeOnDevice(
-                    fileURL: fileURL, stage: stageHandler, checkpoint: checkpointHandler)
+                    fileURL: fileURL, stage: stageHandler, checkpoint: checkpoint(after: savedThrough))
             }
 
             let maxSlice = 30.0 * 60.0       // 16 kHz mono Int16 ≈ 58 MB, not ~500 MB
@@ -336,11 +333,11 @@ final class TranscriptCoordinator: ObservableObject {
                 try Task.checkCancellation()
                 let sliceStart = firstSlice ? cursor : max(startAt, cursor - Self.rewindSeconds)
                 let sliceEnd = min(total, sliceStart + maxSlice)
+                let durableEnd = firstSlice ? savedThrough : (produced.last?.end ?? base.last?.end ?? -.infinity)
 
                 if !firstSlice {
                     // Re-do the overlap rather than retain a token generated from truncated audio.
                     produced.removeAll { $0.end > sliceStart }
-                    Self.replacePartial(id, with: base + produced)
                 }
 
                 let stageHandler: @Sendable (TranscriptionService.Stage) -> Void = { [weak self] stage in
@@ -361,7 +358,7 @@ final class TranscriptCoordinator: ObservableObject {
                     priority: .utility,
                     retention: .processLifetime,
                     stage: stageHandler,
-                    checkpoint: checkpointHandler)
+                    checkpoint: checkpoint(after: durableEnd))
                 produced.append(contentsOf: words)
                 Self.replacePartial(id, with: base + produced)
                 cursor = sliceEnd
@@ -370,22 +367,12 @@ final class TranscriptCoordinator: ObservableObject {
             return produced
         }
 
-        // Poll the caller's cancellation (a BGProcessingTask expiring) and stop the analyzer.
-        let watchdog = Task {
-            while !Task.isCancelled {
-                if isCancelled() { work.cancel(); return }
-                try? await Task.sleep(for: .seconds(1))
-            }
+        let words = try await withTaskCancellationHandler {
+            try await work.value
+        } onCancel: {
+            work.cancel()
         }
-        defer { watchdog.cancel() }
-
-        do {
-            let words = try await work.value
-            return base + words
-        } catch is CancellationError {
-            Log.wake.notice("transcribe: interrupted — partial kept, will resume")
-            return nil
-        }
+        return base + words
     }
 
     /// Created once — the computed version ran `createDirectory` on every checkpoint and load.
@@ -396,7 +383,7 @@ final class TranscriptCoordinator: ObservableObject {
         return dir
     }()
 
-    private func partialURL(_ id: String) -> URL {
+    private nonisolated static func partialURL(_ id: String) -> URL {
         Self.partialsDir.appendingPathComponent("partial-\(id.replacingOccurrences(of: "/", with: "_")).json")
     }
     /// One serial lane for partial-file IO. Keeps checkpoint IO OFF the main actor (on-main it
@@ -418,44 +405,39 @@ final class TranscriptCoordinator: ObservableObject {
     }
 
     /// Words from a previous run's checkpoints — new format first, then the legacy whole-array
-    /// file (a transcription interrupted on a pre-NDJSON build). Reads happen only at resume
-    /// start, in a fresh process — no in-flight writes to race.
-    private func loadPartialWords(_ id: String) -> [TranscriptWord] {
+    /// file (a transcription interrupted on a pre-NDJSON build). Resume reads run on partialIO
+    /// after any queued writes from an earlier job.
+    private nonisolated static func loadPartialWords(_ id: String) -> [TranscriptWord] {
         if let data = try? Data(contentsOf: Self.partialNDJSONURL(id)) {
             let decoder = JSONDecoder()
             return data.split(separator: 0x0A).compactMap { try? decoder.decode(TranscriptWord.self, from: $0) }
         }
         if let data = try? Data(contentsOf: partialURL(id)),
            let legacy = try? JSONDecoder().decode(Partial.self, from: data) {
+            writeReplacement(id, words: legacy.words)
             return legacy.words
         }
         return []
     }
 
-    /// Reset the checkpoint file to exactly `words` — the one bounded rewrite per resume (the
-    /// rewind window gets trimmed) — and retire any legacy-format file. Empty → no file.
-    private func resetPartial(_ id: String, to words: [TranscriptWord]) {
-        Self.replacePartial(id, with: words)
+    private nonisolated static func replacePartial(_ id: String, with words: [TranscriptWord]) {
+        partialIO.async { writeReplacement(id, words: words) }
     }
 
-    private nonisolated static func replacePartial(_ id: String, with words: [TranscriptWord]) {
-        let ndjsonURL = Self.partialNDJSONURL(id)
-        let legacyURL = Self.partialsDir
-            .appendingPathComponent("partial-\(id.replacingOccurrences(of: "/", with: "_")).json")
-        Self.partialIO.async {
-            try? FileManager.default.removeItem(at: legacyURL)
-            guard !words.isEmpty else {
-                try? FileManager.default.removeItem(at: ndjsonURL)
-                return
-            }
-            var data = Data()
-            let encoder = JSONEncoder()
+    /// Called on partialIO. Retire the old file only after its replacement is durable.
+    private nonisolated static func writeReplacement(_ id: String, words: [TranscriptWord]) {
+        let url = partialNDJSONURL(id)
+        var data = Data()
+        let encoder = JSONEncoder()
+        do {
             for word in words {
-                guard let line = try? encoder.encode(word) else { continue }
-                data.append(line)
+                data.append(try encoder.encode(word))
                 data.append(0x0A)
             }
-            try? data.write(to: ndjsonURL, options: .atomic)
+            try data.write(to: url, options: .atomic)
+            try? FileManager.default.removeItem(at: partialURL(id))
+        } catch {
+            Log.wake.error("Could not replace transcription checkpoint: \(error.localizedDescription)")
         }
     }
 
@@ -476,7 +458,7 @@ final class TranscriptCoordinator: ObservableObject {
                 defer { try? handle.close() }
                 _ = try? handle.seekToEnd()
                 try? handle.write(contentsOf: data)
-            } else {
+            } else if !FileManager.default.fileExists(atPath: partialURL(id).path) {
                 try? data.write(to: url, options: .atomic)   // first append creates the file
             }
         }
@@ -484,7 +466,7 @@ final class TranscriptCoordinator: ObservableObject {
 
     private func clearPartial(_ id: String) {
         let ndjsonURL = Self.partialNDJSONURL(id)
-        let legacyURL = partialURL(id)
+        let legacyURL = Self.partialURL(id)
         Self.partialIO.async {
             try? FileManager.default.removeItem(at: ndjsonURL)
             try? FileManager.default.removeItem(at: legacyURL)
@@ -496,7 +478,7 @@ final class TranscriptCoordinator: ObservableObject {
                           source: Transcript.Source, audio: URL? = nil,
                           speakerNames: [Int: String] = [:]) async -> Transcript {
         var labelled = words
-        if diarizer.isAvailable, let audio, let turns = try? await diarizer.diarize(fileURL: audio, progress: nil) {
+        if !Task.isCancelled, diarizer.isAvailable, let audio, let turns = try? await diarizer.diarize(fileURL: audio, progress: nil) {
             labelled = Diarization.label(words, with: turns)
         }
         let transcript = Transcript(
@@ -602,7 +584,8 @@ final class TranscriptCoordinator: ObservableObject {
 
         BGTaskScheduler.shared.register(forTaskWithIdentifier: Self.overnightTaskID, using: nil) { [weak self] task in
             guard let task = task as? BGProcessingTask else { task.setTaskCompleted(success: false); return }
-            Task { @MainActor in await self?.runOvernight(task) }
+            let worker = Task { @MainActor in await self?.runOvernight(task) }
+            task.expirationHandler = { worker.cancel() }
         }
 
     }
@@ -636,8 +619,7 @@ final class TranscriptCoordinator: ObservableObject {
     private func runOvernight(_ task: BGProcessingTask) async {
         scheduleOvernight()   // chain the next night
 
-        var cancelled = false
-        task.expirationHandler = { cancelled = true }
+        defer { task.expirationHandler = nil }
 
         guard #available(iOS 26, *), TranscriptionService.onDeviceAvailable else {
             task.setTaskCompleted(success: false); return
@@ -652,9 +634,8 @@ final class TranscriptCoordinator: ObservableObject {
         // the window nothing and the files are here by the time the next batch runs.
         fetchStreamedEpisodesForNextBatch()
         for episode in pendingEpisodes() {
-            if cancelled { break }
-            _ = await ensureTranscript(for: episode, keepAwake: false,
-                                       isCancelled: { cancelled })
+            guard !Task.isCancelled else { break }
+            guard await ensureTranscript(for: episode, keepAwake: false) != nil, !Task.isCancelled else { continue }
             // A transcript is the input the sponsor-read and boilerplate stages were missing.
             // Rebuild now, on the charger, so the morning's listen — and the Watch's copy of the
             // markers — already has it rather than discovering it mid-episode.
@@ -663,7 +644,7 @@ final class TranscriptCoordinator: ObservableObject {
                     episode: episode, podcast: podcast, reason: "transcript")
             }
         }
-        task.setTaskCompleted(success: !cancelled)
+        task.setTaskCompleted(success: !Task.isCancelled)
     }
 #else
     // No BGTaskScheduler on a Mac. Once Parakeet is explicitly selected, opportunistically use the

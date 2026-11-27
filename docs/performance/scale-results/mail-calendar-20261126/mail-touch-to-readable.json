@@ -1,0 +1,2431 @@
+{
+  "scope": "Synthetic long messages in the native iPhone reader. A passive recognizer records finger lift. Five color patches calibrate the physical XCTest recording to device uptime before the measured row tap. The reference is the median offset over consecutive observed state transitions. OCR requires section one and at least one of sections two through six on screen. The earlier sampled frame and per-anchor spread bound interpretation. A fresh process and reopened DB do not evict the OS file cache. The eviction condition recreates parsed text from the retained local HTML with production storage and preparation. No provider latency is included.",
+  "runs": [
+    {
+      "condition": "prepared copy in SQLite",
+      "test": "testPreparedMailBodyPresentationAfterADiskRead",
+      "build": "diskClock",
+      "run": "phone-functional-disk-clock-1",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "e22624e34db4986f34f3aa733fab2a436ed86456c1ac1a0402e821bdce430b17",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "b0c8cc0c1f300e54aabab69e463ac427f200ffe5c79464dc827770fdf2db4b46",
+        "rotation": "none",
+        "touchAndClock": {
+          "diskReads": [
+            {
+              "began": 964857.9214855002,
+              "blocks": 1200,
+              "ended": 964857.9541509586,
+              "preparedHit": 1
+            }
+          ],
+          "down": 964857.8025249167,
+          "pulses": [
+            [
+              0,
+              964854.3851299168,
+              964854.3685129168
+            ],
+            [
+              1,
+              964854.5551265419,
+              964854.5375363752
+            ],
+            [
+              2,
+              964854.7219232086,
+              964854.7043716669
+            ],
+            [
+              3,
+              964854.8887198752,
+              964854.8711494586
+            ],
+            [
+              4,
+              964855.0555165419,
+              964855.0380129586
+            ],
+            [
+              5,
+              964855.2223132085,
+              964855.2048160419
+            ],
+            [
+              6,
+              964855.3891098752,
+              964855.3715988753
+            ],
+            [
+              7,
+              964855.5559065419,
+              964855.5383998335
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 964857.8762037086,
+          "up": 964857.86085825,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 4.086667,
+          "1": 4.186667,
+          "2": 4.353333,
+          "3": 4.52,
+          "4": 4.686667,
+          "5": 4.853333,
+          "6": 5.02,
+          "7": 5.186667
+        },
+        "calibrationOffsetSeconds": -964850.368849542,
+        "calibrationOffsetRangeMS": 0.78,
+        "selectionAfterTouchUpMS": 15.35,
+        "firstObservedReadableAfterTouchUpMS": 131.32,
+        "firstObservedReadableAfterSelectionMS": 115.98,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          130.93,
+          131.71
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          60.94,
+          131.71
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 97.99,
+        "openingFrames": [
+          {
+            "recordingSeconds": 7.455,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.488333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.521667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.556667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.59,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.623333,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "evicted prepared copy",
+      "test": "testMailBodyPresentationAfterRebuildingAnEvictedCopy",
+      "build": "diskClock",
+      "run": "phone-functional-disk-clock-1",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "e22624e34db4986f34f3aa733fab2a436ed86456c1ac1a0402e821bdce430b17",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "4ea2aac1ba0a77d6b733154e759420fad10b5bb42e5de082a03d627ad0033a4b",
+        "rotation": "none",
+        "touchAndClock": {
+          "diskReads": [
+            {
+              "began": 964823.3842773752,
+              "blocks": 1200,
+              "ended": 964823.4339648335,
+              "preparedHit": 0
+            }
+          ],
+          "down": 964823.2653805417,
+          "pulses": [
+            [
+              0,
+              964819.8247315002,
+              964819.8116319586
+            ],
+            [
+              1,
+              964819.9988968752,
+              964819.9813636668
+            ],
+            [
+              2,
+              964820.1656918752,
+              964820.1482085002
+            ],
+            [
+              3,
+              964820.3324868752,
+              964820.3192927919
+            ],
+            [
+              4,
+              964820.4992818752,
+              964820.4817768335
+            ],
+            [
+              5,
+              964820.6660768752,
+              964820.6490034586
+            ],
+            [
+              6,
+              964820.8568027086,
+              964820.8487871669
+            ],
+            [
+              7,
+              964821.0330258752,
+              964821.0156353752
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 964823.3358030419,
+          "up": 964823.323713875,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 3.305,
+          "1": 3.438333,
+          "2": 3.605,
+          "3": 3.771667,
+          "4": 3.938333,
+          "5": 4.106667,
+          "6": 4.29,
+          "7": 4.473333
+        },
+        "calibrationOffsetSeconds": -964816.5606918752,
+        "calibrationOffsetRangeMS": 7.39,
+        "selectionAfterTouchUpMS": 12.09,
+        "firstObservedReadableAfterTouchUpMS": 161.98,
+        "firstObservedReadableAfterSelectionMS": 149.89,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          160.7,
+          168.09
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          121.02,
+          168.09
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 128.65,
+        "openingFrames": [
+          {
+            "recordingSeconds": 6.725,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.758333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.791667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.825,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.858333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.891667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.925,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "prepared copy in SQLite",
+      "test": "testPreparedMailBodyPresentationAfterADiskRead",
+      "build": "diskClock",
+      "run": "phone-functional-disk-clock-2",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "e22624e34db4986f34f3aa733fab2a436ed86456c1ac1a0402e821bdce430b17",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "b9a96a2cc23e441bf948103d75d9310d1eea5f68043f52b56af55b40d642b202",
+        "rotation": "none",
+        "touchAndClock": {
+          "diskReads": [
+            {
+              "began": 964941.1787610002,
+              "blocks": 1200,
+              "ended": 964941.2230487085,
+              "preparedHit": 1
+            }
+          ],
+          "down": 964941.0531608333,
+          "pulses": [
+            [
+              0,
+              964937.7156531252,
+              964937.6990380419
+            ],
+            [
+              1,
+              964937.8828635418,
+              964937.8652701252
+            ],
+            [
+              2,
+              964938.0496602085,
+              964938.0321102919
+            ],
+            [
+              3,
+              964938.2164568752,
+              964938.1989584585
+            ],
+            [
+              4,
+              964938.3832535419,
+              964938.3657348335
+            ],
+            [
+              5,
+              964938.5500502086,
+              964938.5325639585
+            ],
+            [
+              6,
+              964938.7229914169,
+              964938.7160096252
+            ],
+            [
+              7,
+              964938.8836435418,
+              964938.8661134585
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 964941.1361070418,
+          "up": 964941.1114941667,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 4.071667,
+          "1": 4.171667,
+          "2": 4.338333,
+          "3": 4.505,
+          "4": 4.671667,
+          "5": 4.838333,
+          "6": 5.005,
+          "7": 5.171667
+        },
+        "calibrationOffsetSeconds": -964933.7115865418,
+        "calibrationOffsetRangeMS": 6.79,
+        "selectionAfterTouchUpMS": 24.61,
+        "firstObservedReadableAfterTouchUpMS": 158.43,
+        "firstObservedReadableAfterSelectionMS": 133.81,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          158.04,
+          164.83
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          90.82,
+          164.83
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 123.43,
+        "openingFrames": [
+          {
+            "recordingSeconds": 7.356667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.39,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.423333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.456667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.49,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.523333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.558333,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "evicted prepared copy",
+      "test": "testMailBodyPresentationAfterRebuildingAnEvictedCopy",
+      "build": "diskClock",
+      "run": "phone-functional-disk-clock-2",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "e22624e34db4986f34f3aa733fab2a436ed86456c1ac1a0402e821bdce430b17",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "6fcee1e294bf9aff52b327cf0771ba001da560fb49b14f5408f1e2f5c29d32ed",
+        "rotation": "none",
+        "touchAndClock": {
+          "diskReads": [
+            {
+              "began": 964906.1296814586,
+              "blocks": 1200,
+              "ended": 964906.1797055835,
+              "preparedHit": 0
+            }
+          ],
+          "down": 964905.99412625,
+          "pulses": [
+            [
+              0,
+              964902.6020949169,
+              964902.5854786253
+            ],
+            [
+              1,
+              964902.8864741669,
+              964902.8753962502
+            ],
+            [
+              2,
+              964903.0597667502,
+              964903.0421985002
+            ],
+            [
+              3,
+              964903.2265634169,
+              964903.2090385419
+            ],
+            [
+              4,
+              964903.3933600836,
+              964903.3758583335
+            ],
+            [
+              5,
+              964903.5601567503,
+              964903.5426112919
+            ],
+            [
+              6,
+              964903.7269534168,
+              964903.7095395002
+            ],
+            [
+              7,
+              964903.8937500835,
+              964903.8764300002
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 964906.0802218752,
+          "up": 964906.0524595834,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 3.075,
+          "1": 3.276667,
+          "2": 3.46,
+          "3": 3.626667,
+          "4": 3.793333,
+          "5": 3.96,
+          "6": 4.126667,
+          "7": 4.293333
+        },
+        "calibrationOffsetSeconds": -964899.6001567503,
+        "calibrationOffsetRangeMS": 10.04,
+        "selectionAfterTouchUpMS": 27.76,
+        "firstObservedReadableAfterTouchUpMS": 159.36,
+        "firstObservedReadableAfterSelectionMS": 131.6,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          158.97,
+          169.01
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          86.3,
+          169.01
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 126.03,
+        "openingFrames": [
+          {
+            "recordingSeconds": 6.411667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.445,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.478333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.511667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.545,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.578333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.611667,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "prepared copy in SQLite",
+      "test": "testPreparedMailBodyPresentationAfterADiskRead",
+      "build": "diskClock",
+      "run": "phone-functional-disk-clock-3",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "e22624e34db4986f34f3aa733fab2a436ed86456c1ac1a0402e821bdce430b17",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "ce069630fa0844de7fc094cd7f74c9c657e0ff0b2bece92c415e8150084d698c",
+        "rotation": "none",
+        "touchAndClock": {
+          "diskReads": [
+            {
+              "began": 965038.3151417918,
+              "blocks": 1200,
+              "ended": 965038.3531486252,
+              "preparedHit": 1
+            }
+          ],
+          "down": 965038.188564625,
+          "pulses": [
+            [
+              0,
+              965034.8114606668,
+              965034.7948461669
+            ],
+            [
+              1,
+              965034.9797137919,
+              965034.9621275419
+            ],
+            [
+              2,
+              965035.1465104586,
+              965035.1289108335
+            ],
+            [
+              3,
+              965035.3133071252,
+              965035.2965181252
+            ],
+            [
+              4,
+              965035.4801037919,
+              965035.4626518335
+            ],
+            [
+              5,
+              965035.6469004585,
+              965035.6293930835
+            ],
+            [
+              6,
+              965035.8136971252,
+              965035.7962142918
+            ],
+            [
+              7,
+              965035.9804937919,
+              965035.9630410002
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 965038.2670879585,
+          "up": 965038.2468979583,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 4.103333,
+          "1": 4.203333,
+          "2": 4.37,
+          "3": 4.536667,
+          "4": 4.703333,
+          "5": 4.87,
+          "6": 5.036667,
+          "7": 5.203333
+        },
+        "calibrationOffsetSeconds": -965030.776770792,
+        "calibrationOffsetRangeMS": 0.78,
+        "selectionAfterTouchUpMS": 20.19,
+        "firstObservedReadableAfterTouchUpMS": 153.21,
+        "firstObservedReadableAfterSelectionMS": 133.02,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          152.82,
+          153.6
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          84.56,
+          153.6
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 119.87,
+        "openingFrames": [
+          {
+            "recordingSeconds": 7.421667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.455,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.488333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.521667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.555,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.59,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.623333,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "evicted prepared copy",
+      "test": "testMailBodyPresentationAfterRebuildingAnEvictedCopy",
+      "build": "diskClock",
+      "run": "phone-functional-disk-clock-3",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "e22624e34db4986f34f3aa733fab2a436ed86456c1ac1a0402e821bdce430b17",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "8fd05c3d68e8d37c6da093f917b87e18c3ead978d4c640b34fe23f03c1d5280f",
+        "rotation": "none",
+        "touchAndClock": {
+          "diskReads": [
+            {
+              "began": 965003.9913619586,
+              "blocks": 1200,
+              "ended": 965004.0405240835,
+              "preparedHit": 0
+            }
+          ],
+          "down": 965003.8732073334,
+          "pulses": [
+            [
+              0,
+              965000.4509092919,
+              965000.4342955418
+            ],
+            [
+              1,
+              965000.6236501252,
+              965000.6061221252
+            ],
+            [
+              2,
+              965000.7904467919,
+              965000.7729100002
+            ],
+            [
+              3,
+              965000.9572434586,
+              965000.9397041668
+            ],
+            [
+              4,
+              965001.1240401252,
+              965001.1065303335
+            ],
+            [
+              5,
+              965001.2908367919,
+              965001.2733266669
+            ],
+            [
+              6,
+              965001.4576334585,
+              965001.4401252086
+            ],
+            [
+              7,
+              965001.6244301252,
+              965001.6071455835
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 965003.9445094585,
+          "up": 965003.9315406666,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 3.101667,
+          "1": 3.201667,
+          "2": 3.368333,
+          "3": 3.535,
+          "4": 3.701667,
+          "5": 3.868333,
+          "6": 4.035,
+          "7": 4.201667
+        },
+        "calibrationOffsetSeconds": -964997.4223731252,
+        "calibrationOffsetRangeMS": 0.78,
+        "selectionAfterTouchUpMS": 12.97,
+        "firstObservedReadableAfterTouchUpMS": 160.83,
+        "firstObservedReadableAfterSelectionMS": 147.86,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          160.44,
+          161.22
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          87.7,
+          161.22
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 127.5,
+        "openingFrames": [
+          {
+            "recordingSeconds": 6.47,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.503333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.536667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.57,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.603333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.636667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.67,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "prepared copy in SQLite",
+      "test": "testPreparedMailBodyPresentationAfterADiskRead",
+      "build": "openingStyles",
+      "run": "phone-functional-disk-clock-1",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "8475e85ec9f7f4c3cf55aa51a08061ba68d023fe5af7c0c07b2086580fe17b98",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "d874e0711158682840727fc6161583e743be96bb23a358790ea06fe896b6b5bf",
+        "rotation": "none",
+        "touchAndClock": {
+          "diskReads": [
+            {
+              "began": 964164.1286900418,
+              "blocks": 1200,
+              "ended": 964164.1643877502,
+              "preparedHit": 1
+            }
+          ],
+          "down": 964164.0085629583,
+          "pulses": [
+            [
+              0,
+              964160.6987228335,
+              964160.6821067085
+            ],
+            [
+              1,
+              964160.8635045836,
+              964160.8459731669
+            ],
+            [
+              2,
+              964161.0303012502,
+              964161.0127499169
+            ],
+            [
+              3,
+              964161.1970979169,
+              964161.1795363752
+            ],
+            [
+              4,
+              964161.3638945835,
+              964161.3464328336
+            ],
+            [
+              5,
+              964161.5306912502,
+              964161.5131851669
+            ],
+            [
+              6,
+              964161.6974879169,
+              964161.6952340836
+            ],
+            [
+              7,
+              964161.8642845836,
+              964161.8467495419
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 964164.0836389585,
+          "up": 964164.0668962917,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 4.043333,
+          "1": 4.143333,
+          "2": 4.31,
+          "3": 4.476667,
+          "4": 4.643333,
+          "5": 4.81,
+          "6": 4.976667,
+          "7": 5.143333
+        },
+        "calibrationOffsetSeconds": -964156.7205615835,
+        "calibrationOffsetRangeMS": 0.78,
+        "selectionAfterTouchUpMS": 16.74,
+        "firstObservedReadableAfterTouchUpMS": 115.33,
+        "firstObservedReadableAfterSelectionMS": 98.59,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          114.94,
+          115.72
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          50.16,
+          115.72
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 82.0,
+        "openingFrames": [
+          {
+            "recordingSeconds": 7.295,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.328333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.361667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.395,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.428333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.461667,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "evicted prepared copy",
+      "test": "testMailBodyPresentationAfterRebuildingAnEvictedCopy",
+      "build": "openingStyles",
+      "run": "phone-functional-disk-clock-1",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "8475e85ec9f7f4c3cf55aa51a08061ba68d023fe5af7c0c07b2086580fe17b98",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "4b353d6c85920204b011a1af20c73ffcda44d452cf893f6844c96bf27add0129",
+        "rotation": "none",
+        "touchAndClock": {
+          "diskReads": [
+            {
+              "began": 964129.0984661669,
+              "blocks": 1200,
+              "ended": 964129.1514615836,
+              "preparedHit": 0
+            }
+          ],
+          "down": 964128.957552125,
+          "pulses": [
+            [
+              0,
+              964125.5016271252,
+              964125.4850685835
+            ],
+            [
+              1,
+              964125.7787710002,
+              964125.7726573752
+            ],
+            [
+              2,
+              964125.9403291668,
+              964125.9227511669
+            ],
+            [
+              3,
+              964126.1071258335,
+              964126.0896754585
+            ],
+            [
+              4,
+              964126.2739225002,
+              964126.2564334585
+            ],
+            [
+              5,
+              964126.4407191669,
+              964126.4231960002
+            ],
+            [
+              6,
+              964126.6075158336,
+              964126.5901780835
+            ],
+            [
+              7,
+              964126.7743125003,
+              964126.7569871253
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 964129.0445519586,
+          "up": 964129.0158854583,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 3.12,
+          "1": 3.32,
+          "2": 3.486667,
+          "3": 3.653333,
+          "4": 3.82,
+          "5": 3.986667,
+          "6": 4.153333,
+          "7": 4.32
+        },
+        "calibrationOffsetSeconds": -964122.4540521669,
+        "calibrationOffsetRangeMS": 5.11,
+        "selectionAfterTouchUpMS": 28.67,
+        "firstObservedReadableAfterTouchUpMS": 161.5,
+        "firstObservedReadableAfterSelectionMS": 132.83,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          161.11,
+          166.22
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          89.07,
+          166.22
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 128.17,
+        "openingFrames": [
+          {
+            "recordingSeconds": 6.523333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.556667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.59,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.623333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.656667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.69,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.723333,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "prepared copy in SQLite",
+      "test": "testPreparedMailBodyPresentationAfterADiskRead",
+      "build": "openingStyles",
+      "run": "phone-functional-disk-clock-2",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "8475e85ec9f7f4c3cf55aa51a08061ba68d023fe5af7c0c07b2086580fe17b98",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "e46b8c7baba234b444264d26785feea637f9b4151e83f926b770e181b577ac3c",
+        "rotation": "none",
+        "touchAndClock": {
+          "diskReads": [
+            {
+              "began": 964244.7872880419,
+              "blocks": 1200,
+              "ended": 964244.8200043335,
+              "preparedHit": 1
+            }
+          ],
+          "down": 964244.6692769583,
+          "pulses": [
+            [
+              0,
+              964241.2518841668,
+              964241.2352686252
+            ],
+            [
+              1,
+              964241.4224070419,
+              964241.4048855002
+            ],
+            [
+              2,
+              964241.5892037086,
+              964241.5716063336
+            ],
+            [
+              3,
+              964241.7560003753,
+              964241.7384387503
+            ],
+            [
+              4,
+              964241.9227970418,
+              964241.9053124168
+            ],
+            [
+              5,
+              964242.0895937085,
+              964242.0721080835
+            ],
+            [
+              6,
+              964242.2563903752,
+              964242.2389194586
+            ],
+            [
+              7,
+              964242.4231870419,
+              964242.4056910418
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 964244.7428447919,
+          "up": 964244.726756,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 4.091667,
+          "1": 4.191667,
+          "2": 4.358333,
+          "3": 4.525,
+          "4": 4.691667,
+          "5": 4.858333,
+          "6": 5.025,
+          "7": 5.191667
+        },
+        "calibrationOffsetSeconds": -964237.2311300419,
+        "calibrationOffsetRangeMS": 0.78,
+        "selectionAfterTouchUpMS": 16.09,
+        "firstObservedReadableAfterTouchUpMS": 132.71,
+        "firstObservedReadableAfterSelectionMS": 116.62,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          132.32,
+          133.1
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          61.79,
+          133.1
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 99.37,
+        "openingFrames": [
+          {
+            "recordingSeconds": 7.46,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.493333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.528333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.561667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.595,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.628333,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "evicted prepared copy",
+      "test": "testMailBodyPresentationAfterRebuildingAnEvictedCopy",
+      "build": "openingStyles",
+      "run": "phone-functional-disk-clock-2",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "8475e85ec9f7f4c3cf55aa51a08061ba68d023fe5af7c0c07b2086580fe17b98",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "cd0f6e9e9294e50ffd2c3447e09502630848290b45489456f06cb9cb0f1f28ad",
+        "rotation": "none",
+        "touchAndClock": {
+          "diskReads": [
+            {
+              "began": 964210.3019237502,
+              "blocks": 1200,
+              "ended": 964210.3528759585,
+              "preparedHit": 0
+            }
+          ],
+          "down": 964210.1718810417,
+          "pulses": [
+            [
+              0,
+              964206.7428041669,
+              964206.7261951253
+            ],
+            [
+              1,
+              964207.0253758335,
+              964207.0154765835
+            ],
+            [
+              2,
+              964207.1997803336,
+              964207.1822104169
+            ],
+            [
+              3,
+              964207.3665770002,
+              964207.3490665002
+            ],
+            [
+              4,
+              964207.5333736669,
+              964207.5158786252
+            ],
+            [
+              5,
+              964207.7001703335,
+              964207.6827575419
+            ],
+            [
+              6,
+              964207.8669670002,
+              964207.8495392503
+            ],
+            [
+              7,
+              964208.0337636669,
+              964208.0163669585
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 964210.2535576669,
+          "up": 964210.2296175833,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 3.083333,
+          "1": 3.283333,
+          "2": 3.466667,
+          "3": 3.633333,
+          "4": 3.8,
+          "5": 3.966667,
+          "6": 4.133333,
+          "7": 4.3
+        },
+        "calibrationOffsetSeconds": -964203.7335033335,
+        "calibrationOffsetRangeMS": 8.93,
+        "selectionAfterTouchUpMS": 23.94,
+        "firstObservedReadableAfterTouchUpMS": 155.55,
+        "firstObservedReadableAfterSelectionMS": 131.61,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          155.16,
+          164.09
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          81.52,
+          164.09
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 122.22,
+        "openingFrames": [
+          {
+            "recordingSeconds": 6.451667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.485,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.518333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.551667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.585,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.618333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.651667,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "prepared copy in SQLite",
+      "test": "testPreparedMailBodyPresentationAfterADiskRead",
+      "build": "openingStyles",
+      "run": "phone-functional-disk-clock-3",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "8475e85ec9f7f4c3cf55aa51a08061ba68d023fe5af7c0c07b2086580fe17b98",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "2f64b457895206fec49c1c27223c17a024e4173b0406c923d3a46ef9034c066b",
+        "rotation": "none",
+        "touchAndClock": {
+          "diskReads": [
+            {
+              "began": 964327.5992805419,
+              "blocks": 1200,
+              "ended": 964327.6324097086,
+              "preparedHit": 1
+            }
+          ],
+          "down": 964327.48253675,
+          "pulses": [
+            [
+              0,
+              964324.0742832919,
+              964324.0576694586
+            ],
+            [
+              1,
+              964324.3549707085,
+              964324.3489466253
+            ],
+            [
+              2,
+              964324.5166269585,
+              964324.4990220419
+            ],
+            [
+              3,
+              964324.6834236252,
+              964324.6659138752
+            ],
+            [
+              4,
+              964324.8502202919,
+              964324.8327862086
+            ],
+            [
+              5,
+              964325.0170169586,
+              964324.9996353335
+            ],
+            [
+              6,
+              964325.1838136252,
+              964325.1663567085
+            ],
+            [
+              7,
+              964325.3506102919,
+              964325.3330892919
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 964327.5540664586,
+          "up": 964327.5404445,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 4.095,
+          "1": 4.295,
+          "2": 4.461667,
+          "3": 4.628333,
+          "4": 4.795,
+          "5": 4.961667,
+          "6": 5.128333,
+          "7": 5.295
+        },
+        "calibrationOffsetSeconds": -964320.0553499586,
+        "calibrationOffsetRangeMS": 5.01,
+        "selectionAfterTouchUpMS": 13.62,
+        "firstObservedReadableAfterTouchUpMS": 129.91,
+        "firstObservedReadableAfterSelectionMS": 116.28,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          129.52,
+          134.53
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          53.84,
+          134.53
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 96.57,
+        "openingFrames": [
+          {
+            "recordingSeconds": 7.446667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.48,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.513333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.548333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.581667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 7.615,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "evicted prepared copy",
+      "test": "testMailBodyPresentationAfterRebuildingAnEvictedCopy",
+      "build": "openingStyles",
+      "run": "phone-functional-disk-clock-3",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "8475e85ec9f7f4c3cf55aa51a08061ba68d023fe5af7c0c07b2086580fe17b98",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "c3f8171edd36bbc9c0840f697da9098ee6b783e5c3410791ed62e26629a22cc0",
+        "rotation": "none",
+        "touchAndClock": {
+          "diskReads": [
+            {
+              "began": 964293.0321671253,
+              "blocks": 1200,
+              "ended": 964293.0816533752,
+              "preparedHit": 0
+            }
+          ],
+          "down": 964292.896625625,
+          "pulses": [
+            [
+              0,
+              964289.4795380002,
+              964289.4629275835
+            ],
+            [
+              1,
+              964289.6434929168,
+              964289.6259113336
+            ],
+            [
+              2,
+              964289.8102895835,
+              964289.7927300419
+            ],
+            [
+              3,
+              964289.9770862502,
+              964289.9595453335
+            ],
+            [
+              4,
+              964290.1438829169,
+              964290.1263811252
+            ],
+            [
+              5,
+              964290.3106795836,
+              964290.2931888752
+            ],
+            [
+              6,
+              964290.4774762503,
+              964290.4601860836
+            ],
+            [
+              7,
+              964290.6442729168,
+              964290.6268982085
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 964292.9822475419,
+          "up": 964292.9542044583,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 3.076667,
+          "1": 3.176667,
+          "2": 3.343333,
+          "3": 3.51,
+          "4": 3.676667,
+          "5": 3.845,
+          "6": 4.011667,
+          "7": 4.178333
+        },
+        "calibrationOffsetSeconds": -964286.4668259168,
+        "calibrationOffsetRangeMS": 1.54,
+        "selectionAfterTouchUpMS": 28.04,
+        "firstObservedReadableAfterTouchUpMS": 159.29,
+        "firstObservedReadableAfterSelectionMS": 131.25,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          158.14,
+          159.68
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          95.33,
+          159.68
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 125.95,
+        "openingFrames": [
+          {
+            "recordingSeconds": 6.446667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.48,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.513333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.546667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.58,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.613333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.646667,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "in-memory paragraphs",
+      "test": "testLongMailBodyPresentationAfterARealRowTap",
+      "build": "readerClock",
+      "run": "phone-functional-clocked-1",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "91af5ab7a58275111d1950436cba42e10573290edbf918a7483bf04f2e23bfbd",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "bc6e09a6548a8d2a9914b08c67763a806c4d1d490afa2034e4061cb72be1af1c",
+        "rotation": "none",
+        "touchAndClock": {
+          "down": 962446.4303026666,
+          "pulses": [
+            [
+              0,
+              962443.0025182503,
+              962442.9859042502
+            ],
+            [
+              1,
+              962443.1657943336,
+              962443.1482708335
+            ],
+            [
+              2,
+              962443.3325910002,
+              962443.3150943335
+            ],
+            [
+              3,
+              962443.4993876669,
+              962443.4818436252
+            ],
+            [
+              4,
+              962443.6661843335,
+              962443.6486868336
+            ],
+            [
+              5,
+              962443.8329810002,
+              962443.8154552085
+            ],
+            [
+              6,
+              962444.0331370002,
+              962444.0156278752
+            ],
+            [
+              7,
+              962444.1999336669,
+              962444.1824846669
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 962446.5033076252,
+          "up": 962446.488636,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 3.075,
+          "1": 3.175,
+          "2": 3.343333,
+          "3": 3.51,
+          "4": 3.676667,
+          "5": 3.843333,
+          "6": 4.043333,
+          "7": 4.21
+        },
+        "calibrationOffsetSeconds": -962439.9896480002,
+        "calibrationOffsetRangeMS": 1.54,
+        "selectionAfterTouchUpMS": 14.67,
+        "firstObservedReadableAfterTouchUpMS": 96.01,
+        "firstObservedReadableAfterSelectionMS": 81.34,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          95.62,
+          97.16
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          33.88,
+          97.16
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 62.68,
+        "openingFrames": [
+          {
+            "recordingSeconds": 6.461667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.495,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.528333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.561667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.595,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "in-memory paragraphs",
+      "test": "testLongMailBodyPresentationAfterARealRowTap",
+      "build": "readerClock",
+      "run": "phone-functional-clocked-2",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "91af5ab7a58275111d1950436cba42e10573290edbf918a7483bf04f2e23bfbd",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "7aaac46fa6aa63c7b595a0f1c4d3cd139cc765c9255f18a769c134bc08b32aa2",
+        "rotation": "none",
+        "touchAndClock": {
+          "down": 962538.144048,
+          "pulses": [
+            [
+              0,
+              962534.7586457086,
+              962534.7420560418
+            ],
+            [
+              1,
+              962534.9293022918,
+              962534.9117642086
+            ],
+            [
+              2,
+              962535.0960989585,
+              962535.0785327503
+            ],
+            [
+              3,
+              962535.2628956252,
+              962535.2454337919
+            ],
+            [
+              4,
+              962535.4296922919,
+              962535.4121790419
+            ],
+            [
+              5,
+              962535.5964889586,
+              962535.5789856252
+            ],
+            [
+              6,
+              962535.7855751253,
+              962535.7791927502
+            ],
+            [
+              7,
+              962535.9467619585,
+              962535.9294077503
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 962538.2179670002,
+          "up": 962538.2023813333,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 3.086667,
+          "1": 3.186667,
+          "2": 3.353333,
+          "3": 3.52,
+          "4": 3.686667,
+          "5": 3.853333,
+          "6": 4.036667,
+          "7": 4.203333
+        },
+        "calibrationOffsetSeconds": -962531.743025292,
+        "calibrationOffsetRangeMS": 6.27,
+        "selectionAfterTouchUpMS": 15.59,
+        "firstObservedReadableAfterTouchUpMS": 95.64,
+        "firstObservedReadableAfterSelectionMS": 80.06,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          95.25,
+          101.53
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          24.6,
+          101.53
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 62.31,
+        "openingFrames": [
+          {
+            "recordingSeconds": 6.421667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.455,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.488333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.521667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.555,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    },
+    {
+      "condition": "in-memory paragraphs",
+      "test": "testLongMailBodyPresentationAfterARealRowTap",
+      "build": "readerClock",
+      "run": "phone-functional-clocked-3",
+      "hardware": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "testResult": "Passed",
+      "binarySHA256": "91af5ab7a58275111d1950436cba42e10573290edbf918a7483bf04f2e23bfbd",
+      "recording": {
+        "timestampBasis": "original stream PTS",
+        "movieSHA256": "013d2584bce0e73f5645552c2670d7dffec2b95182b4d3c49cf559ff209adbbc",
+        "rotation": "none",
+        "touchAndClock": {
+          "down": 962585.7010425,
+          "pulses": [
+            [
+              0,
+              962582.2689328752,
+              962582.2529556252
+            ],
+            [
+              1,
+              962582.5444573335,
+              962582.5278136252
+            ],
+            [
+              2,
+              962582.7208838752,
+              962582.7033242085
+            ],
+            [
+              3,
+              962582.8876805418,
+              962582.8701849169
+            ],
+            [
+              4,
+              962583.0544772085,
+              962583.0370468335
+            ],
+            [
+              5,
+              962583.2212738752,
+              962583.2037136669
+            ],
+            [
+              6,
+              962583.3880705419,
+              962583.3707615419
+            ],
+            [
+              7,
+              962583.5548672086,
+              962583.5400327919
+            ]
+          ],
+          "ready": true,
+          "rect": [
+            349,
+            806,
+            40,
+            8
+          ],
+          "selected": 962585.7747618752,
+          "up": 962585.7588105834,
+          "window": [
+            393,
+            852
+          ]
+        },
+        "firstRecordingTimeByCode": {
+          "0": 3.066667,
+          "1": 3.3,
+          "2": 3.466667,
+          "3": 3.633333,
+          "4": 3.8,
+          "5": 3.966667,
+          "6": 4.133333,
+          "7": 4.3
+        },
+        "calibrationOffsetSeconds": -962579.2544772085,
+        "calibrationOffsetRangeMS": 10.41,
+        "selectionAfterTouchUpMS": 15.95,
+        "firstObservedReadableAfterTouchUpMS": 97.33,
+        "firstObservedReadableAfterSelectionMS": 81.38,
+        "firstReadableAfterLiftRangeOverTransitionsMS": [
+          87.31,
+          97.72
+        ],
+        "firstReadableAfterLiftRangeOverAllAnchorsMS": [
+          45.12,
+          97.72
+        ],
+        "previousRecordedFrameAfterTouchUpMS": 64.0,
+        "openingFrames": [
+          {
+            "recordingSeconds": 6.468333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.501667,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.535,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.568333,
+            "sectionNumbers": [
+              1
+            ],
+            "readable": false
+          },
+          {
+            "recordingSeconds": 6.601667,
+            "sectionNumbers": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "readable": true
+          }
+        ]
+      }
+    }
+  ]
+}

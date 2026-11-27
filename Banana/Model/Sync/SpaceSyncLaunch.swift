@@ -173,7 +173,7 @@ enum SpaceSyncLaunch {
                     #if os(iOS)
                     // Every pass may finish in the background: a first seed's uploads take a while.
                     config.holdWhilePassing = { reason in
-                        let task = await MainActor.run { BackgroundTask(named: "space-sync \(reason)") }
+                        let task = await MainActor.run { AppBackgroundTask(named: "space-sync \(reason)") }
                         return { await MainActor.run { task.end() } }
                     }
                     #endif
@@ -236,7 +236,7 @@ enum SpaceSyncLaunch {
         // A step may run with the app in the background (a podcast playing): it holds background
         // time, and a drain stops only when that runs out.
         deps.holdBackground = { name, expired in
-            let task = BackgroundTask(named: name, expired: expired)
+            let task = AppBackgroundTask(named: name, expired: expired)
             return { task.end() }
         }
         #endif
@@ -358,7 +358,7 @@ enum SpaceSyncLaunch {
     /// whichever comes first; the pass goes on under a background task either way.
     static func handlePush(completion: @escaping (UIBackgroundFetchResult) -> Void) {
         let finish = PushCompletion(completion)
-        let background = BackgroundTask(named: "space-sync")
+        let background = AppBackgroundTask(named: "space-sync")
         Task { @MainActor in
             let ran = await handlePush()
             finish.call(ran ? .newData : .noData)
@@ -401,25 +401,4 @@ private final class PushCompletion {
     }
 }
 
-/// Background time for a pass that outlives the push's completion.
-@MainActor
-private final class BackgroundTask {
-    private var id: UIBackgroundTaskIdentifier = .invalid
-
-    /// `expired`: told when iOS takes the time back, before it's let go.
-    init(named name: String, expired: (@MainActor () -> Void)? = nil) {
-        id = UIApplication.shared.beginBackgroundTask(withName: name) { [weak self] in
-            MainActor.assumeIsolated {
-                expired?()
-                self?.end()
-            }
-        }
-    }
-
-    func end() {
-        guard id != .invalid else { return }
-        UIApplication.shared.endBackgroundTask(id)
-        id = .invalid
-    }
-}
 #endif

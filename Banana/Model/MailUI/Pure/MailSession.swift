@@ -191,7 +191,10 @@ final class MailSession {
     var pendingDeliveryRetries: [MailDraftID: MailUndoEntry] = [:]
     private var activeToastReceipt: MailReceipt?
     private let dismissToast: @MainActor () -> Void
-    private var isEntered = false
+    private let defaultScreen = UUID()
+    private var visibleScreens = Set<UUID>()
+    private var isEntered: Bool { !visibleScreens.isEmpty }
+    private var hasActivated = false
     private var answersEntry = false
     private var cancelIdle: (() -> Void)?
     private var queue: [MailListEffect] = []
@@ -229,7 +232,6 @@ final class MailSession {
             _ = source?.apply(.read(true), to: target)
         }
         eventObservation = source.observeEvents { [weak self] event in self?.received(event) }
-        source.activate()
         pane.follow(model)
         // A reply is written in the conversation it answers: when the pane moves to another one,
         // the composer is left, and its draft kept.
@@ -256,18 +258,21 @@ final class MailSession {
 
     /// The place is on screen. The first value its observation delivers is the answer to this
     /// entry, and is marked so (MAIL-UX 3.11).
-    func enter() {
-        guard !isEntered else { return }
-        isEntered = true
+    func enter(screen: UUID? = nil) {
+        guard visibleScreens.insert(screen ?? defaultScreen).inserted, visibleScreens.count == 1 else { return }
+        // A push or a shell search can construct this session without presenting Mail.
+        if !hasActivated {
+            hasActivated = true
+            source.activate()
+        }
         source.setVisible(true)
         begin()
     }
 
     /// Mail is off screen. The list's observation is let go; the models, the cursors, the place
     /// and the open conversation stay.
-    func leave() {
-        guard isEntered else { return }
-        isEntered = false
+    func leave(screen: UUID? = nil) {
+        guard visibleScreens.remove(screen ?? defaultScreen) != nil, visibleScreens.isEmpty else { return }
         end()
         source.setVisible(false)
     }

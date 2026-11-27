@@ -5,26 +5,18 @@ import UIKit
 import AppKit
 #endif
 
-/// Catches the main thread stuck for `threshold` or longer while the app is in front, reads its
-/// stack while it is still stuck, and reports the hang once it ends (`ProblemReporter`).
-///
-/// It runs only while the app is active and Share usage is on: a utility-queue timer every half
-/// second sends one empty block to the main queue and sees whether the last one ran. With the
-/// screen on that is nothing next to drawing a frame; in the background it isn't running at all.
+/// Captures a stuck foreground main thread while Share usage is enabled, then reports
+/// the duration and live stack when the thread recovers.
 final class HangDetector: @unchecked Sendable {
     static let shared = HangDetector()
     static let threshold: TimeInterval = 1.5
-    private static let interval: TimeInterval = 0.5
 
-    private let queue = DispatchQueue(label: "app.banana.hang-detector", qos: .utility)
-    private var timer: DispatchSourceTimer?
-    // Queue-confined.
-    private var pingSentAt: UInt64?
-    private var hangStartedAt: UInt64?
-    private var stack: String?
-    /// Told the duration and stack when a hang ends. Called on the detector's queue.
+    /// Called on the detector queue when the main thread resumes.
     var onHang: (@Sendable (_ seconds: Double, _ stack: String?) -> Void)?
     private var observers: [NSObjectProtocol] = []
+    @MainActor private lazy var watch = MainRunLoopHangMonitor(threshold: Self.threshold, sample: {
+        MainThreadSampler.sample()
+    }) { [weak self] seconds, stack in self?.onHang?(seconds, stack) }
 
     /// Follows the app coming forward and going back. `enabled` is asked each time it comes forward.
     @MainActor
@@ -41,57 +33,50 @@ final class HangDetector: @unchecked Sendable {
             MainActor.assumeIsolated { if enabled() { self?.start() } else { self?.stop() } }
         })
         observers.append(center.addObserver(forName: inactive, object: nil, queue: .main) { [weak self] _ in
-            self?.stop()
+            MainActor.assumeIsolated { self?.stop() }
         })
-        if enabled() { start() }
-    }
-
-    func start() {
-        queue.async { [self] in
-            guard timer == nil else { return }
-            let source = DispatchSource.makeTimerSource(queue: queue)
-            source.schedule(deadline: .now() + Self.interval, repeating: Self.interval, leeway: .milliseconds(100))
-            source.setEventHandler { [weak self] in self?.tick() }
-            source.resume()
-            timer = source
-        }
-    }
-
-    func stop() {
-        queue.async { [self] in
-            timer?.cancel()
-            timer = nil
-            pingSentAt = nil
-            hangStartedAt = nil
-            stack = nil
-        }
-    }
-
-    private func tick() {
-        let now = DispatchTime.now().uptimeNanoseconds
-        guard let sent = pingSentAt else {
-            pingSentAt = now
-            DispatchQueue.main.async { [weak self] in
-                let answered = DispatchTime.now().uptimeNanoseconds
-                self?.queue.async { self?.pong(at: answered) }
+        #if DEBUG && STRESS_DEVICE_AUDIT && os(iOS)
+        let arguments = ProcessInfo.processInfo.arguments
+        if enabled(), let option = arguments.firstIndex(of: "--stress-test-hang-recovery"),
+           let token = arguments.dropFirst(option + 1).first.flatMap(UUID.init(uuidString:)) {
+            // Keep the deliberate fixture hang local. The observer still captures its
+            // live thread stack, but the normal problem-report outbox receives nothing.
+            let mode = "run-loop"
+            let folder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            let file = folder.appendingPathComponent("stress-hang-recovery-" + mode + ".json")
+            onHang = { seconds, stack in
+                let value: [String: Any] = ["mode": mode, "run": token.uuidString, "seconds": seconds,
+                                            "capturedStack": stack?.isEmpty == false]
+                if let data = try? JSONSerialization.data(withJSONObject: value) {
+                    try? data.write(to: file, options: .atomic)
+                }
             }
-            return
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                Thread.sleep(forTimeInterval: 2.8)
+            }
         }
-        let waited = Double(now - sent) / 1_000_000_000
-        if waited >= Self.threshold, hangStartedAt == nil {
-            hangStartedAt = sent
-            // Read while it is still stuck: that is the frame that matters.
-            stack = MainThreadSampler.sample()
-        }
+        #endif
+        #if os(iOS)
+        let currentlyActive = UIApplication.shared.applicationState == .active
+        #else
+        let currentlyActive = NSApplication.shared.isActive
+        #endif
+        if currentlyActive && enabled() { start() }
     }
 
-    private func pong(at answered: UInt64) {
-        defer { pingSentAt = nil }
-        guard let started = hangStartedAt else { return }
-        let seconds = Double(answered - started) / 1_000_000_000
-        let caught = stack
-        hangStartedAt = nil
-        stack = nil
-        onHang?(seconds, caught)
+    @MainActor private func start() {
+        #if DEBUG && STRESS_DEVICE_AUDIT
+        let args = ProcessInfo.processInfo.arguments
+        if args.contains("--stress-measure-hang-detector") {
+            let paused = args.contains("--stress-pause-hang-detector")
+            PlaybackDiagnostics.shared.log("fixture", paused ? "hang heartbeat paused" : "hang heartbeat run-loop")
+            if paused { return }
+        }
+        #endif
+        watch.start()
+    }
+
+    @MainActor private func stop() {
+        watch.stop()
     }
 }

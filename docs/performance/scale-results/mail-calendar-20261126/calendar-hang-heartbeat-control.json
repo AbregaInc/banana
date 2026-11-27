@@ -1,0 +1,149 @@
+{
+  "scope": "Same physical M1 iPad, charger, brightness, Calendar Week window and isolated binary. The signed audit flag can pause only the opt-in main-thread hang detector. Each new process records whether the detector reached its active start path. Process counters and the device power readings exclude 90 seconds of startup. A paused watchdog does not deliver hang detection and is a measurement control only.",
+  "runs": [
+    {
+      "window": "calendar13",
+      "requestedMode": "running",
+      "fixtureMarkers": {
+        "running": 1,
+        "paused": 0
+      },
+      "verifiedMode": true,
+      "route": "calendar",
+      "build": "swipe/hangControl",
+      "fixtureSHA256": "2691f734448b1c6eace93517ebb25c47e9ce1ec3297b21399cdd5448448d637c",
+      "startUTC": "2026-11-26T11:27:34+00:00",
+      "endUTC": "2026-11-26T11:34:34+00:00",
+      "validReadings": 6,
+      "validInterruptSamples": 64,
+      "settledSceneIntervals": 4,
+      "allSceneIntervalsForeground": true,
+      "journalContainsRouteMarker": true,
+      "startPercent": 81,
+      "endPercent": 82,
+      "netNegativeSamples": 1,
+      "netBatteryMedianW": 1.317,
+      "deviceLoadMedianW": 6.37,
+      "deviceInputMedianW": 7.691,
+      "adaptersRatedW": [
+        8
+      ],
+      "fullyChargedSamples": 0,
+      "externalPowerSamples": 6,
+      "processCPUPercent": 0.052782416672168375,
+      "interruptWakeupsPerSecond": 2.194149547927718,
+      "platformIdleWakeupsPerSecond": 0.012122373192970819,
+      "energyCoveredMinutes": 5.0,
+      "integratedDeviceLoadWh": 0.6109,
+      "integratedNetBatteryWh": 0.03
+    },
+    {
+      "window": "calendar14",
+      "requestedMode": "paused",
+      "fixtureMarkers": {
+        "running": 0,
+        "paused": 2
+      },
+      "verifiedMode": true,
+      "route": "calendar",
+      "build": "swipe/hangControl",
+      "fixtureSHA256": "2691f734448b1c6eace93517ebb25c47e9ce1ec3297b21399cdd5448448d637c",
+      "startUTC": "2026-11-26T11:35:49+00:00",
+      "endUTC": "2026-11-26T11:42:50+00:00",
+      "validReadings": 5,
+      "validInterruptSamples": 64,
+      "settledSceneIntervals": 3,
+      "allSceneIntervalsForeground": true,
+      "journalContainsRouteMarker": true,
+      "startPercent": 82,
+      "endPercent": 82,
+      "netNegativeSamples": 0,
+      "netBatteryMedianW": 1.193,
+      "deviceLoadMedianW": 6.503,
+      "deviceInputMedianW": 7.696,
+      "adaptersRatedW": [
+        8
+      ],
+      "fullyChargedSamples": 0,
+      "externalPowerSamples": 5,
+      "processCPUPercent": 0.013850591911417376,
+      "interruptWakeupsPerSecond": 0.25454403058367875,
+      "platformIdleWakeupsPerSecond": 0.003030286078377128,
+      "energyCoveredMinutes": 4.0,
+      "integratedDeviceLoadWh": 0.4255,
+      "integratedNetBatteryWh": 0.0869
+    },
+    {
+      "window": "calendar15",
+      "requestedMode": "paused",
+      "fixtureMarkers": {
+        "running": 0,
+        "paused": 2
+      },
+      "verifiedMode": true,
+      "route": "calendar",
+      "build": "swipe/hangControl",
+      "fixtureSHA256": "2691f734448b1c6eace93517ebb25c47e9ce1ec3297b21399cdd5448448d637c",
+      "startUTC": "2026-11-26T11:44:02+00:00",
+      "endUTC": "2026-11-26T11:51:02+00:00",
+      "validReadings": 5,
+      "validInterruptSamples": 64,
+      "settledSceneIntervals": 3,
+      "allSceneIntervalsForeground": true,
+      "journalContainsRouteMarker": true,
+      "startPercent": 82,
+      "endPercent": 83,
+      "netNegativeSamples": 0,
+      "netBatteryMedianW": 1.863,
+      "deviceLoadMedianW": 5.784,
+      "deviceInputMedianW": 7.667,
+      "adaptersRatedW": [
+        8
+      ],
+      "fullyChargedSamples": 0,
+      "externalPowerSamples": 5,
+      "processCPUPercent": 0.013104125593846938,
+      "interruptWakeupsPerSecond": 0.2697470624780684,
+      "platformIdleWakeupsPerSecond": 0.0030308658705400946,
+      "energyCoveredMinutes": 4.0,
+      "integratedDeviceLoadWh": 0.4047,
+      "integratedNetBatteryWh": 0.1065
+    },
+    {
+      "window": "calendar16",
+      "requestedMode": "running",
+      "fixtureMarkers": {
+        "running": 1,
+        "paused": 0
+      },
+      "verifiedMode": true,
+      "route": "calendar",
+      "build": "swipe/hangControl",
+      "fixtureSHA256": "2691f734448b1c6eace93517ebb25c47e9ce1ec3297b21399cdd5448448d637c",
+      "startUTC": "2026-11-26T11:52:13+00:00",
+      "endUTC": "2026-11-26T11:59:14+00:00",
+      "validReadings": 5,
+      "validInterruptSamples": 64,
+      "settledSceneIntervals": 4,
+      "allSceneIntervalsForeground": true,
+      "journalContainsRouteMarker": true,
+      "startPercent": 83,
+      "endPercent": 83,
+      "netNegativeSamples": 0,
+      "netBatteryMedianW": 1.911,
+      "deviceLoadMedianW": 5.751,
+      "deviceInputMedianW": 7.657,
+      "adaptersRatedW": [
+        8
+      ],
+      "fullyChargedSamples": 0,
+      "externalPowerSamples": 5,
+      "processCPUPercent": 0.05688950053142041,
+      "interruptWakeupsPerSecond": 2.1909778743524075,
+      "platformIdleWakeupsPerSecond": 0.021212787165237695,
+      "energyCoveredMinutes": 4.0,
+      "integratedDeviceLoadWh": 0.3837,
+      "integratedNetBatteryWh": 0.127
+    }
+  ]
+}

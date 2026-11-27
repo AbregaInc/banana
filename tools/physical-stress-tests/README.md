@@ -54,14 +54,117 @@ physical phone; it does not establish live Gmail integration. Further interactio
 coverage and real frame/input measurements remain
 required; XCTest gesture duration does not establish UI latency.
 
-`testDefaultVariedDayArtwork` and `testDefaultVariedWeekArtwork` specifically
-exercise the Beta event renderer without an opt-in flag. They assert 36,500
-installed varied events, 12 calendars, distinct daily/weekly patterns, a native
-collection viewport, visible prepared artwork before and after scrolling, no
-explicit preparation failures, and the exact selected event's detail. Screenshots
-and workload metadata are retained. These are functional checks, not timing
-acceptance; they do not cover live Google sync, writes, VoiceOver or rotation.
-An empty normal Calendar cannot satisfy these populated-event checks.
+`testDefaultVariedDayArtwork` and `testDefaultVariedWeekArtwork` exercise the
+release-channel SwiftUI event artwork without renderer flags. The corresponding
+`testPreparedVariedDayArtwork` and `testPreparedVariedWeekArtwork` cases require
+visible prepared images or direct canvases. Both paths check the full 36,500
+varied events, 12 calendars, distinct daily and weekly patterns, a populated
+native viewport before and after scrolling, and the exact selected event’s detail.
+Each retains screenshots and installed workload metadata. The prepared path also
+checks for explicit preparation failures.
+
+The physical runner accepts `STRESS_DEVICE_ORIENTATION=portrait` or `landscape`
+in its test environment to exercise a flow in a specific window shape. It restores
+the previous orientation when the device reported one.
+
+## Day swipe recordings and redraw counts
+
+`testDaySwipesKeepTheTimeInPortrait` and `testDaySwipesKeepTheTimeInLandscape`
+drive the same four Day gestures on the phone and iPad. Each starts on a populated
+timeline, checks the exact destination date and vertical offset after each swipe,
+then compares visible event identities on return. Each restores the starting
+orientation when XCTest reports it. The JSON attachment includes viewport geometry
+and cumulative counts from SwiftUI and the native collection.
+
+To inspect the transition itself, set `PreferredScreenCaptureFormat` to
+`screenRecording` and `SystemAttachmentLifetime` to `keepAlways` in a copy of the
+generated test configuration; keep its relative test-bundle paths resolvable.
+Retain the original recording privately. The recording uses variable frame
+timestamps and may omit long stretches of identical pixels. Analyze motion inside
+the timeline separately from controls above it. A final screenshot only shows the
+settled page.
+
+```sh
+python3 tools/physical-stress-tests/summarize-day-swipes.py day-swipes.xcresult --out day-swipes.json
+```
+
+On builds with gesture telemetry, `releaseToSettledMS` measures time from the native drag-release callback
+to the scroll delegate's completion on that device. The recording and geometry show what moved during
+this interval. Touch-to-first-frame latency requires its own timestamped presentation measurement.
+
+
+Export one orientation test's attachments with `xcresulttool export attachments`.
+The motion analyzer uses FFmpeg, NumPy and Pillow. If the test rotates after
+recording starts, inspect an image during a drag and pass `--rotation clockwise`
+or `--rotation counterclockwise` to put the text upright.
+
+```sh
+python3 tools/physical-stress-tests/day-swipe-motion.py attachments --out motion.json
+```
+
+The analyzer counts changed images separately in the event area and the left
+32 points of the ruler, during the drag and around release. Its output retains
+the number of recorded samples in each interval. Display-rate and input latency
+measurements require independent presentation timestamps.
+
+The summary reports the movement of the same hour in window coordinates. It
+also reports how many times the app prepared days, applied collection data,
+reloaded membership, configured cells and performed layout. A cell configuration
+updates content. A body evaluation or layout pass can finish without a pixel change.
+
+### Interrupting a Day swipe
+
+Run `ScaleStressUITests/testConsecutiveDayFlicksDuringTheCoast` in each orientation. Set the runner environment variable `STRESS_DEVICE_ORIENTATION` to `portrait` or `landscape`. The test sends the touches in one XCTest event record so the framework does not wait for the grid to settle between flicks. A finger travels 56% of the viewport in 138 ms and lifts at 145 ms. The next touch starts 115 ms after lift. The sequences include forward paging, reversals and repeated flicks beyond the three reusable columns.
+
+The attachments retain the physical offsets, selected dates, ruler position, returned event identities and native gesture callbacks. At a column change, the old and new offsets must represent the same position on the same date. The first input after the change must still follow the finger. Check the final date as well. The Objective-C event helper is compiled into the physical XCTest runner only and checks the recorder's selectors at runtime.
+
+### First readable Mail paragraphs
+
+Run the physical `ScaleStressUITests` cases for an in-memory body (`testLongMailBodyPresentationAfterARealRowTap`), a reopened SQLite store (`testPreparedMailBodyPresentationAfterADiskRead`) and the retained HTML after its prepared copy has been evicted (`testMailBodyPresentationAfterRebuildingAnEvictedCopy`). The latter two run the production blob reader and parser with an isolated synthetic account. Each case opens the real row, scrolls into the message and returns to the original paragraph. The disk cases require a single read of the selected body after the lift and verify all 1,200 blocks.
+
+Export one test's attachments before running the analyzer. FFmpeg, ffprobe and Tesseract must be on the path.
+
+```sh
+xcrun xcresulttool export attachments --path run.xcresult \
+  --test-id 'ScaleStressUITests/testPreparedMailBodyPresentationAfterADiskRead()' \
+  --output-path prepared-attachments
+python3 tools/physical-stress-tests/mail-presentation.py prepared-attachments --out prepared.json
+```
+
+The fixture changes five colored squares before the gesture, records their display-link target times, and stops the link. A passive recognizer timestamps the actual row touch. The analyzer matches successive color changes to recording timestamps and finds the first image with section one and at least one of sections two through six. Read the previous frame time, transition spread and selection timestamp together. XCTest's variable recording cadence limits the precision of any one result.
+
+## Plugged-in power during Mail and Calendar runs
+
+For the always-on iPad case, run the following alongside a known review-app fixture.
+The M1 measurements used Python 3.12, `pymobiledevice3==11.64.0`, and Xcode's
+paired developer connection. The collector reads diagnostics and writes one JSON
+line per sample, including the time of an unavailable reading.
+
+```sh
+python3 tools/physical-stress-tests/sample-power.py \
+  --device '<authorized-device-udid>' --seconds 900 --interval 60 --out plugged-power.jsonl
+```
+
+On the tested iPad, `SystemPowerIn`, `SystemLoad`, and signed `BatteryPower` are in
+milliwatts. A negative battery reading means the battery is supplying part of the
+device load. The adapter's reported wattage is a separate field. Each reading
+includes the screen and the rest of the system. To attribute a window to an app,
+match it to the fixture's foreground journal and process counters, record charging
+conditions, and report startup separately from the settled screen. Preserve individual
+readings because plugging in and crossing into full charge change the interpretation.
+
+For a foreground power control, launch the same isolated app with the same `--plan` fixture
+and add `--stress-empty-scene`. The app prepares its stores, mounts a system-background surface
+and records “empty scene appeared” in its fixture journal. The normal Plan launch mounts the
+calendar. Use the same signed build, orientation, brightness and monitoring for both, alternate
+their order, and verify foreground journal intervals. A different image on the display can
+also change measured whole-device watts. `testEmptyPowerControlPreparesTheSameFixtureWithoutMountingCalendar`
+checks the control and waits for the full dataset.
+
+`testDaySwipeRoundTripHitches` measures UIKit scrolling and deceleration signposts over five
+forward-and-back Day iterations. It checks tomorrow and the starting date in each iteration.
+Use the test environment's orientation override for both phone and tablet and retain each metric's
+unit and raw samples. Inspect each result bundle with `xcresulttool get test-results metrics`.
 
 ## Integrated Calendar scrolling traces
 
@@ -140,3 +243,7 @@ and a distinct `CFBundleDisplayName`, dump the entitlements Xcode signed into th
 (`codesign -d --entitlements :file`, which carries `application-identifier` and the team), and
 re-sign the copy with them; a plain empty entitlements file fails installation with
 "missing the application-identifier entitlement". Install with `devicectl device install app`.
+
+## Calendar’s first visible movement
+
+Run `ScaleStressUITests/testFirstVisibleDayMotionDuringARealFlick` with the isolated app on a physical iPhone. Set the runner’s `STRESS_DEVICE_ORIENTATION` to `portrait` or `landscape`. The test alternates four directions, verifies the expected date and saves native touch samples and the viewport at rest. Export the test’s attachments with `xcrun xcresulttool export attachments`. Run `python3 tools/physical-stress-tests/calendar-presentation.py <attachments> --out motion.json` with FFmpeg, NumPy and SciPy installed. It uses the original movie timestamps, follows the event grid separately from the pinned ruler, and preserves the last stationary and first reliably shifted image. The interval between recorded frames limits the precision of the result.

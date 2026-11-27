@@ -1,0 +1,325 @@
+{
+  "scope": "Same isolated Release-optimized app and signed XCTest bundle driven over Apple\u2019s paired test service while Xcode could not allocate a remote device. Each record is the test-runner verdict, with assertion values and geometry where available. Timing and screen recordings from a standard xcresult bundle are reported separately.",
+  "tests": [
+    {
+      "build": "bands",
+      "condition": "pad-paired-fast",
+      "case": "testDaySwipesKeepTheTimeInLandscape",
+      "status": "passed",
+      "durationSeconds": 27.038913011550903,
+      "device": "M1 iPad Pro",
+      "assertions": [],
+      "geometry": {}
+    },
+    {
+      "build": "bands",
+      "condition": "pad-paired-fast",
+      "case": "testDaySwipesKeepTheTimeInPortrait",
+      "status": "passed",
+      "durationSeconds": 23.585572957992554,
+      "device": "M1 iPad Pro",
+      "assertions": [],
+      "geometry": {}
+    },
+    {
+      "build": "bands",
+      "condition": "pad-paired-fast",
+      "case": "testShortDayFlickMovesOneDateAndReturns",
+      "status": "failed",
+      "durationSeconds": 15.55041491985321,
+      "device": "M1 iPad Pro",
+      "assertions": [
+        {
+          "line": 1053,
+          "requirement": "A short, fast flick must page exactly once",
+          "actualAndExpected": [],
+          "assertion": "XCTAssertTrue"
+        }
+      ],
+      "geometry": {}
+    },
+    {
+      "build": "bands",
+      "condition": "pad-paired-first",
+      "case": "testDaySwipesAcrossAllDayBandsInLandscape",
+      "status": "passed",
+      "durationSeconds": 34.93038094043732,
+      "device": "M1 iPad Pro",
+      "assertions": [],
+      "geometry": {}
+    },
+    {
+      "build": "bands",
+      "condition": "pad-paired-first",
+      "case": "testDaySwipesAcrossAllDayBandsInPortrait",
+      "status": "failed",
+      "durationSeconds": 29.62244200706482,
+      "device": "M1 iPad Pro",
+      "assertions": [
+        {
+          "line": 1026,
+          "requirement": null,
+          "actualAndExpected": [],
+          "assertion": "XCTAssertEqual"
+        }
+      ],
+      "geometry": {}
+    },
+    {
+      "build": "bands",
+      "condition": "pad-paired-first",
+      "case": "testNativeDayCreateGesture",
+      "status": "passed",
+      "durationSeconds": 14.376972079277039,
+      "device": "M1 iPad Pro",
+      "assertions": [],
+      "geometry": {}
+    },
+    {
+      "build": "bands",
+      "condition": "pad-paired-normal",
+      "case": "testDaySwipesKeepTheTimeInLandscape",
+      "status": "passed",
+      "durationSeconds": 34.17557108402252,
+      "device": "M1 iPad Pro",
+      "assertions": [],
+      "geometry": {}
+    },
+    {
+      "build": "bands",
+      "condition": "pad-paired-normal",
+      "case": "testDaySwipesKeepTheTimeInPortrait",
+      "status": "passed",
+      "durationSeconds": 29.103546977043152,
+      "device": "M1 iPad Pro",
+      "assertions": [],
+      "geometry": {}
+    },
+    {
+      "build": "bands",
+      "condition": "pad-paired-normal",
+      "case": "testShortDayFlickMovesOneDateAndReturns",
+      "status": "failed",
+      "durationSeconds": 15.59073293209076,
+      "device": "M1 iPad Pro",
+      "assertions": [
+        {
+          "line": 1053,
+          "requirement": "A short, fast flick must page exactly once",
+          "actualAndExpected": [],
+          "assertion": "XCTAssertTrue"
+        }
+      ],
+      "geometry": {}
+    },
+    {
+      "build": "bands-before",
+      "condition": "pad-paired-initial",
+      "case": "testDaySwipesAcrossAllDayBandsInLandscape",
+      "status": "failed",
+      "durationSeconds": 16.289395928382874,
+      "device": "M1 iPad Pro",
+      "assertions": [
+        {
+          "line": 1015,
+          "requirement": "The same hour must stay at the same window position",
+          "actualAndExpected": [],
+          "assertion": "XCTAssertEqualWithAccuracy"
+        }
+      ],
+      "geometry": {}
+    },
+    {
+      "build": "bands-before",
+      "condition": "pad-paired-initial",
+      "case": "testDaySwipesAcrossAllDayBandsInPortrait",
+      "status": "failed",
+      "durationSeconds": 14.235721945762634,
+      "device": "M1 iPad Pro",
+      "assertions": [
+        {
+          "line": 1015,
+          "requirement": "The same hour must stay at the same window position",
+          "actualAndExpected": [],
+          "assertion": "XCTAssertEqualWithAccuracy"
+        }
+      ],
+      "geometry": {}
+    },
+    {
+      "build": "flick",
+      "condition": "pad-paired-fast",
+      "case": "testDaySwipesKeepTheTimeInLandscape",
+      "status": "failed",
+      "durationSeconds": 11.196629047393799,
+      "device": "M1 iPad Pro",
+      "assertions": [
+        {
+          "line": 972,
+          "requirement": "Open at the saved hour",
+          "actualAndExpected": [],
+          "assertion": "XCTAssertEqualWithAccuracy"
+        }
+      ],
+      "geometry": {}
+    },
+    {
+      "build": "flick",
+      "condition": "pad-paired-fast",
+      "case": "testDaySwipesKeepTheTimeInPortrait",
+      "status": "passed",
+      "durationSeconds": 23.572270035743713,
+      "device": "M1 iPad Pro",
+      "assertions": [],
+      "geometry": {
+        "paging": [
+          {
+            "x": 968.5,
+            "y": 275.5,
+            "windowY": 277.5,
+            "height": 1068.5,
+            "width": 1024,
+            "contentHeight": 1344,
+            "gutterX": 968.5,
+            "applies": 3,
+            "reloads": 1,
+            "cellConfigurations": 192,
+            "layouts": 5,
+            "lastDayDrag": {}
+          },
+          {
+            "x": 968.5,
+            "y": 275.5,
+            "windowY": 277.5,
+            "height": 1068.5,
+            "width": 1024,
+            "contentHeight": 1344,
+            "gutterX": 968.5,
+            "applies": 4,
+            "reloads": 2,
+            "cellConfigurations": 417,
+            "layouts": 201,
+            "lastDayDrag": {
+              "dx": -596.5,
+              "from": 1,
+              "proposed": 2,
+              "release": 1011291.246322375,
+              "settled": 1011292.0304065834,
+              "vx": 0.27494943733932253
+            }
+          },
+          {
+            "x": 968.5,
+            "y": 275.5,
+            "windowY": 277.5,
+            "height": 1068.5,
+            "width": 1024,
+            "contentHeight": 1344,
+            "gutterX": 968.5,
+            "applies": 5,
+            "reloads": 3,
+            "cellConfigurations": 640,
+            "layouts": 398,
+            "lastDayDrag": {
+              "dx": -596.5,
+              "from": 1,
+              "proposed": 2,
+              "release": 1011294.4808917501,
+              "settled": 1011295.2655030417,
+              "vx": 0
+            }
+          },
+          {
+            "x": 968.5,
+            "y": 275.5,
+            "windowY": 277.5,
+            "height": 1068.5,
+            "width": 1024,
+            "contentHeight": 1344,
+            "gutterX": 968.5,
+            "applies": 6,
+            "reloads": 4,
+            "cellConfigurations": 843,
+            "layouts": 596,
+            "lastDayDrag": {
+              "dx": 596.5,
+              "from": 1,
+              "proposed": 0,
+              "release": 1011297.6569694168,
+              "settled": 1011298.4423632501,
+              "vx": -0.2789999998658896
+            }
+          },
+          {
+            "x": 968.5,
+            "y": 275.5,
+            "windowY": 277.5,
+            "height": 1068.5,
+            "width": 1024,
+            "contentHeight": 1344,
+            "gutterX": 968.5,
+            "applies": 7,
+            "reloads": 5,
+            "cellConfigurations": 1000,
+            "layouts": 798,
+            "lastDayDrag": {
+              "dx": 596.5,
+              "from": 1,
+              "proposed": 0,
+              "release": 1011300.9005608334,
+              "settled": 1011301.6858844167,
+              "vx": -0.27900000103935596
+            }
+          }
+        ],
+        "cancelled": [
+          {
+            "x": 968.5,
+            "y": 275.5,
+            "windowY": 277.5,
+            "height": 1068.5,
+            "width": 1024,
+            "contentHeight": 1344,
+            "gutterX": 968.5,
+            "applies": 3,
+            "reloads": 1,
+            "cellConfigurations": 192,
+            "layouts": 5,
+            "lastDayDrag": {}
+          },
+          {
+            "x": 968.5,
+            "y": 275.5,
+            "windowY": 277.5,
+            "height": 1068.5,
+            "width": 1024,
+            "contentHeight": 1344,
+            "gutterX": 968.5,
+            "applies": 7,
+            "reloads": 5,
+            "cellConfigurations": 1025,
+            "layouts": 832,
+            "lastDayDrag": {
+              "dx": 11.5,
+              "from": 1,
+              "proposed": 1,
+              "release": 1011303.0115604583,
+              "settled": 1011303.2116952917,
+              "vx": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "build": "flick",
+      "condition": "pad-paired-fast",
+      "case": "testShortDayFlickMovesOneDateAndReturns",
+      "status": "passed",
+      "durationSeconds": 14.265509963035583,
+      "device": "M1 iPad Pro",
+      "assertions": [],
+      "geometry": {}
+    }
+  ]
+}

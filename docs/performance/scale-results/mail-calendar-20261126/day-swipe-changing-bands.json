@@ -1,0 +1,511 @@
+{
+  "scope": "A full timed fixture with zero, one and five additional all-day events on consecutive dates. The captured hour position equals the viewport window origin minus the content scroll offset. Directions are forward twice then back twice. A failing test retains the partial sequence.",
+  "runs": [
+    {
+      "device": "iPhone 14 Pro",
+      "build": "anchored",
+      "orientation": "Portrait",
+      "result": "Passed",
+      "states": [
+        {
+          "windowY": 301.3333333333333,
+          "y": 560,
+          "height": 516.6666666666666,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 96,
+          "reloads": 1,
+          "layouts": 3,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 337.3333333333333,
+          "y": 596,
+          "height": 480.66666666666663,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 214,
+          "reloads": 2,
+          "layouts": 156,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 396.3333333333333,
+          "y": 655,
+          "height": 421.66666666666663,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 409,
+          "reloads": 3,
+          "layouts": 310,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 337.3333333333333,
+          "y": 596,
+          "height": 480.66666666666663,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 548,
+          "reloads": 4,
+          "layouts": 469,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 301.3333333333333,
+          "y": 560,
+          "height": 516.6666666666666,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 627,
+          "reloads": 5,
+          "layouts": 626,
+          "hourShiftInWindow": 0.0
+        }
+      ]
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "anchored",
+      "orientation": "Landscape",
+      "result": "Passed",
+      "states": [
+        {
+          "windowY": 258.3333333333333,
+          "y": 560,
+          "height": 114.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 56,
+          "reloads": 1,
+          "layouts": 3,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 294.3333333333333,
+          "y": 596,
+          "height": 78.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 108,
+          "reloads": 2,
+          "layouts": 243,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 324,
+          "y": 625.6666666666666,
+          "height": 49,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 155,
+          "reloads": 3,
+          "layouts": 498,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 294.3333333333333,
+          "y": 596,
+          "height": 78.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 200,
+          "reloads": 4,
+          "layouts": 755,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 258.3333333333333,
+          "y": 560,
+          "height": 114.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 241,
+          "reloads": 5,
+          "layouts": 1008,
+          "hourShiftInWindow": 0.0
+        }
+      ]
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "bands",
+      "orientation": "Portrait",
+      "result": "Passed",
+      "states": [
+        {
+          "windowY": 301.3333333333333,
+          "y": 614,
+          "height": 516.6666666666666,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 96,
+          "reloads": 1,
+          "layouts": 4,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 337.3333333333333,
+          "y": 650,
+          "height": 480.66666666666663,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 205,
+          "reloads": 2,
+          "layouts": 160,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 396.3333333333333,
+          "y": 709,
+          "height": 421.66666666666663,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 311,
+          "reloads": 3,
+          "layouts": 321,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 337.3333333333333,
+          "y": 650,
+          "height": 480.66666666666663,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 387,
+          "reloads": 4,
+          "layouts": 480,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 301.3333333333333,
+          "y": 614,
+          "height": 516.6666666666666,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 458,
+          "reloads": 5,
+          "layouts": 639,
+          "hourShiftInWindow": 0.0
+        }
+      ]
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "bands",
+      "orientation": "Landscape",
+      "result": "Passed",
+      "states": [
+        {
+          "windowY": 258.3333333333333,
+          "y": 630,
+          "height": 114.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 63,
+          "reloads": 1,
+          "layouts": 4,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 294.3333333333333,
+          "y": 666,
+          "height": 78.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 118,
+          "reloads": 2,
+          "layouts": 260,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 324,
+          "y": 695.6666666666666,
+          "height": 49,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 162,
+          "reloads": 3,
+          "layouts": 514,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 294.3333333333333,
+          "y": 666,
+          "height": 78.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 204,
+          "reloads": 4,
+          "layouts": 768,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 258.3333333333333,
+          "y": 630,
+          "height": 114.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 244,
+          "reloads": 5,
+          "layouts": 1050,
+          "hourShiftInWindow": 0.0
+        }
+      ]
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "bands-before",
+      "orientation": "Portrait",
+      "result": "Failed",
+      "states": [
+        {
+          "windowY": 301.3333333333333,
+          "y": 560,
+          "height": 516.6666666666666,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 96,
+          "reloads": 1,
+          "layouts": 3,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 337.3333333333333,
+          "y": 560,
+          "height": 480.66666666666663,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 214,
+          "reloads": 2,
+          "layouts": 159,
+          "hourShiftInWindow": 36.0
+        }
+      ]
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "bands-before",
+      "orientation": "Landscape",
+      "result": "Failed",
+      "states": [
+        {
+          "windowY": 258.3333333333333,
+          "y": 560,
+          "height": 114.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 56,
+          "reloads": 1,
+          "layouts": 3,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 294.3333333333333,
+          "y": 560,
+          "height": 78.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 103,
+          "reloads": 2,
+          "layouts": 258,
+          "hourShiftInWindow": 36.0
+        }
+      ]
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "ruler-trace",
+      "orientation": "Portrait",
+      "result": "Passed",
+      "states": [
+        {
+          "windowY": 301.3333333333333,
+          "y": 614,
+          "height": 516.6666666666666,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 96,
+          "reloads": 1,
+          "layouts": 4,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 337.3333333333333,
+          "y": 650,
+          "height": 480.66666666666663,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 205,
+          "reloads": 2,
+          "layouts": 157,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 396.3333333333333,
+          "y": 709,
+          "height": 421.66666666666663,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 311,
+          "reloads": 3,
+          "layouts": 316,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 337.3333333333333,
+          "y": 650,
+          "height": 480.66666666666663,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 387,
+          "reloads": 4,
+          "layouts": 476,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 301.3333333333333,
+          "y": 614,
+          "height": 516.6666666666666,
+          "contentHeight": 1344,
+          "width": 393,
+          "gutterX": 353,
+          "x": 353,
+          "cellConfigurations": 458,
+          "reloads": 5,
+          "layouts": 635,
+          "hourShiftInWindow": 0.0
+        }
+      ]
+    },
+    {
+      "device": "iPhone 14 Pro",
+      "build": "ruler-trace",
+      "orientation": "Landscape",
+      "result": "Passed",
+      "states": [
+        {
+          "windowY": 258.3333333333333,
+          "y": 630,
+          "height": 114.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 63,
+          "reloads": 1,
+          "layouts": 4,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 294.3333333333333,
+          "y": 666,
+          "height": 78.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 118,
+          "reloads": 2,
+          "layouts": 260,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 324,
+          "y": 695.6666666666666,
+          "height": 49,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 162,
+          "reloads": 3,
+          "layouts": 516,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 294.3333333333333,
+          "y": 666,
+          "height": 78.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 204,
+          "reloads": 4,
+          "layouts": 772,
+          "hourShiftInWindow": 0.0
+        },
+        {
+          "windowY": 258.3333333333333,
+          "y": 630,
+          "height": 114.66666666666666,
+          "contentHeight": 1344,
+          "width": 734,
+          "gutterX": 694,
+          "x": 694,
+          "cellConfigurations": 244,
+          "reloads": 5,
+          "layouts": 1027,
+          "hourShiftInWindow": 0.0
+        }
+      ]
+    }
+  ]
+}

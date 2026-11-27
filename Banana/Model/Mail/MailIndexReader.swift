@@ -18,12 +18,26 @@ struct MailIndexReader: Sendable {
     }
 
     static func page(_ request: PageRequest, in db: Database, includingBoundary: Bool = false) throws -> [IndexRow] {
+        try readPage(request, in: db, includingBoundary: includingBoundary, lookAhead: false).rows
+    }
+
+    /// The visible rows, loading count and continuation come from one database snapshot.
+    /// A row beyond the boundary only establishes that another page exists.
+    func listWindow(_ request: PageRequest) async throws -> (rows: [IndexRow], total: MailCount, stillLoading: Int, hasMore: Bool) {
+        try await stores.index.read { db in
+            let page = try Self.readPage(request, in: db, includingBoundary: false, lookAhead: true)
+            let counts = try Self.readCounts(request, in: db, includeUnread: false)
+            return (page.rows, counts.total, counts.stillLoading, page.hasMore)
+        }
+    }
+
+    private static func readPage(_ request: PageRequest, in db: Database, includingBoundary: Bool, lookAhead: Bool) throws -> (rows: [IndexRow], hasMore: Bool) {
         guard (1...MailTuning.listCap).contains(request.limit) else { throw Failure.invalidLimit }
         guard (request.before?.group ?? 0) == 0 else { throw Failure.unsupportedGroup }
         let key = try Self.viewKey(request.view)
-        guard let viewPK = try Int64.fetchOne(db, sql: "SELECT view_pk FROM view WHERE key=?", arguments: [key]) else { return [] }
+        guard let viewPK = try Int64.fetchOne(db, sql: "SELECT view_pk FROM view WHERE key=?", arguments: [key]) else { return ([], false) }
         let scope = try Scope(request, in: db)
-        if scope.isEmpty { return [] }
+        if scope.isEmpty { return ([], false) }
         var predicates = [scope.view, "v.sort_key > 0"]
         var arguments: [(any DatabaseValueConvertible)?] = []
         scope.constrain(&predicates, &arguments)
@@ -32,7 +46,7 @@ struct MailIndexReader: Sendable {
             predicates.append("(v.sort_key, v.tie) \(includingBoundary ? "<=" : "<") (?, ?)")
             arguments += [before.sortKey, before.tie]
         }
-        arguments.append(request.limit)
+        arguments.append(request.limit + (lookAhead ? 1 : 0))
         let sql = """
             SELECT t.thread_pk, a.email, t.gmail_id, v.sort_key, v.tie, v.unread,
                    t.message_count, t.flags, t.subject, t.snippet, t.people, t.people_total,
@@ -42,7 +56,8 @@ struct MailIndexReader: Sendable {
             WHERE \(predicates.joined(separator: " AND "))
             ORDER BY v.sort_key DESC, v.tie DESC LIMIT ?
             """
-        return try Row.fetchAll(db, sql: sql, arguments: StatementArguments([viewPK] + arguments)).map(Self.decode)
+        let rows = try Row.fetchAll(db, sql: sql, arguments: StatementArguments([viewPK] + arguments))
+        return (try rows.prefix(request.limit).map(Self.decode), rows.count > request.limit)
     }
 
     func counts(_ request: PageRequest) async throws -> ViewCounts {
@@ -50,6 +65,10 @@ struct MailIndexReader: Sendable {
     }
 
     static func counts(_ request: PageRequest, in db: Database) throws -> ViewCounts {
+        try readCounts(request, in: db, includeUnread: true)
+    }
+
+    private static func readCounts(_ request: PageRequest, in db: Database, includeUnread: Bool) throws -> ViewCounts {
         let key = try Self.viewKey(request.view)
         let none = ViewCounts(unread: 0, total: MailCount(value: 0, isAtLeast: false), stillLoading: 0)
         guard let viewPK = try Int64.fetchOne(db, sql: "SELECT view_pk FROM view WHERE key=?", arguments: [key]) else { return none }
@@ -63,8 +82,9 @@ struct MailIndexReader: Sendable {
         let values = StatementArguments([viewPK] + arguments)
         if scope.fromThreads {
             // Every row of a small scope is read once, so one pass counts all three.
+            let unread = includeUnread ? "count(*) FILTER (WHERE v.unread=1 AND v.sort_key > 0)" : "0"
             let row = try Row.fetchOne(db, sql: """
-                SELECT count(*) FILTER (WHERE v.sort_key > 0), count(*) FILTER (WHERE v.unread=1 AND v.sort_key > 0),
+                SELECT count(*) FILTER (WHERE v.sort_key > 0), \(unread),
                        count(*) FILTER (WHERE v.sort_key <= 0) \(base)
                 """, arguments: values)
             let total: Int = row?[0] ?? 0
@@ -73,7 +93,7 @@ struct MailIndexReader: Sendable {
         let total = try Int.fetchOne(db, sql: "SELECT count(*) FROM (SELECT 1 \(base) AND v.sort_key > 0 LIMIT 10001)", arguments: values) ?? 0
         // Unread counts what the list shows: a conversation known only by id (a stub, key <= 0)
         // is not listed, so it is not counted either. The badge and the Inbox number read this.
-        let unread = try Int.fetchOne(db, sql: "SELECT count(*) \(base) AND v.unread=1 AND v.sort_key > 0", arguments: values) ?? 0
+        let unread = includeUnread ? try Int.fetchOne(db, sql: "SELECT count(*) \(base) AND v.unread=1 AND v.sort_key > 0", arguments: values) ?? 0 : 0
         let loading = try Int.fetchOne(db, sql: "SELECT count(*) \(base) AND v.sort_key <= 0", arguments: values) ?? 0
         return ViewCounts(unread: unread, total: MailCount(value: min(10000, total), isAtLeast: total > 10000), stillLoading: loading)
     }

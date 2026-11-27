@@ -135,4 +135,22 @@ final class MailKeymapTests: XCTestCase {
         XCTAssertTrue(marks.mark(for: h.id("C")).hasCursor)
         XCTAssertFalse(marks.mark(for: h.id("A")).hasCursor)
     }
+
+    func testRecycledRowsReleaseTheirMarksWhileVisibleRowsKeepReceivingCursorChanges() {
+        let h = TriageHarness()
+        let marks = MailRowMarks(model: h.model)
+        let visible = marks.mark(for: h.id("A"))
+        weak var recycled: MailRowMark?
+        autoreleasepool {
+            let cellMark = marks.mark(for: h.id("B"))
+            recycled = cellMark
+            XCTAssertTrue(cellMark === marks.mark(for: h.id("B")))
+        }
+        XCTAssertNil(recycled)
+        for index in 0..<1_000 { _ = marks.mark(for: h.id("old-\(index)")) }
+        XCTAssertTrue(visible === marks.mark(for: h.id("A")))
+        h.send(.move(.older))
+        XCTAssertFalse(visible.hasCursor)
+        XCTAssertTrue(marks.mark(for: h.id("B")).hasCursor)
+    }
 }

@@ -1,0 +1,653 @@
+{
+  "scope": "Five measured native XCTest iterations. Keep each provider identifier and its unit. The process and scroll signpost hitch counters use different measurement intervals and may disagree. A missing counter is unavailable. All conditions and failed attempts are retained.",
+  "runs": [
+    {
+      "build": "directionalWindow",
+      "condition": "phone-functional-whole-hitch-landscape-1",
+      "hardware": "iPhone 14 Pro",
+      "passed": true,
+      "binarySHA256": "d38e8ed5fda7c13834b6998c309339b8abbad92dd987a9af3117fce8e6da78db",
+      "metrics": [
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.time.ratio",
+          "name": "Hitch Time Ratio (app)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.duration",
+          "name": "Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "s",
+          "samples": [
+            1.543182792,
+            1.5432214590000002,
+            1.5431499590000002,
+            1.5435292090000001,
+            1.5429900840000002
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.number",
+          "name": "Number of Hitches (Scroll_DraggingAndDeceleration)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.number",
+          "name": "Number of Hitches (app)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.time.ratio",
+          "name": "Hitch Time Ratio (Scroll_DraggingAndDeceleration)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.total.duration",
+          "name": "Hitches Total Duration (app)",
+          "unit": "s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.count",
+          "name": "Frame Count (Scroll_DraggingAndDeceleration)",
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.rate",
+          "name": "Frame Rate (Scroll_DraggingAndDeceleration)",
+          "unit": "fps",
+          "samples": [
+            97.84971618652344,
+            98.4952621459961,
+            98.49982452392578,
+            95.23628997802734,
+            98.5100326538086
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitches.total.duration",
+          "name": "Hitches Total Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "ms",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "build": "directionalWindow",
+      "condition": "phone-functional-whole-hitch-landscape-2",
+      "hardware": "iPhone 14 Pro",
+      "passed": true,
+      "binarySHA256": "d38e8ed5fda7c13834b6998c309339b8abbad92dd987a9af3117fce8e6da78db",
+      "metrics": [
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.time.ratio",
+          "name": "Hitch Time Ratio (app)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.duration",
+          "name": "Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "s",
+          "samples": [
+            1.543064167,
+            1.5433271670000002,
+            1.5432406250000001,
+            1.5431479170000002,
+            1.5429339590000002
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.number",
+          "name": "Number of Hitches (Scroll_DraggingAndDeceleration)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.number",
+          "name": "Number of Hitches (app)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.time.ratio",
+          "name": "Hitch Time Ratio (Scroll_DraggingAndDeceleration)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.total.duration",
+          "name": "Hitches Total Duration (app)",
+          "unit": "s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.count",
+          "name": "Frame Count (Scroll_DraggingAndDeceleration)",
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.rate",
+          "name": "Frame Rate (Scroll_DraggingAndDeceleration)",
+          "unit": "fps",
+          "samples": [
+            98.50529479980469,
+            98.48851776123047,
+            98.4940414428711,
+            96.55587768554688,
+            98.51361083984375
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitches.total.duration",
+          "name": "Hitches Total Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "ms",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "build": "directionalWindow",
+      "condition": "phone-functional-whole-hitch-portrait-1",
+      "hardware": "iPhone 14 Pro",
+      "passed": true,
+      "binarySHA256": "d38e8ed5fda7c13834b6998c309339b8abbad92dd987a9af3117fce8e6da78db",
+      "metrics": [
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.time.ratio",
+          "name": "Hitch Time Ratio (app)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.duration",
+          "name": "Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "s",
+          "samples": [
+            0.992735542,
+            0.9925090830000001,
+            0.9916545830000001,
+            0.992749458,
+            0.9924280830000001
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.number",
+          "name": "Number of Hitches (Scroll_DraggingAndDeceleration)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            2,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.number",
+          "name": "Number of Hitches (app)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.time.ratio",
+          "name": "Hitch Time Ratio (Scroll_DraggingAndDeceleration)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            16.81516936578834,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.total.duration",
+          "name": "Hitches Total Duration (app)",
+          "unit": "s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.count",
+          "name": "Frame Count (Scroll_DraggingAndDeceleration)",
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.rate",
+          "name": "Frame Rate (Scroll_DraggingAndDeceleration)",
+          "unit": "fps",
+          "samples": [
+            93.68053436279297,
+            91.68682098388672,
+            93.78265380859375,
+            93.6792221069336,
+            90.6866683959961
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitches.total.duration",
+          "name": "Hitches Total Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "ms",
+          "samples": [
+            0,
+            16.689207,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "build": "directionalWindow",
+      "condition": "phone-functional-whole-hitch-portrait-2",
+      "hardware": "iPhone 14 Pro",
+      "passed": true,
+      "binarySHA256": "d38e8ed5fda7c13834b6998c309339b8abbad92dd987a9af3117fce8e6da78db",
+      "metrics": [
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.time.ratio",
+          "name": "Hitch Time Ratio (app)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.duration",
+          "name": "Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "s",
+          "samples": [
+            0.9927543750000001,
+            0.992549042,
+            0.992708625,
+            0.992981792,
+            0.992701542
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.number",
+          "name": "Number of Hitches (Scroll_DraggingAndDeceleration)",
+          "unit": "hitches",
+          "samples": [
+            2,
+            2,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.number",
+          "name": "Number of Hitches (app)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitch.time.ratio",
+          "name": "Hitch Time Ratio (Scroll_DraggingAndDeceleration)",
+          "unit": "ms per s",
+          "samples": [
+            16.81114055360706,
+            16.81457637462666,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.total.duration",
+          "name": "Hitches Total Duration (app)",
+          "unit": "s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.count",
+          "name": "Frame Count (Scroll_DraggingAndDeceleration)",
+          "unit": "frames",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.frame.rate",
+          "name": "Frame Rate (Scroll_DraggingAndDeceleration)",
+          "unit": "fps",
+          "samples": [
+            90.65686798095703,
+            90.67562103271484,
+            91.66838836669922,
+            93.65731048583984,
+            93.6837387084961
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_OSSignpost-Scroll_DraggingAndDeceleration.animation.hitches.total.duration",
+          "name": "Hitches Total Duration (Scroll_DraggingAndDeceleration)",
+          "unit": "ms",
+          "samples": [
+            16.689332,
+            16.68929,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "build": "reference",
+      "condition": "phone-functional-whole-hitch-landscape-1",
+      "hardware": "iPhone 14 Pro",
+      "passed": true,
+      "binarySHA256": "215bf06cb8f5416fabd59717b0a15814d5d13e46938811d14d1eb84a1024d23e",
+      "metrics": [
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.number",
+          "name": "Number of Hitches (app)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.time.ratio",
+          "name": "Hitch Time Ratio (app)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.total.duration",
+          "name": "Hitches Total Duration (app)",
+          "unit": "s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "build": "reference",
+      "condition": "phone-functional-whole-hitch-landscape-2",
+      "hardware": "iPhone 14 Pro",
+      "passed": true,
+      "binarySHA256": "215bf06cb8f5416fabd59717b0a15814d5d13e46938811d14d1eb84a1024d23e",
+      "metrics": [
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.number",
+          "name": "Number of Hitches (app)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.time.ratio",
+          "name": "Hitch Time Ratio (app)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.total.duration",
+          "name": "Hitches Total Duration (app)",
+          "unit": "s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "build": "reference",
+      "condition": "phone-functional-whole-hitch-portrait-1",
+      "hardware": "iPhone 14 Pro",
+      "passed": true,
+      "binarySHA256": "215bf06cb8f5416fabd59717b0a15814d5d13e46938811d14d1eb84a1024d23e",
+      "metrics": [
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.number",
+          "name": "Number of Hitches (app)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.time.ratio",
+          "name": "Hitch Time Ratio (app)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.total.duration",
+          "name": "Hitches Total Duration (app)",
+          "unit": "s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    },
+    {
+      "build": "reference",
+      "condition": "phone-functional-whole-hitch-portrait-2",
+      "hardware": "iPhone 14 Pro",
+      "passed": true,
+      "binarySHA256": "215bf06cb8f5416fabd59717b0a15814d5d13e46938811d14d1eb84a1024d23e",
+      "metrics": [
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.number",
+          "name": "Number of Hitches (app)",
+          "unit": "hitches",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.time.ratio",
+          "name": "Hitch Time Ratio (app)",
+          "unit": "ms per s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "identifier": "com.apple.dt.XCTMetric_Hitch-app.total.duration",
+          "name": "Hitches Total Duration (app)",
+          "unit": "s",
+          "samples": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}

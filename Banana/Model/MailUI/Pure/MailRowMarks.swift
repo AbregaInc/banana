@@ -14,10 +14,12 @@ final class MailRowMark: ObservableObject {
     }
 }
 
-/// The marks of every row the list has drawn, kept in step with the triage model's cursor.
+/// All cells showing the same row observe the same mark. The cells own its lifetime.
 @MainActor
 final class MailRowMarks {
-    private var marks: [MailConversationID: MailRowMark] = [:]
+    private struct WeakMark { weak var value: MailRowMark? }
+    private var marks: [MailConversationID: WeakMark] = [:]
+    private var nextCleanup = 128
     private let model: MailListModel
     private var sink: AnyCancellable?
 
@@ -25,16 +27,22 @@ final class MailRowMarks {
         self.model = model
         sink = model.markChanges.sink { [weak self] change in
             guard case .cursor(let from, let to) = change, let self else { return }
-            if let from { self.marks[from]?.hasCursor = false }
-            if let to { self.marks[to]?.hasCursor = true }
+            if let from { self.marks[from]?.value?.hasCursor = false }
+            if let to { self.marks[to]?.value?.hasCursor = true }
         }
     }
 
     /// The row's mark. A row drawn for the first time is made already right.
     func mark(for id: MailConversationID) -> MailRowMark {
-        if let existing = marks[id] { return existing }
+        if let existing = marks[id]?.value { return existing }
+        // Release old lookup keys in batches. A large set of simultaneously displayed rows
+        // doubles the interval between sweeps, so binding them does linear work overall.
+        if marks.count >= nextCleanup {
+            marks = marks.filter { $0.value.value != nil }
+            nextCleanup = max(128, marks.count * 2)
+        }
         let made = MailRowMark(hasCursor: model.cursor == id)
-        marks[id] = made
+        marks[id] = WeakMark(value: made)
         return made
     }
 }

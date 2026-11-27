@@ -123,6 +123,22 @@ struct Source {
         precondition(CalendarMobileNeighbors.indexed([duplicates[0]])?["same-source"] ==
                      CalendarMobileNeighbors.make([duplicates[0]])[0])
         checks += 4
+        // Identical start groups never truncate each other's height. Lanes can
+        // contain a zero-duration item or two events with the same start, and the
+        // next strictly later block can project higher during a repeated hour.
+        let crowded = (0..<64).map { i in
+            let start = day.addingTimeInterval(Double(i / 4) * 300)
+            return Source(id: "group-\(i)", start: start,
+                end: start.addingTimeInterval(Double(i % 3) * 300),
+                shift: i.isMultiple(of: 5) ? -600 : 0, lane: i % 4, lanes: 4)
+        }
+        check(crowded, 390, clock)
+        let denseDuplicate = (0..<48).map { i in
+            CalendarMobileNeighbors.Input(id: String(i % 47), start: day, end: day,
+                lane: i, span: CGFloat(i)..<CGFloat(i+1), top: CGFloat(i))
+        }
+        precondition(CalendarMobileNeighbors.indexed(denseDuplicate) == nil)
+        checks += 1
         var matrices: [[String: Any]] = []
         for fixture in ["uniform-v1","varied-v1"] {
             for density in [10,100,300,1000] {

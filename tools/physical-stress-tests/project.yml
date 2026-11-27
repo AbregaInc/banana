@@ -15,6 +15,7 @@ targets:
       - path: LiveReminderAcceptanceUITests.swift
       - path: ../../BananaUITests/ShellPages.swift
       - path: ../../BananaUITests/Ready.swift
+      - path: PhysicalCalendarFlicks.m
       - path: PhysicalSystemIdlePolicy.swift
       - path: ../../BananaUITests/ScaleStressUITests.swift
       - path: ../../Banana/Model/MailUI/Pure
@@ -22,6 +23,7 @@ targets:
           - "MailIdentifiers*.swift"
     settings:
       base:
+        SWIFT_OBJC_BRIDGING_HEADER: PhysicalCalendarFlicks.h
         BANANA_LOCAL_EMAIL: "YES"
         PRODUCT_BUNDLE_IDENTIFIER: com.boris.banana.stressreview.uitests
         GENERATE_INFOPLIST_FILE: YES

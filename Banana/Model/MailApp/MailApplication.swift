@@ -21,6 +21,14 @@ import Combine
         accountRefresh = nil
     }
 
+    /// At launch, after the first frame: when the last run left sends or actions queued
+    /// (`MailOutgoingMirror`), start the engine so they go out without Mail being opened.
+    /// Nothing queued means nothing is opened.
+    func startIfOutgoingWorkWaits() {
+        guard session == nil, MailOutgoingMirror.isSet(), MailPushWake.mailWasOpened else { return }
+        start()
+    }
+
     func start() {
         guard session == nil, startup == nil else { return }
         #if DEBUG && targetEnvironment(simulator)
@@ -85,6 +93,8 @@ import Combine
                         }
                     }
                 session = MailSession.installLive(source)
+                // A log an older version let grow is emptied once, after Mail is up.
+                Task.detached(priority: .utility) { stores.checkpointOversizedLogs() }
             } catch {
                 // Preserve all files and credentials. Log no SQL, account, subject or payload.
                 let reason = (error as? MailStoreError).map(String.init(describing:))

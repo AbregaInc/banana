@@ -15,6 +15,7 @@ final class OccurrenceStore: ObservableObject {
     @Published private(set) var occurrences: [Occurrence] = [] {
         didSet {
             rangeIndex = nil
+            cachedPlanAttentionIndex = nil
             occurrencesRevision &+= 1
             // Build once per snapshot. Event rendering must not scan retained history for
             // each outbound/return band, especially when the history contains no travel.
@@ -31,6 +32,14 @@ final class OccurrenceStore: ObservableObject {
     private var rangeIndex: TimeRangeIndex<Occurrence>?
     /// Counts assignments of `occurrences`; the alert-candidate cache keys on it.
     private var occurrencesRevision = 0
+    private var cachedPlanAttentionIndex: PlanAttentionIndex?
+    var planAttentionIndex: PlanAttentionIndex {
+        if let cachedPlanAttentionIndex { return cachedPlanAttentionIndex }
+        let index = PlanAttentionIndex(occurrences)
+        cachedPlanAttentionIndex = index
+        return index
+    }
+
     private var alertCandidateCache = AlertCandidateCache()
     private var outboundTravelIndex = MinuteMatchIndex<Occurrence>()
     private var returnTravelIndex = MinuteMatchIndex<Occurrence>()
@@ -2289,11 +2298,33 @@ final class OccurrenceStore: ObservableObject {
     #endif
 
     #if targetEnvironment(simulator) || os(macOS) || STRESS_DEVICE_AUDIT
-    func injectStress(_ meetings: [MeetingInfo]) {
-        occurrences = OccurrenceProducers.external(meetings: meetings).sorted { $0.start < $1.start }
+    func injectStress(_ meetings: [MeetingInfo], allDay: [MeetingInfo] = []) {
+        var installed = OccurrenceProducers.external(meetings: meetings)
+        if !allDay.isEmpty { installed.append(contentsOf: OccurrenceProducers.allDay(allDay)) }
+        occurrences = installed.sorted { $0.start < $1.start }
         byDay = Dictionary(grouping: occurrences) { Calendar.current.startOfDay(for: $0.start) }
         planningWindows.removeAll()
         previewPinned = true
+    }
+    #endif
+
+    #if targetEnvironment(simulator)
+    // Exercise the real publication/invalidation boundary without touching a user's timeline.
+    func verifyStressPlanAttentionReplacement(_ original: [Occurrence], edited: [Occurrence], at time: Date) {
+        precondition(previewPinned && ScaleStress.days != nil)
+        let fixture = occurrences
+        defer {
+            occurrences = fixture
+            ActionBadges.shared.recount()
+        }
+        occurrences = original
+        ActionBadges.shared.recount(now: time)
+        precondition(ActionBadges.shared.counts.plan == 2)
+        precondition(PlanAttentionSnapshot.make(now: time).routines.map(\.id) == [original[0].id])
+        occurrences = edited
+        ActionBadges.shared.recount(now: time)
+        precondition(ActionBadges.shared.counts.plan == 0)
+        precondition(PlanAttentionSnapshot.make(now: time).routines.isEmpty)
     }
     #endif
 

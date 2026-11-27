@@ -1,0 +1,47 @@
+{
+  "scope": "Each XCTest pinch requests a scale. The assertion uses the scale delivered by the native recognizer at lift, checks the bounded rendered hour height and checks a cumulative increase exceeding 25 percent.",
+  "runs": [
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "orientation": "landscape",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "passed": true,
+      "viewportHeight": 114.66666666666666,
+      "initialHourHeight": 56.0,
+      "pinches": [
+        {
+          "requested": 1.5,
+          "delivered": 1.1600000992311235,
+          "hourHeight": 64.96000555694292
+        },
+        {
+          "requested": 2,
+          "delivered": 1.5127414377910706,
+          "hourHeight": 98.26769220512578
+        }
+      ]
+    },
+    {
+      "build": "anchored",
+      "device": "iPhone 14 Pro",
+      "orientation": "portrait",
+      "appSHA256": "71a3ea92b5a90c88e4a799142ce4a71db8111c6b80a3cbd9b843dd4d284fb984",
+      "passed": true,
+      "viewportHeight": 516.6666666666666,
+      "initialHourHeight": 56.0,
+      "pinches": [
+        {
+          "requested": 1.5,
+          "delivered": 1.3882910115458669,
+          "hourHeight": 77.74429664656854
+        },
+        {
+          "requested": 2,
+          "delivered": 1.8343295005816236,
+          "hourHeight": 142.60865684076967
+        }
+      ]
+    }
+  ]
+}

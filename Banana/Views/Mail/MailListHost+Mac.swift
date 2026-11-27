@@ -136,6 +136,7 @@ final class MailListCoordinator: NSObject, NSTableViewDataSource, NSTableViewDel
     /// Takes the rows in and says which of the ones already here changed.
     @discardableResult
     private func load(_ shown: [MailRow]) -> Set<MailConversationID> {
+        lazy var dates = MailDateText.Rows(now: self.session.now)
         var seen = Set<MailConversationID>()
         var newOrder: [MailConversationID] = []
         var changed = Set<MailConversationID>()
@@ -144,7 +145,7 @@ final class MailListCoordinator: NSObject, NSTableViewDataSource, NSTableViewDel
             if rows[row.id] != row {
                 if rows[row.id] != nil { changed.insert(row.id) }
                 rows[row.id] = row
-                displays[row.id] = MailRowDisplay(row, now: session.now)
+                displays[row.id] = MailRowDisplay(row, dates: dates)
             }
         }
         // Table updates below are non-animated; removed rows need no retained display cache.

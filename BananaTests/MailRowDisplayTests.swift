@@ -104,6 +104,26 @@ final class MailRowDisplayTests: XCTestCase {
         XCTAssertEqual(display(row(snippet: "Can you  look\n\n at   this?")).snippet, "Can you look at this?")
     }
 
+    func testRowDatesCanBeReusedAcrossMixedRowsAndRemainLocalToTheirSnapshot() {
+        let dayOffsets = [0, -1, -4, -10, -400, 1, -400, -1, 0]
+        let dates = dayOffsets.map { utc.date(byAdding: .day, value: $0, to: now)! }
+        for zone in ["America/New_York", "Asia/Kolkata"] {
+            var calendar = utc
+            calendar.timeZone = TimeZone(identifier: zone)!
+            for locale in [us, gb, Locale(identifier: "ar_EG")] {
+                for anchor in [now, now.addingTimeInterval(86_400)] {
+                    let batch = MailDateText.Rows(now: anchor, calendar: calendar, locale: locale)
+                    for date in dates {
+                        var message = row()
+                        message.date = date
+                        XCTAssertEqual(MailRowDisplay(message, dates: batch),
+                                       MailRowDisplay(message, now: anchor, calendar: calendar, locale: locale))
+                    }
+                }
+            }
+        }
+    }
+
     func testTheMarksComeFromTheRow() {
         var marked = row()
         marked.isUnread = true

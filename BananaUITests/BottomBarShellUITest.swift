@@ -433,6 +433,29 @@ final class BottomBarShellUITest: XCTestCase {
         XCTAssertEqual(count("day.performance.renderCount"), plan, "the plan redrew on a tick")
     }
 
+    /// The screen in front comes first: with Mail in front, timeline publications do not make
+    /// Plan, kept alive behind it, prepare its days; back in front it draws them once.
+    func testPlanBehindMailWaitsToPrepareItsDays() throws {
+        let app = try launch(["--tab", "plan", "-planMode", "day", "--mail-fresh", "--hidden-plan-recompute-regression"])
+        func count(_ id: String) -> Int { Int(any(app, id).value as? String ?? "") ?? -1 }
+        XCTAssertTrue(waitUntil(timeout: 10) { count("day.performance.renderCount") > 0 }, app.debugDescription)
+        app.buttons["shell.switcher"].tap()
+        let mail = app.buttons["shell.page.mail"]
+        XCTAssertTrue(mail.waitForExistence(timeout: 5), app.debugDescription)
+        mail.tap()
+        XCTAssertTrue(app.collectionViews.cells.firstMatch.waitForExistence(timeout: 10), app.debugDescription)
+        let prepared = count("calendar.performance.preparations")
+        // The publications run from six seconds after launch for three seconds.
+        _ = waitUntil(timeout: 9) { false }
+        XCTAssertEqual(count("calendar.performance.preparations"), prepared, "Plan prepared its days behind Mail")
+        app.buttons["shell.switcher"].tap()
+        let plan = app.buttons["shell.page.plan"]
+        XCTAssertTrue(plan.waitForExistence(timeout: 3))
+        plan.tap()
+        XCTAssertTrue(waitUntil(timeout: 5) { count("calendar.performance.preparations") > prepared },
+                      "back in front, Plan drew what changed while it was behind")
+    }
+
     // MARK: Mail
 
     func testTheMailReaderHasBackMoreReplyAndArchive() throws {

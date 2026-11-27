@@ -1,13 +1,16 @@
 import {mailLink} from './mail-grant.js';
 import {featureAllowed,googleCapabilities} from './feature-access.js';
 import {providerOperation,operationFailure as failure} from './provider-operation.js';
-import {GoogleRefused} from './google.js';
+import {GoogleRefused,GoogleError} from './google.js';
 import {noteMailAction,noteMailLabel} from './mail-sync.js';
 import {BANANA_LABEL,parseBananaLabel} from './mail-snooze.js';
 const uuid=x=>typeof x==='string'&&(/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i).test(x);
 const absent=x=>x===undefined||x===null;
 const id=x=>typeof x==='string'&&x.length>0&&x.length<=2048&&!['.','..'].includes(x)&&!/[\x00-\x1f]/.test(x);
 const labels=x=>Array.isArray(x)&&x.length<=100&&x.every(id)&&new Set(x).size===x.length;
+// Gmail no longer has the message: a final answer, not an unknown one.
+const gone=e=>e instanceof GoogleError&&(e.status===404||e.status===410);
+const goneAnswer={status:404,body:{error:{code:404,status:'NOT_FOUND',message:'The message is no longer in this mailbox.'}}};
 export function parseMailOperation(x) {
  // createLabel makes only Banana's hidden snooze/mute labels (MAIL-ENGINE §8), never a label of his.
  if(x?.action==='createLabel') {
@@ -40,11 +43,19 @@ export async function mailOperation(deps,vault,account,request) {
  const answer=await providerOperation(deps,vault,{account,operationID:request.operationID,googleSub:link.sub,
   provider:'mail',resource:[link.sub,request.id],request,enabled,prepare,
   dispatch:async()=>{
-   const before=await read();
+   let before;
+   try{before=await read();}catch(e){if(gone(e))return goneAnswer;throw e;}
    if(matches(before))return {status:200,body:before};
    return deps.google.mailMutation(token,request);
   },
-  reconcile:async()=>{const event=await read();return matches(event)?{status:200,body:event}:null;},
+  // A label change sets labels, and the dispatch reads before it writes: when the message shows
+  // the change did not land, sending it again is the same request and cannot double anything.
+  // Answering "unknown" here left an operation refused on every retry, for days.
+  reconcile:async()=>{
+   let event;
+   try{event=await read();}catch(e){if(gone(e))return goneAnswer;throw e;}
+   return matches(event)?{status:200,body:event}:{retry:true};
+  },
  });
  // The shared mailbox reads the message back, so every other device gets the result in order;
  // a label it added that the mailbox has no name for is read again.
@@ -66,7 +77,8 @@ async function createLabel(deps,vault,account,request,link,{enabled,prepare,toke
    if(!raced)throw new Error('label conflict unresolved');
    return {status:200,body:raced};
   },
-  reconcile:async()=>{const label=named(await deps.google.mailLabels(token()));return label?{status:200,body:label}:null;},
+  // The dispatch looks for the label before it makes one, so a label that is not there yet is safe to make again.
+  reconcile:async()=>{const label=named(await deps.google.mailLabels(token()));return label?{status:200,body:label}:{retry:true};},
  });
  if(answer.status>=200&&answer.status<300)await noteMailLabel(deps,link.sub,{id:answer.body.id,name:answer.body.name});
  return answer;
