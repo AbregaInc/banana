@@ -22,10 +22,10 @@ struct MailAIOutcomePanel: View {
                     Text(text).font(.subheadline).foregroundStyle(.primary)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .textSelection(.enabled)
+                    MailAIFeedbackRow(feedback: feedback)
                     closeButton
                 }
                 .accessibilityIdentifier(MailID.composerAssistantLine)
-                MailAIFeedbackRow(feedback: feedback)
             case .draft:
                 MailAIFeedbackRow(feedback: feedback)
             }
@@ -44,11 +44,14 @@ struct MailAIOutcomePanel: View {
             ForEach(value.picker.questions.indices, id: \.self) { index in
                 question(value, index)
             }
-            TextField("Other answer", text: binding(\.other))
-                .textFieldStyle(.roundedBorder)
-                .disabled(writing)
-                .onSubmit { if value.canWrite { write() } }
-                .accessibilityIdentifier(MailID.composerAssistantOther)
+            // A free answer only where no question already takes text.
+            if !value.picker.questions.contains(where: { $0.control == .text }) {
+                TextField("Other answer", text: binding(\.other))
+                    .textFieldStyle(.roundedBorder)
+                    .disabled(writing)
+                    .onSubmit { if value.canWrite { write() } }
+                    .accessibilityIdentifier(MailID.composerAssistantOther)
+            }
             HStack(spacing: DS.Space.s) {
                 if writing {
                     ProgressView().controlSize(.small)
@@ -103,6 +106,7 @@ struct MailAIOutcomePanel: View {
                 Text(option).multilineTextAlignment(.leading).fixedSize(horizontal: false, vertical: true)
             }
             .buttonStyle(MailChoiceButtonStyle(chosen: chosen))
+            .controlSize(.small)
             .accessibilityAddTraits(chosen ? .isSelected : [])
         }
     }
@@ -138,9 +142,15 @@ private struct MailChoiceButtonStyle: PrimitiveButtonStyle {
 struct MailAIFeedbackRow: View {
     let feedback: MailAIFeedback
     @State private var rated: ProblemReport.Rating?
-    @State private var noting = false
+    @State private var noting: Bool
     @State private var note = ""
     @FocusState private var focused: Bool
+
+    init(feedback: MailAIFeedback, noting: Bool = false) {
+        self.feedback = feedback
+        _noting = State(initialValue: noting)
+        _rated = State(initialValue: noting ? .down : nil)
+    }
 
     var body: some View {
         HStack(spacing: DS.Space.s) {

@@ -10,6 +10,31 @@ struct MailAIRun: Equatable {
     var tools: [String: Int] = [:]
 }
 
+/// A route's assistant outcome for a screenshot (`--mail-state ai-*`); `noting` opens 👎's note.
+struct MailAIPicture: Equatable {
+    var run: MailAIRun
+    var noting = false
+
+    static func named(_ state: String) -> MailAIPicture? {
+        let picker = MailReplyPicker.Picker(reply: .needed, questions: [
+            .init(question: "Cancel the Friday pickup too?", control: .yesNo, options: [], quote: ""),
+            .init(question: "Which day works for the swap?", control: .pickOne,
+                  options: ["Tuesday morning before the market opens", "Thursday after lunch"], quote: ""),
+            .init(question: "Which address should they use?", control: .text, options: [], quote: ""),
+        ])
+        let tools = ["read_thread": 1, "check_reply": 1]
+        switch state {
+        case "ai-picker": return .init(run: .init(outcome: .questions(picker), model: "sample", thinking: .off, tools: tools))
+        case "ai-note": return .init(run: .init(outcome: .note("They already paid the invoice on Monday."), model: "sample", thinking: .off))
+        case "ai-noreply": return .init(run: .init(outcome: .noReply("A shipping notice; nothing to answer."), model: "sample", thinking: .off))
+        case "ai-draft", "ai-draft-down":
+            return .init(run: .init(outcome: .draft("Yes, please cancel Friday too. Thursday after lunch works for the swap."),
+                                    model: "sample", thinking: .off, tools: tools), noting: state == "ai-draft-down")
+        default: return nil
+        }
+    }
+}
+
 /// Counts the native tool calls of one reply. Tool closures may run off the main actor.
 final class MailAIToolTally: @unchecked Sendable {
     private let lock = NSLock()

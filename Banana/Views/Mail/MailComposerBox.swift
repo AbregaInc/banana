@@ -106,7 +106,7 @@ struct MailComposerBox: View {
                             .accessibilityIdentifier(MailID.composerAssistantUndo)
                     }
                     Spacer(minLength: 0)
-                    if let draftFeedback { MailAIFeedbackRow(feedback: draftFeedback) }
+                    if let draftFeedback { MailAIFeedbackRow(feedback: draftFeedback, noting: model.aiPicture?.noting == true) }
                 }
             }
             if let aiDisplay, let aiFeedback, aiKey == currentAIKey, !aiDisplay.isDraft {
@@ -125,6 +125,10 @@ struct MailComposerBox: View {
             clearAIResult()
         }
         .task(id: currentAIKey) { await showOvernightOutcome() }
+        .onChange(of: model.aiPicture, initial: true) { _, picture in
+            guard let picture else { return }
+            show(picture.run, instruction: nil, answers: nil, overnight: false)
+        }
         .padding(.horizontal, DS.Space.l)
         .padding(.bottom, DS.Space.s)
         .frame(maxWidth: .infinity, alignment: .leading)

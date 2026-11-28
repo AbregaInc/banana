@@ -28,6 +28,8 @@ enum MailComposeStart: Equatable, Sendable {
 /// field the caret lands in (K12), so a reply that begins "Each" is a reply that begins "Each".
 @MainActor
 final class MailComposerModel: ObservableObject {
+    /// A route's assistant outcome for a screenshot; the box shows it as if the assistant answered.
+    @Published var aiPicture: MailAIPicture?
 
     enum Field: Hashable, Sendable { case to, cc, bcc, subject, body }
 

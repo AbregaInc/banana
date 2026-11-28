@@ -154,6 +154,15 @@ extension MailSession {
             Task { @MainActor in await self.writeForPicture(state, in: target) }
         case "new":
             Task { @MainActor in await self.writeNewForPicture() }
+        case _ where MailAIPicture.named(state) != nil:
+            guard let target = model.open?.id ?? model.cursor, let picture = MailAIPicture.named(state) else { return }
+            Task { @MainActor in
+                self.begin(.reply(target), requestFocus: false)
+                guard let composer = self.composer else { return }
+                await composer.waitForDraft()
+                if case .draft(let text) = picture.run.outcome { composer.body = text }
+                composer.aiPicture = picture
+            }
         default:
             // Formatting and attachments (MailSession+AttachRoute), then Cc and Bcc, From, a
             // signature, Drafts and send later (MailSession+Pictures).
