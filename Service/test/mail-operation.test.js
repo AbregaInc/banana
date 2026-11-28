@@ -36,6 +36,24 @@ test('unknown Mail outcome blocks later writes on that message and revocation bl
  await s.db.run('UPDATE feature_access SET enabled=0');
  assert.equal((await call(s,a)).status,403);
 });
+test('a lost Mail change that did not land is sent again, once, instead of being refused for good',async()=>{
+ const s=setup(),a=await ready(s);let labels=['UNREAD'],writes=0;
+ s.google.mailMessage=async()=>({id:'message',labelIds:labels,historyId:'10'});
+ s.google.mailMutation=async()=>{writes++;if(writes===1)throw new Error('response lost');labels=['STARRED'];return {status:200,body:{id:'message',labelIds:labels}};};
+ assert.equal((await call(s,a)).status,502);
+ const settled=await call(s,a);assert.equal(settled.status,200);assert.deepEqual(settled.json.labelIds,['STARRED']);
+ assert.equal(writes,2);
+ assert.equal((await call(s,a)).status,200);assert.equal(writes,2);
+});
+test('a Mail change to a message Gmail no longer has is settled, not left uncertain',async()=>{
+ const {GoogleError}=await import('../src/google.js');
+ const s=setup(),a=await ready(s);let reads=0,writes=0;
+ s.google.mailMessage=async()=>{reads++;if(reads===1)return {id:'message',labelIds:['UNREAD'],historyId:'10'};throw new GoogleError('mail message unavailable',404);};
+ s.google.mailMutation=async()=>{writes++;throw new Error('response lost');};
+ assert.equal((await call(s,a)).status,502);
+ const gone=await call(s,a);assert.equal(gone.status,404);assert.equal(gone.json.bananaOperation?.state,'done');
+ assert.equal((await call(s,a)).status,404);assert.equal(writes,1);
+});
 test('mail access never authorizes arbitrary provider sends or another linked account',async()=>{
  const s=setup(),a=await ready(s);
  assert.equal((await call(s,a,{action:'send'})).status,400);
