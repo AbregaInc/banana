@@ -14,7 +14,7 @@ final class GmailIntentDeliveryTests: XCTestCase {
             return GmailMessage(id: id, threadId: "t", labelIds: labels.sorted(), historyId: 101)
         }
         func modify(token: String, id: String, add: [String], remove: [String]) async throws {
-            writes += 1; XCTAssertEqual(id, "m")
+            writes += 1; XCTAssertTrue(["m", "n"].contains(id))
             if applies { labels.formUnion(add); labels.subtract(remove) }
             try await onWrite?()
             if let mutationFailure { throw mutationFailure }
@@ -34,9 +34,90 @@ final class GmailIntentDeliveryTests: XCTestCase {
         let api = Provider()
         return (store, api, GmailIntentDelivery(store: store, api: api, token: { _ in "fixture" }, allowed: { _ in true }, accept: { _, _ in }))
     }
-    @discardableResult private func record(_ store: MailIntentStore, want: Bool = false) async throws -> Int64 {
-        try await store.record(.read(!want), account: "a@example.com", assertions: [Assertion(account: "a@example.com", messageID: "m", labelRef: "UNREAD", want: want, origin: .person)], conversations: 1, at: 100)
+    @discardableResult private func record(_ store: MailIntentStore, want: Bool = false, message: String = "m") async throws -> Int64 {
+        try await store.record(.read(!want), account: "a@example.com", assertions: [Assertion(account: "a@example.com", messageID: message, labelRef: "UNREAD", want: want, origin: .person)], conversations: 1, at: 100)
     }
+    override func setUp() { GmailIntentDelivery.jitter = { 1 } }
+
+    func testRateLimitPausesTheWholeAccountNotJustOneMessage() async throws {
+        let (store, api, worker) = try await setup()
+        try await record(store)
+        try await record(store, message: "n")
+        await api.configure(error: .limited(.user, retryAfter: nil), applies: false)
+        let first = try await worker.deliverNext(account: "a@example.com", at: 1_000)
+        XCTAssertEqual(first, .deferred)
+        let pausedUntil = await worker.pausedUntil(account: "a@example.com")
+        XCTAssertEqual(pausedUntil, 6_000, "the first pause is five seconds")
+        let (profiles, writes) = (await api.profiles, await api.writes)
+        // The other message is not tried while the account is paused: no read, no write.
+        for at: Int64 in [1_001, 3_000, 5_999] {
+            let idle = try await worker.deliverNext(account: "a@example.com", at: at)
+            XCTAssertEqual(idle, .idle)
+        }
+        let (profilesAfter, writesAfter) = (await api.profiles, await api.writes)
+        XCTAssertEqual(profilesAfter, profiles)
+        XCTAssertEqual(writesAfter, writes)
+        // When it ends the account tries again.
+        let again = try await worker.deliverNext(account: "a@example.com", at: 6_001)
+        XCTAssertEqual(again, .deferred)
+        let writesThen = await api.writes
+        XCTAssertEqual(writesThen, writes + 1)
+    }
+
+    func testThePauseGrowsWhileRefusedAndNeverPassesTheCap() async throws {
+        let (store, api, worker) = try await setup()
+        try await record(store)
+        await api.configure(error: .limited(.user, retryAfter: nil), applies: false)
+        var at: Int64 = 1_000
+        var lengths: [Int64] = []
+        for _ in 0..<10 {
+            _ = try await worker.deliverNext(account: "a@example.com", at: at)
+            guard let until = await worker.pausedUntil(account: "a@example.com") else { return XCTFail("no pause after a rate limit") }
+            lengths.append(until - at)
+            at = until + 1
+        }
+        XCTAssertEqual(lengths, [5_000, 10_000, 20_000, 40_000, 80_000, 160_000, 300_000, 300_000, 300_000, 300_000])
+    }
+
+    func testTheServicesOwnWaitLengthensThePauseButOnlyUpToTheCap() async throws {
+        let (store, api, worker) = try await setup()
+        try await record(store)
+        await api.configure(error: .limited(.user, retryAfter: 90), applies: false)
+        _ = try await worker.deliverNext(account: "a@example.com", at: 1_000)
+        let pausedUntil = await worker.pausedUntil(account: "a@example.com")
+        XCTAssertEqual(pausedUntil, 91_000)
+    }
+
+    func testAnAcceptedChangeEndsThePause() async throws {
+        let (store, api, worker) = try await setup()
+        try await record(store)
+        await api.configure(error: .limited(.user, retryAfter: nil), applies: false)
+        _ = try await worker.deliverNext(account: "a@example.com", at: 1_000)
+        _ = try await worker.deliverNext(account: "a@example.com", at: 6_001)   // refused again: 10 s
+        await api.configure()
+        let confirmed = try await worker.deliverNext(account: "a@example.com", at: 40_000)
+        XCTAssertEqual(confirmed, .confirmed)
+        let cleared = await worker.pausedUntil(account: "a@example.com")
+        XCTAssertNil(cleared)
+        // The next refusal starts from five seconds again. The fake provider's labels are shared by every message and
+        // the first change cleared UNREAD, so this one asks for it back: it disagrees with the provider and is refused.
+        try await record(store, want: true, message: "n")
+        await api.configure(error: .limited(.user, retryAfter: nil), applies: false)
+        _ = try await worker.deliverNext(account: "a@example.com", at: 50_000)
+        let restarted = await worker.pausedUntil(account: "a@example.com")
+        XCTAssertEqual(restarted, 55_000)
+    }
+
+    func testOnlyARateLimitPausesTheAccount() async throws {
+        let (store, api, worker) = try await setup()
+        try await record(store)
+        await api.configure(error: .server(500), applies: false)
+        let outcome = try await worker.deliverNext(account: "a@example.com", at: 1_000)
+        XCTAssertEqual(outcome, .deferred)
+        let paused = await worker.pausedUntil(account: "a@example.com")
+        XCTAssertNil(paused, "an error on one message must not hold the others back")
+    }
+
     func testUnmatchedConfirmationStillImportsProviderStateBeforeRefusal() async throws {
         let (store, api, _) = try await setup()
         try await record(store)

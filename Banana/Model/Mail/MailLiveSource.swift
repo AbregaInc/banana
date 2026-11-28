@@ -1344,7 +1344,11 @@ extension MailLiveSource {
                     let outcome = try await delivery.deliverNext(account: account, at: now)
                     if outcome != .idle { worked = true }
                     deliveryRetryAt[account] = nil
-                    if let due = try await intentStore.nextAttempt(account: account) { next = min(next ?? due, due) }
+                    if let due = try await intentStore.nextAttempt(account: account) {
+                        // A paused account is not woken for work that is already due: it would only be refused again.
+                        let wake = max(due, await delivery.pausedUntil(account: account) ?? 0)
+                        next = min(next ?? wake, wake)
+                    }
                     if senderPolicyDriver != nil, let due = try await intentStore.nextSenderPolicyAttempt(account: account) {
                         let millis = Int64(due.timeIntervalSince1970 * 1000)
                         next = min(next ?? millis, millis)
