@@ -269,4 +269,43 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertEqual(ShellPage.rail(on, mac: true), [.plan])
         XCTAssertEqual(ShellPage.rail(on, mac: false), [.plan, .settings])
     }
+
+    // MARK: Google's calendar search, joined to Plan's
+
+    func testGooglesEventsJoinPlansOnceInPlanOrder() {
+        typealias Found = ShellSearchRules.PlanFound<String>
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC")!
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let day: TimeInterval = 86_400
+        func found(_ calendarID: String, _ id: String, _ name: String, _ start: Date) -> Found {
+            Found(start: start, key: ShellSearchRules.planKey(calendarID: calendarID, eventID: id), hit: name)
+        }
+        // Plan's own search found tomorrow's review and last week's standup.
+        let onDevice = [found("work", "review", "review", now + day), found("work", "standup", "standup", now - 7 * day)]
+        let joined = ShellSearchRules.joinPlan(onDevice, adding: [
+            found("work", "review", "review again", now + day),        // the same event, from Google
+            found("home", "review", "review at home", now + day + 60), // the same id on another calendar
+            found("work", "offsite", "offsite", now + 30 * day),
+            found("work", "kickoff", "kickoff", now - 200 * day),
+            found("work", "lunch", "lunch", now - 3_600),               // earlier today: upcoming side
+        ], now: now, calendar: calendar)
+        XCTAssertEqual(joined.map(\.hit), ["lunch", "review", "review at home", "offsite", "standup", "kickoff"],
+                       "each event once; today and later soonest first, then the past latest first")
+        XCTAssertEqual(ShellSearchRules.joinPlan(joined, adding: [], now: now, calendar: calendar), joined, "joining nothing changes nothing")
+    }
+
+    func testAFoundEmailSaysWhereItsWordsAreWhenItsSubjectDoesnt() {
+        XCTAssertEqual(ShellSearchRules.mailDetail(subject: "Retainer for December", snippet: "Hi Noor, the retainer is",
+                                                   people: "Jane Park", date: "Mon Nov 23", searched: "retainer"),
+                       "Jane Park · Mon Nov 23", "the subject already says why")
+        XCTAssertEqual(ShellSearchRules.mailDetail(subject: "Signed documents and the logo pack",
+                                                   snippet: "…The monthly retainer is 4,800 dollars… · Services-agreement.pdf",
+                                                   people: "Jane Park", date: "Mon Nov 23", searched: "Retainer"),
+                       "Jane Park · …The monthly retainer is 4,800 dollars… · Services-agreement.pdf",
+                       "the words in a file")
+        XCTAssertEqual(ShellSearchRules.mailDetail(subject: "Lunch", snippet: "See you at noon",
+                                                   people: "Mei Chen", date: "Yesterday", searched: "invoice"),
+                       "Mei Chen · Yesterday", "a preview that doesn't explain it either keeps the date")
+    }
 }

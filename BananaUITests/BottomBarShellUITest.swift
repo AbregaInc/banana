@@ -392,6 +392,26 @@ final class BottomBarShellUITest: XCTestCase {
         let count = any(app, "mail.list.count")
         XCTAssertTrue(count.waitForExistence(timeout: 5))
         XCTAssertGreaterThan(Int(count.label) ?? 0, 5, count.label)
+        // The page names the words, and its menu puts them back in the field to change.
+        let place = any(app, "mail.list.placeMenu")
+        XCTAssertTrue(place.label.contains("“the”"), place.label)
+        place.tap()
+        let edit = app.buttons["Edit search"].firstMatch  // a menu item keeps its label, not its identifier
+        XCTAssertTrue(edit.waitForExistence(timeout: 3), app.debugDescription)
+        edit.tap()
+        XCTAssertTrue(any(app, "shell.hit.mail").waitForExistence(timeout: 5), "the field opens on the same words")
+        XCTAssertEqual(field.value as? String, "the")
+    }
+
+    func testAnEmailFoundByItsAttachmentSaysWhereTheWordsAre() throws {
+        let app = try launch(["--tab", "mail", "--mail-fresh"])
+        let field = app.textFields["shell.field"]
+        field.tap()
+        field.typeText("retainer")
+        let hit = any(app, "shell.hit.mail")
+        XCTAssertTrue(hit.waitForExistence(timeout: 5), app.debugDescription)
+        let shows = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'monthly retainer'")).firstMatch
+        XCTAssertTrue(shows.waitForExistence(timeout: 5) || hit.label.contains("monthly retainer"), hit.label)
     }
 
     func testAPickFromTheAddListOpensItOnItsPage() throws {

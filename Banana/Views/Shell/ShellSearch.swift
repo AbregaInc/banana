@@ -67,7 +67,7 @@ final class ShellSearch: ObservableObject {
     private var widerPlan: Task<Void, Never>?
     /// The plan hits found so far with what orders and de-duplicates them.
     private var planFound: [PlanFound] = []
-    private struct PlanFound { let start: Date; let key: String; let hit: ShellSearchHit }
+    private typealias PlanFound = ShellSearchRules.PlanFound<ShellSearchHit>
     #if !BANANA_PUBLIC
     private var mailObservation: MailObservation?
     #endif
@@ -90,6 +90,18 @@ final class ShellSearch: ObservableObject {
             guard !Task.isCancelled else { return }
             await self?.run(query)
         }
+    }
+
+    /// The sentence each Mail search the field opened was typed as, by its expression, so the
+    /// search can be edited as it was written ("from mei" stays a sentence, not a chip list).
+    private var mailSentences: [String: String] = [:]
+
+    /// A Mail search, back in the field to change: the sentence it was typed as, else its words.
+    func edit(mailSearch expression: String) {
+        let filter = LiveFilter.fromSearchExpression(expression, scope: "mail")
+        text = mailSentences[expression] ?? filter?.text ?? (expression.hasPrefix("banana-filter:") ? "" : expression)
+        textChanged()
+        focusRequests.send(true)
     }
 
     /// Clears the field and lets the keyboard go.
@@ -180,7 +192,8 @@ final class ShellSearch: ObservableObject {
                 detail: when(start: occurrence.start, end: occurrence.resolvedEnd,
                              timed: occurrence.hasScheduledTime && occurrence.behavior != .allDay),
                 target: .plan(start: occurrence.start, calendarID: route?.calendarID, eventID: route?.eventID))
-            return PlanFound(start: occurrence.start, key: route.map { $0.calendarID + "\u{0}" + $0.eventID } ?? hit.id, hit: hit)
+            return PlanFound(start: occurrence.start,
+                             key: route.map { ShellSearchRules.planKey(calendarID: $0.calendarID, eventID: $0.eventID) } ?? hit.id, hit: hit)
         }
     }
 
@@ -212,26 +225,21 @@ final class ShellSearch: ObservableObject {
     }
 
     private func addWiderPlan(_ events: [GoogleCalendarEvent], more: Bool) {
-        var known = Set(planFound.map(\.key))
-        for event in events {
-            let route = GoogleCalendarIDs.rawEventRoute(from: event.id)
-            let key = route.map { $0.calendarID + "\u{0}" + $0.eventID } ?? "google:" + event.id
-            guard known.insert(key).inserted else { continue }
-            planFound.append(PlanFound(start: event.start, key: key, hit: ShellSearchHit(
-                id: "plan:" + key, title: event.title.isEmpty ? "(No title)" : event.title,
-                detail: Self.when(start: event.start, end: event.end, timed: !event.isAllDay),
-                target: .plan(start: event.start, calendarID: route?.calendarID, eventID: route?.eventID))))
-        }
-        // Upcoming first, soonest first; then the past, latest first (the field's plan order).
-        let today = Calendar.current.startOfDay(for: Date())
-        planFound.sort { lhs, rhs in
-            if (lhs.start >= today) != (rhs.start >= today) { return lhs.start >= today }
-            return lhs.start >= today ? lhs.start < rhs.start : lhs.start > rhs.start
-        }
+        planFound = ShellSearchRules.joinPlan(planFound, adding: events.map(Self.found), now: Date())
         let shown = ShellSearchGroups<ShellSearchHit>.shownPerGroup
         let listed = Array(planFound.prefix(shown).map(\.hit))
         if groups.plan != listed { groups.plan = listed }
         if planFound.count > shown || more { groups.more.insert(.plan) }
+    }
+
+    /// One of Google's events as a plan hit, keyed as Plan's own are.
+    private static func found(_ event: GoogleCalendarEvent) -> PlanFound {
+        let route = GoogleCalendarIDs.rawEventRoute(from: event.id)
+        let key = route.map { ShellSearchRules.planKey(calendarID: $0.calendarID, eventID: $0.eventID) } ?? "google:" + event.id
+        return PlanFound(start: event.start, key: key, hit: ShellSearchHit(
+            id: "plan:" + key, title: event.title.isEmpty ? "(No title)" : event.title,
+            detail: when(start: event.start, end: event.end, timed: !event.isAllDay),
+            target: .plan(start: event.start, calendarID: route?.calendarID, eventID: route?.eventID)))
     }
 
     private static func when(start: Date, end: Date, timed: Bool) -> String {
@@ -272,13 +280,16 @@ final class ShellSearch: ObservableObject {
         guard let session = MailApplication.shared.session else { return }
         let scope = MailScope(place: .search(LiveFilterParser.parse(query, scope: "mail").searchExpression))
         let shown = ShellSearchGroups<ShellSearchHit>.shownPerGroup
+        let searched = LiveFilterParser.parse(query, scope: "mail").text
         let observation = session.source.observeList(scope, limit: shown + 1) {
             [weak self] snapshot in
             guard let self, self.answered == query else { return }
             if snapshot.rows.count > shown || snapshot.hasMore { self.groups.more.insert(.mail) } else { self.groups.more.remove(.mail) }
             let hits = snapshot.rows.prefix(shown).map { row in
                 ShellSearchHit(id: "mail:\(row.id)", title: row.subject.isEmpty ? "(No subject)" : row.subject,
-                               detail: Self.people(row) + " · " + Self.mailDate(row.date),
+                               detail: ShellSearchRules.mailDetail(subject: row.subject, snippet: row.snippet,
+                                                                   people: Self.people(row), date: Self.mailDate(row.date),
+                                                                   searched: searched),
                                target: .mail(row.id))
             }
             if self.groups.mail != hits { self.groups.mail = hits }
@@ -323,6 +334,7 @@ final class ShellSearch: ObservableObject {
             Self.show(.notes)
         #if !BANANA_PUBLIC
         case .mail(let id):
+            mailSentences = [LiveFilterParser.parse(words, scope: "mail").searchExpression: words]
             Self.show(.mail)
             ShellMailOpener.open(id, searchedFor: words)
         #endif
@@ -340,7 +352,9 @@ final class ShellSearch: ObservableObject {
             #if !BANANA_PUBLIC
             Self.show(.mail)
             MailApplication.shared.start()
-            MailApplication.shared.session?.switchTo(MailScope(place: .search(LiveFilterParser.parse(words, scope: "mail").searchExpression)))
+            let expression = LiveFilterParser.parse(words, scope: "mail").searchExpression
+            mailSentences = [expression: words]
+            MailApplication.shared.session?.switchTo(MailScope(place: .search(expression)))
             #endif
         case .notes:
             clear()

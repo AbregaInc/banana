@@ -122,11 +122,14 @@ private struct MailListHeader: View {
 
     @ViewBuilder private var title: some View {
         let name = Text(MailPlacesModel.title(of: scope))
-            .font(titleFont)
+            .font(titleFont).lineLimit(1)
         if arrangement.showsControl {
             name
         } else {
             Menu {
+                if bottomBarShell, case .search(let expression) = scope.place {
+                    MailEditSearchButton(expression: expression)
+                }
                 ForEach(MailPlacesModel.all) { place in
                     Button {
                         session.show(place.mailbox)
@@ -211,6 +214,21 @@ private struct MailEmptyState: View {
                 }
             }
             .allowsHitTesting(false)
+        }
+    }
+}
+
+/// A search the shell's field opened, back in that field to change: the first item of the
+/// place menu while a search shows (the page has no search field of its own).
+struct MailEditSearchButton: View {
+    let expression: String
+
+    var body: some View {
+        Section {
+            Button { ShellSearch.shared.edit(mailSearch: expression) } label: {
+                Label("Edit search", systemImage: "magnifyingglass")
+            }
+            .accessibilityIdentifier("mail.search.edit")
         }
     }
 }

@@ -260,6 +260,44 @@ enum ShellSearchRules {
             .components(separatedBy: CharacterSet.alphanumerics.inverted)
             .filter { !$0.isEmpty }
     }
+
+    /// One calendar event found: when it starts, what makes it the same event wherever it was
+    /// found (its calendar and event id), and its row.
+    struct PlanFound<Hit: Equatable>: Equatable {
+        let start: Date
+        let key: String
+        let hit: Hit
+    }
+
+    /// The same event, found on the device or by Google: its calendar and its event.
+    static func planKey(calendarID: String, eventID: String) -> String { calendarID + "\u{0}" + eventID }
+
+    /// More events joined to those found: each event once, then upcoming first, soonest first,
+    /// and the past after, latest first (the field's plan order).
+    static func joinPlan<Hit>(_ found: [PlanFound<Hit>], adding more: [PlanFound<Hit>], now: Date,
+                              calendar: Calendar = .current) -> [PlanFound<Hit>] {
+        var joined = found
+        var known = Set(found.map(\.key))
+        for item in more where known.insert(item.key).inserted { joined.append(item) }
+        let today = calendar.startOfDay(for: now)
+        joined.sort { lhs, rhs in
+            if (lhs.start >= today) != (rhs.start >= today) { return lhs.start >= today }
+            return lhs.start >= today ? lhs.start < rhs.start : lhs.start > rhs.start
+        }
+        return joined
+    }
+
+    /// A found email's second line: who and when, unless its subject doesn't say why it was found
+    /// and its preview does (in a search, the words around the match in the body or a file). Then
+    /// who and those words, so every result shows where its words are.
+    static func mailDetail(subject: String, snippet: String, people: String, date: String, searched: String) -> String {
+        let wanted = words(searched)
+        let explains = { (text: String) in wanted.contains { containsPrefix($0, in: text) } }
+        guard !wanted.isEmpty, !wanted.allSatisfy({ containsPrefix($0, in: subject) }), explains(snippet) else {
+            return people + " · " + date
+        }
+        return people + " · " + snippet.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 }
 
 /// Where the podcast player is: a capsule above the bar, a small round artwork at the left end of
