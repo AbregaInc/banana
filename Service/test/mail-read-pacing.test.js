@@ -20,7 +20,7 @@ test('read costs cover current Gmail metadata, body and default formats',()=>{
 test('concurrent devices share atomic weighted slots and rejected work does not extend the queue',async()=>{
  const s=setup(),sub=await identity(s);
  const reservations=await Promise.all(Array.from({length:12},()=>reserveMailRead({...s.deps},sub,read())));
- assert.deepEqual(reservations.filter(Boolean).map(x=>x.waitMS).sort((a,b)=>a-b),[0,1600,3200,4800,6400,8000,9600]);
+ assert.deepEqual(reservations.filter(Boolean).map(x=>x.waitMS).sort((a,b)=>a-b),[0,1440,2880,4320,5760,7200,8640]);
  assert.equal(reservations.filter(x=>x===null).length,5);
  const before=await s.db.first('SELECT next_at FROM mail_read_pacing WHERE google_sub=?',sub);
  assert.equal(await reserveMailRead(s.deps,sub,read()),null);
@@ -34,5 +34,5 @@ test('identities are independent and idle time cannot accumulate a burst allowan
  assert.deepEqual(await reserveMailRead(s.deps,b,read()),{waitMS:0});
  s.advance(3600_000);
  assert.deepEqual(await reserveMailRead(s.deps,a,read()),{waitMS:0});
- assert.deepEqual(await reserveMailRead(s.deps,a,read()),{waitMS:1600});
+ assert.deepEqual(await reserveMailRead(s.deps,a,read()),{waitMS:1440});
 });

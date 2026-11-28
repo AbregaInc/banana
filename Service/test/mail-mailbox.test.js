@@ -417,7 +417,7 @@ test("the fill takes only free background slots, at the ceiling less the reserve
   await fillDone(t);
   assert.ok(times[0].at >= reserved, "no fill read while a person's slot is reserved");
   assert.equal(times.length, 20);
-  for (let i = 1; i < times.length; i++) assert.ok(times[i].at - times[i - 1].at >= 811, `read ${i} ${times[i].at - times[i - 1].at} ms after the last`);
+  for (let i = 1; i < times.length; i++) assert.ok(times[i].at - times[i - 1].at >= 729, `read ${i} ${times[i].at - times[i - 1].at} ms after the last`);
   // A device's read in the middle of a fill is served at once (its own lane), from the store.
   const answer = await t.read(t.phone, "m3");
   assert.equal(answer.status, 200);
@@ -753,7 +753,7 @@ function recordReads(t) {
   return { reads, waits };
 }
 
-test("in a quiet minute the fill reads at the ceiling less the reserve: 4,440 units, 74 full reads", async () => {
+test("in a quiet minute the fill reads at the ceiling less the reserve: 4,940 units, 82 full reads", async () => {
   const t = await mailbox({ count: 200, labels: () => ["Label_1"] });
   assert.equal((await t.feed(t.phone)).status, 200);
   await t.drain(t.settled);
@@ -761,8 +761,8 @@ test("in a quiet minute the fill reads at the ceiling less the reserve: 4,440 un
   const start = t.s.now();
   await t.drain(async () => t.s.now() - start >= 60_000, 5000);
   const inMinute = reads.filter((at) => at - start < 60_000).length;
-  assert.ok(inMinute >= 73 && inMinute <= 75, `${inMinute} full reads in a quiet minute`);
-  assert.ok(inMinute * 60 <= 4500 - 60 + 60, "never above the ceiling");
+  assert.ok(inMinute >= 81 && inMinute <= 83, `${inMinute} full reads in a quiet minute`);
+  assert.ok(inMinute * 60 <= 5000 - 60 + 60, "never above the ceiling");
 });
 
 test("a person's read arriving during a fill burst gets a slot within one slot interval", async () => {
@@ -778,7 +778,7 @@ test("a person's read arriving during a fill burst gets a slot within one slot i
   waits.length = 0;
   const answer = await t.read(t.phone, "fresh");         // a person opens it: an interactive read
   assert.equal(answer.status, 200);
-  assert.ok(waits.every((ms) => ms <= 800), `waited ${waits} ms`);
+  assert.ok(waits.every((ms) => ms <= 720), `waited ${waits} ms`);
   assert.ok(reads.length >= 10 && start <= t.s.now());
 });
 
@@ -798,9 +798,9 @@ test("Google's limit halves the fill for five minutes, then it ramps back to ful
   const count = (from, to) => reads.filter((at) => at >= limitedAt + from && at < limitedAt + to).length;
   await t.drain(async () => t.s.now() - limitedAt >= 11 * 60_000, 20_000);
   const halved = count(60_000, 120_000), ramping = count(7 * 60_000, 8 * 60_000), full = count(10 * 60_000, 11 * 60_000);
-  assert.ok(halved >= 36 && halved <= 38, `${halved} reads a minute while backed off (37 is half)`);
+  assert.ok(halved >= 40 && halved <= 42, `${halved} reads a minute while backed off (41 is half)`);
   assert.ok(ramping > halved && ramping < full, `ramping: ${ramping}`);
-  assert.ok(full >= 73 && full <= 75, `${full} reads a minute after the ramp`);
+  assert.ok(full >= 81 && full <= 83, `${full} reads a minute after the ramp`);
 });
 
 test("listings and verification go before the fill", async () => {

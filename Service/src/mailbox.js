@@ -5,7 +5,7 @@
 // node:sqlite on Node (src/adapters/mailboxes-sqlite.js); both hand in the same pieces.
 
 import * as box from "./mail-mailbox.js";
-import { reserveMailRead, nextMailReadAt } from "./mail-read-pacing.js";
+import { reserveMailRead, nextMailReadAt, MAIL_READ_UNITS_PER_MINUTE } from "./mail-read-pacing.js";
 import { mailLink } from "./mail-grant.js";
 import { featureAllowed, googleCapabilities } from "./feature-access.js";
 import { GoogleRefused } from "./google.js";
@@ -30,11 +30,11 @@ const POLL_ACTIVE_WATCHED = MINUTE, POLL_RECENT_WATCHED = 10 * MINUTE, POLL_IDLE
 export const WATCH_RENEW_BEFORE = DAY;         // Gmail ends a watch after 7 days
 // The content fill: every message, newest first, on the background lane only. Content search needs
 // the whole mailbox (docs/performance/mail-content-search.md); MAIL_FILL_DAYS can still cap it.
-// It uses whatever of the identity's read budget nobody else is using, up to the 4,500 units a
-// minute ceiling (mail-read-pacing.js) less one full-read slot a minute kept for a person: 74
-// units a second, one full read every 811 ms. A background read only takes a slot that is free
-// now, so a person's read never waits behind it for more than one slot (800 ms).
-export const FILL_CEILING_UNITS_PER_MINUTE = 4500;
+// It uses whatever of the identity's read budget nobody else is using, up to the 5,000 units a
+// minute ceiling (mail-read-pacing.js) less one full-read slot a minute kept for a person: 82
+// units a second, one full read every 729 ms. A background read only takes a slot that is free
+// now, so a person's read never waits behind it for more than one slot (720 ms).
+export const FILL_CEILING_UNITS_PER_MINUTE = MAIL_READ_UNITS_PER_MINUTE;
 export const FILL_RESERVE_UNITS = 60;           // one full read a minute, for interactive reads only
 export const FILL_UNITS_PER_SECOND = (FILL_CEILING_UNITS_PER_MINUTE - FILL_RESERVE_UNITS) / 60;
 const FILL_READ_UNITS = 60;                     // a full message read (mail-read-pacing.js)

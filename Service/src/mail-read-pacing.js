@@ -1,7 +1,8 @@
 // Gmail's May 2026 units: full bodies cost more than metadata. Keep reads below
-// 4,500 units/minute per Google identity, leaving headroom under the 6,000 limit.
+// 5,000 units/minute per Google identity, leaving headroom under the 6,000 limit.
 // Existing Workers rate-limit bindings count requests per location, not weighted
 // globally shared work. D1's atomic UPSERT provides the cross-device reservation.
+export const MAIL_READ_UNITS_PER_MINUTE = 5000;
 export function mailReadUnits(request) {
  const format=request.query.find(x=>x.name==='format')?.value ?? 'full';
  switch(request.resource) {
@@ -19,7 +20,7 @@ export function mailReadUnits(request) {
 // `maxWait` 0 is the background lane (the cloud mailbox's backfill): it takes only a slot that is
 // free now, so it never queues ahead of a read someone is waiting for.
 export async function reserveMailRead(deps,sub,request,{maxWait=10_000}={}) {
- const now=deps.now(), interval=Math.ceil(mailReadUnits(request)*1000/75);
+ const now=deps.now(), interval=Math.ceil(mailReadUnits(request)*60_000/MAIL_READ_UNITS_PER_MINUTE);
  const row=await deps.db.first(`INSERT INTO mail_read_pacing(google_sub,next_at) VALUES(?,?)
  ON CONFLICT(google_sub) DO UPDATE SET next_at=MAX(mail_read_pacing.next_at,?)+?
  WHERE mail_read_pacing.next_at<=?
