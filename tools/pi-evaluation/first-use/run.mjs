@@ -65,7 +65,8 @@ vm.runInContext(bundle.slice(0, close) + `
   };
 ` + bundle.slice(close), scope);
 const base = JSON.parse(JSON.stringify(await scope.firstUseRequest()));
-const route = scope.firstUseRoute;
+// FIRST_USE_NO_ROUTER=1 measures Pi without the hand-written router: every request goes to the model.
+const route = process.env.FIRST_USE_NO_ROUTER === '1' ? (request, generate, signal) => generate(request, signal) : scope.firstUseRoute;
 const fixturesPath = argumentsByName.get('--mail-fixtures');
 const mailFixtures = fixturesPath ? readFileSync(fixturesPath, 'utf8') : undefined;
 const mailEvidenceByCase = mailFixtures ? JSON.parse(mailFixtures) : {};
