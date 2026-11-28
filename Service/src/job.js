@@ -14,6 +14,7 @@ import { forgetOldOperations } from "./provider-operation.js";
 import { sweepStaleOperations } from "./operation-sweep.js";
 import { SESSION_PROOF } from "./sessions.js";
 
+const SWEEP_OPERATIONS = false;
 const RENEW_BEFORE = 24 * 60 * 60 * 1000;
 const MAIL_WATCH_RENEW_BEFORE = 24 * 60 * 60 * 1000;
 const CHECK_EVERY = 24 * 60 * 60 * 1000;
@@ -96,7 +97,8 @@ export async function runJob(deps) {
   await forgetShares(deps);
   await forgetOldOperations(deps);
   // Operations nothing is finishing are resumed by the service, so an account never waits on a device to retry.
-  try {
+  // Off until its query is indexed: the first version read ~8M rows a run and overloaded D1.
+  if (SWEEP_OPERATIONS) try {
     const swept = await sweepStaleOperations(deps, vault);
     if (swept.replayed || swept.settled || swept.failed) result.operations = swept;
   }
