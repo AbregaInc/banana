@@ -44,6 +44,30 @@ final class MailPiReplyTests: XCTestCase {
         XCTAssertEqual(seen.count, MailPiReply.maxRecords, "What the model read is offered to the check")
     }
 
+    func testCalendarResultsReachTheModelAndGroundTheReply() async throws {
+        var tools = tools()
+        var asked: (String, [String: Any])?
+        tools.calendar = { name, arguments in
+            asked = (name, arguments)
+            return #"{"available":false,"answer":"You have a conflict.","windows":[{"start":"16:30","end":"17:00"}]}"#
+        }
+        let passages = MailPiReply.Passages()
+        let result = try await MailPiReply.handle(try call("check_time", ["day": "Tuesday", "start": "15:00"]), tools: tools, passages: passages)
+        XCTAssertEqual(result["available"] as? Bool, false)
+        XCTAssertEqual(asked?.0, "check_time")
+        XCTAssertEqual(asked?.1["day"] as? String, "Tuesday", "Day words reach native code unchanged")
+        XCTAssertEqual(passages.texts.count, 1, "The calendar answer becomes a checkable passage")
+    }
+
+    func testCalendarFailureAndAbsenceAreReturnedToTheModel() async throws {
+        var result = try await MailPiReply.handle(try call("find_free_time", ["date": "today"]), tools: tools(), passages: .init())
+        XCTAssertNotNil(result["error"] as? String, "No calendar: the model is told to ask instead")
+        var failing = tools()
+        failing.calendar = { _, _ in throw AssistantFailure(message: "That time has passed.") }
+        result = try await MailPiReply.handle(try call("check_time", ["day": "today", "start": "08:00"]), tools: failing, passages: .init())
+        XCTAssertEqual(result["error"] as? String, "That time has passed.")
+    }
+
     func testSearchNeedsAShortLiteralQuery() async throws {
         let result = try await MailPiReply.handle(try call("search_mail", ["query": "x"]), tools: tools(), passages: .init())
         XCTAssertNotNil(result["error"])

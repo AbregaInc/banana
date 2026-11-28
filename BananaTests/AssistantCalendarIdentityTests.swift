@@ -24,4 +24,16 @@ final class AssistantCalendarIdentityTests: XCTestCase {
         XCTAssertFalse(AssistantCalendarIdentity.matches(a, receipt: c))
         XCTAssertFalse(AssistantCalendarIdentity.matches(nil, receipt: a))
     }
+
+    func testDayWordsResolveNatively() throws {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "America/New_York")!
+        // Sunday 22 November 2026, 09:00 local.
+        let now = try XCTUnwrap(calendar.date(from: DateComponents(year: 2026, month: 11, day: 22, hour: 9)))
+        XCTAssertEqual(AssistantLocalDay.key("tomorrow", now: now, calendar: calendar), "2026-11-23")
+        XCTAssertEqual(AssistantLocalDay.key("Thursday", now: now, calendar: calendar), "2026-11-26")
+        XCTAssertEqual(AssistantLocalDay.key("sunday", now: now, calendar: calendar), "2026-11-22", "Today's weekday is today")
+        XCTAssertEqual(AssistantLocalDay.key("2026-12-03", now: now, calendar: calendar), "2026-12-03")
+        XCTAssertEqual(AssistantLocalDay.key("someday", now: now, calendar: calendar), "someday")
+    }
 }

@@ -128,8 +128,10 @@ enum AssistantWorkspace {
         case "tomorrow": return AssistantNutrition.key(AssistantNutrition.calendar().date(byAdding: .day, value: 1, to: now)!)
         case "yesterday": return AssistantNutrition.key(AssistantNutrition.calendar().date(byAdding: .day, value: -1, to: now)!)
         default:
-            _ = try AssistantNutrition.date(requested)
-            return requested
+            // Weekday names and other day words resolve natively; the model never computes a date.
+            let key = AssistantLocalDay.key(requested, now: now, calendar: AssistantNutrition.calendar())
+            _ = try AssistantNutrition.date(key)
+            return key
         }
     }
 

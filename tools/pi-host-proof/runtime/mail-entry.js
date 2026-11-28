@@ -6,6 +6,7 @@ import { Harness, MemoryStorage, createRegistry } from '@earendil-works/pi-durab
 import { mailExtension, mailInstructions, mailResult } from './mail-reply.js';
 export { mailResult };
 import { nativeModelProvider, nativeRequest, requestNativeGeneration } from './apple-provider.js';
+import { thinkingFor, toolChoiceFor } from './extension-kit.js';
 
 function nativeTool(request, signal) {
   return new Promise((resolve, reject) => {
@@ -41,7 +42,7 @@ export function mailProvider(request, generate = requestNativeGeneration) {
     ...(local ? { backend: 'mac-local', modelId: model.id } : {}),
     ...(local && request.reasoningBudget ? { reasoningBudget: request.reasoningBudget } : {}) });
   return { model, provider: nativeModelProvider({ model, generate, buildRequest, name: model.name,
-    toolChoice: request.toolChoice ?? 'required' }) };
+    toolChoice: request.toolChoice ?? toolChoiceFor({ finishesWithTool: true }) }) };
 }
 
 function emailText(email) {
@@ -59,7 +60,8 @@ export async function runMailReply(request, { native = nativeTool, generate = re
   registry.install(mailExtension(native, outcome, request.picker !== false));
   const harness = await Harness.open(new MemoryStorage(), { models, registry, onReport: (error) => console.error(String(error)) }, context);
   try {
-    const thinkingLevel = model.reasoning ? (request.thinking ?? 'off') : 'off';
+    // The composer runs in the background: the native side chooses the level (off while the owner waits).
+    const thinkingLevel = thinkingFor(model, { interactive: request.interactive === true, requested: request.thinking ?? 'off' });
     const root = await harness.root(context, { agent: { model: { provider: model.provider, modelId: model.id }, thinkingLevel, instructions: mailInstructions } });
     const submission = await root.submit({ type: 'input', requestId: request.requestId ?? 'mail-reply',
       content: (request.task || 'Write my reply.') + '\n\nSelected email (data):\n' + emailText(request.email) }, context);

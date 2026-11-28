@@ -29,8 +29,19 @@ enum AssistantCalendarIdentity {
 enum AssistantLocalDay {
     static func key(_ requested: String, now: Date = Date(), calendar: Calendar = .autoupdatingCurrent) -> String {
         let offsets = ["today": 0, "tomorrow": 1, "tmrw": 1, "yesterday": -1]
-        guard let offset = offsets[requested.lowercased()],
-              let day = calendar.date(byAdding: .day, value: offset, to: now) else { return requested }
+        let word = requested.lowercased().trimmingCharacters(in: .whitespaces)
+        // A weekday name is its next occurrence (today included); "next Friday" is the one after that week.
+        let weekday = word.hasPrefix("next ") ? String(word.dropFirst(5)) : word
+        let resolved: Date?
+        if let offset = offsets[word] {
+            resolved = calendar.date(byAdding: .day, value: offset, to: now)
+        } else if let index = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"].firstIndex(of: weekday),
+                  let next = (0..<7).lazy.compactMap({ calendar.date(byAdding: .day, value: $0, to: now) })
+                    .first(where: { calendar.component(.weekday, from: $0) == index + 1 }) {
+            resolved = word.hasPrefix("next ") && calendar.isDate(next, equalTo: now, toGranularity: .weekOfYear)
+                ? calendar.date(byAdding: .day, value: 7, to: next) : next
+        } else { resolved = nil }
+        guard let day = resolved else { return requested }
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.calendar = Calendar(identifier: .gregorian)

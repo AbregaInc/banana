@@ -73,7 +73,7 @@ test('a checked reply becomes the body; required tool choice and reasoning budge
     assert.equal(request.backend, 'mac-local');
     assert.equal(request.reasoning, 'low');
   }
-  assert.deepEqual(model.requests[0].tools.map(t => t.name).sort(), ['ask_owner', 'no_reply_needed', 'read_attachments', 'read_thread', 'search_mail', 'submit_reply']);
+  assert.deepEqual(model.requests[0].tools.map(t => t.name).sort(), ['ask_owner', 'check_time', 'find_free_time', 'no_reply_needed', 'read_attachments', 'read_thread', 'search_mail', 'submit_reply']);
 });
 
 test('Apple requests carry no reasoning or backend', { skip: !available }, async () => {
@@ -148,6 +148,36 @@ test('a nudged model can still finish', { skip: !available }, async () => {
   const { runMailReply } = await load();
   const model = scripted([{ content: [{ type: 'text', text: 'Thinking.' }] }, call('submit_reply', { body: 'Yes.' }, 's1')]);
   assert.deepEqual(await runMailReply({ email }, { native: natives().native, generate: model.generate }), { body: 'Yes.' });
+});
+
+test('a proposed time is checked on the calendar before the reply; day words go to native code unchanged', { skip: !available }, async () => {
+  const { runMailReply } = await load();
+  const model = scripted([call('check_time', { day: 'Tuesday', start: '15:00', durationMinutes: 45 }, 'c1'), (request) => {
+    assert.match(request.messages.at(-1).text, /"available":false/);
+    return call('find_free_time', { date: 'Tuesday', durationMinutes: 45 }, 'f1');
+  }, call('submit_reply', { body: 'Tuesday at 3 does not work for me; could we do 16:00?' }, 's1')]);
+  const tools = natives({ check_time: () => ({ available: false, answer: 'You have a conflict.' }),
+    find_free_time: () => ({ windows: [{ date: '2026-11-24', start: '16:00', end: '17:00' }] }) });
+  const result = await runMailReply({ email }, { native: tools.native, generate: model.generate });
+  assert.equal(result.body, 'Tuesday at 3 does not work for me; could we do 16:00?');
+  assert.deepEqual(tools.calls.map(c => c.name), ['check_time', 'find_free_time', 'check_reply']);
+  assert.deepEqual(tools.calls[0].args, { day: 'Tuesday', start: '15:00', durationMinutes: 45 });
+});
+
+test('calendar reads have their own budget', { skip: !available }, async () => {
+  const { runMailReply } = await load();
+  let n = 0;
+  const model = scripted([() => n++ < 6 ? call('find_free_time', { date: 'today' }, 'f' + n) : call('submit_reply', { body: 'Yes.' }, 's1')]);
+  const tools = natives({ find_free_time: () => ({ windows: [] }) });
+  await runMailReply({ email }, { native: tools.native, generate: model.generate });
+  assert.equal(tools.calls.filter(c => c.name === 'find_free_time').length, 4);
+});
+
+test('interactive requests run without thinking even when a level is requested', { skip: !available }, async () => {
+  const { runMailReply } = await load();
+  const model = scripted([call('submit_reply', { body: 'Yes.' }, 's1')]);
+  await runMailReply({ email, provider: 'mac-local', modelId: 'm', thinking: 'low', interactive: true }, { native: natives().native, generate: model.generate });
+  assert.equal(model.requests[0].reasoning, 'off');
 });
 
 test('outcome mapping', { skip: !available }, async () => {

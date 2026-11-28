@@ -57,6 +57,51 @@ enum AssistantCapabilities {
               validInterval(start, end, now: now) else {
             throw AssistantFailure(message: "Choose a future time range of up to 12 hours within the next 30 days.")
         }
+        return try await intervalAnswer(start: start, end: end, from: from, to: to)
+    }
+
+    /// One proposed time given as words: a day (today, tomorrow, a weekday, YYYY-MM-DD), a 24-hour start,
+    /// and an end or a duration, optionally in another zone (IANA name or UTC offset such as -08:00).
+    /// Native code resolves the date; the model never computes one.
+    static func checkTime(_ args: [String: Any], now: Date = .now) async throws -> String {
+        var calendar = Calendar.app
+        if let zone = args["timeZone"] as? String {
+            guard let resolved = timeZone(zone) else { throw AssistantFailure(message: "Use an IANA time zone or a UTC offset such as -08:00.") }
+            calendar.timeZone = resolved
+        }
+        guard let requested = args["day"] as? String, let startText = args["start"] as? String else {
+            throw AssistantFailure(message: "Give the day and the 24-hour start time to check.")
+        }
+        let key = AssistantLocalDay.key(requested, now: now, calendar: calendar)
+        let day = try AssistantNutrition.date(key, calendar: calendar)
+        let start = try AssistantFreeTime.time(startText, day: day, calendar: calendar)
+        let end: Date
+        if let endText = args["end"] as? String {
+            end = try AssistantFreeTime.time(endText, day: day, calendar: calendar)
+        } else {
+            let minutes = args["durationMinutes"] as? Int ?? 60
+            guard (5...720).contains(minutes) else { throw AssistantFailure(message: "Choose a length of 5 to 720 minutes.") }
+            end = start.addingTimeInterval(TimeInterval(minutes * 60))
+        }
+        guard validInterval(start, end, now: now) else {
+            throw AssistantFailure(message: "That time has passed or is more than 30 days away; ask the owner instead.")
+        }
+        let iso = ISO8601DateFormatter()
+        iso.timeZone = calendar.timeZone
+        return try await intervalAnswer(start: start, end: end, from: iso.string(from: start), to: iso.string(from: end))
+    }
+
+    static func timeZone(_ raw: String) -> TimeZone? {
+        if let zone = TimeZone(identifier: raw) { return zone }
+        let text = raw.uppercased().replacingOccurrences(of: "UTC", with: "").replacingOccurrences(of: "GMT", with: "")
+        guard let sign = text.first, sign == "+" || sign == "-" else { return nil }
+        let parts = text.dropFirst().split(separator: ":").compactMap { Int($0) }
+        guard (1...2).contains(parts.count), (0...14).contains(parts[0]), parts.count == 1 || (0...59).contains(parts[1]) else { return nil }
+        let seconds = (parts[0] * 3600 + (parts.count == 2 ? parts[1] * 60 : 0)) * (sign == "-" ? -1 : 1)
+        return TimeZone(secondsFromGMT: seconds)
+    }
+
+    private static func intervalAnswer(start: Date, end: Date, from: String, to: String) async throws -> String {
         let busy = try await calendarBusy(from: start, to: end)
         let conflict = busy.contains { $0.start < end && $0.end > start }
         let local = DateIntervalFormatter()

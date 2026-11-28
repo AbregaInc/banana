@@ -39,7 +39,8 @@ struct MailAIModel {
 }
 
 /// Runs one mail reply on Banana's bundled Pi (pi-mail.js). Pi owns the step loop; Banana supplies the
-/// banana-mail tools (read_thread, search_mail, read_attachments, check_reply, check_picker) and a model.
+/// banana-mail tools (read_thread, search_mail, read_attachments, check_time, find_free_time, check_reply,
+/// check_picker) and a model.
 enum MailPiReply {
     typealias Failure = MailAIFailure
 
@@ -54,7 +55,11 @@ enum MailPiReply {
         var checkReply: (_ body: String, _ passages: [String]) throws -> Void
         /// The email text the picker's quotes and options must come from.
         var selectedText: String
+        /// The owner's calendar: check_time and find_free_time, each a JSON result. Nil when no calendar is available.
+        var calendar: ((_ name: String, _ arguments: [String: Any]) async throws -> String)? = nil
     }
+
+    static let calendarTools: Set<String> = ["check_time", "find_free_time"]
 
     struct Email {
         var subject: String
@@ -76,6 +81,24 @@ enum MailPiReply {
         guard let request = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any],
               let name = request["name"] as? String else { return ["error": "bad request"] }
         let arguments = request["arguments"] as? [String: Any] ?? [:]
+        if calendarTools.contains(name) {
+            guard let calendar = tools.calendar else { return ["error": "The calendar is unavailable. Ask the owner about the time instead."] }
+            do {
+                let raw = try await calendar(name, arguments)
+                guard let result = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any] else {
+                    return ["error": "Banana couldn’t read the calendar."]
+                }
+                // The reply may state the times the calendar returned: they are grounded like mail passages.
+                passages.texts.append(raw)
+                return result
+            } catch is CancellationError {
+                throw CancellationError()
+            } catch let failure as LocalizedError {
+                return ["error": failure.errorDescription ?? "Banana couldn’t read the calendar."]
+            } catch {
+                return ["error": "Banana couldn’t read the calendar."]
+            }
+        }
         let items: [MailDraftWorkflow.Evidence]
         do {
             switch name {

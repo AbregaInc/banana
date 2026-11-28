@@ -31,6 +31,12 @@ extension MailPiReply {
         }
     }
 
+    /// The owner's included Google calendars, as the assistant reads them.
+    @MainActor
+    static func ownerCalendar(_ name: String, _ arguments: [String: Any]) async throws -> String {
+        name == "check_time" ? try await AssistantCapabilities.checkTime(arguments) : try await AssistantCapabilities.freeTime(arguments)
+    }
+
     /// Run one reply on a dedicated Pi runtime (own JavaScriptCore context, temporary database path).
     @MainActor
     static func run(task: String, email: Email, tools: Tools, model: MailAIModel, thinking: MailAIThinking = .off,
@@ -48,8 +54,11 @@ extension MailPiReply {
         }
         defer { host.stop() }
         let passages = Passages()
+        var tools = tools
+        if tools.calendar == nil { tools.calendar = { name, arguments in try await ownerCalendar(name, arguments) } }
+        let configured = tools
         host.toolHandler = { raw in
-            let result = try await handle(raw, tools: tools, passages: passages)
+            let result = try await handle(raw, tools: configured, passages: passages)
             return String(decoding: try JSONSerialization.data(withJSONObject: result), as: UTF8.self)
         }
         // An access failure ends the reply with that error, not a model failure.
