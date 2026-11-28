@@ -528,6 +528,9 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     }
     if (after !== state.after) { setFill({ after, old, done: null }); return now(); }
     const [next] = box.fillNext(port, { after, limit: 1 });
+    // The pace runs from when the read starts: Google's answer takes part of the gap, and adds
+    // nothing to it (counted from the answer, 400 ms reads held the fill at 54 a minute, not 82).
+    const started = now();
     let answer;
     try { answer = await content(who, next.id, null, { background: true }); }
     catch (error) {
@@ -547,7 +550,7 @@ export function createMailbox({ port, deps, vault, blobs, alarm, destroy }) {
     // The watermark moves past it whatever the answer (too large, refused, gone): a later walk
     // tries again; a device that opens it asks for it itself.
     setFill({ after: next.id, old, done: old >= FILL_OLD_STOP ? now() : null });
-    box.setMeta(port, "fill_next_at", now() + Math.ceil(FILL_READ_UNITS * 1000 / (FILL_UNITS_PER_SECOND * fillFactor())));
+    box.setMeta(port, "fill_next_at", started + Math.ceil(FILL_READ_UNITS * 1000 / (FILL_UNITS_PER_SECOND * fillFactor())));
     if (answer?.fetched) box.setMeta(port, "filled", Number(box.getMeta(port, "filled") ?? 0) + 1);
     return now();
   }

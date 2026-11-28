@@ -765,6 +765,22 @@ test("in a quiet minute the fill reads at the ceiling less the reserve: 4,940 un
   assert.ok(inMinute * 60 <= 5000 - 60 + 60, "never above the ceiling");
 });
 
+test("a slow answer from Google doesn't slow the fill: its pace is counted from when each read starts", async () => {
+  const t = await mailbox({ count: 200, labels: () => ["Label_1"] });
+  assert.equal((await t.feed(t.phone)).status, 200);
+  await t.drain(t.settled);
+  const { reads } = recordReads(t);
+  // Each message read takes 400 ms, as Gmail's full reads did on Beta (27 Nov 2026).
+  t.answer = async (token, request, real) => {
+    if (request.resource === "message") t.s.advance(400);
+    return real(token, request);
+  };
+  const start = t.s.now();
+  await t.drain(async () => t.s.now() - start >= 60_000, 5000);
+  const inMinute = reads.filter((at) => at - start < 60_000).length;
+  assert.ok(inMinute >= 81 && inMinute <= 83, `${inMinute} full reads in a minute of 400 ms answers`);
+});
+
 test("a person's read arriving during a fill burst gets a slot within one slot interval", async () => {
   const t = await mailbox({ count: 120, labels: () => ["Label_1"] });
   assert.equal((await t.feed(t.phone)).status, 200);
