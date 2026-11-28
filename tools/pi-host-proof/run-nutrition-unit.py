@@ -8,10 +8,10 @@ build = repo / '.build/mac-check'
 build.mkdir(parents=True, exist_ok=True)
 try:
     main = build / 'main.swift'
-    main.write_text('import XCTest\nimport Foundation\nlet suite = XCTestSuite(name: "Pi native queries, sample meals and inference transport")\nsuite.addTest(XCTestSuite(forTestCaseClass: AssistantNutritionTests.self))\nsuite.addTest(XCTestSuite(forTestCaseClass: PiSampleMealsTests.self))\nsuite.addTest(XCTestSuite(forTestCaseClass: LocalInferenceTransportTests.self))\nsuite.addTest(XCTestSuite(forTestCaseClass: AssistantCalendarIdentityTests.self))\nsuite.run()\nguard let result = suite.testRun, result.executionCount == 24, result.failureCount == 0 else { exit(1) }\n')
+    main.write_text('import XCTest\nimport Foundation\nlet suite = XCTestSuite(name: "Pi native queries, sample meals and inference transport")\nsuite.addTest(XCTestSuite(forTestCaseClass: AssistantNutritionTests.self))\nsuite.addTest(XCTestSuite(forTestCaseClass: PiSampleMealsTests.self))\nsuite.addTest(XCTestSuite(forTestCaseClass: LocalInferenceTransportTests.self))\nsuite.addTest(XCTestSuite(forTestCaseClass: AssistantCalendarIdentityTests.self))\nsuite.run()\nguard let result = suite.testRun, result.executionCount == 31, result.failureCount == 0 else { exit(1) }\n')
     sources = ['Shared/SnapshotPersistence.swift', 'Shared/WellnessModels.swift', 'Shared/TimingAnchor.swift',
                'Banana/Pi/AssistantFailure.swift', 'Banana/Pi/AssistantNutrition.swift',
-               'Banana/Pi/PiSampleMeals.swift', 'Banana/Pi/AssistantCalendarIdentity.swift', 'BananaTests/AssistantCalendarIdentityTests.swift', 'Banana/Pi/LocalInferenceTransport.swift', 'BananaTests/LocalInferenceTransportTests.swift', 'BananaTests/AssistantNutritionTests.swift', 'BananaTests/PiSampleMealsTests.swift', str(main)]
+               'Banana/Pi/PiSampleMeals.swift', 'Banana/Pi/AssistantCalendarIdentity.swift', 'BananaTests/AssistantCalendarIdentityTests.swift', 'Banana/Pi/LocalInferenceTransport.swift', 'Banana/Pi/PinnedModelFiles.swift', 'BananaTests/SourceTree.swift', 'BananaTests/LocalInferenceTransportTests.swift', 'BananaTests/AssistantNutritionTests.swift', 'BananaTests/PiSampleMealsTests.swift', str(main)]
     executable = build / 'nutrition-tests'
     platform = pathlib.Path(subprocess.check_output(['xcrun', '--sdk', 'macosx', '--show-sdk-platform-path'], text=True).strip())
     frameworks = platform / 'Developer/Library/Frameworks'
