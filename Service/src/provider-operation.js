@@ -1,7 +1,13 @@
 import {sha256Hex} from './crypto.js';
 export const operationFailure=(status,message)=>({status,body:{error:{code:status,message}}});
-/** Operations an account may hold that never reached their provider (each up to ~700 KiB sealed). */
-export const MOST_UNSENT=100;
+/**
+ * Operations an account may START within RECENT_UNSENT that then never reached their provider: a burst limit.
+ * An older unsent intent changed nothing at the provider and waits for its device to retry it, so it never
+ * blocks new work (it once held an account at the old flat cap of 100 for a week, refusing every new change).
+ */
+export const MOST_UNSENT=100, RECENT_UNSENT=10*60*1000;
+/** The most unsent operations an account may hold in all (each up to ~700 KiB sealed): the storage bound. */
+export const MOST_HELD=1000;
 /** How long an operation that never reached its provider is kept, and a finished one's receipt. */
 export const KEEP_UNSENT=7*24*60*60*1000, KEEP_DONE=30*24*60*60*1000;
 
@@ -21,10 +27,10 @@ export async function providerOperation(deps,vault,options) {
  const key=[account,operationID],aad='provider-operation:'+account;
  const hash=await sha256Hex(canonical({provider,request})),resourceKey=await sha256Hex(canonical({provider,resource}));
  const t=deps.now();
- // A new operation only while the account holds fewer than MOST_UNSENT that never went out.
+ // A new operation only while the account has started fewer than MOST_UNSENT recently, and holds fewer than MOST_HELD, that never went out.
  if(!await deps.db.first('SELECT 1 AS x FROM provider_operations WHERE account_id=? AND operation_id=?',...key)) {
-  const unsent=await deps.db.first("SELECT COUNT(*) AS n FROM provider_operations WHERE account_id=? AND state='pending' AND dispatch_cipher IS NULL",account);
-  if(Number(unsent?.n)>=MOST_UNSENT)return operationFailure(429,'Too many operations are waiting. Try again later.');
+  const unsent=await deps.db.first("SELECT COUNT(*) AS held, COALESCE(SUM(created_at>?),0) AS recent FROM provider_operations WHERE account_id=? AND state='pending' AND dispatch_cipher IS NULL",t-RECENT_UNSENT,account);
+  if(Number(unsent?.recent)>=MOST_UNSENT||Number(unsent?.held)>=MOST_HELD)return operationFailure(429,'Too many operations are waiting. Try again later.');
  }
  await deps.db.run("INSERT OR IGNORE INTO provider_operations(account_id,operation_id,google_sub,resource_key,request_hash,request_cipher,state,created_at,updated_at) VALUES (?,?,?,?,?,?,'pending',?,?)",
   ...key,googleSub,resourceKey,hash,await vault.seal(aad,JSON.stringify(request)),t,t);
