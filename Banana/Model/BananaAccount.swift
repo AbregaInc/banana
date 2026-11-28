@@ -558,6 +558,27 @@ final class BananaAccount: ObservableObject {
         return CloudProviderOperationJournal.context(account: account.id, host: host)
     }
 
+    /// The pause provider changes keep after the service says it is full. Mail, Calendar and drafts share
+    /// the service's limit, so one 429 pauses them all: the change stays in its journal and goes when the
+    /// pause ends, instead of every queued change asking in turn and being refused.
+    private var operationBackoff = OperationBackoff()
+
+    /// Seconds left of the pause, nil when none.
+    private func operationPause() -> TimeInterval? { operationBackoff.remaining(at: Date()) }
+
+    private func noteOperationAnswer(_ status: Int) {
+        if status == 429 {
+            let before = operationBackoff.streak
+            operationBackoff.refused(at: Date(), jitter: RetryPause.jitter())
+            if before == 0 {
+                PlaybackDiagnostics.shared.log("☁️ account", "service is full: provider changes wait \(Int(operationBackoff.remaining(at: Date()) ?? 0)) s, then go again")
+            }
+        } else if (200..<300).contains(status), operationBackoff.streak > 0 {
+            operationBackoff.accepted()
+            PlaybackDiagnostics.shared.log("☁️ account", "service accepts provider changes again")
+        }
+    }
+
     #if !BANANA_PUBLIC
     private static let mailJournal = CloudProviderOperationJournal(
         directory: AppSupport.directory.appendingPathComponent("mail-cloud-operations", isDirectory: true))
@@ -629,8 +650,11 @@ final class BananaAccount: ObservableObject {
         try Task.checkCancellation()
         guard session == requestSession, FeatureAccessStore.shared.mailContext == route.context else { throw GmailError.networkDisabled }
         let call: BananaService.Call = ticket.map { .mailOperation($0.body) } ?? .mailRead(envelope)
+        // A change is only sent outside a pause; its journal entry is already saved, so it is not lost.
+        if ticket != nil, let wait = operationPause() { throw GmailError.limited(.user, retryAfter: wait) }
         guard let answer = await send(call) else { throw GmailError.unknownOutcome }
         guard session == requestSession, FeatureAccessStore.shared.mailContext == route.context else { throw GmailError.networkDisabled }
+        if ticket != nil { noteOperationAnswer(answer.1) }
         if (200..<300).contains(answer.1) {
             if let ticket { try? await Self.mailJournal.acknowledged(ticket) }
             return answer.0
@@ -665,12 +689,15 @@ final class BananaAccount: ObservableObject {
         guard session == requestSession, FeatureAccessStore.shared.calendarReadContext == context else {
             throw CloudCalendarSnapshot.Failure.contextChanged
         }
+        // The change is in its journal; it goes when the pause ends. Same as the service being unreachable.
+        if operationPause() != nil { throw CloudCalendarSnapshot.Failure.unavailable }
         guard let answer = await send(.calendarOperation(ticket.body)) else {
             throw CloudCalendarSnapshot.Failure.unavailable
         }
         guard session == requestSession, FeatureAccessStore.shared.calendarReadContext == context else {
             throw CloudCalendarSnapshot.Failure.contextChanged
         }
+        noteOperationAnswer(answer.1)
         if CloudProviderOperationJournal.isTerminal(status: answer.1, response: answer.0, ticket: ticket) {
             try? await Self.calendarJournal.acknowledged(ticket)
         }

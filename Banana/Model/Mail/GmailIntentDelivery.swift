@@ -15,6 +15,12 @@ actor GmailIntentDelivery {
     /// A named label now has Gmail's id (account, name, id, the messages whose intent was rewritten).
     let relabeled: @Sendable (String, String, String, [String]) async -> Void
     private var running = false
+    /// After the provider or service says it is full the whole account waits, not only the message that was
+    /// refused: the next one would be refused the same way. `streak` counts refusals in a row.
+    private var pauses: [String: (until: Int64, streak: Int)] = [:]
+    func pausedUntil(account: String) -> Int64? { pauses[account]?.until }
+    /// Replaced in tests, so the pause is exact.
+    nonisolated(unsafe) static var jitter: @Sendable () -> Double = { RetryPause.jitter() }
 
     init(store: MailIntentStore, api: any GmailAPI,
          token: @escaping @Sendable (String) async throws -> String,
@@ -79,6 +85,7 @@ actor GmailIntentDelivery {
         guard !running else { throw Failure.alreadyRunning }
         running = true; defer { running = false }
         guard await allowed(account) else { throw Failure.disabled }
+        if let pause = pauses[account], at < pause.until { return .idle }
         guard try await store.hasPending(account: account, at: at) else { return .idle }
         let credential = try await token(account)
         let profile = try await api.profile(token: credential)
@@ -125,6 +132,7 @@ actor GmailIntentDelivery {
                 try await accept(account, value)
                 if claimed.allSatisfy({ present.contains($0.assertion.labelRef) == $0.assertion.want }) {
                     try await store.confirmed(keys)
+                    pauses[account] = nil
                     await settled(account, message, keys, .confirmed)
                     return .confirmed
                 }
@@ -146,7 +154,13 @@ actor GmailIntentDelivery {
         }
         let attempts = claimed.map(\.attempts).max() ?? 1
         var seconds = min(300.0, pow(2, Double(min(attempts, 8))))
-        if let error = mutationError as? GmailError, case .limited(_, let hint) = error, let hint, hint.isFinite { seconds = max(seconds, hint) }
+        if let error = mutationError as? GmailError, case .limited(_, let hint) = error {
+            if let hint, hint.isFinite { seconds = max(seconds, hint) }
+            let streak = (pauses[account]?.streak ?? 0) + 1
+            let wait = RetryPause.delay(streak: streak, hint: hint, jitter: Self.jitter())
+            let until = at.addingReportingOverflow(Int64(min(wait * 1000, Double(Int64.max / 2))))
+            pauses[account] = (until.overflow ? Int64.max : until.partialValue, streak)
+        }
         let delay = Int64(min(seconds * 1000, Double(Int64.max / 2)))
         let next = at.addingReportingOverflow(delay)
         try await store.reschedule(keys, at: next.overflow ? Int64.max : next.partialValue)
