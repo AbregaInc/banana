@@ -34,8 +34,10 @@ Still to do by hand:
    | `.../auth/contacts.readonly` | `MailScopes.senderPhotos` |
    | `.../auth/contacts.other.readonly` | `MailScopes.senderPhotos` |
 
-2. **Reviewers need a way in.** The Beta app is installed by hand. Give them a notarized Mac Beta
-   download and a test Google account that the service already marks as a Mail test account.
+2. **The project under review is production.** Only the review build (section 2) signs in with the
+   production project and has Mail; it talks to the production service, which already runs the
+   cloud mailbox. The App Store app stays calendar-only. Reviewers get the video, a test Google
+   account with Email enabled on the production server, and optionally the review build notarized.
 
 ## 1. The reply
 
@@ -59,17 +61,19 @@ Banana requests exactly these scopes, and the Data Access page lists exactly the
 We removed `<removed scopes>` from the Console, and the app no longer requests any Gmail scope other
 than `gmail.modify`.
 
-Gmail and Contacts are requested only by the Banana Beta app, which asks for Calendar, Gmail and
-Contacts together on one consent screen whenever the user connects Google, so one grant serves
-every part of the app. If the user leaves a box unticked, Banana says which feature needs it and
-offers to show Google's screen again; "Not now" carries on with what was granted. The App Store and TestFlight builds of Banana are calendar-only and never request these
-scopes (our release check rejects any build that contains them). The Beta app is not publicly
-distributed, and Email is enabled on the server only for accounts marked as test accounts, so no
-production traffic requests unverified scopes.
+The released Banana app (App Store and TestFlight) requests only the sign-in and calendar scopes
+today; our release check rejects any build that contains a Gmail or Contacts scope. Gmail and
+Contacts are requested only by Banana's Mail, which ships to the released app once these scopes
+are approved. Until then it runs in a review build that uses this project's OAuth client, is not
+publicly distributed, and is enabled on our server only for accounts marked as test accounts, so
+no production traffic requests unverified scopes. That build asks for Calendar, Gmail and Contacts
+together on one consent screen, so one grant serves every part of the app. If the user leaves a
+box unticked, Banana says which feature needs it and offers to show Google's screen again; "Not
+now" carries on with what was granted.
 
 **2. `https://www.googleapis.com/auth/gmail.modify`**
 
-Banana Beta is a Gmail client for iPhone, iPad and Mac built for fast inbox triage. Every write
+Banana's Mail is a Gmail client for iPhone, iPad and Mac built for fast inbox triage. Every write
 below happens only when the user takes the action.
 
 Reading:
@@ -151,7 +155,9 @@ https://bananatheapp.com/privacy
 
 **6. Test access**
 
-Banana Beta for Mac (Apple silicon, macOS 26 or later), notarized: https://bananatheapp.com/download/mac-beta
+The video shows the whole flow end to end, from the consent screen to each change in Gmail. To try
+it yourselves, use the review build for Mac (Apple silicon, macOS 26 or later, notarized):
+`<review build link>`
 
 Test Google account (Email is already enabled for it on our server; no phone verification and no
 payment needed):
@@ -159,16 +165,18 @@ payment needed):
 - Password: `<password>`
 
 Steps:
-1. Open Banana Beta and click **Continue with Google**. Sign in with the test account.
+1. Open Banana and click **Continue with Google**. Sign in with the test account. Google shows
+   "Google hasn't verified this app" until this review completes: click **Advanced**, then
+   **Go to Banana**.
 2. On Google's screen, tick **Select all** and click **Continue**.
-3. Choose **Email** in the module list, or open the module switcher at the bottom left and choose
-   **Mail**.
+3. Open the module switcher at the bottom left and choose **Mail**.
 4. Open any conversation. Use the toolbar or keys: `E` Done, `U` read/unread, `S` star, `L` label,
    `V` move, `H` snooze, `!` spam, `#` trash, `⌘Z` undo. Check each change in Gmail on the web.
 5. Press `R` to reply. The draft appears in Gmail Drafts; **Send** sends it.
 6. Senders saved in the test account's Google Contacts show their contact photos in the list.
 
-If you'd rather use your own account, send us its address and we'll enable Email for it.
+If Google asks to verify a new sign-in to the test account, or you'd rather use your own account,
+send us its address and we'll enable Email for it.
 
 Kind regards,
 `<name>`, Abrega, Inc.
@@ -181,30 +189,42 @@ each section. Captions are enough, but a short voice-over helps.
 
 ### Prepare (before you hit record)
 
-- **Account.** A fresh Gmail test account, already marked as a Mail test account on the service. Use
-  the same account you give the reviewers.
+- **The review build.** `/Users/Shared/Banana Review/Banana Beta.app` (any macOS user on this Mac can
+  copy it; rebuild with the one-off script if it's gone). It is the Beta
+  app with Mail, signed in with the **production** Google project and talking to the production
+  service, so the consent screen is the project under review. It has no update feed.
+- **A separate macOS user.** Create a user just for this (System Settings › Users & Groups, e.g.
+  "Review"), copy the app into that user's Applications folder, and record there. The review build
+  shares the Banana Beta bundle ID, so in your own user it would mix with your real Beta data and
+  your real accounts would show in the video.
+- **The demo Google account.** Fresh Gmail, 2-step verification off, added under **Audience › Test
+  users** in the production project.
+- **Enable Email for it** (once, off camera): open the review build, sign in with the demo account,
+  then tell Claude the address; Email gets enabled for that account on the production server
+  (`Service/tools/feature-access.py`). Then remove the account from Banana and remove Banana at
+  myaccount.google.com › Security › Third-party connections, so the recording starts from a clean
+  consent screen.
 - **Seed mail** (send from a second account, so it arrives naturally):
-  - 2 from **Alex Rivera**: add Alex to the test account's Google Contacts with a loud, unmistakable
+  - 2 from **Alex Rivera**: add Alex to the demo account's Google Contacts with a loud, unmistakable
     photo (a solid orange square with "AR"). Use an address with no Gravatar or BIMI logo, so the
     picture can only have come from Contacts.
   - 1 from an address in **Other contacts** that has a Google profile photo (reply to it once from
-    the test account so Gmail saves it).
+    the demo account so Gmail saves it).
   - 1 from an address that is in neither, so it shows initials (the contrast).
   - 1 with a PDF attachment, 1 newsletter, 1 receipt, 1 spammy one, and a few fillers.
-- **Clean slate.** Remove Banana at myaccount.google.com › Security › Third-party connections, so the
-  full consent screen appears. Remove the account from Banana Beta.
-- **App.** Install Banana Beta 197 or later (it shows the "tick every box" sheet if a box is left unticked).
-- **Screen.** One Chrome profile with no bookmarks or extensions showing. Turn on Do Not Disturb.
-  Arrange Banana Beta on the left half and Chrome on the right. Open tabs: Cloud Console Data Access,
-  Gmail (test account), Google Contacts, Google Account › Third-party connections.
+  - A couple of events in the demo account's Google Calendar.
+- **Screen.** In the Review user: one Chrome profile signed in to the demo account, no bookmarks or
+  extensions showing. Do Not Disturb on. Banana on the left half, Chrome on the right. Tabs: Cloud
+  Console (production project) › Data Access, Gmail, Google Contacts, Google Calendar, Google
+  Account › Third-party connections. Record with macOS screen recording (⌘⇧5), 1080p or higher.
 - **Rehearse once** without recording; every action below takes one key or one click.
 
 ### Shots
 
 | # | Time | On screen | Do | Caption |
 |---|---|---|---|---|
-| 1 | 0:00 | Cloud Console | Show the project id, **Google Auth Platform › Data Access** with the full scope list (scroll slowly), then **Clients** with the iOS/macOS client id. | "Scopes configured for verification" |
-| 2 | 0:30 | Banana Beta | Click **Continue with Google**, choose Email. | — |
+| 1 | 0:00 | Cloud Console | Show the **production** project id (the one in Google's email), **Google Auth Platform › Data Access** with the full scope list (scroll slowly), then **Clients** with the iOS client the app signs in with. | "Scopes configured for verification" |
+| 2 | 0:30 | Banana | Open the review build. Click **Continue with Google** and sign in with the demo account. Google shows "Google hasn't verified this app": hold 2 s, click **Advanced** › **Go to Banana**. | "Unverified until this review completes" |
 | 3 | 0:45 | Google consent | Hold 3 s on the app name and the developer email. Click each scope line, or **Show all** / the expander, so every one is fully readable: Gmail "Read, compose, send…", "See and download contact info…", "See and download contact info automatically saved…". Hold 2 s on each. Tick **Select all**; **Continue**. | "Consent screen: all requested scopes" |
 | 4 | 1:30 | Banana Mail + Gmail | Inbox loads. Open a conversation, open the PDF, run a search. Send a new mail from the second account (phone) and let it appear in Banana without touching it. | "gmail.modify: read, search, live updates" |
 | 5 | 2:15 | both | For each, act in Banana, then refresh Gmail and show the result in Gmail: **U** unread → bold in Gmail · **S** star → starred in Gmail · **L** "Receipts" → label in Gmail · **E** Done → gone from Gmail Inbox, present in All Mail · **H** snooze → `Banana/Snoozed/…` label in Gmail, out of Inbox · **!** spam → in Gmail Spam, then Not spam → back · **#** trash → in Gmail Trash, then Restore → back in Inbox · one **⌘Z** undo. | "gmail.modify: changes reflected in the user's Gmail" |
