@@ -12,6 +12,14 @@ extension MailID {
     static let composerAssistant = "mail.composer.assistant"
     static let composerAssistantField = "mail.composer.assistant.field"
     static let composerAssistantUndo = "mail.composer.assistant.undo"
+    /// What the assistant gave back: the picker and its Write, a note or no-reply line, 👎's note.
+    static let composerAssistantPicker = "mail.composer.assistant.picker"
+    static let composerAssistantWrite = "mail.composer.assistant.write"
+    static let composerAssistantOther = "mail.composer.assistant.other"
+    static let composerAssistantLine = "mail.composer.assistant.line"
+    static let composerAssistantDismiss = "mail.composer.assistant.dismiss"
+    static let composerAssistantFeedbackNote = "mail.composer.assistant.feedback.note"
+    static let composerAssistantFeedbackSend = "mail.composer.assistant.feedback.send"
     /// The draft folded into the bottom field: tapping it resumes.
     static let composerFolded = "mail.composer.folded"
     static let composerFoldedSend = "mail.composer.folded.send"

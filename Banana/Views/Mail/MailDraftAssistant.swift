@@ -31,6 +31,16 @@ enum MailDraftAssistant {
                       body: String, source: MailLiveSource? = nil, thinking: MailAIThinking = .off,
                       model: MailAIModel? = nil,
                       generate selectedProvider: (([String: Any]) async throws -> String)? = nil) async throws -> MailAIOutcome {
+        try await replyRun(instruction: instruction, context: context, body: body, source: source,
+                           thinking: thinking, model: model, generate: selectedProvider).outcome
+    }
+
+    /// `reply` with how the outcome was made: the model, the thinking level and the tools that ran.
+    @MainActor
+    static func replyRun(instruction: String, context: MailComposerModel.AssistantDraftContext,
+                         body: String, source: MailLiveSource? = nil, thinking: MailAIThinking = .off,
+                         model: MailAIModel? = nil,
+                         generate selectedProvider: (([String: Any]) async throws -> String)? = nil) async throws -> MailAIRun {
         #if BANANA_AI
         if #available(iOS 26.0, macOS 26.0, *) {
             guard !instruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -51,8 +61,8 @@ enum MailDraftAssistant {
                         try source.checkComposerEvidenceAccess(for: conversation)
                         let available = try await AssistantCapabilities.composerIntervalAvailable(from: slot.start, to: slot.end, account: conversation.account)
                         try source.checkComposerEvidenceAccess(for: conversation)
-                        return .draft(available ? "My calendar for this account is clear for \(slot.label)." :
-                            "I have a calendar conflict during \(slot.label).")
+                        return MailAIRun(outcome: .draft(available ? "My calendar for this account is clear for \(slot.label)." :
+                            "I have a calendar conflict during \(slot.label)."), model: nil, thinking: thinking, tools: ["calendar": 1])
                     } catch is CancellationError { throw CancellationError() }
                     catch let failure as AssistantFailure { throw NeedsInput(message: failure.message) }
                     catch is MailAccessError { throw NeedsInput(message: "Reconnect the email account before writing this reply.") }
@@ -150,11 +160,14 @@ enum MailDraftAssistant {
             }
             let suppliedText = [instruction, String(context.subject.prefix(300)), String(quoted.prefix(2400)), body].joined(separator: "\n")
             let empty: () async throws -> [MailDraftWorkflow.Evidence] = { [] }
+            let tally = MailAIToolTally()
+            let history = recentHistory ?? empty
             let tools = MailPiReply.Tools(
-                readThread: recentHistory ?? empty,
-                search: { topic in try await read?(.related(topic)) ?? [] },
-                attachments: { try await read?(.attachments) ?? [] },
+                readThread: { tally.add("read_thread"); return try await history() },
+                search: { topic in tally.add("search_mail"); return try await read?(.related(topic)) ?? [] },
+                attachments: { tally.add("read_attachments"); return try await read?(.attachments) ?? [] },
                 checkReply: { draft, passages in
+                    tally.add("check_reply")
                     try MailDraftPrompt.checkGrounding(in: draft, suppliedText: suppliedText, authorInstruction: instruction,
                                                        optionalThreadPassages: passages)
                     if MailOutgoingFileClaim.contradicts(body: draft, outgoingCount: context.outgoingAttachmentCount) {
@@ -184,7 +197,7 @@ enum MailDraftAssistant {
             if case .draft(let text) = outcome, MailOutgoingFileClaim.contradicts(body: text, outgoingCount: context.outgoingAttachmentCount) {
                 throw NeedsInput(message: "The generated reply refers to a file on this email. Attach it or ask for a reply without it.")
             }
-            return outcome
+            return MailAIRun(outcome: outcome, model: chosen.modelId ?? chosen.provider, thinking: thinking, tools: tally.snapshot)
         }
         #endif
         throw Unavailable()

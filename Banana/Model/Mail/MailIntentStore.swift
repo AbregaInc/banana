@@ -95,6 +95,14 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
                                arguments: [MailMessageImporter.tie(account: account, thread: id), scope, id])
             }
         }
+        migrations.registerMigration("v11-overnight-outcomes") { db in
+            // What the overnight pass left for the morning besides a draft: the owner's questions,
+            // a note or a no-reply reason (and a draft's facts). One per conversation, for one anchor.
+            try db.execute(sql: """
+                CREATE TABLE overnight_outcome(scope TEXT NOT NULL,account TEXT NOT NULL,conversation TEXT NOT NULL,
+                    anchor TEXT NOT NULL,payload BLOB NOT NULL,PRIMARY KEY(scope,account,conversation)) WITHOUT ROWID
+                """)
+        }
         guard try queue.read({ try !migrations.hasBeenSuperseded($0) }) else { throw Failure.newerSchema }
         try migrations.migrate(queue)
     }
@@ -373,6 +381,48 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
                 try Self.insertDraft(value, in: db)
                 return db.changesCount == 1
             }
+        }
+    }
+
+    /// The same gates as an overnight draft: the anchor is still the latest inbound message under
+    /// the index writer, and no draft of the owner's is open on the conversation.
+    func insertOvernightOutcome(_ payload: Data, scope: String, conversation: MailConversationID, anchor: MailMessageID,
+                                rfcID: String, stores: MailStores, isEnabled: @escaping @Sendable () -> Bool) async throws -> Bool {
+        guard anchor.account == conversation.account, !payload.isEmpty else { return false }
+        return try await stores.index.write { index in
+            guard try MailOvernightDrafts.latestInbound(conversation, rfcID: rfcID, in: index) == anchor.message else { return false }
+            return try self.queue.write { db in
+                try Task.checkCancellation()
+                guard isEnabled(), try Self.permitsOvernightDraft(scope: scope, conversation: conversation, anchor: anchor.message, in: db),
+                      isEnabled() else { return false }
+                try Self.putOvernightOutcome(payload, scope: scope, conversation: conversation, anchor: anchor.message, in: db)
+                return true
+            }
+        }
+    }
+
+    /// A saved overnight draft's facts, for its 👍 / 👎. The draft itself was gated on insertion.
+    func recordOvernightOutcome(_ payload: Data, scope: String, conversation: MailConversationID, anchor: String) async throws {
+        try await queue.write { try Self.putOvernightOutcome(payload, scope: scope, conversation: conversation, anchor: anchor, in: $0) }
+    }
+
+    private static func putOvernightOutcome(_ payload: Data, scope: String, conversation: MailConversationID, anchor: String, in db: Database) throws {
+        try db.execute(sql: """
+            INSERT OR REPLACE INTO overnight_outcome(scope,account,conversation,anchor,payload) VALUES (?,?,?,?,?)
+            """, arguments: [scope, conversation.account, conversation.thread, anchor, payload])
+    }
+
+    func overnightOutcome(scope: String, conversation: MailConversationID) async throws -> (anchor: String, payload: Data)? {
+        try await queue.read { db in
+            try Row.fetchOne(db, sql: "SELECT anchor,payload FROM overnight_outcome WHERE scope=? AND account=? AND conversation=?",
+                             arguments: [scope, conversation.account, conversation.thread]).map { ($0["anchor"], $0["payload"]) }
+        }
+    }
+
+    func clearOvernightOutcome(scope: String, conversation: MailConversationID) async throws {
+        try await queue.write { db in
+            try db.execute(sql: "DELETE FROM overnight_outcome WHERE scope=? AND account=? AND conversation=?",
+                           arguments: [scope, conversation.account, conversation.thread])
         }
     }
 

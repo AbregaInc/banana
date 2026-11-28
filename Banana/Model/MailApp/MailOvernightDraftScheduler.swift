@@ -125,14 +125,13 @@ final class MailOvernightDraftScheduler: ObservableObject {
                     let recipients = MailReplyRules.recipients(for: .reply(to: anchor), original: latest, myAddresses: addresses)
                     guard !recipients.to.isEmpty else { reviewed(); continue }
                     let context = Self.context(conversation, latest: latest, identity: identity, recipients: recipients, body: body)
-                    // Overnight drafts think briefly. Questions for the owner cannot be stored on a
-                    // draft record yet, so a picker, note or no-reply outcome is reviewed and skipped.
-                    let text: String
+                    // Overnight drafts think briefly. Questions, a note or a no-reply reason are kept
+                    // for the morning, under the same checks as a draft.
+                    let run: MailAIRun
                     do {
                         let writer = makeWriter?() ?? MailAIModel.current()
-                        guard case .draft(let drafted) = try await MailDraftAssistant.reply(instruction: "Draft a reply to the selected message.",
-                            context: context, body: "", source: source, thinking: .low, model: writer) else { reviewed(); continue }
-                        text = drafted
+                        run = try await MailDraftAssistant.replyRun(instruction: "Draft a reply to the selected message.",
+                            context: context, body: "", source: source, thinking: .low, model: writer)
                     } catch is MailDraftAssistant.NeedsInput { reviewed(); continue }
                     catch is MailDraftPrompt.UnverifiedLink { reviewed(); continue }
                     guard enabled(), !isEditing(conversation.id) else { continue }
@@ -150,11 +149,19 @@ final class MailOvernightDraftScheduler: ObservableObject {
                     let permit = OSAllocatedUnfairLock(initialState: true)
                     let observation = invalidations.sink { permit.withLock { $0 = false } }
                     defer { observation.cancel() }
-                    let saved = try await source.saveOvernightDraft(body: text, for: conversation.id, anchor: anchor, isEnabled: {
+                    let isEnabled: @Sendable () -> Bool = {
                         let settings = suite.flatMap(UserDefaults.init(suiteName:)) ?? .standard
                         return permit.withLock { $0 } && !Task.isCancelled && clock() < night.end &&
                             (settings.stringArray(forKey: Self.enabledKey) ?? []).contains(account)
-                    })
+                    }
+                    let stored = MailAIStoredOutcome(run, anchor: anchor.message).data
+                    let saved: Bool
+                    if case .draft(let text) = run.outcome {
+                        saved = try await source.saveOvernightDraft(body: text, for: conversation.id, anchor: anchor, isEnabled: isEnabled)
+                        if saved, let stored { try? await source.recordOvernightOutcome(stored, for: conversation.id, anchor: anchor) }
+                    } else if let stored {
+                        saved = try await source.saveOvernightOutcome(stored, for: conversation.id, anchor: anchor, isEnabled: isEnabled)
+                    } else { saved = false }
                     if saved { reviewed() }
                 }
                 if enabled() {

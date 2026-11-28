@@ -44,6 +44,13 @@ struct MailComposerBox: View {
     @State private var assistantTask: Task<Void, Never>?
     @State private var suggestion: String?
     @State private var suggestionContext: MailComposerModel.AssistantDraftContext?
+    /// What the assistant last gave back for this reply, with its 👍 / 👎 and, for questions, the answers.
+    @State private var aiDisplay: MailAIDisplay?
+    @State private var aiFeedback: MailAIFeedback?
+    @State private var aiForm: MailPickerForm?
+    @State private var aiKey: AIKey?
+    /// The conversation whose overnight outcome is shown, cleared from the store once dealt with.
+    @State private var aiOvernight: MailConversationID?
     private var thinking: Bool { assistantTask != nil }
     @FocusState private var instructing: Bool
 
@@ -89,12 +96,22 @@ struct MailComposerBox: View {
                     .buttonStyle(.borderless)
                 }
             }
-            if model.canUndoAssistantDraft {
-                Button("Undo") { model.undoAssistantDraft() }
-                    .buttonStyle(.plain)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                    .accessibilityIdentifier(MailID.composerAssistantUndo)
+            if model.canUndoAssistantDraft || draftFeedback != nil {
+                HStack(spacing: DS.Space.s) {
+                    if model.canUndoAssistantDraft {
+                        Button("Undo") { model.undoAssistantDraft() }
+                            .buttonStyle(.plain)
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                            .accessibilityIdentifier(MailID.composerAssistantUndo)
+                    }
+                    Spacer(minLength: 0)
+                    if let draftFeedback { MailAIFeedbackRow(feedback: draftFeedback) }
+                }
+            }
+            if let aiDisplay, let aiFeedback, aiKey == currentAIKey, !aiDisplay.isDraft {
+                MailAIOutcomePanel(display: aiDisplay, feedback: aiFeedback, form: $aiForm, writing: thinking,
+                                   write: writeFromPicker, dismiss: dismissAIResult)
             }
             if model.allowsScheduling { MailSendLaterPanel(model: model) }
             MailDivider(axis: .horizontal)
@@ -105,7 +122,9 @@ struct MailComposerBox: View {
             assistantTask?.cancel()
             assistantTask = nil
             clearAssistantSuggestion()
+            clearAIResult()
         }
+        .task(id: currentAIKey) { await showOvernightOutcome() }
         .padding(.horizontal, DS.Space.l)
         .padding(.bottom, DS.Space.s)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -290,6 +309,19 @@ struct MailComposerBox: View {
     private func runAssistant() {
         let words = instruction.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !words.isEmpty || canDraftReplyWithoutInstructions, !thinking, model.isReady, !model.isForeign else { return }
+        clearAIResult()
+        startAssistant(task: words.isEmpty ? "Draft a reply to the selected message." : words,
+                       instruction: words.isEmpty ? nil : words, answers: nil, fieldWords: words)
+    }
+
+    /// The picker's Write: the answers go back to the assistant as the next instruction.
+    private func writeFromPicker() {
+        guard let form = aiForm, form.canWrite, !thinking, model.isReady, !model.isForeign else { return }
+        startAssistant(task: form.instruction(), instruction: aiFeedback?.instruction, answers: form.summary(), fieldWords: nil)
+    }
+
+    /// `fieldWords` is what the assistant's line said when asked; nil when the picker asked.
+    private func startAssistant(task: String, instruction shown: String?, answers: String?, fieldWords: String?) {
         let context = model.assistantDraftContext
         let original = model.rich
         let body = model.body
@@ -297,27 +329,30 @@ struct MailComposerBox: View {
         assistantTask = Task { @MainActor in
             defer { if !Task.isCancelled { assistantTask = nil } }
             do {
-                let task = words.isEmpty ? "Draft a reply to the selected message." : words
-                let text = try await MailDraftAssistant.write(instruction: task, context: context, body: body,
-                                                              source: session.source as? MailLiveSource)
+                let run = try await MailDraftAssistant.replyRun(instruction: task, context: context, body: body,
+                                                                source: session.source as? MailLiveSource)
                 guard !Task.isCancelled, session.composer === model else { return }
                 guard model.assistantDraftContext == context, !model.isForeign, !model.isResolving else {
                     session.showToast(MailToast(text: "Draft changed. Try again.", action: nil, lasts: nil))
                     return
                 }
-                guard instruction.trimmingCharacters(in: .whitespacesAndNewlines) == words else { return }
-                if model.rich == original {
-                    model.writeAssistantDraft(text)
-                } else {
-                    suggestionContext = context
-                    suggestion = text
+                if let fieldWords, instruction.trimmingCharacters(in: .whitespacesAndNewlines) != fieldWords { return }
+                if let done = aiOvernight { clearStoredOvernight(done) }
+                show(run, instruction: shown, answers: answers, overnight: false)
+                if case .draft(let text) = run.outcome {
+                    if model.rich == original {
+                        model.writeAssistantDraft(text)
+                    } else {
+                        suggestionContext = context
+                        suggestion = text
+                    }
                 }
                 asking = false
                 instruction = ""
             } catch {
                 guard !Task.isCancelled, session.composer === model else { return }
-                guard model.assistantDraftContext == context,
-                      instruction.trimmingCharacters(in: .whitespacesAndNewlines) == words else { return }
+                guard model.assistantDraftContext == context else { return }
+                if let fieldWords, instruction.trimmingCharacters(in: .whitespacesAndNewlines) != fieldWords { return }
                 let message: String
                 if let issue = error as? MailDraftAssistant.NeedsInput {
                     message = issue.message
@@ -329,6 +364,70 @@ struct MailComposerBox: View {
                 session.showToast(MailToast(text: message, action: nil, lasts: nil))
             }
         }
+    }
+
+    // MARK: The assistant's outcome
+
+    /// The reply an outcome belongs to: the conversation and the message answered.
+    struct AIKey: Equatable {
+        var conversation: MailConversationID?
+        var selected: MailMessageID?
+    }
+
+    private var currentAIKey: AIKey {
+        let context = model.assistantDraftContext
+        return AIKey(conversation: context.conversation, selected: context.selectedMessageID)
+    }
+
+    private var draftFeedback: MailAIFeedback? {
+        guard let aiDisplay, aiDisplay.isDraft, aiKey == currentAIKey else { return nil }
+        return aiFeedback
+    }
+
+    private func show(_ run: MailAIRun, instruction: String?, answers: String?, overnight: Bool) {
+        let display = MailAIDisplay(run.outcome)
+        aiDisplay = display
+        aiFeedback = MailAIFeedback(run: run, instruction: instruction, answers: answers, overnight: overnight)
+        if case .picker(let picker) = display { aiForm = MailPickerForm(picker) } else { aiForm = nil }
+        aiKey = currentAIKey
+    }
+
+    private func clearAIResult() {
+        aiDisplay = nil
+        aiFeedback = nil
+        aiForm = nil
+        aiKey = nil
+        aiOvernight = nil
+    }
+
+    private func dismissAIResult() {
+        if let done = aiOvernight { clearStoredOvernight(done) }
+        clearAIResult()
+    }
+
+    private func clearStoredOvernight(_ conversation: MailConversationID) {
+        aiOvernight = nil
+        guard let source = session.source as? MailLiveSource else { return }
+        Task { await source.clearOvernightOutcome(for: conversation) }
+    }
+
+    /// What the overnight pass left for this reply: questions, a note or a no-reply line for the
+    /// message being answered, or the facts of the overnight draft open here.
+    private func showOvernightOutcome() async {
+        let context = model.assistantDraftContext
+        guard aiDisplay == nil, !thinking, let source = session.source as? MailLiveSource,
+              let conversation = context.conversation,
+              let found = await source.overnightOutcome(for: conversation),
+              let stored = MailAIStoredOutcome.decode(found.payload), let run = stored.run,
+              found.anchor.message == stored.anchor, !Task.isCancelled,
+              model.assistantDraftContext == context, aiDisplay == nil else { return }
+        if stored.kind == .draft {
+            guard context.draftID == MailOvernightDrafts.draftID(for: conversation, anchor: found.anchor) else { return }
+        } else {
+            guard context.selectedMessageID == found.anchor else { return }
+        }
+        show(run, instruction: nil, answers: nil, overnight: true)
+        aiOvernight = conversation
     }
 
     private func clearAssistantSuggestion() {

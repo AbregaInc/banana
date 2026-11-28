@@ -94,8 +94,12 @@ final class ProblemReporter {
 
     /// 👍 or 👎 on an answer, as a count: nothing of the conversation goes with it.
     func rate(_ rating: ProblemReport.Rating) {
-        guard automatic else { return }
-        let report = ProblemReport(kind: .rating, rating: rating, page: AppSection.assistant.rawValue)
+        rate(ProblemReport(kind: .rating, rating: rating, page: AppSection.assistant.rawValue))
+    }
+
+    /// A rating made elsewhere (a mail draft's 👍): its page and facts, never text.
+    func rate(_ report: ProblemReport) {
+        guard automatic, report.kind == .rating, report.note == nil, report.attachments.isEmpty else { return }
         let device = Self.device
         let outbox = outbox
         Task.detached(priority: .utility) {

@@ -2149,6 +2149,47 @@ extension MailLiveSource {
         return true
     }
 
+    /// Questions, a note or a no-reply reason from the overnight pass, kept for the morning under
+    /// the same checks as an overnight draft. No send, delivery or network operations.
+    func saveOvernightOutcome(_ payload: Data, for id: MailConversationID, anchor: MailMessageID,
+                              isEnabled: @escaping @Sendable () -> Bool) async throws -> Bool {
+        guard anchor.account == id.account, payload.count <= 64_000, isEnabled(), let driver = draftDriver,
+              let conversation = try await overnightConversation(id), conversation.messages.last?.id == anchor,
+              accounts.contains(where: { $0.id == id.account && $0.state == .connected }) else { return false }
+        let rfc = try await stores.index.read { db in
+            try String.fetchOne(db, sql: """
+                SELECT m.rfc_message_id FROM message m JOIN account a USING(account_pk)
+                WHERE a.email=? AND m.gmail_id=?
+                """, arguments: [id.account,anchor.message])
+        }
+        guard let rfc, !rfc.isEmpty else { return false }
+        try checkComposerEvidenceAccess(for: id)
+        let permit = MailOvernightSavePermit(), token = UUID()
+        overnightSaves[token] = (id.account, permit)
+        defer { overnightSaves[token] = nil }
+        return try await withTaskCancellationHandler {
+            try await driver.insertOvernightOutcome(payload, conversation: id, anchor: anchor, rfcID: rfc, stores: stores,
+                                                    isEnabled: { permit.valid && isEnabled() })
+        } onCancel: { permit.invalidate() }
+    }
+
+    /// A saved overnight draft's facts, for 👍 / 👎 when the owner opens it.
+    func recordOvernightOutcome(_ payload: Data, for id: MailConversationID, anchor: MailMessageID) async throws {
+        guard anchor.account == id.account, let driver = draftDriver else { return }
+        try await driver.recordOvernightOutcome(payload, conversation: id, anchor: anchor.message)
+    }
+
+    /// What the overnight pass left on a conversation, and the message it answers.
+    func overnightOutcome(for id: MailConversationID) async -> (anchor: MailMessageID, payload: Data)? {
+        guard let driver = draftDriver, accounts.contains(where: { $0.id == id.account && $0.state == .connected }),
+              let found = try? await driver.overnightOutcome(conversation: id) else { return nil }
+        return (MailMessageID(account: id.account, message: found.anchor), found.payload)
+    }
+
+    func clearOvernightOutcome(for id: MailConversationID) async {
+        try? await draftDriver?.clearOvernightOutcome(conversation: id)
+    }
+
     func newDraft(_ kind: MailDraftKind) async -> MailDraft {
         let account: String
         switch kind {

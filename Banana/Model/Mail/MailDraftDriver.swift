@@ -40,6 +40,20 @@ actor MailDraftDriver {
         guard record.scope == scope else { return false }
         return try await store.insertOvernightDraft(record, anchor: anchor, stores: stores, isEnabled: isEnabled)
     }
+    func insertOvernightOutcome(_ payload: Data, conversation: MailConversationID, anchor: MailMessageID, rfcID: String,
+                                stores: MailStores, isEnabled: @escaping @Sendable () -> Bool) async throws -> Bool {
+        try await store.insertOvernightOutcome(payload, scope: scope, conversation: conversation, anchor: anchor,
+                                               rfcID: rfcID, stores: stores, isEnabled: isEnabled)
+    }
+    func recordOvernightOutcome(_ payload: Data, conversation: MailConversationID, anchor: String) async throws {
+        try await store.recordOvernightOutcome(payload, scope: scope, conversation: conversation, anchor: anchor)
+    }
+    func overnightOutcome(conversation: MailConversationID) async throws -> (anchor: String, payload: Data)? {
+        try await store.overnightOutcome(scope: scope, conversation: conversation)
+    }
+    func clearOvernightOutcome(conversation: MailConversationID) async throws {
+        try await store.clearOvernightOutcome(scope: scope, conversation: conversation)
+    }
     @discardableResult private func mutate(_ id: MailDraftID, _ update: (inout MailDraftRecord) throws -> Void) async throws -> MailDraftRecord {
         for _ in 0..<20 {
             guard var value = try await record(id) else { throw Failure.notFound }
