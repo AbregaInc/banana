@@ -17,6 +17,9 @@ struct MailPlaceTitleMenu: View {
 
     var body: some View {
         PageTitleMenu(title: MailPlacesModel.title(of: navigation.scope), identifier: MailID.placeMenu) {
+            if case .search(let expression) = navigation.scope.place {
+                MailEditSearchButton(expression: expression)
+            }
             ForEach(MailPlacesModel.all) { place in
                 Button { session.show(place.mailbox) } label: {
                     Label(place.title, systemImage: place.mailbox == navigation.scope.mailbox ? "checkmark" : place.symbol)

@@ -46,11 +46,24 @@ final class MailPlacesModel: ObservableObject {
     ]
 
     static func title(of scope: MailScope) -> String {
-        if case .search = scope.place { return "Search results" }
+        if case .search(let expression) = scope.place { return searchTitle(expression) }
         if case .mailbox(let mailbox) = scope.place, let place = all.first(where: { $0.mailbox == mailbox }) {
             return place.title
         }
         return "Mail"
+    }
+
+    /// A search names what it looks for: the words in quotes, then what the sentence turned into
+    /// ("“lease” · From: mei"). "Search results" only when it holds nothing to show.
+    static func searchTitle(_ expression: String) -> String {
+        guard let filter = LiveFilter.fromSearchExpression(expression, scope: "mail") else {
+            let words = expression.trimmingCharacters(in: .whitespacesAndNewlines)
+            return words.isEmpty ? "Search results" : "“" + words + "”"
+        }
+        guard filter.issues.isEmpty else { return "Search results" }
+        var parts = filter.text.isEmpty ? [] : ["“" + filter.text + "”"]
+        parts += filter.terms.filter { $0.field != "text" }.map(\.title)
+        return parts.isEmpty ? "Search results" : parts.joined(separator: " · ")
     }
 
     @Published private(set) var counts: [MailMailbox: MailPlaceCount] = [:]

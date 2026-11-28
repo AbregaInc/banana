@@ -579,6 +579,13 @@ struct NotesView: View {
 /// Session-only reading state survives tab changes, backgrounding and compact/wide transitions.
 /// Scroll offsets don't publish: scrolling a note must not invalidate the whole notes list.
 @MainActor
+extension NotesView {
+    /// Notes opens on this search (the field's "Show all in Notes").
+    @MainActor static func search(_ words: String) {
+        NotesPresentation.shared.filter = words.isEmpty ? LiveFilter(scope: "notes") : LiveFilterParser.parse(words, scope: "notes")
+    }
+}
+
 private final class NotesPresentation: ObservableObject {
     static let shared = NotesPresentation()
     @Published var filter = LiveFilter(scope: "notes")

@@ -103,7 +103,11 @@ final class MailColumnsTests: XCTestCase {
 
     func testAPlaceHasATitleAndAScopeKnowsItsMailbox() {
         XCTAssertEqual(MailPlacesModel.title(of: MailScope(place: .mailbox(.starred))), "Starred")
-        XCTAssertEqual(MailPlacesModel.title(of: MailScope(place: .search("x"))), "Search results")
+        XCTAssertEqual(MailPlacesModel.title(of: MailScope(place: .search("x"))), "“x”")
+        let typed = LiveFilterParser.parse("unread lease from mei", scope: "mail")
+        XCTAssertEqual(MailPlacesModel.title(of: MailScope(place: .search(typed.searchExpression))),
+                       (["“" + typed.text + "”"] + typed.terms.filter { $0.field != "text" }.map(\.title)).joined(separator: " · "))
+        XCTAssertTrue(MailPlacesModel.title(of: MailScope(place: .search(typed.searchExpression))).contains("From: mei"))
         XCTAssertEqual(MailPlacesModel.title(of: MailScope(place: .mailbox(.sent))), "Sent")
         XCTAssertEqual(MailScope(place: .mailbox(.done)).mailbox, .done)
         XCTAssertNil(MailScope(place: .search("x")).mailbox)

@@ -63,6 +63,11 @@ final class ShellSearch: ObservableObject {
     let focusRequests = PassthroughSubject<Bool, Never>()
 
     private var pending: Task<Void, Never>?
+    /// Events beyond the days on this device: Google's search across every calendar.
+    private var widerPlan: Task<Void, Never>?
+    /// The plan hits found so far with what orders and de-duplicates them.
+    private var planFound: [PlanFound] = []
+    private typealias PlanFound = ShellSearchRules.PlanFound<ShellSearchHit>
     #if !BANANA_PUBLIC
     private var mailObservation: MailObservation?
     #endif
@@ -74,6 +79,7 @@ final class ShellSearch: ObservableObject {
         pending?.cancel()
         guard let query = ShellSearchRules.query(text) else {
             stopMail()
+            widerPlan?.cancel()
             if !groups.isEmpty { groups = ShellSearchGroups() }
             answered = nil
             searchingNotes = false
@@ -84,6 +90,18 @@ final class ShellSearch: ObservableObject {
             guard !Task.isCancelled else { return }
             await self?.run(query)
         }
+    }
+
+    /// The sentence each Mail search the field opened was typed as, by its expression, so the
+    /// search can be edited as it was written ("from mei" stays a sentence, not a chip list).
+    private var mailSentences: [String: String] = [:]
+
+    /// A Mail search, back in the field to change: the sentence it was typed as, else its words.
+    func edit(mailSearch expression: String) {
+        let filter = LiveFilter.fromSearchExpression(expression, scope: "mail")
+        text = mailSentences[expression] ?? filter?.text ?? (expression.hasPrefix("banana-filter:") ? "" : expression)
+        textChanged()
+        focusRequests.send(true)
     }
 
     /// Clears the field and lets the keyboard go.
@@ -104,19 +122,29 @@ final class ShellSearch: ObservableObject {
         searchingNotes = true
         var next = ShellSearchGroups<ShellSearchHit>()
         let snapshot = OccurrenceStore.shared.occurrences
+        let shown = ShellSearchGroups<ShellSearchHit>.shownPerGroup
+        // One more than is listed, to know whether the group has more.
         let worker = Task.detached(priority: .userInitiated) {
-            Self.selectPlanOccurrences(query, in: snapshot, limit: ShellSearchGroups<ShellSearchHit>.shownPerGroup, now: Date())
+            Self.selectPlanOccurrences(query, in: snapshot, limit: shown + 1, now: Date())
         }
         let matches = await withTaskCancellationHandler { await worker.value } onCancel: { worker.cancel() }
         guard !Task.isCancelled, ShellSearchRules.query(text) == query else { return }
-        next.plan = Self.plan(matches)
-        next.mail = groups.mail.filter { _ in answered == query }
+        planFound = Self.plan(matches)
+        next.plan = Array(planFound.prefix(shown).map(\.hit))
+        if planFound.count > shown { next.more.insert(.plan) }
+        if answered == query {
+            next.mail = groups.mail
+            if groups.more.contains(.mail) { next.more.insert(.mail) }
+        }
         groups = next
         answered = query
         searchMail(query)
-        let notes = await Self.notes(query)
+        searchWiderPlan(query)
+        let notes = await Self.notes(query, limit: shown + 1)
         guard !Task.isCancelled, answered == query, ShellSearchRules.query(text) == query else { return }
-        if groups.notes != notes { groups.notes = notes }
+        let listed = Array(notes.prefix(shown))
+        if groups.notes != listed { groups.notes = listed }
+        if notes.count > shown { groups.more.insert(.notes) } else { groups.more.remove(.notes) }
         searchingNotes = false
     }
 
@@ -155,40 +183,90 @@ final class ShellSearch: ObservableObject {
         return first.count == limit ? first : first + ordered(details).prefix(limit - first.count)
     }
 
-    private static func plan(_ matches: [Occurrence]) -> [ShellSearchHit] {
+    private static func plan(_ matches: [Occurrence]) -> [PlanFound] {
         matches.map { occurrence in
             let route = occurrence.meeting?.eventID.flatMap(GoogleCalendarIDs.rawEventRoute(from:))
-            return ShellSearchHit(
+            let hit = ShellSearchHit(
                 id: "plan:" + occurrence.id,
                 title: occurrence.title,
-                detail: when(occurrence),
+                detail: when(start: occurrence.start, end: occurrence.resolvedEnd,
+                             timed: occurrence.hasScheduledTime && occurrence.behavior != .allDay),
                 target: .plan(start: occurrence.start, calendarID: route?.calendarID, eventID: route?.eventID))
+            return PlanFound(start: occurrence.start,
+                             key: route.map { ShellSearchRules.planKey(calendarID: $0.calendarID, eventID: $0.eventID) } ?? hit.id, hit: hit)
         }
     }
 
-    private static func when(_ occurrence: Occurrence) -> String {
+    /// Google's search across every calendar, for events beyond the days on this device (the
+    /// search Plan's magnifier opens). Calendars are read one page at a time, at most
+    /// `widerPages` of them, and each page joins the group as it arrives.
+    private static let widerPages = 8
+
+    private func searchWiderPlan(_ query: String) {
+        widerPlan?.cancel()
+        widerPlan = Task { [weak self] in
+            let filter = LiveFilterParser.parse(query, scope: "plan")
+            let now = Date(), calendar = Calendar.current
+            let interval = filter.interval(calendar: .app)
+            let request = CalendarSearchQuery(
+                text: filter.text,
+                start: interval?.start ?? calendar.startOfDay(for: calendar.date(byAdding: .year, value: -1, to: now) ?? now),
+                end: interval?.end ?? calendar.startOfDay(for: calendar.date(byAdding: .year, value: 1, to: now) ?? now),
+                excludedCalendarIDs: SmartScheduleStore.shared.settings.excludedCalendarIDs, filter: filter)
+            var cursor: CalendarSearchCursor?
+            for _ in 0..<Self.widerPages {
+                guard let page = try? await GoogleCalendarService.shared.search(request, after: cursor),
+                      !Task.isCancelled, let self, self.answered == query else { return }
+                self.addWiderPlan(page.events, more: page.next != nil)
+                cursor = page.next
+                if cursor == nil || self.planFound.count > ShellSearchGroups<ShellSearchHit>.shownPerGroup { return }
+            }
+        }
+    }
+
+    private func addWiderPlan(_ events: [GoogleCalendarEvent], more: Bool) {
+        planFound = ShellSearchRules.joinPlan(planFound, adding: events.map(Self.found), now: Date())
+        let shown = ShellSearchGroups<ShellSearchHit>.shownPerGroup
+        let listed = Array(planFound.prefix(shown).map(\.hit))
+        if groups.plan != listed { groups.plan = listed }
+        if planFound.count > shown || more { groups.more.insert(.plan) }
+    }
+
+    /// One of Google's events as a plan hit, keyed as Plan's own are.
+    private static func found(_ event: GoogleCalendarEvent) -> PlanFound {
+        let route = GoogleCalendarIDs.rawEventRoute(from: event.id)
+        let key = route.map { ShellSearchRules.planKey(calendarID: $0.calendarID, eventID: $0.eventID) } ?? "google:" + event.id
+        return PlanFound(start: event.start, key: key, hit: ShellSearchHit(
+            id: "plan:" + key, title: event.title.isEmpty ? "(No title)" : event.title,
+            detail: when(start: event.start, end: event.end, timed: !event.isAllDay),
+            target: .plan(start: event.start, calendarID: route?.calendarID, eventID: route?.eventID)))
+    }
+
+    private static func when(start: Date, end: Date, timed: Bool) -> String {
         let calendar = Calendar.current
-        let dayWords = calendar.isDateInToday(occurrence.start) ? "today"
-            : calendar.isDateInTomorrow(occurrence.start) ? "tomorrow"
-            : calendar.isDateInYesterday(occurrence.start) ? "yesterday"
-            : occurrence.start.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
-        guard occurrence.hasScheduledTime, occurrence.behavior != .allDay else { return dayWords }
-        return TimeRangeText.compact(occurrence.start, occurrence.resolvedEnd) + " " + dayWords
+        let dayWords = calendar.isDateInToday(start) ? "today"
+            : calendar.isDateInTomorrow(start) ? "tomorrow"
+            : calendar.isDateInYesterday(start) ? "yesterday"
+            : calendar.isDate(start, equalTo: Date(), toGranularity: .year)
+                ? start.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
+                : start.formatted(.dateTime.month(.abbreviated).day().year())
+        guard timed else { return dayWords }
+        return TimeRangeText.compact(start, end) + " " + dayWords
     }
 
     // MARK: Notes — the list's own search.
 
-    private static func notes(_ query: String) async -> [ShellSearchHit] {
+    private static func notes(_ query: String, limit: Int) async -> [ShellSearchHit] {
         #if BANANA_MODULE_NOTES
         guard ModuleStore.shared.includes(.notes) else { return [] }
-        return await VoiceNoteStore.shared.searchResults(query, limit: ShellSearchGroups<ShellSearchHit>.shownPerGroup)
+        return await VoiceNoteStore.shared.searchResults(query, limit: limit)
             .map { note in
                 ShellSearchHit(id: "note:\(note.id)", title: note.displayTitle,
                                detail: String((note.transcript ?? "").prefix(120)),
                                target: .note(note.id))
             }
         #else
-        _ = query
+        _ = (query, limit)
         return []
         #endif
     }
@@ -201,12 +279,17 @@ final class ShellSearch: ObservableObject {
         MailApplication.shared.start()
         guard let session = MailApplication.shared.session else { return }
         let scope = MailScope(place: .search(LiveFilterParser.parse(query, scope: "mail").searchExpression))
-        let observation = session.source.observeList(scope, limit: ShellSearchGroups<ShellSearchHit>.shownPerGroup) {
+        let shown = ShellSearchGroups<ShellSearchHit>.shownPerGroup
+        let searched = LiveFilterParser.parse(query, scope: "mail").text
+        let observation = session.source.observeList(scope, limit: shown + 1) {
             [weak self] snapshot in
             guard let self, self.answered == query else { return }
-            let hits = snapshot.rows.prefix(ShellSearchGroups<ShellSearchHit>.shownPerGroup).map { row in
+            if snapshot.rows.count > shown || snapshot.hasMore { self.groups.more.insert(.mail) } else { self.groups.more.remove(.mail) }
+            let hits = snapshot.rows.prefix(shown).map { row in
                 ShellSearchHit(id: "mail:\(row.id)", title: row.subject.isEmpty ? "(No subject)" : row.subject,
-                               detail: Self.people(row) + " · " + Self.mailDate(row.date),
+                               detail: ShellSearchRules.mailDetail(subject: row.subject, snippet: row.snippet,
+                                                                   people: Self.people(row), date: Self.mailDate(row.date),
+                                                                   searched: searched),
                                target: .mail(row.id))
             }
             if self.groups.mail != hits { self.groups.mail = hits }
@@ -251,9 +334,34 @@ final class ShellSearch: ObservableObject {
             Self.show(.notes)
         #if !BANANA_PUBLIC
         case .mail(let id):
+            mailSentences = [LiveFilterParser.parse(words, scope: "mail").searchExpression: words]
             Self.show(.mail)
             ShellMailOpener.open(id, searchedFor: words)
         #endif
+        }
+    }
+
+    /// The rest of a group: its page's own search, with these words in it. (Plan's opens over the
+    /// results, from the view.)
+    func showAll(_ group: ShellSearchGroups<ShellSearchHit>.Group) {
+        let words = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        switch group {
+        case .plan: return
+        case .mail:
+            clear()
+            #if !BANANA_PUBLIC
+            Self.show(.mail)
+            MailApplication.shared.start()
+            let expression = LiveFilterParser.parse(words, scope: "mail").searchExpression
+            mailSentences = [expression: words]
+            MailApplication.shared.session?.switchTo(MailScope(place: .search(expression)))
+            #endif
+        case .notes:
+            clear()
+            #if BANANA_MODULE_NOTES
+            NotesView.search(words)
+            #endif
+            Self.show(.notes)
         }
     }
 
@@ -357,6 +465,7 @@ struct ShellSearchResults: View {
         }
         .listStyle(.plain)
         .scrollDismissesKeyboard(.immediately)
+        .sheet(isPresented: $showsCalendarSearch) { CalendarSearchSheet(text: search.text) }
         // The add rows are the list a + used to open: the same name, for tests and VoiceOver.
         .accessibilityIdentifier(search.mode == .add ? "page.add.list" : "shell.results")
     }
@@ -394,20 +503,27 @@ struct ShellSearchResults: View {
         }
         let currentAnswer = search.answered != nil && search.answered == ShellSearchRules.query(search.text)
         let groups = currentAnswer ? search.groups : ShellSearchGroups<ShellSearchHit>()
-        ForEach(groups.nonEmpty, id: \.self) { group in
+        ForEach(groups.ordered(from: section), id: \.self) { group in
             Section {
                 ForEach(groups.items(group)) { hit in
                     Button { search.open(hit) } label: { row(hit, group: group) }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("shell.hit.\(group.rawValue)")
                 }
-            } header: {
-                HStack {
-                    Text(title(group))
-                    Spacer()
-                    let count = groups.items(group).count
-                    Text(count == 1 ? "1 result" : "\(count) results").foregroundStyle(.secondary)
+                if groups.more.contains(group) {
+                    Button { showAll(group) } label: {
+                        HStack {
+                            Text("Show all in \(title(group))").foregroundStyle(DS.Palette.accent)
+                            Spacer(minLength: 0)
+                            RowChevron()
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("shell.more.\(group.rawValue)")
                 }
+            } header: {
+                Text(title(group))
             }
         }
         if currentAnswer, !search.searchingNotes, groups.isEmpty {
@@ -416,18 +532,13 @@ struct ShellSearchResults: View {
                 .listRowSeparator(.hidden)
                 .accessibilityIdentifier("shell.results.none")
         }
-        if groups.plan.isEmpty || search.answered != nil {
-            // Beyond the days on this device: the calendar search the plan's magnifier opened.
-            Button { showsCalendarSearch = true } label: {
-                Label("Search all calendars", systemImage: "calendar")
-            }
-            .tint(.primary)
-            .accessibilityIdentifier("shell.calendarSearch")
-            .sheet(isPresented: $showsCalendarSearch) { CalendarSearchSheet(text: search.text) }
-        }
     }
 
     @State private var showsCalendarSearch = false
+
+    private func showAll(_ group: ShellSearchGroups<ShellSearchHit>.Group) {
+        if group == .plan { showsCalendarSearch = true } else { search.showAll(group) }
+    }
 
     private func row(_ hit: ShellSearchHit, group: ShellSearchGroups<ShellSearchHit>.Group) -> some View {
         HStack(spacing: DS.Space.m) {

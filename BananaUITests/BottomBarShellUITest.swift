@@ -366,7 +366,6 @@ final class BottomBarShellUITest: XCTestCase {
         let ask = app.buttons["shell.ask"]
         XCTAssertTrue(ask.waitForExistence(timeout: 3), "this Debug build has an assistant: Ask is the first row")
         XCTAssertTrue(ask.label.contains("lunch"), ask.label)
-        XCTAssertTrue(any(app, "shell.calendarSearch").waitForExistence(timeout: 3))
 
         // Clearing puts the field away and brings the bar's buttons back.
         app.buttons["shell.field.clear"].tap()
@@ -374,6 +373,45 @@ final class BottomBarShellUITest: XCTestCase {
         XCTAssertTrue(app.buttons["shell.switcher"].waitForExistence(timeout: 3))
         XCTAssertTrue(app.buttons["shell.ai"].exists)
         XCTAssertFalse(any(app, "shell.results").exists || any(app, "page.add.list").exists)
+    }
+
+    func testResultsFromMailListMailFirstAndShowAllOpensMailsSearch() throws {
+        let app = try launch(["--tab", "mail", "--mail-fresh"])
+        let field = app.textFields["shell.field"]
+        field.tap()
+        field.typeText("the")
+        let firstHit = app.descendants(matching: .any).matching(NSPredicate(format: "identifier BEGINSWITH 'shell.hit.'")).firstMatch
+        XCTAssertTrue(firstHit.waitForExistence(timeout: 5), app.debugDescription)
+        XCTAssertEqual(firstHit.identifier, "shell.hit.mail", "searching from Mail lists mail first")
+        let more = any(app, "shell.more.mail")
+        XCTAssertTrue(more.waitForExistence(timeout: 5), "more than five conversations: the rest are one tap away")
+        XCTAssertFalse(any(app, "shell.calendarSearch").exists)
+        more.tap()
+        // Mail's own search on the same words: its list, past the five the field listed.
+        XCTAssertTrue(any(app, "mail.search.close").waitForExistence(timeout: 5), app.debugDescription)
+        let count = any(app, "mail.list.count")
+        XCTAssertTrue(count.waitForExistence(timeout: 5))
+        XCTAssertGreaterThan(Int(count.label) ?? 0, 5, count.label)
+        // The page names the words, and its menu puts them back in the field to change.
+        let place = any(app, "mail.list.placeMenu")
+        XCTAssertTrue(place.label.contains("“the”"), place.label)
+        place.tap()
+        let edit = app.buttons["Edit search"].firstMatch  // a menu item keeps its label, not its identifier
+        XCTAssertTrue(edit.waitForExistence(timeout: 3), app.debugDescription)
+        edit.tap()
+        XCTAssertTrue(any(app, "shell.hit.mail").waitForExistence(timeout: 5), "the field opens on the same words")
+        XCTAssertEqual(field.value as? String, "the")
+    }
+
+    func testAnEmailFoundByItsAttachmentSaysWhereTheWordsAre() throws {
+        let app = try launch(["--tab", "mail", "--mail-fresh"])
+        let field = app.textFields["shell.field"]
+        field.tap()
+        field.typeText("retainer")
+        let hit = any(app, "shell.hit.mail")
+        XCTAssertTrue(hit.waitForExistence(timeout: 5), app.debugDescription)
+        let shows = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'monthly retainer'")).firstMatch
+        XCTAssertTrue(shows.waitForExistence(timeout: 5) || hit.label.contains("monthly retainer"), hit.label)
     }
 
     func testAPickFromTheAddListOpensItOnItsPage() throws {
