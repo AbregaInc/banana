@@ -39,7 +39,7 @@ if [ "$ai_allowed" -ne 1 ]; then
 while IFS= read -r -d '' resource; do
   echo "Not for Apple: local-only feature resource in $resource"
   exit 1
-done < <(find "$target" \( -name 'PiRuntime' -o -name 'pi-agent.js' -o -name 'pi-bootstrap.js' -o -name 'pi-local-model.json' -o -name 'pi-runtime-manifest.json' -o -name 'pi-inference-worker.py' \) -print0)
+done < <(find "$target" \( -name 'PiRuntime' -o -name 'MlxServe' -o -name 'pi-local-model-gemma.json' -o -name 'pi-agent.js' -o -name 'pi-bootstrap.js' -o -name 'pi-local-model.json' -o -name 'pi-runtime-manifest.json' -o -name 'pi-inference-worker.py' \) -print0)
 fi
 
 while IFS= read -r -d '' marker; do
@@ -55,7 +55,7 @@ done < <(find "$target" -name banana-local-features.txt -print0)
 # The local feature build phase runs before runtime embedding. Check the sealed Mac
 # archive for the exact inherited sandbox entitlements required by Apple.
 if [[ "$target" == *.xcarchive && "${#primary_apps[@]}" -eq 1 && "${channel:-}" =~ ^(testflight|appstore)$ ]]; then
-  runtime="${primary_apps[0]}/Contents/Resources/PiRuntime"
+  for runtime in "${primary_apps[0]}/Contents/Resources/PiRuntime" "${primary_apps[0]}/Contents/Resources/MlxServe"; do
   if [ -d "$runtime" ]; then
     while IFS= read -r -d '' helper; do
       format=$(file -b "$helper")
@@ -75,6 +75,7 @@ sys.exit(not isinstance(entitlements, dict) or set(entitlements) != expected
       fi
     done < <(find "$runtime" -type f -perm -u+x -print0)
   fi
+  done
 fi
 
 # Reproducible builds: Core ML's compiler writes a model's user-defined metadata in a different

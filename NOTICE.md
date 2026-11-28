@@ -106,5 +106,10 @@ on-device model; the bundled app source does not relicense those model weights.
 | [Event Target Shim](https://github.com/mysticatea/event-target-shim) | event dispatch | MIT |
 | [TypeBox](https://github.com/sinclairzx81/typebox) | tool schemas and validation | MIT |
 
+On Macs with 32 GiB of memory or more, the Mac app also carries
+[mlx-serve](https://github.com/ddalcu/mlx-serve) (MIT) in `Contents/Resources/MlxServe`, fetched at
+build time from its pinned v26.11.4 release. Its own `LICENSE`, `LICENSE-APACHE-2.0` and `NOTICE`
+(the MLX, llama.cpp and other components it links) ship beside the binary in that folder.
+
 Exact bundled licence texts are included in `Banana/Pi/Resources/pi-notices.txt` and shown in
 Settings → Credits. The runtime manifest records the reviewed Pi commit and bundle hashes.

@@ -27,7 +27,7 @@ for source in "$SRCROOT"/Banana/Pi/Resources/*; do
   fi
 done
 if [ "${BANANA_LOCAL_AI:-NO}" != YES ]; then
-  rm -rf "$resources/PiRuntime"
+  rm -rf "$resources/PiRuntime" "$resources/MlxServe"
 fi
 # The App Store app declares only what its modules collect: its privacy manifest is the one
 # tools/modules/modules.py derives (Config/Modules.json "privacy"), in place of the full app's.

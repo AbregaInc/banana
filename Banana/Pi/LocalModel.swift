@@ -27,10 +27,20 @@ final class LocalModel: ObservableObject {
     let manifest: Manifest?
     private var started = false
 
+    let tier: MacInferenceTier
+
     private init() {
-        manifest = Bundle.main.url(forResource: "pi-local-model", withExtension: "json")
+        tier = Self.currentTier
+        manifest = Bundle.main.url(forResource: tier.manifestResource, withExtension: "json")
             .flatMap { try? Data(contentsOf: $0) }
             .flatMap { try? JSONDecoder().decode(Manifest.self, from: $0) }
+    }
+
+    /// 32 GiB or more, macOS 26.2 or later (mlx-serve's minimum) and mlx-serve in this build.
+    static var currentTier: MacInferenceTier {
+        let os = ProcessInfo.processInfo.isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 26, minorVersion: 2, patchVersion: 0))
+        return .select(physicalBytes: ProcessInfo.processInfo.physicalMemory,
+                       supportsLargeEngine: os && MacLocalInference.mlxServeExecutable != nil)
     }
 
     /// Called at launch: if the files are here and checked, the model is ready; otherwise they

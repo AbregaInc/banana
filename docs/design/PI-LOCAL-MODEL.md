@@ -22,6 +22,39 @@ Banana Pi on the Mac runs Qwen3.5 4B (4-bit, `mlx-community/Qwen3.5-4B-4bit` pin
   ("Getting Qwen3.5 4B · 1.2 of 3.0 GB", then "Qwen3.5 4B · on this Mac").
 - Never in fixture or UI-test runs (no 3 GB download in tests).
 
+### Two tiers: Gemma 4 26B on Macs with 32 GB or more
+
+27 November 2026, the owner's decision. Mail drafting on the Mac uses the larger model where the
+Mac can hold it:
+
+| Mac | Model | Engine | Download | Resident while serving |
+|---|---|---|---|---|
+| 32 GiB of memory or more, macOS 26.2 or later | Gemma 4 26B A4B, 4-bit (`mlx-community/gemma-4-26b-a4b-it-4bit` at `0d77464eeb23…`) | bundled mlx-serve 26.11.4 | 15.4 GB (14.3 GiB, three shards) | ≈13.5 GB |
+| Everything else | Qwen3.5 4B, 4-bit | bundled Python worker (Locals) | 3.1 GB | see below |
+
+- The rule is `MacInferenceTier.select` (Banana/Pi/PinnedModelFiles.swift): installed memory as
+  macOS reports it, at least 32 GiB, plus macOS 26.2 (mlx-serve's minimum) and mlx-serve present
+  in the build. iPhone and iPad are unchanged.
+- The pin is `Banana/Pi/Resources/pi-local-model-gemma.json`, checked like the 4B one. `LocalModel`
+  reads only the pin for its tier, so a 16 GB Mac never fetches Gemma and a 32 GB Mac never fetches
+  the 4B. Same flow and the same Settings line.
+- **mlx-serve ships inside the app** (`Contents/Resources/MlxServe`: the binary, its `lib/` dylibs
+  and metallib, 289 MB). `tools/pi-mac-inference/embed-mlx-serve.sh` (run by `embed-runtime.sh`)
+  fetches the release tarball pinned by version and SHA-256 into `~/Library/Caches/Banana Pi
+  build/mlx-serve/`, copies it in and signs it like the Python runtime. It is never committed.
+- `MacLocalInference` starts it on loopback with `--no-vision`, the profile's context and token
+  limits, a private `HOME` (`Application Support/…/LocalInference/mlx-serve-home`; it otherwise
+  writes `~/.mlx-serve`) and this launch's random key through `--api-key-env` and
+  `--api-key-strict`, so only Banana can drive it. It stops with the app. It doesn't watch its
+  parent like the Python worker, so the next start stops one a crash left behind (by PID file,
+  only when that process is this build's binary).
+- mlx-serve reads thinking controls as top-level fields (`enable_thinking`, `reasoning_effort`,
+  `reasoning_budget_tokens` from a request's `reasoningBudget`); the Python worker keeps
+  `chat_template_kwargs`. Both honour `toolChoice: "required"` (`LocalInferenceTransport`).
+- Memory admission is the same as below, with Gemma's 14.3 GiB of weights.
+- Licence: mlx-serve is MIT; its `LICENSE`, `LICENSE-APACHE-2.0` and `NOTICE` ship beside the
+  binary and NOTICE.md lists it.
+
 ### When the Mac needs memory
 
 Before loading weights, Banana checks current macOS memory pressure and estimates reclaimable memory. It budgets the actual weight files, the worker’s 2 GiB cache and 1 GiB of runtime overhead. It also reserves one sixteenth of installed memory for foreground work, bounded between 2 and 8 GiB. These admission margins are conservative estimates. The bundled 4B qualification measured a 5.8 GB peak GPU allocation on its test workload.

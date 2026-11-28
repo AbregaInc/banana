@@ -6,6 +6,8 @@ set -euo pipefail
 if [ "${BANANA_RUNTIME_CACHE_LOCKED:-}" != 1 ]; then
   exec /usr/bin/python3 "$(dirname "$0")/runtime-cache-lock.py" /bin/bash "$0" "$@"
 fi
+# Macs with 32 GiB or more serve their model with mlx-serve instead of the Python worker.
+"$SRCROOT/tools/pi-mac-inference/embed-mlx-serve.sh"
 runtime=$("$SRCROOT/tools/pi-mac-inference/build-runtime.sh")
 key=$(basename "$runtime")
 dest="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/PiRuntime"

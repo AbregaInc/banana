@@ -87,4 +87,63 @@ final class LocalInferenceTransportTests: XCTestCase {
         XCTAssertThrowsError(try LocalInferenceTransport.content(response(["content": "Done", "tool_calls": ["function": "invalid"]])))
         XCTAssertThrowsError(try LocalInferenceTransport.content(response(["content": "Done", "role": "user"])))
     }
+    private var tool: [String: Any] {
+        ["name": "write_reply", "description": "Write the reply", "parameters": ["type": "object", "properties": [:]]]
+    }
+    func testRequiredToolChoiceReachesBothBackends() throws {
+        var request = input(); request["tools"] = [tool]; request["toolChoice"] = "required"
+        for backend in [LocalInferenceTransport.Backend.worker, .mlxServe] {
+            let payload = try LocalInferenceTransport.payload(request, serverModel: "mlxserve/test", maxTokens: 4096, backend: backend)
+            XCTAssertEqual(payload["tool_choice"] as? String, "required")
+        }
+        request["toolChoice"] = nil
+        XCTAssertEqual(try LocalInferenceTransport.payload(request, serverModel: "locals/test", maxTokens: 4096)["tool_choice"] as? String, "auto")
+    }
+    func testRejectsUnknownOrToollessToolChoice() {
+        var request = input(); request["tools"] = [tool]; request["toolChoice"] = "none"
+        XCTAssertThrowsError(try LocalInferenceTransport.payload(request, serverModel: "locals/test", maxTokens: 4096))
+        var toolless = input(); toolless["toolChoice"] = "required"
+        XCTAssertThrowsError(try LocalInferenceTransport.payload(toolless, serverModel: "locals/test", maxTokens: 4096))
+    }
+    func testMlxServeGetsTopLevelThinkingControls() throws {
+        var request = input(); request["reasoning"] = "off"
+        let off = try LocalInferenceTransport.payload(request, serverModel: "mlxserve/test", maxTokens: 4096, backend: .mlxServe)
+        XCTAssertEqual(off["enable_thinking"] as? Bool, false)
+        XCTAssertEqual(off["reasoning_effort"] as? String, "none")
+        XCTAssertNil(off["chat_template_kwargs"])
+        XCTAssertNil(off["reasoning_budget_tokens"])
+        request["reasoning"] = "low"; request["reasoningBudget"] = 512
+        let low = try LocalInferenceTransport.payload(request, serverModel: "mlxserve/test", maxTokens: 4096, backend: .mlxServe)
+        XCTAssertEqual(low["enable_thinking"] as? Bool, true)
+        XCTAssertEqual(low["reasoning_effort"] as? String, "low")
+        XCTAssertEqual(low["reasoning_budget_tokens"] as? Int, 512)
+        request["reasoningBudget"] = 0
+        XCTAssertThrowsError(try LocalInferenceTransport.payload(request, serverModel: "mlxserve/test", maxTokens: 4096, backend: .mlxServe))
+    }
+    func testWorkerKeepsChatTemplateThinkingControls() throws {
+        var request = input(); request["reasoningBudget"] = 512
+        let payload = try LocalInferenceTransport.payload(request, serverModel: "locals/test", maxTokens: 4096)
+        XCTAssertEqual((payload["chat_template_kwargs"] as? [String: Any])?["enable_thinking"] as? Bool, true)
+        XCTAssertNil(payload["enable_thinking"])
+        XCTAssertNil(payload["reasoning_budget_tokens"])
+    }
+    func testMacTierNeedsThirtyTwoGiBAndTheLargeEngine() {
+        let gib: UInt64 = 1 << 30
+        XCTAssertEqual(MacInferenceTier.select(physicalBytes: 32 * gib, supportsLargeEngine: true), .large)
+        XCTAssertEqual(MacInferenceTier.select(physicalBytes: 64 * gib, supportsLargeEngine: true), .large)
+        XCTAssertEqual(MacInferenceTier.select(physicalBytes: 24 * gib, supportsLargeEngine: true), .compact)
+        XCTAssertEqual(MacInferenceTier.select(physicalBytes: 64 * gib, supportsLargeEngine: false), .compact)
+        XCTAssertEqual(MacInferenceTier.large.manifestResource, "pi-local-model-gemma")
+        XCTAssertEqual(MacInferenceTier.compact.manifestResource, "pi-local-model")
+    }
+    func testGemmaPinDecodesWithShardedWeightsAndMlxServeEngine() throws {
+        let url = SourceTree.root.appendingPathComponent("Banana/Pi/Resources/pi-local-model-gemma.json")
+        let manifest = try JSONDecoder().decode(PinnedModelFiles.Manifest.self, from: Data(contentsOf: url))
+        XCTAssertEqual(manifest.revision, "0d77464eeb233a2da68ebf9d7dc4edaac7db956d")
+        XCTAssertTrue(manifest.profile.serverModel.hasPrefix("mlxserve/"))
+        XCTAssertNotNil(manifest.files["model.safetensors.index.json"])
+        XCTAssertEqual(manifest.files.keys.filter { $0.hasSuffix(".safetensors") }.count, 3)
+        XCTAssertTrue(manifest.files.values.allSatisfy { $0.sha256.count == 64 && $0.bytes > 0 })
+        XCTAssertLessThan(manifest.profile.maxTokens, manifest.profile.contextWindow)
+    }
 }

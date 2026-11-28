@@ -3,6 +3,10 @@ import Foundation
 
 /// Pure OpenAI chat protocol translation. No native app capability is reachable here.
 enum LocalInferenceTransport {
+    /// Who serves the request: the bundled Python worker reads thinking controls through
+    /// `chat_template_kwargs`; mlx-serve reads them as top-level fields.
+    enum Backend { case worker, mlxServe }
+
     /// Bind each request to the paired recipient chosen before generation. This also rejects
     /// a queued request if the pairing changes between model selection and the actual send.
     static func pairedPayload(_ raw: String, recipient: String) throws -> String {
@@ -15,7 +19,8 @@ enum LocalInferenceTransport {
     }
 
     static func payload(_ request: [String: Any], serverModel: String, maxTokens: Int,
-                        temperature: Double = 0.6, topP: Double = 0.95, topK: Int = 20) throws -> [String: Any] {
+                        temperature: Double = 0.6, topP: Double = 0.95, topK: Int = 20,
+                        backend: Backend = .worker) throws -> [String: Any] {
         let temperature = request["temperature"] as? Double ?? temperature
         guard temperature.isFinite, temperature >= 0, topP.isFinite, topP > 0, topP <= 1, topK >= 0 else {
             throw AssistantFailure(message: "Invalid local sampling settings.")
@@ -62,10 +67,25 @@ enum LocalInferenceTransport {
         }
         let budget = request["maxTokens"] as? Int ?? maxTokens
         guard budget > 0 else { throw AssistantFailure(message: "Invalid response budget.") }
+        let toolChoice = request["toolChoice"] as? String ?? "auto"
+        guard ["auto", "required"].contains(toolChoice), toolChoice == "auto" || !tools.isEmpty else {
+            throw AssistantFailure(message: "Unsupported local tool choice.")
+        }
         var result: [String: Any] = ["model": serverModel, "messages": messages, "stream": false,
             "max_tokens": min(budget, maxTokens), "temperature": temperature,
-            "top_p": topP, "top_k": topK, "reasoning_effort": reasoning == "off" ? "none" : reasoning,
-            "chat_template_kwargs": ["enable_thinking": reasoning != "off", "preserve_thinking": true]]
+            "top_p": topP, "top_k": topK, "reasoning_effort": reasoning == "off" ? "none" : reasoning]
+        switch backend {
+        case .worker:
+            result["chat_template_kwargs"] = ["enable_thinking": reasoning != "off", "preserve_thinking": true]
+        case .mlxServe:
+            result["enable_thinking"] = reasoning != "off"
+            if let raw = request["reasoningBudget"] {
+                guard let thinkingBudget = raw as? Int, thinkingBudget > 0 else {
+                    throw AssistantFailure(message: "Invalid reasoning budget.")
+                }
+                result["reasoning_budget_tokens"] = thinkingBudget
+            }
+        }
         if let schema = request["responseSchema"] as? [String: Any] {
             guard tools.isEmpty else { throw AssistantFailure(message: "Structured responses cannot execute tools.") }
             result["response_format"] = ["type": "json_schema", "json_schema": ["name": "composer_step", "schema": schema]]
@@ -75,7 +95,7 @@ enum LocalInferenceTransport {
                 guard let parameters = tool["parameters"] as? [String: Any] else { throw AssistantFailure(message: "Missing tool parameters.") }
                 return ["type": "function", "function": ["name": try string(tool["name"]), "description": try string(tool["description"]), "parameters": parameters]]
             }
-            result["tool_choice"] = "auto"
+            result["tool_choice"] = toolChoice
             // View mutations share one captured revision. Request one intent per
             // generation; Pi can continue with another tool round when required.
             result["parallel_tool_calls"] = false

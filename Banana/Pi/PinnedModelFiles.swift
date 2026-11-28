@@ -89,3 +89,25 @@ struct PinnedModelFailure: LocalizedError, Equatable {
     init(_ message: String) { self.message = message }
     var errorDescription: String? { message }
 }
+
+/// Which model a Mac runs (docs/design/PI-LOCAL-MODEL.md). Macs with 32 GiB of memory or more,
+/// on a macOS that the bundled mlx-serve supports, run Gemma 4 26B A4B on mlx-serve; every other
+/// Mac keeps Qwen3.5 4B on the bundled Python worker. iPhone and iPad don't use it.
+enum MacInferenceTier: Equatable {
+    case compact
+    case large
+
+    static let largeMemoryThreshold: UInt64 = 32 << 30
+
+    static func select(physicalBytes: UInt64, supportsLargeEngine: Bool) -> Self {
+        physicalBytes >= largeMemoryThreshold && supportsLargeEngine ? .large : .compact
+    }
+
+    /// The pinned manifest in the app's resources for this tier.
+    var manifestResource: String {
+        switch self {
+        case .compact: "pi-local-model"
+        case .large: "pi-local-model-gemma"
+        }
+    }
+}
