@@ -40,7 +40,7 @@ export function nativeRequest(context, options = {}, allowReasoning = false) {
   if (!allowReasoning && options.reasoning !== undefined && options.reasoning !== 'off') throw new Error('Apple provider does not expose reasoning controls');
   if (options.thinkingBudgets !== undefined) throw new Error('Apple provider does not expose thinking budgets');
   if (options.deferred) throw new Error('Apple provider does not support deferred inference');
-  if (options.toolChoice !== undefined && !['auto', 'none'].includes(options.toolChoice)) throw new Error('Unsupported Apple tool choice');
+  if (options.toolChoice !== undefined && !['auto', 'none', 'required'].includes(options.toolChoice)) throw new Error('Unsupported Apple tool choice');
   if (options.maxTokens !== undefined && (!Number.isSafeInteger(options.maxTokens) || options.maxTokens < 1)) throw new Error('Invalid Apple maxTokens');
   if (options.temperature !== undefined && (!Number.isFinite(options.temperature) || options.temperature < 0)) throw new Error('Invalid Apple temperature');
   return {
@@ -61,6 +61,8 @@ export function nativeRequest(context, options = {}, allowReasoning = false) {
         text: textContent(message.content), isError: message.isError };
     }),
     ...(allowReasoning ? { reasoning: options.reasoning ?? 'off' } : {}),
+    // A task that always ends in a tool: the native model constrains every turn to a tool call.
+    ...(options.toolChoice === 'required' ? { toolChoice: 'required' } : {}),
     ...(options.temperature === undefined ? {} : { temperature: options.temperature }),
     ...(options.maxTokens === undefined ? {} : { maxTokens: options.maxTokens }),
   };
@@ -81,8 +83,10 @@ export function bananaFoundationProvider({generate = requestNativeGeneration, ..
 }
 
 // Public Pi provider adapter shared by Apple's model and the separate local Mac engine.
-export function nativeModelProvider({ model, generate = requestNativeGeneration, buildRequest, name }) {
-  const stream = (selected, context, options = {}) => {
+// toolChoice is a provider-level option: 'required' makes every generation from this provider a tool call.
+export function nativeModelProvider({ model, generate = requestNativeGeneration, buildRequest, name, toolChoice }) {
+  const stream = (selected, context, given = {}) => {
+    const options = toolChoice === undefined ? given : { ...given, toolChoice };
     const events = createAssistantMessageEventStream();
     const message = { role: 'assistant', content: [], api: selected.api, provider: selected.provider, model: selected.id,
       timestamp: Date.now(), stopReason: 'pending', usage: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0,

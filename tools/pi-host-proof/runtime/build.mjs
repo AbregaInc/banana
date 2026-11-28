@@ -16,7 +16,7 @@ const plugin = { name: 'reviewed-upstream-source', setup(builder) {
   });
   builder.onResolve({ filter: /^typebox$/ }, () => ({ path: resolve(upstream, 'node_modules/typebox/build/index.mjs') }));
 } };
-for (const [entry, filename] of [['bootstrap.js', 'bootstrap.js'], ['entry.js', 'pi.js'], ['app.js', 'app.js']]) {
+for (const [entry, filename] of [['bootstrap.js', 'bootstrap.js'], ['entry.js', 'pi.js'], ['app.js', 'app.js'], ['mail-entry.js', 'pi-mail.js']]) {
   const result = await build({ entryPoints: [resolve(directory, entry)], outfile: resolve(output, filename), bundle: true, metafile: true,
     platform: 'browser', format: 'iife', conditions: ['source'], plugins: [plugin],
     nodePaths: [resolve(upstream, 'node_modules')],

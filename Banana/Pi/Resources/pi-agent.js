@@ -22759,7 +22759,7 @@ Excerpt: \u201C${excerpt}\u201D` },
     if (!allowReasoning && options.reasoning !== void 0 && options.reasoning !== "off") throw new Error("Apple provider does not expose reasoning controls");
     if (options.thinkingBudgets !== void 0) throw new Error("Apple provider does not expose thinking budgets");
     if (options.deferred) throw new Error("Apple provider does not support deferred inference");
-    if (options.toolChoice !== void 0 && !["auto", "none"].includes(options.toolChoice)) throw new Error("Unsupported Apple tool choice");
+    if (options.toolChoice !== void 0 && !["auto", "none", "required"].includes(options.toolChoice)) throw new Error("Unsupported Apple tool choice");
     if (options.maxTokens !== void 0 && (!Number.isSafeInteger(options.maxTokens) || options.maxTokens < 1)) throw new Error("Invalid Apple maxTokens");
     if (options.temperature !== void 0 && (!Number.isFinite(options.temperature) || options.temperature < 0)) throw new Error("Invalid Apple temperature");
     return {
@@ -22782,6 +22782,8 @@ Excerpt: \u201C${excerpt}\u201D` },
         };
       }),
       ...allowReasoning ? { reasoning: options.reasoning ?? "off" } : {},
+      // A task that always ends in a tool: the native model constrains every turn to a tool call.
+      ...options.toolChoice === "required" ? { toolChoice: "required" } : {},
       ...options.temperature === void 0 ? {} : { temperature: options.temperature },
       ...options.maxTokens === void 0 ? {} : { maxTokens: options.maxTokens }
     };
@@ -22807,8 +22809,9 @@ Excerpt: \u201C${excerpt}\u201D` },
   function bananaFoundationProvider({ generate = requestNativeGeneration, ...options } = {}) {
     return appleFoundationProvider({ ...options, generate: (request2, signal) => routeGeneration(request2, generate, signal) });
   }
-  function nativeModelProvider({ model: model2, generate = requestNativeGeneration, buildRequest, name }) {
-    const stream = (selected2, context, options = {}) => {
+  function nativeModelProvider({ model: model2, generate = requestNativeGeneration, buildRequest, name, toolChoice }) {
+    const stream = (selected2, context, given = {}) => {
+      const options = toolChoice === void 0 ? given : { ...given, toolChoice };
       const events = createAssistantMessageEventStream();
       const message = {
         role: "assistant",

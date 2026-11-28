@@ -19,15 +19,15 @@ output = repo / '.build/sim/pi-host-proof-sources'
 subprocess.run(['node', str(repo / 'tools/pi-host-proof/runtime/build.mjs'), str(upstream), str(output)], check=True, cwd=repo)
 resources = repo / 'Banana/Pi/Resources'
 resources.mkdir(parents=True, exist_ok=True)
-for source, destination in [('bootstrap.js', 'pi-bootstrap.js'), ('app.js', 'pi-agent.js')]:
+for source, destination in [('bootstrap.js', 'pi-bootstrap.js'), ('app.js', 'pi-agent.js'), ('pi-mail.js', 'pi-mail.js')]:
     shutil.copyfile(output / source, resources / destination)
 manifest = {'upstream': 'https://github.com/earendil-works/pi', 'commit': expected_commit,
-            'files': {name: hashlib.sha256((resources / name).read_bytes()).hexdigest() for name in ['pi-bootstrap.js', 'pi-agent.js']}}
+            'files': {name: hashlib.sha256((resources / name).read_bytes()).hexdigest() for name in ['pi-bootstrap.js', 'pi-agent.js', 'pi-mail.js']}}
 (resources / 'pi-runtime-manifest.json').write_text(json.dumps(manifest, indent=2) + '\n')
 # Notices follow the packages actually included by esbuild, including transitive dependencies.
 packages = {}
 inputs = {}
-for metadata in ['app-metafile.json', 'bootstrap-metafile.json']:
+for metadata in ['app-metafile.json', 'bootstrap-metafile.json', 'mail-entry-metafile.json']:
     inputs.update(json.loads((output / metadata).read_text())['inputs'])
 for name in inputs:
     parent = (repo / name).resolve().parent
