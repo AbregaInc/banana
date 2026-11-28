@@ -99,8 +99,9 @@ final class GmailIntentDeliveryTests: XCTestCase {
         XCTAssertEqual(confirmed, .confirmed)
         let cleared = await worker.pausedUntil(account: "a@example.com")
         XCTAssertNil(cleared)
-        // The next refusal starts from five seconds again.
-        try await record(store, want: false, message: "n")
+        // The next refusal starts from five seconds again. The fake provider's labels are shared by every message and
+        // the first change cleared UNREAD, so this one asks for it back: it disagrees with the provider and is refused.
+        try await record(store, want: true, message: "n")
         await api.configure(error: .limited(.user, retryAfter: nil), applies: false)
         _ = try await worker.deliverNext(account: "a@example.com", at: 50_000)
         let restarted = await worker.pausedUntil(account: "a@example.com")
