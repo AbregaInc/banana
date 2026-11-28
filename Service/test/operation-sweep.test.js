@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { setup, device, DAY, TOKEN_KEY as TOKEN } from "./helpers.js";
 import { createVault } from "../src/crypto.js";
 import { providerOperation, operationFailure } from "../src/provider-operation.js";
-import { sweepStaleOperations, settleOperation, SWEEP_AFTER, SWEEP_BATCH, CALENDAR_REPLAY_WITHIN } from "../src/operation-sweep.js";
+import { sweepStaleOperations, settleOperation, SWEEP_AFTER, SWEEP_BATCH, NEVER_REPLAY_UNSENT } from "../src/operation-sweep.js";
 
 async function world() {
   const s = setup();
@@ -21,7 +21,7 @@ async function world() {
   // What the service resumes: the same operation through the same entry a device uses, its provider now reachable.
   const handlers = [
     { parse: (x) => x?.kind === "label", run: (_d, _v, _a, req) => { sent.push(req.operationID); return run(true, req); }, maxUnsentAge: null },
-    { parse: (x) => x?.kind === "event", run: (_d, _v, _a, req) => { sent.push(req.operationID); return run(true, req); }, maxUnsentAge: CALENDAR_REPLAY_WITHIN },
+    { parse: (x) => x?.kind === "event", run: (_d, _v, _a, req) => { sent.push(req.operationID); return run(true, req); }, maxUnsentAge: NEVER_REPLAY_UNSENT },
   ];
   const stuck = (request) => run(false, request);
   const rows = () => s.deps.db.all("SELECT operation_id,state,response_status FROM provider_operations ORDER BY created_at,operation_id");
@@ -72,19 +72,30 @@ test("an earlier change is not replayed once a later one on the same item has go
   assert.equal((await rows()).find((r) => r.operation_id === op(1, "m1").operationID).state, "pending");
 });
 
-test("an old calendar change that never went out is answered 'changed since', with the receipt a device looks for", async () => {
+test("a calendar change that never went out is never applied, at any age: 412 with the receipt a device looks for", async () => {
   const { s, vault, handlers, stuck, run, sent, rows } = await world();
   await stuck(op(1, "e1", "event"));
-  s.advance(CALENDAR_REPLAY_WITHIN + 1000);
+  s.advance(SWEEP_AFTER + 1000); // just past the quiet period, not old
   assert.deepEqual(await sweepStaleOperations(s.deps, vault, handlers), { replayed: 0, settled: 1, skipped: 0, failed: 0 });
-  assert.deepEqual(sent, []); // nothing was applied late
+  assert.deepEqual(sent, []); // nothing was applied
   assert.deepEqual((await rows()).map((r) => [r.state, r.response_status]), [["done", 412]]);
   const answer = await run(true, op(1, "e1", "event"));
   assert.equal(answer.status, 412);
   assert.deepEqual(answer.body.bananaOperation, { id: op(1, "e1", "event").operationID, state: "done" });
-  // A mail label change of the same age is replayed, not expired.
-  await stuck(op(2, "m1")); s.advance(CALENDAR_REPLAY_WITHIN + 1000);
+  // A mail label change of any age is replayed, not expired.
+  await stuck(op(2, "m1")); s.advance(10 * DAY);
   assert.equal((await sweepStaleOperations(s.deps, vault, handlers)).replayed, 1);
+});
+
+test("a calendar change that already went out is still resumed, with its stored version", async () => {
+  const { s, vault, handlers, stuck, rows, sent } = await world();
+  await stuck(op(1, "e1", "event"));
+  await s.deps.db.run("UPDATE provider_operations SET state='uncertain', dispatch_cipher=? WHERE operation_id=?", "sealed-context", op(1, "e1", "event").operationID);
+  s.advance(SWEEP_AFTER + 1000);
+  const out = await sweepStaleOperations(s.deps, vault, handlers);
+  assert.equal(out.settled, 0);
+  assert.equal(out.replayed + out.failed, 1);
+  assert.equal(sent.length, 1); // handed to the calendar handler, which reconciles against Google
 });
 
 test("a lease that ran out and an outcome never confirmed are resumed too", async () => {

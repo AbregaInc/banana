@@ -5,18 +5,22 @@ import {parseCalendarOperation,calendarOperation} from './calendar-operation.js'
 export const SWEEP_AFTER=5*60*1000;
 /** Operations resumed per run; the rest wait for the next. */
 export const SWEEP_BATCH=25;
-/** A calendar change that never went out and is older than this is not applied late: the device re-reads the event. */
-export const CALENDAR_REPLAY_WITHIN=24*60*60*1000;
+/**
+ * A calendar change that never went out is never applied by the service: it reads the event's current version when it
+ * sends, so a late replay could overwrite a newer edit or notify guests days later. The device re-reads the event and
+ * sends again with a fresh version if it is still wanted. One that already went out carries its stored version
+ * (Google refuses it if the event changed), so it is still resumed.
+ */
+export const NEVER_REPLAY_UNSENT=0;
 
 /**
  * What the sweep may finish on its own. Mail label changes set labels after reading the message, in order per item,
- * so they are replayed at any age. Calendar changes carry a version (etag), so a recent one is replayed and an old,
- * never-sent one is answered "changed since": the answer a device already understands. Anything else (a draft, a send)
- * is never sent late by the service.
+ * so they are replayed at any age. A calendar change that never went out is answered "changed since" (412), the answer
+ * a device already understands, and never applied. Anything else (a draft, a send) is never sent late by the service.
  */
 export const HANDLERS=[
  {parse:parseMailOperation,run:mailOperation,maxUnsentAge:null},
- {parse:parseCalendarOperation,run:calendarOperation,maxUnsentAge:CALENDAR_REPLAY_WITHIN},
+ {parse:parseCalendarOperation,run:calendarOperation,maxUnsentAge:NEVER_REPLAY_UNSENT},
 ];
 
 /**
