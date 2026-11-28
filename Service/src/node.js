@@ -12,6 +12,7 @@ import { createApns } from "./apns.js";
 import { configFrom } from "./config.js";
 import { createGoogle } from "./google.js";
 import { runJob } from "./job.js";
+import { runOperationSweep } from "./operation-sweep.js";
 import { sqlite } from "./adapters/sqlite.js";
 import { http2Fetch } from "./adapters/http2.js";
 import { fsBlobs } from "./adapters/blobs-fs.js";
@@ -68,6 +69,18 @@ async function job() {
 }
 setInterval(job, 15 * 60 * 1000);
 job();
+
+// Operations nothing is finishing are resumed every minute (src/operation-sweep.js).
+let sweeping = false;
+setInterval(async () => {
+  if (sweeping) return;
+  sweeping = true;
+  try {
+    const r = await runOperationSweep(deps);
+    if (r.replayed || r.settled || r.failed || r.skipped) console.log(`operations: ${JSON.stringify(r)}`);
+  } catch (error) { console.log(`operations: sweep failed (${error.name})`); }
+  finally { sweeping = false; }
+}, 60 * 1000);
 
 // Booking's scheduled work (src/booking/jobs.js): a minute's and a quarter hour's.
 if (config.bookUrl) {

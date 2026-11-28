@@ -8,6 +8,7 @@ import { createApns, sharedProviderTokens } from "./apns.js";
 import { configFrom } from "./config.js";
 import { createGoogle } from "./google.js";
 import { runJob } from "./job.js";
+import { runOperationSweep } from "./operation-sweep.js";
 import { dispatchAlerts } from "./events.js";
 import { d1 } from "./adapters/d1.js";
 import { r2Blobs } from "./adapters/r2.js";
@@ -86,6 +87,8 @@ export default {
     // At a quarter hour both crons fire, as two invocations: the minute's work runs in one of them only.
     const minute = event.cron !== "*/15 * * * *";
     if (minute) ctx.waitUntil(deliverSignupWelcomes(d));
+    // Operations nothing is finishing are resumed by the service, so an account never waits on a device to retry.
+    if (minute) ctx.waitUntil(runOperationSweep(d).then((r) => { if (r.replayed || r.settled || r.failed || r.skipped) console.log(`operations: ${JSON.stringify(r)}`); }).catch((error) => console.log(`operations: sweep failed (${error.name})`)));
     if (d.config.eventAlerts && minute) ctx.waitUntil(dispatchAlerts(d).then((r) => console.log(`alerts: ${JSON.stringify(r)}`)));
     if (event.cron === "*/15 * * * *") ctx.waitUntil(runJob(d).then((r) => console.log(`job: ${JSON.stringify(r)}`)));
     // Booking: every minute its retries, held invites and reminders; every quarter hour its snapshots and sweeps.

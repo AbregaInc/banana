@@ -11,10 +11,8 @@ import { KEEP as KEEP_DIAGNOSTICS } from "./diagnostics.js";
 import { forgetOldReports } from "./reports.js";
 import { forgetShares } from "./anonymous-shares.js";
 import { forgetOldOperations } from "./provider-operation.js";
-import { sweepStaleOperations } from "./operation-sweep.js";
 import { SESSION_PROOF } from "./sessions.js";
 
-const SWEEP_OPERATIONS = true;
 const RENEW_BEFORE = 24 * 60 * 60 * 1000;
 const MAIL_WATCH_RENEW_BEFORE = 24 * 60 * 60 * 1000;
 const CHECK_EVERY = 24 * 60 * 60 * 1000;
@@ -96,13 +94,6 @@ export async function runJob(deps) {
   await deps.db.run("DELETE FROM diagnostics WHERE received_at < ?", t - KEEP_DIAGNOSTICS);
   await forgetShares(deps);
   await forgetOldOperations(deps);
-  // Operations nothing is finishing are resumed by the service, so an account never waits on a device to retry.
-  // Its lookups use provider_operations_item; an unindexed first version read ~8M rows a run and overloaded D1.
-  if (SWEEP_OPERATIONS) try {
-    const swept = await sweepStaleOperations(deps, vault);
-    if (swept.replayed || swept.settled || swept.failed) result.operations = swept;
-  }
-  catch { result.operationSweepFailed = true; }
   // Problem reports too, with their objects; a failed delete leaves the row for the next sweep.
   try { await forgetOldReports(deps, t); }
   catch { result.reportCleanupFailed = true; }

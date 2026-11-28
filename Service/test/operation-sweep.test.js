@@ -3,16 +3,21 @@ import assert from "node:assert/strict";
 import { setup, device, DAY, TOKEN_KEY as TOKEN } from "./helpers.js";
 import { createVault } from "../src/crypto.js";
 import { providerOperation, operationFailure } from "../src/provider-operation.js";
-import { sweepStaleOperations, settleOperation, SWEEP_AFTER, SWEEP_BATCH, NEVER_REPLAY_UNSENT, CANDIDATES_SQL, EARLIER_SQL, SUPERSEDED_SQL } from "../src/operation-sweep.js";
+import { sweepStaleOperations, settleOperation, SWEEP_AFTER, SWEEP_BATCH, SWEEP_PER_ACCOUNT, NEVER_REPLAY_UNSENT, interleave, CANDIDATES_SQL, EARLIER_SQL, SUPERSEDED_SQL } from "../src/operation-sweep.js";
 
 async function world() {
   const s = setup();
   s.google.person("c", "sub-ann", "ann@example.com");
   const ann = (await s.signIn("c", device("phone-0001"))).json;
+  s.google.person("c2", "sub-bob", "bob@example.com");
+  const bob = (await s.signIn("c2", device("phone-0002"))).json;
+  s.google.person("c3", "sub-cat", "cat@example.com");
+  const cat = (await s.signIn("c3", device("phone-0003"))).json;
   const account = ann.account.id;
+  const subOf = { [ann.account.id]: "sub-ann", [bob.account.id]: "sub-bob", [cat.account.id]: "sub-cat" };
   const vault = createVault(TOKEN, s.deps.random);
-  const run = async (reachable, request) => providerOperation(s.deps, vault, {
-    account, operationID: request.operationID, googleSub: "sub-ann", provider: "test", resource: { item: request.item }, request,
+  const run = async (reachable, request, who = account) => providerOperation(s.deps, vault, {
+    account: who, operationID: request.operationID, googleSub: subOf[who], provider: "test", resource: { item: request.item }, request,
     enabled: async () => true,
     prepare: async () => (reachable ? null : operationFailure(502, "temporarily unavailable")),
     dispatch: async () => ({ status: 200, body: { sent: request.operationID } }), reconcile: async () => ({ retry: true }),
@@ -20,12 +25,12 @@ async function world() {
   const sent = [];
   // What the service resumes: the same operation through the same entry a device uses, its provider now reachable.
   const handlers = [
-    { parse: (x) => x?.kind === "label", run: (_d, _v, _a, req) => { sent.push(req.operationID); return run(true, req); }, maxUnsentAge: null },
-    { parse: (x) => x?.kind === "event", run: (_d, _v, _a, req) => { sent.push(req.operationID); return run(true, req); }, maxUnsentAge: NEVER_REPLAY_UNSENT },
+    { parse: (x) => x?.kind === "label", run: (_d, _v, acct, req) => { sent.push(req.operationID); return run(true, req, acct); }, maxUnsentAge: null },
+    { parse: (x) => x?.kind === "event", run: (_d, _v, acct, req) => { sent.push(req.operationID); return run(true, req, acct); }, maxUnsentAge: NEVER_REPLAY_UNSENT },
   ];
-  const stuck = (request) => run(false, request);
+  const stuck = (request, who = account) => run(false, request, who);
   const rows = () => s.deps.db.all("SELECT operation_id,state,response_status FROM provider_operations ORDER BY created_at,operation_id");
-  return { s, vault, account, handlers, stuck, run, sent, rows };
+  return { s, vault, account, other: bob.account.id, third: cat.account.id, handlers, stuck, run, sent, rows };
 }
 const op = (n, item, kind = "label") => ({ kind, item, operationID: `00000000-0000-4000-8000-${String(n).padStart(12, "0")}` });
 
@@ -117,12 +122,44 @@ test("what no handler owns (a draft, a send) is never sent by the service", asyn
   assert.equal((await rows())[0].state, "pending");
 });
 
-test("a run resumes at most SWEEP_BATCH operations", async () => {
+test("one account takes at most SWEEP_PER_ACCOUNT operations a run, so the rest wait their turn", async () => {
   const { s, vault, handlers, stuck } = await world();
-  for (let i = 0; i < SWEEP_BATCH + 5; i++) { await stuck(op(i + 1, `m${i}`)); s.advance(10); }
+  for (let i = 0; i < SWEEP_PER_ACCOUNT * 2 + 3; i++) { await stuck(op(i + 1, `m${i}`)); s.advance(10); }
   s.advance(SWEEP_AFTER + 1000);
-  assert.equal((await sweepStaleOperations(s.deps, vault, handlers)).replayed, SWEEP_BATCH);
-  assert.equal((await sweepStaleOperations(s.deps, vault, handlers)).replayed, 5);
+  assert.equal((await sweepStaleOperations(s.deps, vault, handlers)).replayed, SWEEP_PER_ACCOUNT);
+  assert.equal((await sweepStaleOperations(s.deps, vault, handlers)).replayed, SWEEP_PER_ACCOUNT);
+  assert.equal((await sweepStaleOperations(s.deps, vault, handlers)).replayed, 3);
+});
+
+test("a big backlog on one account never starves another: accounts take turns", async () => {
+  const { s, vault, account, other, handlers, stuck, rows } = await world();
+  for (let i = 0; i < 30; i++) { await stuck(op(i + 1, `a${i}`), account); s.advance(10); } // the older, bigger backlog
+  for (let i = 0; i < 3; i++) { await stuck(op(100 + i, `b${i}`), other); s.advance(10); }
+  s.advance(SWEEP_AFTER + 1000);
+  const out = await sweepStaleOperations(s.deps, vault, handlers);
+  assert.equal(out.replayed, SWEEP_PER_ACCOUNT + 3); // ten of the big one and all three of the small one, first run
+  const mine = (await s.deps.db.all("SELECT state FROM provider_operations WHERE account_id=?", other)).map((r) => r.state);
+  assert.deepEqual(mine, ["done", "done", "done"]);
+  assert.equal((await rows()).filter((r) => r.state === "pending").length, 20);
+});
+
+test("when the whole batch is not enough, every account still gets a share of it", async () => {
+  const { s, vault, account, other, third, handlers, stuck } = await world();
+  // Three accounts with ten stuck each: thirty against a batch of twenty-five. The oldest are one account's.
+  for (const who of [account, other, third]) for (let i = 0; i < SWEEP_PER_ACCOUNT; i++) { await stuck(op(i + 1 + 100 * [account, other, third].indexOf(who), `${who}-${i}`), who); s.advance(10); }
+  s.advance(SWEEP_AFTER + 1000);
+  const out = await sweepStaleOperations(s.deps, vault, handlers);
+  assert.equal(out.replayed, SWEEP_BATCH);
+  const done = async (who) => (await s.deps.db.all("SELECT 1 FROM provider_operations WHERE account_id=? AND state='done'", who)).length;
+  const shares = [await done(account), await done(other), await done(third)];
+  assert.ok(Math.min(...shares) >= 8, `every account takes its turn, got ${shares}`);
+  assert.equal(shares.reduce((a, b) => a + b, 0), SWEEP_BATCH);
+});
+
+test("interleave: oldest first within an account, accounts in turn", () => {
+  const r = (a, n) => ({ account_id: a, n });
+  assert.deepEqual(interleave([r("A", 1), r("A", 2), r("A", 3), r("B", 4), r("C", 5), r("B", 6)]).map((x) => x.n), [1, 4, 5, 2, 6, 3]);
+  assert.deepEqual(interleave([]), []);
 });
 
 test("settleOperation does not touch an operation that is already done", async () => {

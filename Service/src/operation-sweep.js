@@ -1,12 +1,13 @@
 import {parseMailOperation,mailOperation} from './mail-operation.js';
 import {parseCalendarOperation,calendarOperation} from './calendar-operation.js';
+import {createVault} from './crypto.js';
 
 /** A stuck operation is left alone this long, so a device that is only slow finishes it first. */
 export const SWEEP_AFTER=5*60*1000;
-/** Operations resumed per run; the rest wait for the next. */
-export const SWEEP_BATCH=25;
+/** Operations resumed per run (a minute), and the most of them one account may take, so a big backlog never starves another. */
+export const SWEEP_BATCH=25, SWEEP_PER_ACCOUNT=10;
 /** Stuck operations looked at per run; the checks per one are indexed, but the work per run stays bounded. */
-export const SWEEP_SCAN=100;
+export const SWEEP_SCAN=400;
 /**
  * A calendar change that never went out is never applied by the service: it reads the event's current version when it
  * sends, so a late replay could overwrite a newer edit or notify guests days later. The device re-reads the event and
@@ -54,10 +55,11 @@ export async function sweepStaleOperations(deps,vault,handlers=HANDLERS) {
  const t=deps.now(),quiet=t-SWEEP_AFTER,out={replayed:0,settled:0,skipped:0,failed:0};
  // Phase 1: the few operations nothing is finishing, from the (state, updated_at) index; no ciphertext, bounded.
  const candidates=await deps.db.all(CANDIDATES_SQL,quiet,quiet,quiet,SWEEP_SCAN);
- const taken=new Set();
+ const taken=new Set(),perAccount=new Map();
  let picked=0;
- for(const row of candidates) {
+ for(const row of interleave(candidates)) {
   if(picked>=SWEEP_BATCH)break;
+  if((perAccount.get(row.account_id)??0)>=SWEEP_PER_ACCOUNT)continue;
   const item=row.account_id+'\n'+row.resource_key;
   if(taken.has(item))continue; // one per item per run: changes to an item stay in order
   // Phase 2: each check is a range inside one item's rows (provider_operations_item), never a table scan.
@@ -68,7 +70,7 @@ export async function sweepStaleOperations(deps,vault,handlers=HANDLERS) {
   const superseded=await deps.db.first(SUPERSEDED_SQL,
    row.account_id,row.resource_key,row.created_at);
   if(superseded)continue;
-  taken.add(item);picked++;
+  taken.add(item);picked++;perAccount.set(row.account_id,(perAccount.get(row.account_id)??0)+1);
   try {
    const stored=await deps.db.first("SELECT request_cipher FROM provider_operations WHERE account_id=? AND operation_id=?",row.account_id,row.operation_id);
    const request=JSON.parse(await vault.open('provider-operation:'+row.account_id,stored.request_cipher));
@@ -84,4 +86,21 @@ export async function sweepStaleOperations(deps,vault,handlers=HANDLERS) {
   } catch { out.failed++; }
  }
  return out;
+}
+
+/** Oldest first within an account, and accounts taking turns: one account's backlog cannot crowd out the others. */
+export function interleave(rows) {
+ const queues=new Map();
+ for(const row of rows) {
+  if(!queues.has(row.account_id))queues.set(row.account_id,[]);
+  queues.get(row.account_id).push(row);
+ }
+ const lists=[...queues.values()],out=[];
+ for(let i=0;lists.some(l=>i<l.length);i++)for(const l of lists)if(i<l.length)out.push(l[i]);
+ return out;
+}
+
+/** What a minute's schedule calls, in the Worker and in the self-hosted service alike. */
+export async function runOperationSweep(deps,handlers=HANDLERS) {
+ return sweepStaleOperations(deps,createVault(deps.config.tokenKey,deps.random),handlers);
 }
