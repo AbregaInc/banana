@@ -78,7 +78,8 @@ final class MailOvernightDraftScheduler: ObservableObject {
     /// The same pass is used by timer/wake callbacks and isolated store verification.
     @available(macOS 26.0, *)
     func runPass(night: MailDraftNight, source: MailLiveSource, isEditing: (MailConversationID) -> Bool,
-                 invalidations: AnyPublisher<Void, Never>, moduleEnabled: () -> Bool, makeProvider: () -> (([String: Any]) async throws -> String)) async {
+                 invalidations: AnyPublisher<Void, Never>, moduleEnabled: () -> Bool, makeProvider: () -> (([String: Any]) async throws -> String),
+                 makeWriter: (() -> MailAIModel)? = nil) async {
         let suite = suiteName
         let clock = self.clock
         for account in accounts.sorted() {
@@ -124,10 +125,14 @@ final class MailOvernightDraftScheduler: ObservableObject {
                     let recipients = MailReplyRules.recipients(for: .reply(to: anchor), original: latest, myAddresses: addresses)
                     guard !recipients.to.isEmpty else { reviewed(); continue }
                     let context = Self.context(conversation, latest: latest, identity: identity, recipients: recipients, body: body)
+                    // Overnight drafts think briefly. Questions for the owner cannot be stored on a
+                    // draft record yet, so a picker, note or no-reply outcome is reviewed and skipped.
                     let text: String
                     do {
-                        text = try await MailDraftAssistant.write(instruction: "Draft a reply to the selected message.",
-                            context: context, body: "", source: source, generate: provider)
+                        let writer = makeWriter?() ?? MailAIModel.current()
+                        guard case .draft(let drafted) = try await MailDraftAssistant.reply(instruction: "Draft a reply to the selected message.",
+                            context: context, body: "", source: source, thinking: .low, model: writer) else { reviewed(); continue }
+                        text = drafted
                     } catch is MailDraftAssistant.NeedsInput { reviewed(); continue }
                     catch is MailDraftPrompt.UnverifiedLink { reviewed(); continue }
                     guard enabled(), !isEditing(conversation.id) else { continue }

@@ -337,24 +337,28 @@ import CoreText
         }
         var decisions = 0, generations = 0
         let question = "Can you confirm the room is Oak?"
+        // One scripted model: eligibility decisions, then the Pi reply, which must finish with submit_reply.
+        let model: ([String: Any]) async throws -> String = { request in
+            let tools = (request["tools"] as? [[String: Any]] ?? []).compactMap { $0["name"] as? String }
+            if tools.contains("submit_reply") {
+                generations += 1
+                XCTAssertEqual(request["toolChoice"] as? String, "required")
+                let call: [String: Any] = ["type": "toolCall", "id": "reply-\(generations)", "name": "submit_reply",
+                                           "arguments": ["body": "Yes, the room is Oak."]]
+                return String(decoding: try JSONSerialization.data(withJSONObject: ["content": [call]]), as: UTF8.self)
+            }
+            let text = (request["messages"] as? [[String: String]])?.last?["text"] ?? ""
+            decisions += 1
+            let answer: [String: Any] = text.contains(question) ? ["action":"draft", "quote":question] : ["action":"skip", "quote":""]
+            let inner = String(decoding: try JSONSerialization.data(withJSONObject: answer), as: UTF8.self)
+            return String(decoding: try JSONSerialization.data(withJSONObject: ["content":[["type":"text","text":inner]]]), as: UTF8.self)
+        }
         func pass(minute: Int) async {
             let date = start.addingTimeInterval(Double(minute * 60))
             let scheduler = MailOvernightDraftScheduler(suiteName: suite, clock: { date })
             await scheduler.runPass(night: night, source: source, isEditing: { _ in false },
-                invalidations: Empty<Void, Never>().eraseToAnyPublisher(), moduleEnabled: { true }, makeProvider: { {
-                    request in
-                    let text = (request["messages"] as? [[String: String]])?.last?["text"] ?? ""
-                    let answer: [String: Any]
-                    if (request["maxTokens"] as? Int) == 180 {
-                        decisions += 1
-                        answer = text.contains(question) ? ["action":"draft", "quote":question] : ["action":"skip", "quote":""]
-                    } else {
-                        generations += 1
-                        answer = ["action":"draft", "value":"Yes, the room is Oak.", "citations":[]]
-                    }
-                    let inner = String(decoding: try JSONSerialization.data(withJSONObject: answer), as: UTF8.self)
-                    return String(decoding: try JSONSerialization.data(withJSONObject: ["content":[["type":"text","text":inner]]]), as: UTF8.self)
-                } })
+                invalidations: Empty<Void, Never>().eraseToAnyPublisher(), moduleEnabled: { true },
+                makeProvider: { model }, makeWriter: { .wrapping(model) })
         }
         try await receive("fyi", "The furniture shipment has arrived.", minute: 0)
         await pass(minute: 1)

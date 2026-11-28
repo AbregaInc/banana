@@ -11,15 +11,32 @@ enum MailDraftAssistant {
     /// same-device providers receive composer mail. A paired chat grant is not a mail grant.
     @MainActor
     static func write(instruction: String, context: MailComposerModel.AssistantDraftContext,
-                      body: String, source: MailLiveSource? = nil,
+                      body: String, source: MailLiveSource? = nil, thinking: MailAIThinking = .off,
+                      model: MailAIModel? = nil,
                       generate selectedProvider: (([String: Any]) async throws -> String)? = nil) async throws -> String {
+        let outcome = try await reply(instruction: instruction, context: context, body: body, source: source,
+                                      thinking: thinking, model: model, generate: selectedProvider)
+        switch outcome {
+        case .draft(let text): return text
+        case .note(let note): throw NeedsInput(message: note)
+        case .noReply(let reason): throw NeedsInput(message: reason.isEmpty ? "This email doesn’t need a reply." : reason)
+        case .questions(let picker): throw NeedsInput(message: picker.questions.map(\.question).joined(separator: " "))
+        }
+    }
+
+    /// Drafts come from Banana's Pi with the banana-mail tools. A picker outcome carries the owner's
+    /// questions for the composer. Manual drafts think off; the overnight pass passes .low.
+    @MainActor
+    static func reply(instruction: String, context: MailComposerModel.AssistantDraftContext,
+                      body: String, source: MailLiveSource? = nil, thinking: MailAIThinking = .off,
+                      model: MailAIModel? = nil,
+                      generate selectedProvider: (([String: Any]) async throws -> String)? = nil) async throws -> MailAIOutcome {
         #if BANANA_AI
         if #available(iOS 26.0, macOS 26.0, *) {
             guard !instruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                   instruction.count <= 1000, body.count <= 3000 else { throw Unavailable() }
             let quoted = context.quote.flatMap(\.text).map { MailPlainText.string($0) } ?? ""
             let envelope = context.envelope
-            var mayRequestMissingAttachment = false
             if MailDraftWorkflow.isGeneralReply(instruction), body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                let source, let conversation = context.conversation, let selected = context.selectedMessageID,
                let sender = context.sender, sender.account.lowercased() == conversation.account,
@@ -28,25 +45,20 @@ enum MailDraftAssistant {
                header.threadID == conversation.thread, header.messageID == selected.message,
                !header.from.address.isEmpty, context.typedRecipients.allSatisfy({ $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }),
                context.recipients.flatMap({ $0 }).map({ $0.address.lowercased() }) == [header.from.address.lowercased()] {
-                // The writing prompt includes at most 2,400 characters. A longer
-                // message could contain a second request beyond the visible portion.
-                mayRequestMissingAttachment = quoted.utf8.count <= 9600 && quoted.count <= 2400
                 let question = MailDraftWorkflow.senderText(in: quoted, from: header.from.address)
                 if let slot = MailCalendarReply.slot(in: question) {
                     do {
                         try source.checkComposerEvidenceAccess(for: conversation)
                         let available = try await AssistantCapabilities.composerIntervalAvailable(from: slot.start, to: slot.end, account: conversation.account)
                         try source.checkComposerEvidenceAccess(for: conversation)
-                        return available ? "My calendar for this account is clear for \(slot.label)." :
-                            "I have a calendar conflict during \(slot.label)."
+                        return .draft(available ? "My calendar for this account is clear for \(slot.label)." :
+                            "I have a calendar conflict during \(slot.label).")
                     } catch is CancellationError { throw CancellationError() }
                     catch let failure as AssistantFailure { throw NeedsInput(message: failure.message) }
                     catch is MailAccessError { throw NeedsInput(message: "Reconnect the email account before writing this reply.") }
                     catch { throw NeedsInput(message: "Check the calendar for this account before replying with your availability.") }
                 }
             }
-            let request = try MailDraftPrompt.request(instruction: instruction, subject: context.subject,
-                                                     quotedEmail: quoted, workingDraft: body, envelope: envelope)
             var read: ((MailDraftWorkflow.Lookup) async throws -> [MailDraftWorkflow.Evidence])?
             var recentHistory: (() async throws -> [MailDraftWorkflow.Evidence])?
             if let source, let conversation = context.conversation,
@@ -136,27 +148,43 @@ enum MailDraftAssistant {
                     recentHistory = { try await evidence(.thread, precedingOnly: true) }
                 }
             }
-            let generate = selectedProvider ?? provider()
-            let result = try await MailDraftWorkflow.write(request: request,
-                suppliedText: [instruction, String(context.subject.prefix(300)), String(quoted.prefix(2400)), body].joined(separator: "\n"),
-                read: read, recentHistory: recentHistory,
-                mayRequestMissingAttachment: mayRequestMissingAttachment, generate: { request in
-                    @MainActor func checkAccess() throws {
-                        if let source, let conversation = context.conversation {
-                            do { try source.checkComposerEvidenceAccess(for: conversation) }
-                            catch is CancellationError { throw CancellationError() }
-                            catch { throw NeedsInput(message: "Reconnect the email account before writing this reply.") }
-                        }
+            let suppliedText = [instruction, String(context.subject.prefix(300)), String(quoted.prefix(2400)), body].joined(separator: "\n")
+            let empty: () async throws -> [MailDraftWorkflow.Evidence] = { [] }
+            let tools = MailPiReply.Tools(
+                readThread: recentHistory ?? empty,
+                search: { topic in try await read?(.related(topic)) ?? [] },
+                attachments: { try await read?(.attachments) ?? [] },
+                checkReply: { draft, passages in
+                    try MailDraftPrompt.checkGrounding(in: draft, suppliedText: suppliedText, authorInstruction: instruction,
+                                                       optionalThreadPassages: passages)
+                    if MailOutgoingFileClaim.contradicts(body: draft, outgoingCount: context.outgoingAttachmentCount) {
+                        throw MailPiReply.Failure(message: "The reply refers to a file on this email, but none is attached. Don't mention one.")
                     }
-                    try checkAccess()
-                    let answer = try await generate(request)
-                    try checkAccess()
-                    return answer
-                })
-            guard !MailOutgoingFileClaim.contradicts(body: result, outgoingCount: context.outgoingAttachmentCount) else {
+                },
+                selectedText: quoted)
+            let selected = envelope.selectedMessage
+            let email = MailPiReply.Email(subject: context.subject, from: selected?.from.address ?? "",
+                fromName: selected?.from.name, account: context.conversation?.account ?? context.sender?.account ?? "",
+                to: envelope.to.map(\.address), cc: envelope.cc.map(\.address), text: quoted)
+            let task = body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? instruction
+                : instruction + "\n\nMy draft so far (data):\n" + body
+            let chosen = model ?? selectedProvider.map(MailAIModel.wrapping) ?? MailAIModel.current()
+            let outcome: MailAIOutcome
+            do {
+                outcome = try await MailPiReply.run(task: task, email: email, tools: tools, model: chosen, thinking: thinking,
+                    reasoningBudget: thinking == .off ? nil : 1024, checkAccess: {
+                        guard let source, let conversation = context.conversation else { return }
+                        do { try source.checkComposerEvidenceAccess(for: conversation) }
+                        catch is CancellationError { throw CancellationError() }
+                        catch { throw NeedsInput(message: "Reconnect the email account before writing this reply.") }
+                    })
+            } catch let failure as MailAIFailure {
+                throw NeedsInput(message: failure.message)
+            }
+            if case .draft(let text) = outcome, MailOutgoingFileClaim.contradicts(body: text, outgoingCount: context.outgoingAttachmentCount) {
                 throw NeedsInput(message: "The generated reply refers to a file on this email. Attach it or ask for a reply without it.")
             }
-            return result
+            return outcome
         }
         #endif
         throw Unavailable()
