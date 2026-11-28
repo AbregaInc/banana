@@ -5,6 +5,8 @@ import {parseCalendarOperation,calendarOperation} from './calendar-operation.js'
 export const SWEEP_AFTER=5*60*1000;
 /** Operations resumed per run; the rest wait for the next. */
 export const SWEEP_BATCH=25;
+/** Stuck operations looked at per run; the checks per one are indexed, but the work per run stays bounded. */
+export const SWEEP_SCAN=100;
 /**
  * A calendar change that never went out is never applied by the service: it reads the event's current version when it
  * sends, so a late replay could overwrite a newer edit or notify guests days later. The device re-reads the event and
@@ -33,6 +35,14 @@ export async function settleOperation(deps,vault,account,operationID,status,mess
   status,await vault.seal('provider-operation:'+account,JSON.stringify(body)),deps.now(),account,operationID);
 }
 
+// The sweep's three queries. Each runs against an indexed range (tested: test/operation-sweep.test.js reads the plan).
+export const CANDIDATES_SQL=`SELECT account_id,operation_id,resource_key,created_at,(dispatch_cipher IS NOT NULL) AS dispatched
+  FROM provider_operations
+  WHERE (state='pending' AND dispatch_cipher IS NULL AND updated_at<?) OR (state='running' AND lease_until<?) OR (state='uncertain' AND updated_at<?)
+  ORDER BY created_at,operation_id LIMIT ?`;
+export const EARLIER_SQL="SELECT 1 AS x FROM provider_operations WHERE account_id=? AND resource_key=? AND state<>'done' AND (created_at<? OR (created_at=? AND operation_id<?)) LIMIT 1";
+export const SUPERSEDED_SQL="SELECT 1 AS x FROM provider_operations WHERE account_id=? AND resource_key=? AND created_at>? AND state='done' AND response_status BETWEEN 200 AND 299 LIMIT 1";
+
 /**
  * The job's second half: operations nothing is finishing (never sent, a lease that ran out, an outcome never
  * confirmed) are resumed by the service itself, oldest first, one per item so changes to one item stay in order.
@@ -42,18 +52,26 @@ export async function settleOperation(deps,vault,account,operationID,status,mess
  */
 export async function sweepStaleOperations(deps,vault,handlers=HANDLERS) {
  const t=deps.now(),quiet=t-SWEEP_AFTER,out={replayed:0,settled:0,skipped:0,failed:0};
- const rows=await deps.db.all(`SELECT p.account_id,p.operation_id,p.request_cipher,p.created_at,(p.dispatch_cipher IS NOT NULL) AS dispatched
-  FROM provider_operations p
-  WHERE p.state<>'done'
-   AND ((p.state='pending' AND p.dispatch_cipher IS NULL AND p.updated_at<?) OR (p.state='running' AND p.lease_until<?) OR (p.state='uncertain' AND p.updated_at<?))
-   AND NOT EXISTS (SELECT 1 FROM provider_operations e WHERE e.account_id=p.account_id AND e.resource_key=p.resource_key AND e.state<>'done'
-     AND (e.created_at<p.created_at OR (e.created_at=p.created_at AND e.operation_id<p.operation_id)))
-   AND NOT EXISTS (SELECT 1 FROM provider_operations d WHERE d.account_id=p.account_id AND d.resource_key=p.resource_key AND d.state='done'
-     AND d.response_status BETWEEN 200 AND 299 AND d.created_at>p.created_at)
-  ORDER BY p.created_at,p.operation_id LIMIT ?`,quiet,quiet,quiet,SWEEP_BATCH);
- for(const row of rows) {
+ // Phase 1: the few operations nothing is finishing, from the (state, updated_at) index; no ciphertext, bounded.
+ const candidates=await deps.db.all(CANDIDATES_SQL,quiet,quiet,quiet,SWEEP_SCAN);
+ const taken=new Set();
+ let picked=0;
+ for(const row of candidates) {
+  if(picked>=SWEEP_BATCH)break;
+  const item=row.account_id+'\n'+row.resource_key;
+  if(taken.has(item))continue; // one per item per run: changes to an item stay in order
+  // Phase 2: each check is a range inside one item's rows (provider_operations_item), never a table scan.
+  const earlier=await deps.db.first(EARLIER_SQL,
+   row.account_id,row.resource_key,row.created_at,row.created_at,row.operation_id);
+  if(earlier)continue;
+  // A later change on this item already went out: replaying this one would undo it.
+  const superseded=await deps.db.first(SUPERSEDED_SQL,
+   row.account_id,row.resource_key,row.created_at);
+  if(superseded)continue;
+  taken.add(item);picked++;
   try {
-   const request=JSON.parse(await vault.open('provider-operation:'+row.account_id,row.request_cipher));
+   const stored=await deps.db.first("SELECT request_cipher FROM provider_operations WHERE account_id=? AND operation_id=?",row.account_id,row.operation_id);
+   const request=JSON.parse(await vault.open('provider-operation:'+row.account_id,stored.request_cipher));
    const handler=handlers.find(h=>h.parse(request));
    if(!handler){out.skipped++;continue;}
    if(handler.maxUnsentAge!=null&&!row.dispatched&&t-row.created_at>handler.maxUnsentAge) {

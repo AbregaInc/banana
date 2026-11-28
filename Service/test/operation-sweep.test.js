@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { setup, device, DAY, TOKEN_KEY as TOKEN } from "./helpers.js";
 import { createVault } from "../src/crypto.js";
 import { providerOperation, operationFailure } from "../src/provider-operation.js";
-import { sweepStaleOperations, settleOperation, SWEEP_AFTER, SWEEP_BATCH, NEVER_REPLAY_UNSENT } from "../src/operation-sweep.js";
+import { sweepStaleOperations, settleOperation, SWEEP_AFTER, SWEEP_BATCH, NEVER_REPLAY_UNSENT, CANDIDATES_SQL, EARLIER_SQL, SUPERSEDED_SQL } from "../src/operation-sweep.js";
 
 async function world() {
   const s = setup();
@@ -130,4 +130,16 @@ test("settleOperation does not touch an operation that is already done", async (
   assert.equal((await run(true, op(1, "m1"))).status, 200);
   await settleOperation(s.deps, vault, account, op(1, "m1").operationID, 412, "late");
   assert.deepEqual((await rows()).map((r) => [r.state, r.response_status]), [["done", 200]]);
+});
+
+test("every sweep query reads an index range, never the table (the first version scanned it per operation and overloaded D1)", async () => {
+  const { s } = await world();
+  const plan = async (sql, ...args) => (await s.deps.db.all("EXPLAIN QUERY PLAN " + sql, ...args)).map((r) => r.detail).join("\n");
+  const candidates = await plan(CANDIDATES_SQL, 1, 1, 1, 100);
+  const earlier = await plan(EARLIER_SQL, "a", "k", 1, 1, "o");
+  const superseded = await plan(SUPERSEDED_SQL, "a", "k", 1);
+  assert.match(candidates, /provider_operations_pending/);
+  assert.match(earlier, /provider_operations_item \(account_id=\? AND resource_key=\?/);
+  assert.match(superseded, /provider_operations_item \(account_id=\? AND resource_key=\?/);
+  for (const text of [candidates, earlier, superseded]) assert.doesNotMatch(text, /SCAN/);
 });
