@@ -7,6 +7,16 @@ final class LocalInferenceTransportTests: XCTestCase {
     private func response(_ message: [String: Any], finish: String = "stop") -> [String: Any] {
         ["choices": [["finish_reason": finish, "message": message.merging(["role": "assistant"]) { original, _ in original }]]]
     }
+    func testPairedTransportRequiresTheGrantedRecipientAndKeepsItsMarkerLocal() throws {
+        let message = #"{"pairedRecipient":"fixture-peer","messages":[{"role":"user","text":"hello"}]}"#
+        let payload = try LocalInferenceTransport.pairedPayload(message, recipient: "fixture-peer")
+        let parsed = try XCTUnwrap(JSONSerialization.jsonObject(with: Data(payload.utf8)) as? [String: Any])
+        XCTAssertNil(parsed["pairedRecipient"])
+        XCTAssertEqual((parsed["messages"] as? [[String: String]])?.first?["text"], "hello")
+        XCTAssertThrowsError(try LocalInferenceTransport.pairedPayload(message, recipient: "another-peer"))
+        XCTAssertThrowsError(try LocalInferenceTransport.pairedPayload(#"{"messages":[]}"#, recipient: "fixture-peer"))
+    }
+
     func testPreservesReasoningToolsAndFailedResults() throws {
         let request = input([
             ["role": "assistant", "content": [["type": "thinking", "thinking": "Context"], ["type": "text", "text": "Looking"],

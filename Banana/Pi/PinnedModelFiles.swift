@@ -29,6 +29,7 @@ enum PinnedModelFiles {
             let contextWindow: Int
             let maxTokens: Int
             let thinkingLevel: String
+            let promptCacheGiB: Double?
         }
         let repo: String
         let revision: String

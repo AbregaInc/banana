@@ -313,15 +313,66 @@ final class MailIntentStore: MailWriterLog, @unchecked Sendable {
         updated.generation = (expectedGeneration ?? -1) + 1
         let next = updated
         return try await queue.write { db in
-            let data = try JSONEncoder().encode(next)
             if let expectedGeneration {
                 try db.execute(sql: "UPDATE draft_outbox SET remote_id=?,generation=?,payload=?,state=?,dirty=?,conversation=?,sort_key=?,tie=? WHERE scope=? AND local_id=? AND generation=?",
-                    arguments: [next.remote?.id, next.generation, data, next.state.rawValue, next.needsDelivery, next.snapshot.conversation.thread, Int64(next.snapshot.editedAt.timeIntervalSince1970 * 1000), MailMessageImporter.tie(account: next.snapshot.account, thread: next.snapshot.id.raw), next.scope, next.snapshot.id.raw, expectedGeneration])
+                    arguments: [next.remote?.id, next.generation, try JSONEncoder().encode(next), next.state.rawValue, next.needsDelivery, next.snapshot.conversation.thread, Int64(next.snapshot.editedAt.timeIntervalSince1970 * 1000), MailMessageImporter.tie(account: next.snapshot.account, thread: next.snapshot.id.raw), next.scope, next.snapshot.id.raw, expectedGeneration])
             } else {
-                try db.execute(sql: "INSERT OR IGNORE INTO draft_outbox(scope,local_id,account,remote_id,generation,payload,state,dirty,conversation,sort_key,tie) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                    arguments: [next.scope, next.snapshot.id.raw, next.snapshot.account, next.remote?.id, next.generation, data, next.state.rawValue, next.needsDelivery, next.snapshot.conversation.thread, Int64(next.snapshot.editedAt.timeIntervalSince1970 * 1000), MailMessageImporter.tie(account: next.snapshot.account, thread: next.snapshot.id.raw)])
+                // A manual reply may have started opening while an overnight reply was
+                // committing. Let the native caller reopen that same editable draft.
+                if next.awaitingFirstEdit == true, let anchor = next.snapshot.replyToMessage,
+                   next.snapshot.isReply, try Bool.fetchOne(db, sql: """
+                    SELECT EXISTS(SELECT 1 FROM draft_outbox WHERE scope=? AND local_id=? AND state='editing')
+                    """, arguments: [next.scope, MailOvernightDrafts.draftID(for: next.snapshot.conversation, anchor: anchor).raw]) == true {
+                    return false
+                }
+                try Self.insertDraft(next, in: db)
             }
             return db.changesCount == 1
+        }
+    }
+
+    private static func insertDraft(_ next: MailDraftRecord, in db: Database) throws {
+        try db.execute(sql: """
+            INSERT OR IGNORE INTO draft_outbox(scope,local_id,account,remote_id,generation,payload,state,dirty,conversation,sort_key,tie)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?)
+            """, arguments: [next.scope, next.snapshot.id.raw, next.snapshot.account, next.remote?.id, next.generation,
+                            try JSONEncoder().encode(next), next.state.rawValue, next.needsDelivery,
+                            next.snapshot.conversation.thread, Int64(next.snapshot.editedAt.timeIntervalSince1970 * 1000),
+                            MailMessageImporter.tie(account: next.snapshot.account, thread: next.snapshot.id.raw)])
+    }
+
+    func permitsOvernightDraft(scope: String, conversation: MailConversationID, anchor: String) async throws -> Bool {
+        try await queue.read { try Self.permitsOvernightDraft(scope: scope, conversation: conversation, anchor: anchor, in: $0) }
+    }
+
+    private static func permitsOvernightDraft(scope: String, conversation: MailConversationID, anchor: String, in db: Database) throws -> Bool {
+        try Bool.fetchOne(db, sql: """
+            SELECT NOT EXISTS(SELECT 1 FROM draft_outbox WHERE scope=? AND account=? AND conversation=?
+                AND (state NOT IN ('sent','deleted') OR
+                     json_extract(CAST(payload AS TEXT),'$.snapshot.replyToMessage.message')=?))
+            """, arguments: [scope, conversation.account, conversation.thread, anchor]) == true
+    }
+
+    /// Lock order is index writer, then intent writer. No network or model work inside either.
+    /// The index writer holds its transaction while the intent record commits, so a newer message
+    /// cannot slip between the final native anchor check and insertion. Competing editors use
+    /// the same intent writer; insertion never modifies an existing draft.
+    func insertOvernightDraft(_ value: MailDraftRecord, anchor: MailMessageID, stores: MailStores,
+                              isEnabled: @escaping @Sendable () -> Bool) async throws -> Bool {
+        let conversation = value.snapshot.conversation
+        guard value.awaitingFirstEdit == true, !value.needsDelivery, value.state == .editing,
+              value.snapshot.account == conversation.account, anchor.account == conversation.account,
+              value.snapshot.replyToMessage == anchor, value.snapshot.isReply, let rfc = value.snapshot.inReplyTo else { return false }
+        return try await stores.index.write { index in
+            guard try MailOvernightDrafts.latestInbound(conversation, rfcID: rfc, in: index) == anchor.message else { return false }
+            return try self.queue.write { db in
+                try Task.checkCancellation()
+                guard isEnabled() else { return false }
+                guard try Self.permitsOvernightDraft(scope: value.scope, conversation: conversation, anchor: anchor.message, in: db),
+                      isEnabled() else { return false }
+                try Self.insertDraft(value, in: db)
+                return db.changesCount == 1
+            }
         }
     }
 

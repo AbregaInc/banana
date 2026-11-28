@@ -30,15 +30,15 @@ export async function workspaceRequestText(harness, api, ctx) {
   return api.memo('workspace-request-text', text, ctx);
 }
 
-export function workspaceExtension(nativeTool, uuid, requestText = async () => undefined) {
-  const names = new Set(['prepare_meal', 'prepare_event', 'search_app', 'open_page']);
+export function workspaceExtension(nativeTool, uuid, requestText = async () => undefined, mailAvailable = false) {
+  const names = new Set(['prepare_meal', 'prepare_event', 'prepare_event_from_email', 'search_app', 'search_mail', 'open_page']);
   const day = { day: Type.Optional(Type.String({description:'today, tomorrow, yesterday, or an explicit YYYY-MM-DD date. Default today.'})) };
-  const tool = (name, description, fields, kind) => defineTool({name,description,
+  const tool = (name, description, fields, kind, section) => defineTool({name,description,
     parameters:Type.Object({...fields,revision:Type.Optional(Type.Integer({description:'Host metadata; omit.'}))},{additionalProperties:false}),replay:'safe',
     execute:async(args,api,ctx)=>{
       const operation=await api.memo('workspace-operation',uuid(),ctx);
       const sourceRequest=await requestText(api,ctx);
-      const action=await updateWorkspace(api,api.conversationId,{...args,kind,...(sourceRequest ? {sourceRequest} : {})},operation,nativeTool,ctx);
+      const action=await updateWorkspace(api,api.conversationId,{...args,kind,...(section ? {section} : {}),...(sourceRequest ? {sourceRequest} : {})},operation,nativeTool,ctx);
       return {output:[{type:'text',text:JSON.stringify({action:brief(action), saved:false, instruction:'The native workspace is the answer. Review and save there.'})}],control:{terminate:true}};
     }});
   return defineExtension({name:'banana-workspace',hooks:[hook(GenerationTask,{
@@ -62,8 +62,13 @@ export function workspaceExtension(nativeTool, uuid, requestText = async () => u
       {title:Type.Optional(Type.String()),foods:Type.Array(Type.Object({name:Type.String(),quantity:Type.String()},{additionalProperties:false})),...day},'meal'),
     tool('prepare_event','Prepare a calendar event for native review, never save. Use the stated activity as the title: an activity plus a time is enough to prepare an event. Do not ask for a separate event name or an omitted day. Use only requested date/time, duration and details. Ask if the start time is missing; default duration is 60 minutes.',
       {title:Type.String({description:'Use the activity phrase already supplied by the user. Do not request a separate or more formal event name.'}),day:Type.Optional(Type.String({description:'Only a day explicitly requested by the user: today, tomorrow, yesterday, or YYYY-MM-DD. Omit for a time-only request; native code chooses the next occurrence, never a past default.'})),time:Type.Optional(Type.String({description:'Local 24-hour HH:mm; required unless explicitly all-day.'})),durationMinutes:Type.Optional(Type.Integer()),isAllDay:Type.Optional(Type.Boolean()),location:Type.Optional(Type.String()),notes:Type.Optional(Type.String())},'event'),
+    ...(mailAvailable ? [tool('prepare_event_from_email', 'Internal continuation that opens a calendar draft from an exact range copied from one cached thread. No record is saved.',
+      {title:Type.String(),sourceStart:Type.String(),sourceEnd:Type.String(),notes:Type.String()},'event')] : []),
     tool('search_app','Find named calendar events, search across Banana categories, or search for quoted text. Set section to plan for an explicitly named calendar event. For logged meals use nutrition_view. Returns matching records with app links.',{query:Type.String(),section:Type.Optional(Type.Literal('plan'))},'search'),
-    tool('open_page','Offer a link to a Banana page.',{section:Type.String({enum:['plan','workouts','nutrition','notes','routines','library','review','assistant','settings']})},'navigation')
+    ...(mailAvailable ? [tool('search_mail', 'Find emails in the retained local header index. Use a few subject or content keywords, an explicitly stated sender, unread state or date filter. Do not pretend to search all of Gmail, fetch bodies or attachments, read drafts, or take actions. At least one filter is required.',
+      {query:Type.Optional(Type.String()),sender:Type.Optional(Type.String()),unread:Type.Optional(Type.Boolean()),
+        period:Type.Optional(Type.String({enum:['today','yesterday','thisWeek','lastWeek','thisMonth','lastMonth','7days','30days']}))},'search','mail')] : []),
+    tool('open_page','Offer a link to a Banana page.',{section:Type.String({enum:['plan','workouts','nutrition','notes','routines','library','review','assistant','settings',...(mailAvailable ? ['mail'] : [])]})},'navigation')
   ]});
 }
 
@@ -71,6 +76,8 @@ export function workspaceExtension(nativeTool, uuid, requestText = async () => u
 function brief(action) {
   if (!action) return action;
   const {sourceRequest, ...descriptor} = action;
+  if (descriptor.kind==='search' && descriptor.section==='mail')
+    return {kind:'search', section:'mail', matchCount:descriptor.results?.length ?? 0};
   if (descriptor.kind !== 'search') return descriptor;
   const results = descriptor.results ?? [];
   return { ...descriptor, results: results.slice(0, 5), hasMoreResults: results.length > 5 };

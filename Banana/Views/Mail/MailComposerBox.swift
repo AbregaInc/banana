@@ -242,10 +242,14 @@ struct MailComposerBox: View {
         }
     }
 
+    private var canDraftReplyWithoutInstructions: Bool {
+        (model.replyStyle == .reply || model.replyStyle == .replyAll) && model.rich.characters.isEmpty
+    }
+
     private var assistantLine: some View {
         HStack(spacing: DS.Space.s) {
             Image(systemName: "sparkle").foregroundStyle(DS.Palette.accent)
-            TextField("Say yes, Friday instead", text: $instruction)
+            TextField(canDraftReplyWithoutInstructions ? "Optional reply instructions" : "Say yes, Friday instead", text: $instruction)
                 .textFieldStyle(.plain)
                 .foregroundStyle(.primary)
                 .focused($instructing)
@@ -255,10 +259,16 @@ struct MailComposerBox: View {
             if thinking {
                 ProgressView().controlSize(.small)
             } else {
-                Button(action: runAssistant) { Image(systemName: "return") }
+                Button(action: runAssistant) {
+                    if canDraftReplyWithoutInstructions {
+                        Text("Draft reply")
+                    } else {
+                        Image(systemName: "return")
+                    }
+                }
                     .buttonStyle(.plain)
-                    .disabled(instruction.trimmingCharacters(in: .whitespaces).isEmpty)
-                    .accessibilityLabel("Write it")
+                    .disabled(!canDraftReplyWithoutInstructions && instruction.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                    .accessibilityLabel(canDraftReplyWithoutInstructions ? "Draft reply" : "Write it")
             }
             Button {
                 assistantTask?.cancel()
@@ -279,7 +289,7 @@ struct MailComposerBox: View {
 
     private func runAssistant() {
         let words = instruction.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !words.isEmpty, !thinking, model.isReady, !model.isForeign else { return }
+        guard !words.isEmpty || canDraftReplyWithoutInstructions, !thinking, model.isReady, !model.isForeign else { return }
         let context = model.assistantDraftContext
         let original = model.rich
         let body = model.body
@@ -287,7 +297,9 @@ struct MailComposerBox: View {
         assistantTask = Task { @MainActor in
             defer { if !Task.isCancelled { assistantTask = nil } }
             do {
-                let text = try await MailDraftAssistant.write(instruction: words, context: context, body: body)
+                let task = words.isEmpty ? "Draft a reply to the selected message." : words
+                let text = try await MailDraftAssistant.write(instruction: task, context: context, body: body,
+                                                              source: session.source as? MailLiveSource)
                 guard !Task.isCancelled, session.composer === model else { return }
                 guard model.assistantDraftContext == context, !model.isForeign, !model.isResolving else {
                     session.showToast(MailToast(text: "Draft changed. Try again.", action: nil, lasts: nil))
@@ -304,7 +316,17 @@ struct MailComposerBox: View {
                 instruction = ""
             } catch {
                 guard !Task.isCancelled, session.composer === model else { return }
-                session.showToast(MailToast(text: "Banana couldn’t write that", action: nil, lasts: nil))
+                guard model.assistantDraftContext == context,
+                      instruction.trimmingCharacters(in: .whitespacesAndNewlines) == words else { return }
+                let message: String
+                if let issue = error as? MailDraftAssistant.NeedsInput {
+                    message = issue.message
+                } else if error is MailDraftPrompt.UnverifiedLink {
+                    message = "Add the link or email address to your instructions and try again."
+                } else {
+                    message = "Banana couldn’t write that"
+                }
+                session.showToast(MailToast(text: message, action: nil, lasts: nil))
             }
         }
     }

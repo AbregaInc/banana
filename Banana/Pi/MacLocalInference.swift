@@ -21,6 +21,13 @@ final class MacLocalInference {
         let contextWindow: Int
         let maxTokens: Int
         let thinkingLevel: String
+        let promptCacheGiB: Double?
+        /// Preserve the legacy 2 GiB worker cache for unqualified profiles.
+        var promptCacheArgument: String {
+            guard let promptCacheGiB, promptCacheGiB.isFinite, promptCacheGiB > 0,
+                  promptCacheGiB <= 2 else { return "2" }
+            return String(promptCacheGiB)
+        }
         let temperature: Double?
         let topP: Double?
         let topK: Int?
@@ -31,6 +38,15 @@ final class MacLocalInference {
         }
     }
     static let shared = MacLocalInference()
+    private let currentMemory: () -> MacInferenceMemory?
+    private let now: () -> ContinuousClock.Instant
+    private var retryAfter: ContinuousClock.Instant?
+    static let memoryStopped = Notification.Name("BananaMacModelStoppedForMemory")
+    init(currentMemory: @escaping () -> MacInferenceMemory? = MacInferenceMemory.current,
+         now: @escaping () -> ContinuousClock.Instant = { .now }) {
+        self.currentMemory = currentMemory
+        self.now = now
+    }
     static let directory = AppSupport.directory.appendingPathComponent("LocalInference", isDirectory: true)
     /// A verification run may name another profile to qualify (`--assistant-inference-configuration`).
     static var verificationConfigurationURL: URL? {
@@ -59,7 +75,101 @@ final class MacLocalInference {
                              modelId: profile.modelId, serverModel: profile.serverModel, name: profile.name,
                              revision: manifest.revision, port: profile.macWorkerPort, contextWindow: profile.contextWindow,
                              maxTokens: profile.maxTokens, thinkingLevel: profile.thinkingLevel,
-                             temperature: nil, topP: nil, topK: nil)
+                             promptCacheGiB: profile.promptCacheGiB, temperature: nil, topP: nil, topK: nil)
+    }
+    struct MemoryUnavailable: LocalizedError, CustomStringConvertible {
+        var description: String { "The local model is paused because this Mac needs more available memory." }
+        var errorDescription: String? { description }
+    }
+    private var measuredWeights: (directory: String, revision: String, bytes: UInt64)?
+    private func weightBytes(_ config: Configuration) -> UInt64 {
+        if let cached = measuredWeights, cached.directory == config.modelDirectory,
+           cached.revision == config.revision { return cached.bytes }
+        // Normal builds already have a verified manifest, including the exact sizes of all shards.
+        let bytes: UInt64
+        if Self.verificationConfigurationURL == nil, let manifest = LocalModel.shared.manifest,
+           config.revision == manifest.revision {
+            bytes = manifest.files.filter { $0.key.hasSuffix(".safetensors") }
+                .reduce(0) { $0 + UInt64($1.value.bytes) }
+        } else {
+            let dir = URL(fileURLWithPath: config.modelDirectory)
+            guard let files = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: [.fileSizeKey]) else { return 0 }
+            var total: UInt64 = 0
+            for file in files where file.pathExtension == "safetensors" {
+                guard let size = PinnedModelFiles.size(of: file), size > 0 else { return 0 }
+                total += UInt64(size)
+            }
+            bytes = total
+        }
+        if bytes > 0 { measuredWeights = (config.modelDirectory, config.revision, bytes) }
+        return bytes
+    }
+    private var pressureEvents: DispatchSourceMemoryPressure?
+    private var memoryCheck: Task<Void, Never>?
+    private var swapWindow = MacInferenceMemory.SwapWindow()
+    private var activeGenerations = 0
+    private var stopping = false
+    private var stopGeneration: UInt64 = 0
+    private var stoppedForMemory = false
+
+    func memoryAllows(_ config: Configuration) -> Bool {
+        if let retryAfter, now() < retryAfter { return false }
+        let alive = process?.isRunning == true
+        guard !(alive && stopping), let state = currentMemory() else { return false }
+        return state.admits(weightBytes: alive ? 0 : weightBytes(config), resident: alive)
+    }
+
+    private func residentMemoryAllows(_ state: MacInferenceMemory?) -> Bool {
+        guard let state, state.admits(weightBytes: 0, resident: true) else { return false }
+        guard !ready || activeGenerations > 0 else { swapWindow.clear(); return true }
+        return !swapWindow.exceedsLimit(state.swapoutBytes, at: now())
+    }
+
+    private func checkMemory(_ config: Configuration) throws {
+        if stopping, process?.isRunning == true {
+            if stoppedForMemory { throw MemoryUnavailable() }
+            throw AssistantFailure(message: "The local inference worker is stopping. Try again.")
+        }
+        if process?.isRunning == true {
+            guard residentMemoryAllows(currentMemory()) else { stopForMemory(); throw MemoryUnavailable() }
+        } else if !memoryAllows(config) {
+            stopForMemory()
+            throw MemoryUnavailable()
+        }
+    }
+
+    private func monitorMemory(of child: Process) {
+        pressureEvents?.cancel()
+        memoryCheck?.cancel()
+        let source = DispatchSource.makeMemoryPressureSource(eventMask: [.warning, .critical], queue: .main)
+        source.setEventHandler { [weak self, weak child] in
+            MainActor.assumeIsolated {
+                guard let self, let child, self.process === child else { return }
+                self.stopForMemory()
+            }
+        }
+        pressureEvents = source
+        source.activate()
+        memoryCheck = Task { [weak self, weak child] in
+            while !Task.isCancelled {
+                do { try await Task.sleep(for: .seconds(1)) } catch { return }
+                guard let self, let child, self.process === child, child.isRunning else { return }
+                guard self.residentMemoryAllows(self.currentMemory()) else {
+                    self.stopForMemory()
+                    return
+                }
+            }
+        }
+    }
+
+    private func stopForMemory() {
+        let shouldNotify = !stoppedForMemory
+        if !stopping, process?.isRunning == true {
+            retryAfter = now().advanced(by: .seconds(30))
+        }
+        stoppedForMemory = true
+        stop(immediate: true)
+        if shouldNotify { NotificationCenter.default.post(name: Self.memoryStopped, object: self) }
     }
     private(set) var configuration: Configuration?
     private var process: Process?
@@ -98,7 +208,7 @@ final class MacLocalInference {
         return URLSession(configuration: config)
     }()
     var status: [String: Any] {
-        ["available": ready, "reason": ready ? "\(configuration?.name ?? "Local model") · On this Mac" : "Local model unavailable. Try again.",
+        ["available": ready, "reason": ready ? "\(configuration?.name ?? "Local model") · On this Mac" : (stoppedForMemory ? MemoryUnavailable().localizedDescription : "Local model unavailable. Try again."),
          "contextWindow": configuration?.contextWindow ?? 32768, "modelName": configuration?.name ?? "Local Mac model"]
     }
 
@@ -120,22 +230,28 @@ final class MacLocalInference {
             configuration = candidate
         }
         guard let config = configuration else { return }
-        if ready && (process == nil || process?.isRunning == true) { return }
-        // Only the worker this launch started is used: something already answering on the port that
-        // can't prove it is ours is another program, and nothing is sent to it.
-        if process?.isRunning == true, let ids = try? await models(config) {
-            guard ids.contains(config.serverModel) else { throw AssistantFailure(message: "Another model is using Banana's inference port.") }
-            ready = true
-            return
+        try checkMemory(config)
+        if ready && process?.isRunning == true { return }
+        if process?.isRunning != true {
+            let generation = stopGeneration
+            let occupied = await portAnswers(config)
+            try Task.checkCancellation()
+            if stopGeneration != generation {
+                if stoppedForMemory { throw MemoryUnavailable() }
+                throw CancellationError()
+            }
+            // Another caller may have started our worker while the probe was suspended.
+            if occupied && process?.isRunning != true {
+                throw AssistantFailure(message: "Another program is using Banana's inference port. Quit it, or restart the Mac, and try again.")
+            }
         }
-        if process?.isRunning != true, await portAnswers(config) {
-            throw AssistantFailure(message: "Another program is using Banana's inference port. Quit it, or restart the Mac, and try again.")
-        }
+        try checkMemory(config)
         if process?.isRunning != true {
             try FileManager.default.createDirectory(at: Self.directory, withIntermediateDirectories: true)
             let log = Self.directory.appendingPathComponent("engine.log")
             FileManager.default.createFile(atPath: log.path, contents: nil)
             let output = try FileHandle(forWritingTo: log)
+            defer { try? output.close() }
             guard let worker = Bundle.main.url(forResource: "pi-inference-worker", withExtension: "py") else {
                 throw AssistantFailure(message: "The local inference worker is missing from this build.")
             }
@@ -144,21 +260,32 @@ final class MacLocalInference {
             // -I: only the app's own Python and packages; -B: never write inside the app.
             child.arguments = ["-I", "-B", worker.path, String(ProcessInfo.processInfo.processIdentifier), "--model", config.modelDirectory,
                 "--engines", config.engine, "--preload", config.engine, "--host", "127.0.0.1", "--port", String(config.port),
-                "--slots", "1", "--cache-gb", "2", "--max-context", String(config.contextWindow), "--max-tokens", String(config.maxTokens),
+                "--slots", "1", "--cache-gb", config.promptCacheArgument, "--max-context", String(config.contextWindow), "--max-tokens", String(config.maxTokens),
                 "--temp", String(config.temperature ?? 0.6), "--top-p", String(config.topP ?? 0.95), "--top-k", String(config.topK ?? 20)]
             child.environment = ["BANANA_WORKER_TOKEN": workerToken,
                 "HOME": FileManager.default.homeDirectoryForCurrentUser.path, "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
                 "TMPDIR": NSTemporaryDirectory(), "PYTHONUNBUFFERED": "1", "PYTHONDONTWRITEBYTECODE": "1", "HF_HUB_OFFLINE": "1", "HF_HUB_DISABLE_TELEMETRY": "1", "DO_NOT_TRACK": "1"]
             child.standardOutput = output; child.standardError = output
+            swapWindow.clear()
+            guard let sample = currentMemory(), sample.admits(weightBytes: weightBytes(config), resident: false) else {
+                stopForMemory(); throw MemoryUnavailable()
+            }
+            _ = swapWindow.exceedsLimit(sample.swapoutBytes, at: now())
             try child.run()
-            try output.close()
             process = child
+            ready = false
+            stopping = false
+            stoppedForMemory = false
+            monitorMemory(of: child)
         }
+        guard let child = process else { throw MemoryUnavailable() }
         let deadline = ContinuousClock.now.advanced(by: .seconds(240))
         while ContinuousClock.now < deadline {
             try Task.checkCancellation()
-            guard process?.isRunning == true else { throw AssistantFailure(message: "The local inference worker stopped. See LocalInference/engine.log in the app’s support folder.") }
+            try requireCurrent(child)
             if let ids = try? await models(config) {
+                try requireCurrent(child)
+                try checkMemory(config)
                 guard ids.contains(config.serverModel) else {
                     stop()
                     throw AssistantFailure(message: "The local worker loaded a different model than this build expects. Update Banana and try again.")
@@ -168,6 +295,7 @@ final class MacLocalInference {
             }
             try await Task.sleep(for: .milliseconds(250))
         }
+        try requireCurrent(child)
         stop()
         throw AssistantFailure(message: "The local model did not become ready within four minutes.")
     }
@@ -181,9 +309,15 @@ final class MacLocalInference {
             throw AssistantFailure(message: "Unsupported inference backend. No fallback was used.")
         }
         try await startIfConfigured()
-        guard ready, let config = configuration, input["modelId"] as? String == config.modelId else {
+        guard ready, let child = process, let config = configuration, input["modelId"] as? String == config.modelId else {
             throw AssistantFailure(message: "The requested local model is not configured on this Mac.")
         }
+        activeGenerations += 1
+        defer {
+            activeGenerations -= 1
+            if activeGenerations == 0 { swapWindow.clear() }
+        }
+        try checkMemory(config)
         var request = workerRequest(config, "/v1/chat/completions")
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -193,6 +327,8 @@ final class MacLocalInference {
         do {
             let (data, response) = try await session.data(for: request)
             try Task.checkCancellation()
+            try requireCurrent(child)
+            try checkMemory(config)
             guard fromOwnWorker(response) else {
                 ready = false
                 throw AssistantFailure(message: "Something other than Banana's own worker answered on its inference port.")
@@ -222,15 +358,43 @@ final class MacLocalInference {
             #endif
             return try LocalInferenceTransport.content(json)
         } catch {
+            try Task.checkCancellation()
+            try requireCurrent(child)
             if let failure = error as? URLError, failure.code != .cancelled { ready = false }
             throw error
         }
     }
 
-    func stop() {
+    private func requireCurrent(_ child: Process) throws {
+        if stoppedForMemory { throw MemoryUnavailable() }
+        guard process === child, child.isRunning, !stopping else {
+            throw AssistantFailure(message: "The local inference worker stopped. Try again.")
+        }
+    }
+
+    func stop() { stop(immediate: false) }
+
+    private func stop(immediate: Bool) {
+        stopGeneration &+= 1
+        pressureEvents?.cancel()
+        pressureEvents = nil
+        memoryCheck?.cancel()
+        memoryCheck = nil
         ready = false
-        if process?.isRunning == true { process?.terminate() }
-        process = nil
+        guard let child = process, child.isRunning else { return }
+        stopping = true
+        // Keep the Process until it exits. No replacement can be started while this child
+        // holds the port. A memory stop must release a busy native inference kernel promptly.
+        if immediate {
+            kill(child.processIdentifier, SIGKILL)
+        } else {
+            child.terminate()
+            Task { [weak self, weak child] in
+                try? await Task.sleep(for: .seconds(2))
+                guard let self, let child, self.process === child, self.stopping, child.isRunning else { return }
+                kill(child.processIdentifier, SIGKILL)
+            }
+        }
     }
     #if DEBUG
     func activeRequestCount() async throws -> Int {

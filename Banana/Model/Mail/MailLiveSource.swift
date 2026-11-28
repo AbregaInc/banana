@@ -1,5 +1,6 @@
 #if !BANANA_PUBLIC
 import Foundation
+import CryptoKit
 import GRDB
 
 /// Production data adapter under integration. Normal app wiring follows conversation/action
@@ -118,6 +119,7 @@ import GRDB
     private var completed = Set<String>()
     private var failures = Set<String>()
     private var pagingFailures = Set<String>()
+    private var overnightSaves: [UUID: (account: String, permit: MailOvernightSavePermit)] = [:]
     private var firstPages: [MailScope: MailListSnapshot] = [:]
     private var firstPageOrder: [MailScope] = []
     private var active = false
@@ -349,6 +351,166 @@ import GRDB
     }
     private var observedReadAccounts: Set<String>?
     private var readAccounts: Set<String> { Set(access.connectedAccountIDs.map { $0.lowercased() }) }
+
+    func checkComposerEvidenceAccess(for conversation: MailConversationID) throws {
+        try Task.checkCancellation()
+        let account = conversation.account.lowercased()
+        guard readAccounts.contains(account), access.mailGrant(accountID: account) == .granted else {
+            throw MailAccessError.notGranted
+        }
+    }
+
+    /// The composer receives one account capability fixed by the selected native conversation.
+    func composerEvidence(for conversation: MailConversationID, selectedMessageID: String? = nil, query: String? = nil,
+                          includeAttachments: Bool = false, matchingParticipants: Bool = false,
+                          earlierThreadAttachments: Bool = false, exactTitle: Bool = false,
+                          threadAudience: Set<String>? = nil) async throws -> [MailComposerEvidenceItem] {
+        try checkComposerEvidenceAccess(for: conversation)
+        let ownerAddresses = Set(accounts.flatMap { [$0.id.lowercased()] + $0.identities.map { $0.address.lowercased() } })
+        let evidence = try await MailComposerEvidenceReader(stores: stores).read(
+            account: conversation.account.lowercased(), thread: conversation.thread, selectedMessageID: selectedMessageID,
+            query: query, includeAttachments: includeAttachments, matchingParticipants: matchingParticipants, ownerAddresses: ownerAddresses,
+            earlierThreadAttachments: earlierThreadAttachments, exactTitle: exactTitle, threadAudience: threadAudience)
+        try checkComposerEvidenceAccess(for: conversation)
+        return evidence
+    }
+
+    /// One bounded read of the retained header index. Never asks Gmail or reads message bodies.
+    func assistantSearch(_ filter: LiveFilter) async throws -> [IndexRow] {
+        let accounts = readAccounts
+        guard !accounts.isEmpty else { throw MailAccessError.notGranted }
+        let found = try await MailIndexReader(stores: stores).search(
+            MailLocalSearchQuery(text: filter.searchExpression, account: nil, limit: filter.text.isEmpty ? 6 : 24, allowedAccounts: accounts))
+        try Task.checkCancellation()
+        guard accounts == readAccounts else { throw MailAccessError.notGranted }
+        let words = filter.text.lowercased().split { !$0.isLetter && !$0.isNumber }
+        guard !words.isEmpty else { return found }
+        let ranked = found.enumerated().map { index, row in
+            let subject = row.subject.lowercased().split { !$0.isLetter && !$0.isNumber }
+            let titleMatches = words.count { word in subject.contains { $0.hasPrefix(word) } }
+            let phrase = subject.joined(separator: " ").contains(words.joined(separator: " "))
+            return (index: index, score: titleMatches + (phrase ? words.count : 0), row: row)
+        }
+        return Array(ranked.sorted { $0.score == $1.score ? $0.index < $1.index : $0.score > $1.score }
+            .prefix(6).map(\.row))
+    }
+
+    struct AssistantInboxEvidence: Encodable {
+        struct Thread: Encodable {
+            let subject: String
+            let snippet: String
+            let date: String
+            let unread: Bool
+            let latestMessageIsMine: Bool
+        }
+        let threads: [Thread]
+        let hasMore: Bool
+    }
+
+    func assistantInbox(unread: Bool) async throws -> AssistantInboxEvidence {
+        let accounts = readAccounts
+        guard !accounts.isEmpty else { throw MailAccessError.notGranted }
+        let rows = try await MailIndexReader(stores: stores).page(
+            PageRequest(view: .unified(.inbox), account: nil, filters: unread ? [.unread] : [],
+                        before: nil, limit: 13, allowedAccounts: accounts))
+        try Task.checkCancellation()
+        guard accounts == readAccounts else { throw MailAccessError.notGranted }
+        return .init(threads: rows.prefix(12).map { row in
+            .init(subject: String(row.subject.prefix(160)), snippet: String(row.snippet.prefix(240)),
+                  date: Date(timeIntervalSince1970: Double(row.lastDate) / 1000).ISO8601Format(),
+                  unread: row.unread, latestMessageIsMine: row.flags.contains(.lastIsMine))
+        }, hasMore: rows.count > 12)
+    }
+
+    struct AssistantThreadEvidence: Encodable {
+        struct Message: Encodable {
+            let sender: String
+            let sent: String
+            let text: String
+            let coverage: String
+        }
+        struct Choice: Encodable {
+            let key: String
+            let detail: String
+        }
+        let matches: [String]
+        let choices: [Choice]
+        let messages: [Message]
+        let moreMessages: Bool
+    }
+
+    /// Read one unambiguous thread only. Raw HTML, attachments and drafts are never loaded.
+    func assistantThreadEvidence(_ filter: LiveFilter, selectionKey: String? = nil) async throws -> AssistantThreadEvidence {
+        let accounts = readAccounts
+        let found = try await assistantSearch(filter)
+        // A choice refers to a thread identity, even if two accounts have the same
+        // subject or new mail has changed the result order. Recheck the authorized search.
+        let keyed = found.map { row in
+            let identity = MailConversationID(account: row.account, thread: row.thread).text
+            let key = SHA256.hash(data: Data(identity.utf8)).map { String(format: "%02x", $0) }.joined()
+            return (row: row, key: key)
+        }
+        let matches = keyed.filter { selectionKey == nil || $0.key == selectionKey }
+        let titles = matches.map { String($0.row.subject.prefix(160)) }
+        guard let match = matches.first?.row, matches.count == 1 else {
+            let choices = matches.map { item in
+                let date = Date(timeIntervalSince1970: Double(item.row.lastDate) / 1000)
+                let person = item.row.people.first(where: { !$0.isMe })
+                let sender = String((person?.n ?? person?.a ?? "").prefix(100))
+                return AssistantThreadEvidence.Choice(key: item.key, detail: [sender,
+                    date.formatted(date: .abbreviated, time: .shortened)].filter { !$0.isEmpty }.joined(separator: " · "))
+            }
+            return .init(matches: titles, choices: choices, messages: [], moreMessages: false)
+        }
+        let headers = try await stores.index.read { db in
+            try Row.fetchAll(db, sql: """
+                SELECT m.gmail_id, m.internal_date, m.from_name, m.from_addr, m.snippet
+                FROM message m WHERE m.thread_pk=? AND m.vis=0 AND NOT EXISTS (
+                    SELECT 1 FROM message_label ml JOIN label l ON ml.label_pk=l.label_pk
+                    WHERE ml.msg_pk=m.msg_pk AND l.gmail_id='DRAFT'
+                )
+                ORDER BY m.internal_date DESC LIMIT 5
+                """, arguments: [match.threadPK]).map { row in
+                    (id: row["gmail_id"] as String, date: row["internal_date"] as Int64,
+                     name: (row["from_name"] as String?) ?? (row["from_addr"] as String?) ?? "Unknown sender",
+                     snippet: (row["snippet"] as String?) ?? "")
+                }
+        }
+        var evidence: [AssistantThreadEvidence.Message] = []
+        for header in headers.prefix(4) {
+            try Task.checkCancellation()
+            guard accounts == readAccounts else { throw MailAccessError.notGranted }
+            let prepared = try await MailBlobStore(stores: stores).prepared(account: match.account, messageID: header.id)?.body
+            let plain: MailText?
+            switch prepared {
+            case .text(let value, _, _), .designed(_, _, _, let value, _): plain = value
+            default: plain = nil
+            }
+            var excerpt = ""
+            if let plain {
+                for block in plain.blocks {
+                    switch block.kind {
+                    case .quote, .fineprint: continue
+                    default: break
+                    }
+                    for run in block.runs where excerpt.count < 1000 {
+                        excerpt += run.text.prefix(1000 - excerpt.count)
+                    }
+                    if excerpt.count >= 1000 { break }
+                    excerpt += "\n"
+                }
+            }
+            let preparedText = excerpt.trimmingCharacters(in: .whitespacesAndNewlines)
+            let date = Date(timeIntervalSince1970: Double(header.date) / 1000)
+            evidence.append(.init(sender: String(header.name.prefix(100)), sent: date.ISO8601Format(),
+                text: preparedText.isEmpty ? String(header.snippet.prefix(400)) : preparedText,
+                coverage: preparedText.isEmpty ? "header snippet only" : "cached excerpt"))
+        }
+        try Task.checkCancellation()
+        guard accounts == readAccounts else { throw MailAccessError.notGranted }
+        return .init(matches: titles, choices: matches.map { .init(key: $0.key, detail: "") }, messages: evidence, moreMessages: headers.count > 4)
+    }
+
     func cachedFirstPage(_ scope: MailScope) -> MailListSnapshot? {
         guard observedReadAccounts == readAccounts else { return nil }
         return firstPages[scope]
@@ -1025,6 +1187,10 @@ import GRDB
     }
     private func publishAccounts() {
         let current = readAccounts
+        for (account, permit) in overnightSaves.values {
+            if !current.contains(account)
+                || access.mailGrant(accountID: account) != .granted || !deliveryAllowed(account) { permit.invalidate() }
+        }
         if observedReadAccounts != current {
             observedReadAccounts = current
             firstPages.removeAll(); firstPageOrder.removeAll()
@@ -1901,6 +2067,88 @@ extension MailLiveSource {
         for (token, subscription) in conversationSubscriptions where subscription.id == draft.conversation || subscription.id == previousConversation { refreshConversation(token) }
         for token in subscriptions.keys { refresh(token) }
     }
+    /// Called only by the opted-in nightly job. The Inbox view's indexed page bounds
+    /// both the threads visited and the conversations hydrated during a pass.
+    func overnightCandidates(since: Date, limit: Int, accounts enabled: Set<String>, before: MailOrderKey?) async throws
+        -> (conversations: [MailConversation], next: MailOrderKey?) {
+        guard draftDriver != nil, limit > 0 else { return ([], nil) }
+        let requested = Set(enabled.map { $0.lowercased() })
+        let allowed = Set(accounts.filter { $0.state == .connected && requested.contains($0.id.lowercased()) && deliveryAllowed($0.id) }.map { $0.id.lowercased() })
+        guard !allowed.isEmpty else { return ([], nil) }
+        let count = min(limit, 24)
+        let page = try await MailIndexReader(stores: stores).page(
+            PageRequest(view: .unified(.inbox), account: nil, filters: [], before: before, limit: count + 1, allowedAccounts: allowed))
+        let cutoff = Int64(since.timeIntervalSince1970 * 1000)
+        let scanned = page.prefix(count)
+        let recent = scanned.filter { $0.lastDate >= cutoff }.map { MailConversationID(account: $0.account, thread: $0.thread) }
+        var candidates: [MailConversation] = []
+        for id in recent {
+            try Task.checkCancellation()
+            guard let conversation = try await overnightConversation(id) else { continue }
+            candidates.append(conversation)
+        }
+        for candidate in candidates { try checkComposerEvidenceAccess(for: candidate.id) }
+        let next = page.count > count && page[count].sortKey >= cutoff ? scanned.last.map { MailOrderKey(group: 0, sortKey: $0.sortKey, tie: $0.tie) } : nil
+        return (candidates, next)
+    }
+
+    func overnightConversation(_ id: MailConversationID) async throws -> MailConversation? {
+        try checkComposerEvidenceAccess(for: id)
+        let expected = try await stores.index.read { try MailOvernightDrafts.latestInbound(id, in: $0) }
+        guard let expected, let driver = draftDriver,
+              try await driver.permitsOvernightDraft(conversation: id, anchor: expected),
+              var value = try await MailConversationReader(stores: stores).conversation(id, maximumMessages: 32),
+              let latest = value.messages.last, latest.id.message == expected, latest.canReply, !latest.isMine,
+              latest.isAutoSubmitted == false, !value.isMuted, value.snoozedUntil == nil, value.system == nil,
+              !value.messages.contains(where: { $0.isUnsentDraft }) else { return nil }
+        value.messages = Array(value.messages.suffix(6))
+        for i in value.messages.indices { value.messages[i].bcc = [] }
+        try checkComposerEvidenceAccess(for: id)
+        return value
+    }
+
+    /// No send, delivery or network operations. The local native editing draft remains
+    /// awaiting its first user edit and is visible via the normal Drafts store on restart.
+    func saveOvernightDraft(body: String, for id: MailConversationID, anchor: MailMessageID,
+                            isEnabled: @escaping @Sendable () -> Bool) async throws -> Bool {
+        guard anchor.account == id.account, body.utf8.count <= 16000, isEnabled(),
+              !body.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, let driver = draftDriver,
+              deliveryAllowed(id.account),
+              let conversation = try await overnightConversation(id), let message = conversation.messages.last,
+              message.id == anchor, let account = accounts.first(where: { $0.id == id.account && $0.state == .connected }),
+              let from = account.identities.first(where: \.isDefault) else { return false }
+        let rfc = try await stores.index.read { db in
+            try String.fetchOne(db, sql: """
+                SELECT m.rfc_message_id FROM message m JOIN account a USING(account_pk)
+                WHERE a.email=? AND m.gmail_id=?
+                """, arguments: [id.account,anchor.message])
+        }
+        let mine = Set(accounts.flatMap { [$0.id.lowercased()] + $0.identities.map { $0.address.lowercased() } })
+        let recipients = MailReplyRules.recipients(for: .reply(to: anchor), original: message, myAddresses: mine)
+        guard let rfc, !rfc.isEmpty, recipients.to.count == 1,
+              MailAddressRules.isValid(recipients.to[0].address) else { return false }
+        var draft = MailDraft(id: MailOvernightDrafts.draftID(for: id, anchor: anchor),
+            conversation: id, account: id.account, isReply: true, isForward: false, from: from,
+            to: recipients.to, cc: [], bcc: [], subject: MailReplyRules.subject(for: .reply(to: anchor), original: conversation.subject),
+            body: MailPlainText.text(body), signature: from.hasSignature ? MailBodyHTML.bananaSignature : nil,
+            quote: nil, attachments: [], format: .banana, schedule: nil, remindIfNoReply: nil,
+            delivery: nil, encodedBytes: body.utf8.count, editedAt: Date())
+        draft.replyToMessage = anchor
+        var value = MailDraftRecord(scope: driver.scope, snapshot: .init(draft))
+        value.snapshot.inReplyTo = rfc
+        value.awaitingFirstEdit = true
+        try checkComposerEvidenceAccess(for: id)
+        let permit = MailOvernightSavePermit(), token = UUID()
+        overnightSaves[token] = (id.account, permit)
+        defer { overnightSaves[token] = nil }
+        let inserted = try await withTaskCancellationHandler {
+            try await driver.insertOvernightDraft(value, anchor: anchor, stores: stores, isEnabled: { permit.valid && isEnabled() })
+        } onCancel: { permit.invalidate() }
+        guard inserted else { return false }
+        draftChanged(value)
+        return true
+    }
+
     func newDraft(_ kind: MailDraftKind) async -> MailDraft {
         let account: String
         switch kind {
@@ -1957,7 +2205,16 @@ extension MailLiveSource {
                     }
                 }
             }
-            try await driver.create(draft, inReplyTo: replyID, forwardMessageID: forwardMessageID, awaitingFirstEdit: true)
+            do {
+                try await driver.create(draft, inReplyTo: replyID, forwardMessageID: forwardMessageID, awaitingFirstEdit: true)
+            } catch MailDraftDriver.Failure.changed {
+                guard let anchor = draft.replyToMessage,
+                      let existing = try await driver.editableReply(in: draft.conversation, message: anchor, rfcID: replyID) else {
+                    throw MailDraftDriver.Failure.changed
+                }
+                draftChanged(existing)
+                return draftCache[existing.snapshot.id] ?? existing.snapshot.value
+            }
             draftCache[id] = draft; draftStates[id] = .editing
         } catch {
             // The composer retains this value and receives an explicit save failure.

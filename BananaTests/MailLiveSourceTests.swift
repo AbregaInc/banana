@@ -1,5 +1,8 @@
 import XCTest
+import Combine
 import GRDB
+import CryptoKit
+import CoreText
 
 @MainActor final class MailLiveSourceTests: XCTestCase {
     private final class Access: MailAccountAccess {
@@ -298,6 +301,574 @@ import GRDB
         let idle = await ready { !progress.value.isVisible }
         XCTAssertTrue(idle, "A remounted header drops work for accounts without access")
         XCTAssertEqual(progress.value.pending, 0)
+    }
+
+    #if os(macOS) && BANANA_AI
+    @available(macOS 26.0, *)
+    func testOvernightSchedulerWritesReviewDraftAndScansLaterArrival() async throws {
+        let stores = try await stores()
+        let access = Access(); access.grant = .granted
+        let account = try XCTUnwrap(access.connectedAccountIDs.first)
+        let api = MailDraftDriverTests.Provider()
+        let intent = try await Task.detached { try MailIntentStore(directories: stores.directories) }.value
+        let source = MailLiveSource(stores: stores, access: access, api: api, deliveryAllowed: { _ in true })
+        let scope = "nightly-scheduler-test"
+        try await source.prepareDrafts(intent: intent, scope: scope, api: api, contextAllowed: { false },
+                                       compose: { _ in throw GmailError.networkDisabled })
+        let suite = "nightly-mail-" + UUID().uuidString
+        let prefs = try XCTUnwrap(UserDefaults(suiteName: suite))
+        defer { prefs.removePersistentDomain(forName: suite) }
+        prefs.set([account], forKey: "mailOvernightDraftAccounts")
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        let night = MailDraftNight(start: start, end: start.addingTimeInterval(8 * 3600))
+        func receive(_ id: String, _ body: String, minute: Int) async throws {
+            let date = Int64(start.addingTimeInterval(Double(minute * 60)).timeIntervalSince1970 * 1000)
+            let headers = [GmailHeader(name: "From", value: "Colleague <colleague@plan.example>"), .init(name: "To", value: account),
+                           .init(name: "Subject", value: "Office location"), .init(name: "Message-ID", value: "<" + id + "@plan.example>")]
+            let wire = GmailMessage(id: id, threadId: id, labelIds: ["INBOX"], snippet: body, internalDate: date,
+                payload: GmailPart(partId: "p", mimeType: "text/plain", headers: headers, body: .init(data: Data(body.utf8).base64EncodedString())))
+            let fetched = FetchedMessage(wire: wire, floor: 10, headers: MessageHeaders(payload: wire.payload), structure: nil)
+            _ = try await MailWriter(stores: stores, sink: nil).transact { db in
+                try MailMessageImporter.apply(fetched, account: account, myAddresses: [account], in: db)
+            }
+            let blobs = MailBlobStore(stores: stores)
+            try await blobs.put(wire, account: account, extraction: MIMEStructure.extract(try XCTUnwrap(wire.payload)), ftsRowID: date, at: date)
+            _ = try await blobs.prepare(account: account, messageID: id, at: date)
+        }
+        var decisions = 0, generations = 0
+        let question = "Can you confirm the room is Oak?"
+        func pass(minute: Int) async {
+            let date = start.addingTimeInterval(Double(minute * 60))
+            let scheduler = MailOvernightDraftScheduler(suiteName: suite, clock: { date })
+            await scheduler.runPass(night: night, source: source, isEditing: { _ in false },
+                invalidations: Empty<Void, Never>().eraseToAnyPublisher(), moduleEnabled: { true }, makeProvider: { {
+                    request in
+                    let text = (request["messages"] as? [[String: String]])?.last?["text"] ?? ""
+                    let answer: [String: Any]
+                    if (request["maxTokens"] as? Int) == 180 {
+                        decisions += 1
+                        answer = text.contains(question) ? ["action":"draft", "quote":question] : ["action":"skip", "quote":""]
+                    } else {
+                        generations += 1
+                        answer = ["action":"draft", "value":"Yes, the room is Oak.", "citations":[]]
+                    }
+                    let inner = String(decoding: try JSONSerialization.data(withJSONObject: answer), as: UTF8.self)
+                    return String(decoding: try JSONSerialization.data(withJSONObject: ["content":[["type":"text","text":inner]]]), as: UTF8.self)
+                } })
+        }
+        try await receive("fyi", "The furniture shipment has arrived.", minute: 0)
+        await pass(minute: 1)
+        let empty = try await intent.draftPage(scope: scope, account: account, outbox: false, before: nil, limit: 5)
+        XCTAssertTrue(empty.isEmpty)
+        let fyiDecisions = decisions
+        try await receive("action", "The venue lists the room as Oak. " + question, minute: 21)
+        await pass(minute: 22)
+        await pass(minute: 45)
+        let restored = try await Task.detached { try MailIntentStore(directories: stores.directories) }.value
+        let records = try await restored.draftPage(scope: scope, account: account, outbox: false, before: nil, limit: 5)
+        XCTAssertEqual(decisions, fyiDecisions + 1)
+        XCTAssertEqual(generations, 1)
+        XCTAssertEqual(records.count, 1)
+        let draft = try XCTUnwrap(records.first)
+        XCTAssertEqual(draft.snapshot.replyToMessage?.message, "action")
+        XCTAssertEqual(draft.snapshot.to.map(\.address), ["colleague@plan.example"])
+        XCTAssertEqual(MailPlainText.string(draft.snapshot.body), "Yes, the room is Oak.")
+        XCTAssertTrue(draft.awaitingFirstEdit == true)
+        XCTAssertFalse(draft.needsDelivery)
+    }
+    #endif
+
+    func testOvernightNativeDraftIsAtomicLocalOnlyAndRestoresWithoutReplacingEdits() async throws {
+        let stores = try await stores()
+        let access = Access(); access.grant = .granted
+        let own = try XCTUnwrap(access.connectedAccountIDs.first)
+        let thread = MailConversationID(account: own, thread: "supplier")
+        let provider = MailDraftDriverTests.Provider()
+        let scope = "overnight-fixture"
+        let intent = try await Task.detached { try MailIntentStore(directories: stores.directories) }.value
+        func newSource(_ store: MailIntentStore) async throws -> MailLiveSource {
+            let source = MailLiveSource(stores: stores, access: access, api: provider, deliveryAllowed: { _ in true })
+            try await source.prepareDrafts(intent: store, scope: scope, api: provider, contextAllowed: { false },
+                                           compose: { _ in throw GmailError.networkDisabled })
+            return source
+        }
+        func receive(_ id: String, _ date: Int64, threadID: String = "supplier") async throws -> MailMessageID {
+            let headers = [GmailHeader(name: "From", value: "Supplier <supplier@plan.example>"),
+                           .init(name: "To", value: own), .init(name: "Reply-To", value: "orders@plan.example"),
+                           .init(name: "Subject", value: "Sample order"), .init(name: "Message-ID", value: "<" + id + "@plan.example>")]
+            let wire = GmailMessage(id: id, threadId: threadID, labelIds: ["INBOX"], snippet: "Please confirm quantity.",
+                                    historyId: 10, internalDate: date, payload: GmailPart(partId: "p", mimeType: "text/plain", headers: headers,
+                                                                                         body: .init(data: "U2FtcGxl")))
+            let fetched = FetchedMessage(wire: wire, floor: 10, headers: MessageHeaders(payload: wire.payload), structure: nil)
+            _ = try await MailWriter(stores: stores, sink: nil).transact { db in
+                try MailMessageImporter.apply(fetched, account: own, myAddresses: [own], in: db)
+            }
+            let parts = MIMEStructure.extract(try XCTUnwrap(wire.payload))
+            try await MailBlobStore(stores: stores).put(wire, account: own, extraction: parts, ftsRowID: date, at: date)
+            return .init(account: own, message: id)
+        }
+        let first = try await receive("first", 1000)
+        let source = try await newSource(intent)
+        let none = try await source.overnightCandidates(since: .distantPast, limit: 4, accounts: [], before: nil)
+        XCTAssertTrue(none.conversations.isEmpty)
+        let scan = try await source.overnightCandidates(since: .distantPast, limit: 4, accounts: [own], before: nil)
+        XCTAssertEqual(scan.conversations.map(\.id), [thread])
+        let newest = try await receive("second", 2000)
+        let stale = try await source.saveOvernightDraft(body: "stale", for: thread, anchor: first, isEnabled: { true })
+        XCTAssertFalse(stale)
+        let revoked = try await source.saveOvernightDraft(body: "disabled", for: thread, anchor: newest, isEnabled: { false })
+        XCTAssertFalse(revoked)
+        async let one = source.saveOvernightDraft(body: "20 units", for: thread, anchor: newest, isEnabled: { true })
+        async let two = source.saveOvernightDraft(body: "20 units", for: thread, anchor: newest, isEnabled: { true })
+        let claims = try await [one, two]
+        XCTAssertEqual(claims.filter { $0 }.count, 1)
+        let reopenedStore = try await Task.detached { try MailIntentStore(directories: stores.directories) }.value
+        let restored = try await reopenedStore.draftPage(scope: scope, account: own, outbox: false, before: nil, limit: 20)
+        let saved = try XCTUnwrap(restored.first)
+        XCTAssertEqual(restored.count, 1)
+        XCTAssertEqual(saved.snapshot.to.map(\.address), ["orders@plan.example"])
+        XCTAssertEqual(saved.snapshot.replyToMessage, newest)
+        XCTAssertEqual(saved.snapshot.inReplyTo, "<second@plan.example>")
+        XCTAssertTrue(saved.awaitingFirstEdit == true)
+        XCTAssertFalse(saved.needsDelivery)
+        let reopened = try await newSource(reopenedStore)
+        let listed = expectation(description: "Overnight draft is listed on a new source")
+        var sawDraft = false
+        let listing = reopened.observeList(MailScope(place: .mailbox(.drafts)), limit: 10) { page in
+            if !sawDraft, page.rows.contains(where: { $0.id.thread == saved.snapshot.id.rowThread && $0.snippet == "20 units" }) {
+                sawDraft = true; listed.fulfill()
+            }
+        }
+        await fulfillment(of: [listed], timeout: 5)
+        listing.cancel()
+        let editor = await reopened.newDraft(.reply(to: newest))
+        XCTAssertEqual(editor.id, saved.snapshot.id)
+        XCTAssertEqual(MailPlainText.string(editor.body), "20 units")
+        var edited = saved; edited.snapshot.body = MailPlainText.text("Owner revision"); edited.awaitingFirstEdit = false
+        let wrote = try await reopenedStore.putDraftRecord(edited, expectedGeneration: saved.generation)
+        XCTAssertTrue(wrote)
+        let repeated = try await reopened.saveOvernightDraft(body: "replacement", for: thread, anchor: newest, isEnabled: { true })
+        XCTAssertFalse(repeated)
+        let latest = try await reopenedStore.draftRecord(scope: scope, id: editor.id)
+        XCTAssertEqual(latest.map { MailPlainText.string($0.snapshot.body) }, "Owner revision")
+        if var discarded = latest {
+            discarded.state = .deleted
+            let removed = try await reopenedStore.putDraftRecord(discarded, expectedGeneration: discarded.generation)
+            XCTAssertTrue(removed)
+            let recreated = try await reopened.saveOvernightDraft(body: "replacement", for: thread, anchor: newest, isEnabled: { true })
+            XCTAssertFalse(recreated)
+        }
+        let third = try await receive("another", 3000, threadID: "other")
+        let page = try await reopened.overnightCandidates(since: .distantPast, limit: 1, accounts: [own], before: nil)
+        XCTAssertEqual(page.conversations.map(\.id.thread), ["other"])
+        let secondPage = try await reopened.overnightCandidates(since: .distantPast, limit: 1, accounts: [own], before: try XCTUnwrap(page.next))
+        XCTAssertNil(secondPage.next)
+        XCTAssertTrue(secondPage.conversations.isEmpty, "A dismissed reply must not prompt another model call")
+        let manual = await reopened.newDraft(.reply(to: third))
+        let overwroteManual = try await reopened.saveOvernightDraft(body: "replacement", for: manual.conversation, anchor: third, isEnabled: { true })
+        XCTAssertFalse(overwroteManual)
+    }
+
+    func testComposerEvidenceScopesOldMailAndRejectsMissingSelectionOrGrant() async throws {
+        let stores = try await stores()
+        let access = Access()
+        let own = "a@example.com", other = "other@plan.example"
+        access.connectedAccountIDs = [own, other]; access.grant = .granted
+        let entries: [(String, String, String, Int64, [String])] = [
+            (own, "current", "open message", 5000, []),
+            (other, "current", "other private selection", 5000, []),
+            (own, "old", "apricot receipt", 1000, []),
+            (other, "old", "apricot confidential", 1000, []),
+            (own, "later", "apricot future", 6000, []),
+            (own, "draft", "apricot draft", 3000, ["DRAFT"]),
+            (own, "trash", "apricot trashed", 4000, ["TRASH"])
+        ]
+        let writer = MailWriter(stores: stores, sink: nil)
+        for (account, thread, subject, date, labels) in entries {
+            let wire = GmailMessage(id: thread, threadId: thread, labelIds: labels, snippet: subject,
+                                    historyId: 1, internalDate: date,
+                                    payload: GmailPart(headers: [.init(name: "Subject", value: subject)]))
+            _ = try await writer.transact { db in
+                try MailMessageImporter.apply(FetchedMessage(wire: wire, floor: 1, headers: MessageHeaders(payload: wire.payload),
+                                                              structure: nil), account: account, myAddresses: [account], in: db)
+            }
+        }
+        let source = MailLiveSource(stores: stores, access: access, api: GmailPageLoaderTests.Provider(count: 0))
+        let selected = MailConversationID(account: own, thread: "current")
+        let items = try await source.composerEvidence(for: selected, query: "apricot")
+        XCTAssertEqual(items.map(\.messageID), ["current", "old"])
+        XCTAssertEqual(items.map(\.kind), ["selectedMessage", "relatedMessage"])
+        XCTAssertEqual(Set(items.map(\.account)), [own])
+        XCTAssertTrue(items.allSatisfy { $0.coverage == "header snippet only" })
+        let missing = try await source.composerEvidence(for: .init(account: own, thread: "unknown"), query: "apricot")
+        XCTAssertTrue(missing.isEmpty)
+        access.grant = .none
+        do {
+            _ = try await source.composerEvidence(for: selected, query: "apricot")
+            XCTFail("Revoked mail access must reject locally retained mail")
+        } catch MailAccessError.notGranted {}
+    }
+
+    func testComposerThreadEvidenceChecksAudienceOnEachOlderMessage() async throws {
+        let stores = try await stores()
+        let access = Access()
+        access.grant = .granted
+        let owner = try XCTUnwrap(access.connectedAccountIDs.first)
+        let peer = "supplier@plan.example", guest = "guest@plan.example"
+        let writer = MailWriter(stores: stores, sink: nil)
+        let messages = [
+            ("hidden-copy", owner, owner, "", guest),
+            ("private", peer, owner, "", ""),
+            ("shared", peer, owner, guest, ""),
+            ("outgoing", owner, guest, peer, ""),
+            ("anchor", peer, owner, guest, ""),
+            ("later", owner, guest, peer, "")
+        ]
+        for (offset, entry) in messages.enumerated() {
+            let (id, sender, to, cc, bcc) = entry
+            let headers = [("From", sender), ("To", to), ("Cc", cc), ("Bcc", bcc)]
+                .filter { !$0.1.isEmpty }.map { GmailHeader(name: $0.0, value: $0.1) }
+            let wire = GmailMessage(id: id, threadId: "conversation", labelIds: sender == owner ? ["SENT"] : ["INBOX"],
+                                    snippet: id, historyId: 1, internalDate: Int64(offset + 1), payload: GmailPart(headers: headers))
+            _ = try await writer.transact { db in
+                try MailMessageImporter.apply(.init(wire: wire, floor: 1, headers: MessageHeaders(payload: wire.payload), structure: nil),
+                                              account: owner, myAddresses: [owner], in: db)
+            }
+        }
+        let source = MailLiveSource(stores: stores, access: access, api: GmailPageLoaderTests.Provider(count: 0))
+        let conversation = MailConversationID(account: owner, thread: "conversation")
+        let group = try await source.composerEvidence(for: conversation, selectedMessageID: "anchor", threadAudience: [peer, guest])
+        XCTAssertEqual(group.map(\.messageID), ["anchor", "outgoing", "shared"])
+        XCTAssertEqual(group.map(\.isMine), [false, true, false])
+        let direct = try await source.composerEvidence(for: conversation, selectedMessageID: "anchor", threadAudience: [peer])
+        XCTAssertEqual(direct.map(\.messageID), ["anchor", "outgoing", "shared", "private"])
+        let hidden = try await source.composerEvidence(for: conversation, selectedMessageID: "anchor", threadAudience: [guest])
+        XCTAssertFalse(hidden.contains { $0.messageID == "hidden-copy" })
+        let unknown = try await source.composerEvidence(for: conversation, selectedMessageID: "anchor", threadAudience: [])
+        XCTAssertTrue(unknown.isEmpty)
+    }
+
+    // Earlier mail with the same correspondent in other threads joins the automatic history only when it
+    // shares distinctive terms with the question, predates it, and every reply recipient was on it.
+    func testComposerHistoryAddsRelevantEarlierMailWithTheCorrespondent() async throws {
+        let stores = try await stores()
+        let access = Access()
+        access.grant = .granted
+        let owner = try XCTUnwrap(access.connectedAccountIDs.first)
+        let peer = "kit@plan.example", guest = "guest@plan.example", stranger = "other@plan.example"
+        let writer = MailWriter(stores: stores, sink: nil)
+        let messages: [(String, String, String, String, String, Int64)] = [
+            ("satin-notes", "studio", peer, owner, "The satin glaze samples sit on the kiln middle shelf.", 1),
+            ("invoice", "billing", peer, owner, "Your invoice for October is attached.", 2),
+            ("stranger-satin", "other", stranger, owner, "Satin glaze samples kiln shelf notes.", 3),
+            ("anchor", "conversation", peer, owner, "Which kiln shelf holds the satin glaze samples?", 4),
+            ("later-satin", "studio", peer, owner, "Satin glaze samples moved to the kiln top shelf.", 5),
+        ]
+        for (id, thread, sender, to, snippet, date) in messages {
+            let headers = [GmailHeader(name: "From", value: sender), GmailHeader(name: "To", value: to)]
+            let wire = GmailMessage(id: id, threadId: thread, labelIds: ["INBOX"], snippet: snippet, historyId: 1,
+                                    internalDate: date, payload: GmailPart(headers: headers))
+            _ = try await writer.transact { db in
+                try MailMessageImporter.apply(.init(wire: wire, floor: 1, headers: MessageHeaders(payload: wire.payload), structure: nil),
+                                              account: owner, myAddresses: [owner], in: db)
+            }
+        }
+        let source = MailLiveSource(stores: stores, access: access, api: GmailPageLoaderTests.Provider(count: 0))
+        let conversation = MailConversationID(account: owner, thread: "conversation")
+        let history = try await source.composerEvidence(for: conversation, selectedMessageID: "anchor", threadAudience: [peer])
+        let other = history.filter { $0.threadID != "conversation" }
+        XCTAssertEqual(other.map(\.messageID), ["satin-notes"])
+        XCTAssertTrue(other.allSatisfy(\.recoveredThreadMessage))
+        let wider = try await source.composerEvidence(for: conversation, selectedMessageID: "anchor", threadAudience: [peer, guest])
+        XCTAssertTrue(wider.allSatisfy { $0.threadID == "conversation" })
+    }
+
+    func testComposerEvidenceAnchorsOlderSelectionAndItsFilesAndRestrictsImplicitSearch() async throws {
+        let stores = try await stores()
+        let access = Access(); access.grant = .granted
+        let account = try XCTUnwrap(access.connectedAccountIDs.first)
+        let peer = "supplier@plan.example", stranger = "other@plan.example"
+        let rows = [("old", "topic", 1000, peer), ("unrelated", "another", 1500, stranger),
+                    ("selected", "reply", 2000, peer), ("newer", "reply", 2000, peer)]
+        let owner = SHA256.hash(data: Data(account.utf8)).prefix(8).map { String(format: "%02x", $0) }.joined()
+        let writer = MailWriter(stores: stores, sink: nil)
+        for (id, thread, timestamp, sender) in rows {
+            let wire = GmailMessage(id: id, threadId: thread, labelIds: ["INBOX"], snippet: "invoice", historyId: 1,
+                                    internalDate: Int64(timestamp), payload: GmailPart(headers: [
+                                        .init(name: "From", value: sender), .init(name: "Subject", value: "invoice")]))
+            _ = try await writer.transact { db in
+                try MailMessageImporter.apply(FetchedMessage(wire: wire, floor: 1, headers: MessageHeaders(payload: wire.payload),
+                                                              structure: nil), account: account, myAddresses: [account], in: db)
+            }
+            if id == "old" {
+                var bodyWire = wire
+                let body = String(repeating: "Padding ", count: 150) + "saffron reference"
+                bodyWire.payload = GmailPart(partId: "p", mimeType: "text/plain",
+                                             headers: wire.payload?.headers, body: GmailPartBody(data: Data(body.utf8).base64EncodedString()))
+                let blob = MailBlobStore(stores: stores)
+                try await blob.put(bodyWire, account: account, extraction: MIMEStructure.extract(try XCTUnwrap(bodyWire.payload)),
+                                   ftsRowID: 1, at: 1)
+                _ = try await blob.prepare(account: account, messageID: id, at: 2)
+                let pk = try await stores.index.write { db in
+                    try db.execute(sql: "UPDATE message SET fts_state=2 WHERE gmail_id=?", arguments: [id])
+                    return try XCTUnwrap(Int64.fetchOne(db, sql: "SELECT msg_pk FROM message WHERE gmail_id=?", arguments: [id]))
+                }
+                let fid = MailBodySearchSchema.rowID(date: Int64(timestamp), message: pk)
+                try await stores.searchWriter.write { db in
+                    try db.execute(sql: "INSERT INTO msg_fts(rowid,body) VALUES(?,?)", arguments: [fid,body])
+                    try db.execute(sql: "INSERT INTO body_doc(rowid,msg_pk) VALUES(?,?)", arguments: [fid,pk])
+                }
+            }
+            let path = "\(owner)/\(id)/part-1/quote.txt"
+            let url = stores.directories.attachments.appendingPathComponent(path)
+            try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try Data(id.utf8).write(to: url)
+            try await stores.blobs.write { db in
+                try db.execute(sql: """
+                    INSERT INTO attachment(account,gmail_id,part_id,filename,declared_mime,inline,state,path,bytes)
+                    VALUES(?,?,'1','quote.txt','text/plain',0,1,?,?)
+                    """, arguments: [account,id,path,id.utf8.count])
+            }
+        }
+        let source = MailLiveSource(stores: stores, access: access, api: GmailPageLoaderTests.Provider(count: 0))
+        let thread = MailConversationID(account: account, thread: "reply")
+        let result = try await source.composerEvidence(for: thread, selectedMessageID: "selected", query: "invoice",
+                                                       includeAttachments: true, matchingParticipants: true)
+        XCTAssertEqual(result.filter { $0.kind == "attachment" }.map(\.text), ["old"])
+        let inBody = try await source.composerEvidence(for: thread, selectedMessageID: "selected", query: "saffron",
+                                                       matchingParticipants: true)
+        XCTAssertTrue(inBody.contains { $0.kind == "relatedMessage" && $0.messageID == "old" && $0.text.contains("saffron") })
+        let selectedOnly = try await source.composerEvidence(for: thread, selectedMessageID: "selected", includeAttachments: true)
+        XCTAssertEqual(selectedOnly.filter { $0.kind == "attachment" }.map(\.text), ["selected"])
+        XCTAssertEqual(Set(result.map(\.messageID)), ["selected", "old"])
+        let unanchored = try await source.composerEvidence(for: thread, includeAttachments: true)
+        XCTAssertFalse(unanchored.contains { $0.kind == "attachment" })
+        let wrongThread = try await source.composerEvidence(for: thread, selectedMessageID: "old", query: "invoice",
+                                                            includeAttachments: true)
+        XCTAssertTrue(wrongThread.isEmpty)
+        access.connectedAccountIDs.append(peer)
+        let ownerOnly = try await source.composerEvidence(for: thread, selectedMessageID: "selected", query: "invoice",
+                                                          matchingParticipants: true)
+        XCTAssertFalse(ownerOnly.contains { $0.kind == "relatedMessage" }, "The owner’s other account cannot establish shared correspondence.")
+    }
+
+    func testEarlierThreadSheetExcludesNewerFilesAndUncachedAlternatives() async throws {
+        let stores = try await stores()
+        let access = Access(); access.grant = .granted
+        let account = try XCTUnwrap(access.connectedAccountIDs.first)
+        let writer = MailWriter(stores: stores, sink: nil)
+        let owner = SHA256.hash(data: Data(account.utf8)).prefix(8).map { String(format: "%02x", $0) }.joined()
+        func add(_ id: String, at date: Int64, file: Bool, cached: Bool) async throws {
+            let text = GmailPart(partId: "p", mimeType: "text/plain", body: .init(data: "bm90ZQ=="))
+            let sheet = GmailPart(partId: "1", mimeType: "text/csv", filename: "rota.csv", body: .init(attachmentId: id))
+            let root = GmailPart(mimeType: "multipart/mixed", headers: [
+                .init(name: "Subject", value: "Collection"), .init(name: "From", value: "dispatch@post.example")
+            ], parts: file ? [text, sheet] : [text])
+            let wire = GmailMessage(id: id, threadId: "route", labelIds: ["INBOX"], snippet: "Collection",
+                                    historyId: 1, internalDate: date, payload: root)
+            let extraction = MIMEStructure.extract(root)
+            _ = try await writer.transact {
+                try MailMessageImporter.apply(.init(wire: wire, floor: 1, headers: MessageHeaders(payload: root),
+                                                    structure: extraction.structure), account: account, myAddresses: [account], in: $0)
+            }
+            try await MailBlobStore(stores: stores).put(wire, account: account, extraction: extraction, ftsRowID: date, at: 1)
+            try await stores.index.write { db in
+                try db.execute(sql: "UPDATE message SET fetch_state=2 WHERE gmail_id=?", arguments: [id])
+            }
+            guard cached else { return }
+            let path = "\(owner)/\(id)/part-1/rota.csv"
+            let destination = stores.directories.attachments.appendingPathComponent(path)
+            try FileManager.default.createDirectory(at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
+            let data = Data("station,shift\nwest,late".utf8)
+            try data.write(to: destination)
+            try await stores.blobs.write { db in
+                try db.execute(sql: """
+                    INSERT INTO attachment(account,gmail_id,part_id,filename,declared_mime,inline,state,path,bytes)
+                    VALUES(?,?,'1','rota.csv','text/csv',0,1,?,?)
+                    """, arguments: [account,id,path,data.count])
+            }
+        }
+        try await add("old", at: 100, file: true, cached: true)
+        try await add("selected", at: 300, file: false, cached: false)
+        try await add("new", at: 400, file: true, cached: true)
+        let source = MailLiveSource(stores: stores, access: access, api: GmailPageLoaderTests.Provider(count: 0))
+        func read() async throws -> [MailComposerEvidenceItem] {
+            try await source.composerEvidence(for: .init(account: account, thread: "route"),
+                                              selectedMessageID: "selected", earlierThreadAttachments: true)
+        }
+        let unique = try await read()
+        XCTAssertEqual(unique.map(\.messageID), ["old"])
+        XCTAssertEqual(unique.first?.text, "station,shift\nwest,late")
+        try await add("uncached", at: 200, file: true, cached: false)
+        let ambiguous = try await read()
+        XCTAssertTrue(ambiguous.isEmpty)
+    }
+
+    func testExactComposerTitleRefusesMultipleThreadsAndPartialMatches() async throws {
+        let stores = try await stores()
+        let access = Access(); access.grant = .granted
+        let owner = try XCTUnwrap(access.connectedAccountIDs.first)
+        let correspondent = "operator@plan.example"
+        let writer = MailWriter(stores: stores, sink: nil)
+        func add(_ id: String, _ title: String, _ date: Int64, _ sender: String) async throws {
+            let payload = GmailPart(headers: [.init(name: "From", value: sender), .init(name: "Subject", value: title)])
+            let wire = GmailMessage(id: id, threadId: id, labelIds: ["INBOX"], snippet: title,
+                                    historyId: 1, internalDate: date, payload: payload)
+            _ = try await writer.transact {
+                try MailMessageImporter.apply(.init(wire: wire, floor: 1, headers: MessageHeaders(payload: payload),
+                                                    structure: nil), account: owner, myAddresses: [owner], in: $0)
+            }
+        }
+        try await add("selected", "New question", 10, correspondent)
+        try await add("other-title", "Return docket supplement", 2, correspondent)
+        try await add("own", "Return docket", 1, correspondent)
+        try await add("other-audience", "Return docket", 3, "reader@post.example")
+        let source = MailLiveSource(stores: stores, access: access, api: GmailPageLoaderTests.Provider(count: 0))
+        func search(_ title: String) async throws -> [String] {
+            try await source.composerEvidence(for: .init(account: owner, thread: "selected"), selectedMessageID: "selected",
+                                              query: title, matchingParticipants: true, exactTitle: true)
+                .filter { $0.kind == "relatedMessage" }.map(\.messageID)
+        }
+        let unique = try await search("return  DOCKET"); XCTAssertEqual(unique, ["own"])
+        let incomplete = try await search("Return"); XCTAssertEqual(incomplete, [])
+        try await add("same-title", "Return docket", 4, correspondent)
+        let ambiguous = try await search("Return docket"); XCTAssertEqual(ambiguous, [])
+    }
+
+    func testComposerEvidenceExtractsOnlyScopedBoundedRegularAttachmentFiles() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let account = "reader@plan.example"
+        let owner = SHA256.hash(data: Data(account.utf8)).prefix(8).map { String(format: "%02x", $0) }.joined()
+        let part = "\(owner)/message/part-1"
+        let folder = directory.appendingPathComponent(part)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        func extract(_ name: String, mime: String = "text/plain", accountID: String = account) -> String? {
+            MailComposerEvidenceReader.attachmentText(root: directory, account: accountID, message: "message",
+                                                     filename: name, mime: mime, path: part + "/" + name)
+        }
+        let file = folder.appendingPathComponent("estimate.txt")
+        try Data("Cost 125".utf8).write(to: file)
+        XCTAssertEqual(extract("estimate.txt"), "Cost 125")
+        XCTAssertNil(extract("estimate.txt", accountID: "other@plan.example"))
+        try FileManager.default.createSymbolicLink(at: folder.appendingPathComponent("copy.txt"), withDestinationURL: file)
+        XCTAssertNil(extract("copy.txt"))
+        try Data(count: 512 * 1024 + 1).write(to: file)
+        XCTAssertNil(extract("estimate.txt"))
+        try Data([0, 1, 2]).write(to: file)
+        XCTAssertNil(extract("estimate.txt"))
+        let csv = folder.appendingPathComponent("rota.csv")
+        try Data("station,shift\nwest,late".utf8).write(to: csv)
+        XCTAssertEqual(extract("rota.csv", mime: "text/csv"), "station,shift\nwest,late")
+        try Data([0, 42]).write(to: csv)
+        XCTAssertNil(extract("rota.csv", mime: "text/csv"))
+        let pdf = folder.appendingPathComponent("quote.pdf")
+        var bounds = CGRect(x: 0, y: 0, width: 300, height: 200)
+        let context = try XCTUnwrap(CGContext(pdf as CFURL, mediaBox: &bounds, nil))
+        context.beginPDFPage(nil)
+        context.textPosition = CGPoint(x: 12, y: 100)
+        let line = CTLineCreateWithAttributedString(NSAttributedString(string: "Budget 125", attributes: [
+            NSAttributedString.Key(kCTFontAttributeName as String): CTFontCreateWithName("Helvetica" as CFString, 12, nil)
+        ]))
+        CTLineDraw(line, context); context.endPDFPage(); context.closePDF()
+        XCTAssertEqual(extract("quote.pdf", mime: "application/pdf"), "Budget 125")
+    }
+
+    func testAssistantMailSearchReadsOnlyAuthorizedLocalHeaders() async throws {
+        let (stores, _, _, _) = try await actionSource()
+        let other = GmailMessage(id: "private-fixture", threadId: "other-thread", labelIds: ["INBOX"],
+            historyId: 2, internalDate: 2000, payload: GmailPart(headers: [GmailHeader(name: "Subject", value: "Action")]))
+        _ = try await MailWriter(stores: stores, sink: nil).transact {
+            try MailMessageImporter.apply(FetchedMessage(wire: other, floor: 2,
+                headers: MessageHeaders(payload: other.payload), structure: nil),
+                account: "other@plan.example", myAddresses: ["other@plan.example"], in: $0)
+        }
+        let access = Access()
+        let source = MailLiveSource(stores: stores, access: access, api: GmailPageLoaderTests.Provider(count: 0))
+        let filter = LiveFilter(scope: "mail", terms: [.init(field: "text", op: "contains", value: "Action")])
+        let result = try await source.assistantSearch(filter)
+        XCTAssertEqual(result.map(\.thread), ["t"])
+        let evidence = try await source.assistantThreadEvidence(filter)
+        XCTAssertEqual(evidence.matches, ["Action"])
+        XCTAssertEqual(evidence.messages.count, 1)
+        XCTAssertEqual(evidence.messages.first?.coverage, "header snippet only")
+        access.connectedAccountIDs = []
+        do {
+            _ = try await source.assistantSearch(filter)
+            XCTFail("A disconnected account must not reveal local results")
+        } catch MailAccessError.notGranted {}
+        do {
+            _ = try await source.assistantThreadEvidence(filter)
+            XCTFail("A disconnected account must not reveal message excerpts")
+        } catch MailAccessError.notGranted {}
+    }
+
+    func testAssistantKeywordSearchIncludesArchivedThreadsFromConnectedAccounts() async throws {
+        let stores = try await stores()
+        let writer = MailWriter(stores: stores, sink: nil)
+        let access = Access()
+        let connected = try XCTUnwrap(access.connectedAccountIDs.first)
+        let other = "other@plan.example"
+        for (index, account) in [connected, other].enumerated() {
+            let message = GmailMessage(id: "invoice", threadId: "archived-invoice", labelIds: [],
+                snippet: index == 0 ? "October invoice A" : "October invoice B",
+                historyId: 1, internalDate: Int64(1000 + index),
+                payload: GmailPart(headers: [GmailHeader(name: "Subject", value: "October invoice")]))
+            _ = try await writer.transact {
+                try MailMessageImporter.apply(FetchedMessage(wire: message, floor: 1,
+                    headers: MessageHeaders(payload: message.payload), structure: nil),
+                    account: account, myAddresses: [account], in: $0)
+            }
+        }
+        let source = MailLiveSource(stores: stores, access: access, api: GmailPageLoaderTests.Provider(count: 0))
+        let filter = LiveFilter(scope: "mail", terms: [.init(field: "text", op: "contains", value: "invoice")])
+        let result = try await source.assistantSearch(filter)
+        XCTAssertEqual(result.map(\.account), [connected])
+        XCTAssertEqual(result.map(\.thread), ["archived-invoice"])
+        let inbox = try await source.assistantInbox(unread: false)
+        XCTAssertTrue(inbox.threads.isEmpty)
+
+        access.connectedAccountIDs.append(other)
+        let ambiguous = try await source.assistantThreadEvidence(filter)
+        XCTAssertEqual(ambiguous.matches, ["October invoice", "October invoice"])
+        XCTAssertTrue(ambiguous.messages.isEmpty)
+        XCTAssertEqual(Set(ambiguous.choices.map(\.key)).count, 2)
+        let newestKey = try XCTUnwrap(ambiguous.choices.first?.key)
+        let selected = try await source.assistantThreadEvidence(filter, selectionKey: newestKey)
+        XCTAssertEqual(selected.messages.map(\.text), ["October invoice B"])
+
+        access.connectedAccountIDs = [connected]
+        let revoked = try await source.assistantThreadEvidence(filter, selectionKey: newestKey)
+        XCTAssertTrue(revoked.matches.isEmpty)
+        XCTAssertTrue(revoked.messages.isEmpty)
+    }
+
+    func testAssistantMailRankingAndTriageUseEligibleInboxThreads() async throws {
+        let (stores, _, _, _) = try await actionSource()
+        let writer = MailWriter(stores: stores, sink: nil)
+        let newer = GmailMessage(id: "recent", threadId: "recent", labelIds: ["INBOX", "UNREAD"],
+            snippet: "Action referenced here.", historyId: 3, internalDate: 3000,
+            payload: GmailPart(headers: [GmailHeader(name: "Subject", value: "Recent message")]))
+        let privateMessage = GmailMessage(id: "other", threadId: "other", labelIds: ["INBOX", "UNREAD"],
+            snippet: "Action also referenced here.", historyId: 4, internalDate: 4000,
+            payload: GmailPart(headers: [GmailHeader(name: "Subject", value: "Other account")]))
+        for (message, account) in [(newer, "a@example.com"), (privateMessage, "other@plan.example")] {
+            _ = try await writer.transact {
+                try MailMessageImporter.apply(FetchedMessage(wire: message, floor: 4,
+                    headers: MessageHeaders(payload: message.payload), structure: nil),
+                    account: account, myAddresses: [account], in: $0)
+            }
+        }
+        let source = MailLiveSource(stores: stores, access: Access(), api: GmailPageLoaderTests.Provider(count: 0))
+        let filter = LiveFilter(scope: "mail", terms: [.init(field: "text", op: "contains", value: "Action")])
+        let ranked = try await source.assistantSearch(filter)
+        XCTAssertEqual(ranked.map(\.subject), ["Action", "Recent message"])
+        let ambiguous = try await source.assistantThreadEvidence(filter)
+        XCTAssertEqual(ambiguous.matches.count, 2)
+        XCTAssertTrue(ambiguous.messages.isEmpty)
+        let inbox = try await source.assistantInbox(unread: true)
+        XCTAssertEqual(inbox.threads.map(\.subject), ["Recent message"])
+        XCTAssertFalse(inbox.hasMore)
     }
 
     private struct PolicySnapshotAPI: MailSenderPolicyAPI {

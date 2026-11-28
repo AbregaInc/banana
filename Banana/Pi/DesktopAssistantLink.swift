@@ -24,6 +24,8 @@ final class DesktopAssistantLink: ObservableObject {
         }
     }
 
+    var recipient: String? { pairing?.serviceName }
+
     private static let hello = "desktop.hello.v1"
     private static let describe = "assistant.model.v1"
     private static let infer = "assistant.generate.v1"
@@ -275,6 +277,9 @@ final class DesktopAssistantLink: ObservableObject {
         guard let config = MacLocalInference.shared.resolvedConfiguration() else {
             throw DesktopPeerLink.Failure.rejected("The model on your Mac is still getting ready.")
         }
+        guard MacLocalInference.shared.memoryAllows(config) else {
+            throw DesktopPeerLink.Failure.rejected(MacLocalInference.MemoryUnavailable().localizedDescription)
+        }
         if request.operation == Self.describe {
             let model = Model(modelId: config.modelId, name: config.name, contextWindow: config.contextWindow,
                               maxTokens: config.maxTokens, thinkingLevel: config.thinkingLevel)
@@ -383,7 +388,8 @@ final class DesktopAssistantLink: ObservableObject {
 
     func generate(_ raw: String) async throws -> String {
         guard let pairing else { throw DesktopPeerLink.Failure.unavailable }
-        return try await call(.init(Self.infer, payload: raw), pairing: pairing, tailscaleAddress: awayAddress, timeout: .seconds(180)).payload
+        let payload = try LocalInferenceTransport.pairedPayload(raw, recipient: pairing.serviceName)
+        return try await call(.init(Self.infer, payload: payload), pairing: pairing, tailscaleAddress: awayAddress, timeout: .seconds(180)).payload
     }
 
     private func call(_ request: DesktopPeerLink.Request, pairing: DesktopPeerLink.Pairing,

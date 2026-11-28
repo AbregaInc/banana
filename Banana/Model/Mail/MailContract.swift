@@ -454,6 +454,8 @@ struct MailMessage: Identifiable, Equatable, Sendable {
     var draft: MailDraftID?
     /// Provider draft state survives even before an editable local draft has been linked.
     var isUnsentDraft: Bool = false
+    /// True for machine/bulk headers. Nil when local headers are unavailable or incomplete.
+    var isAutoSubmitted: Bool? = nil
 
     var canReply: Bool {
         guard draft == nil, !isUnsentDraft else { return false }

@@ -31,6 +31,15 @@ actor MailDraftDriver {
         guard try await store.putDraftRecord(value, expectedGeneration: nil) else { throw Failure.changed }
         changed(value, value.needsDelivery)
     }
+    func permitsOvernightDraft(conversation: MailConversationID, anchor: String) async throws -> Bool {
+        try await store.permitsOvernightDraft(scope: scope, conversation: conversation, anchor: anchor)
+    }
+
+    func insertOvernightDraft(_ record: MailDraftRecord, anchor: MailMessageID, stores: MailStores,
+                              isEnabled: @escaping @Sendable () -> Bool) async throws -> Bool {
+        guard record.scope == scope else { return false }
+        return try await store.insertOvernightDraft(record, anchor: anchor, stores: stores, isEnabled: isEnabled)
+    }
     @discardableResult private func mutate(_ id: MailDraftID, _ update: (inout MailDraftRecord) throws -> Void) async throws -> MailDraftRecord {
         for _ in 0..<20 {
             guard var value = try await record(id) else { throw Failure.notFound }

@@ -112,6 +112,9 @@ struct AssistantWorkspaceView: View {
     @ObservedObject private var wellness = WellnessStore.shared
     @ObservedObject private var calendarWrites = OccurrenceStore.shared.pendingWrites
     @ObservedObject private var noteStore = VoiceNoteStore.shared
+    #if !BANANA_PUBLIC
+    @ObservedObject private var mailAccess = FeatureAccessStore.shared
+    #endif
     @State private var noteText = ""
     @State private var eventSubmitted = false
     @State private var expandedResult: String?
@@ -186,7 +189,8 @@ struct AssistantWorkspaceView: View {
                     .accessibilityIdentifier("assistant.note.save")
                 }
             case .search:
-                searchResults
+                if canShowSearchResults { searchResults }
+                else { Text("Email access changed. Run the search again.").foregroundStyle(.secondary) }
             case .navigation:
                 Button("Open \(action.title)") { open(action.section ?? "plan") }
                     .accessibilityIdentifier("assistant.workspace.openPage")
@@ -204,6 +208,16 @@ struct AssistantWorkspaceView: View {
         .sheet(item: $editingSaved) { meal in
             FoodTextCaptureView(editing: meal).environmentObject(wellness)
         }
+    }
+
+    private var canShowSearchResults: Bool {
+        guard action.kind == .search, action.section == AppSection.mail.rawValue else { return true }
+        #if !BANANA_PUBLIC
+        guard mailAccess.emailAvailable, let fingerprint = action.mailAccessFingerprint else { return false }
+        return fingerprint == AssistantWorkspace.mailAccessFingerprint
+        #else
+        return false
+        #endif
     }
 
     private var title: String {
@@ -228,7 +242,9 @@ struct AssistantWorkspaceView: View {
     @ViewBuilder private var searchResults: some View {
         let results = action.results ?? []
         if results.isEmpty {
-            Text("Nothing in notes, meals, workouts, routines, podcasts or the plan matches.").foregroundStyle(.secondary)
+            Text(action.section == AppSection.mail.rawValue
+                 ? "No matches in the email stored on this device."
+                 : "No matching records found.").foregroundStyle(.secondary)
         }
         let sections = Dictionary(grouping: results, by: \.section)
         ForEach(AppSection.allCases.filter { sections[$0.rawValue] != nil }, id: \.self) { section in
@@ -236,6 +252,10 @@ struct AssistantWorkspaceView: View {
                 Text(section.title).font(.footnote.weight(.semibold)).foregroundStyle(.secondary).textCase(.uppercase)
                 ForEach(sections[section.rawValue] ?? []) { result in resultRow(result) }
             }
+        }
+        if action.section == AppSection.mail.rawValue {
+            Button("Search in Email") { open(AppSection.mail.rawValue) }
+                .accessibilityIdentifier("assistant.workspace.openMailSearch")
         }
     }
 
@@ -272,8 +292,8 @@ struct AssistantWorkspaceView: View {
     }
 
     private func open(_ raw: String, itemID: String? = nil) {
-        guard let section = AppSection(rawValue: raw) else { return }
-        AssistantWorkspace.open(section, itemID: itemID)
+        guard canShowSearchResults, let section = AppSection(rawValue: raw) else { return }
+        AssistantWorkspace.open(section, itemID: itemID, mailQuery: action.query)
     }
 }
 

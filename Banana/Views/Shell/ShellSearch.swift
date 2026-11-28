@@ -316,9 +316,12 @@ enum ShellMailOpener {
     private static var waiting: AnyCancellable?
 
     static func open(_ id: MailConversationID, searchedFor words: String) {
+        open(id, scope: MailScope(place: .search(LiveFilterParser.parse(words, scope: "mail").searchExpression)))
+    }
+
+    static func open(_ id: MailConversationID, scope: MailScope) {
         MailApplication.shared.start()
         guard let session = MailApplication.shared.session else { return }
-        let scope = MailScope(place: .search(LiveFilterParser.parse(words, scope: "mail").searchExpression))
         session.switchTo(scope)
         if session.feed.shown.rows.contains(where: { $0.id == id }) { session.open(id); return }
         waiting = session.feed.$shown

@@ -51,7 +51,10 @@ def watch_parent():
     while not wait.wait(1):
         if os.getppid() != parent:
             os.kill(os.getpid(), signal.SIGTERM)
-            return
+            # A busy native kernel may defer Python's signal handler. The parent can
+            # no longer consume an answer or finish cleanup on our behalf.
+            wait.wait(2)
+            os._exit(0)
 
 threading.Thread(target=watch_parent, daemon=True).start()
 runpy.run_module("locals.server", run_name="__main__")

@@ -7,7 +7,7 @@ import GRDB
 struct MailConversationReader: Sendable {
     let stores: MailStores
 
-    func conversation(_ id: MailConversationID) async throws -> MailConversation? {
+    func conversation(_ id: MailConversationID, maximumMessages: Int? = nil) async throws -> MailConversation? {
         let account = id.account.lowercased()
         let indexed = try await stores.index.read { db -> MailConversation? in
             guard let thread = try Row.fetchOne(db, sql: """
@@ -15,6 +15,11 @@ struct MailConversationReader: Sendable {
                 WHERE a.email=? AND t.gmail_id=?
                 """, arguments: [account, id.thread]) else { return nil }
             let pk: Int64 = thread["thread_pk"]
+            if let limit = maximumMessages {
+                let count = try Int.fetchOne(db, sql: "SELECT count(*) FROM (SELECT 1 FROM message WHERE thread_pk=? LIMIT ?)",
+                                             arguments: [pk, limit + 1]) ?? 0
+                guard count <= limit else { return nil }
+            }
             let flags = MailThreadFlags(rawValue: thread["flags"])
             func person(_ address: String, name: String? = nil) -> MailPerson {
                 MailPerson(name: name, address: address, isMe: address.lowercased() == account,
@@ -60,11 +65,17 @@ struct MailConversationReader: Sendable {
             let batch = Array(ids[offset..<min(offset + 50, ids.count)])
             let metadata = try await stores.blobs.read { db -> [String: Metadata] in
                 let placeholders = Array(repeating: "?", count: batch.count).joined(separator: ",")
+                // Bound compressed rows and declared expanded bytes before a background job
+                // materializes MIME metadata. Missing latest metadata makes eligibility unknown.
+                let sizeFilter = maximumMessages == nil ? "" : """
+                    AND length(c.headers)<=131072 AND length(c.structure)<=131072
+                    AND hex(substr(c.headers,5,4))<='00040000' AND hex(substr(c.structure,5,4))<='00040000'
+                    """
                 let rows = try Row.fetchAll(db, sql: """
                     SELECT c.gmail_id,c.headers,c.structure,
                            (p.prep_version=? AND p.source_rev=c.content_rev) AS ready
                     FROM content c LEFT JOIN prepared p ON p.account=c.account AND p.gmail_id=c.gmail_id
-                    WHERE c.account=? AND c.gmail_id IN (\(placeholders))
+                    WHERE c.account=? AND c.gmail_id IN (\(placeholders)) \(sizeFilter)
                     """, arguments: StatementArguments([MailHTMLPreparer.version, account] as [(any DatabaseValueConvertible)?] + batch.map { $0 as (any DatabaseValueConvertible)? }))
                 var result: [String: Metadata] = [:]
                 var files: [String: [String: String]] = [:]
@@ -83,12 +94,17 @@ struct MailConversationReader: Sendable {
             }
             for index in offset..<min(offset + 50, ids.count) {
                 guard let stored = metadata[ids[index]] else { continue }
+                let replyTo = stored.headers.replyTo
+                if maximumMessages != nil, ids[index] == value.messages.last?.id.message,
+                   stored.headers.value("Reply-To") != nil,
+                   !replyTo.isComplete || replyTo.hasUnreadable || replyTo.hasGroup || replyTo.mailboxes.count != 1 { return nil }
+                value.messages[index].isAutoSubmitted = stored.headers.isAutomaticallyDistributed
                 let messageID = value.messages[index].id
                 if messageID == newest, !value.messages[index].isMine, value.system == nil {
                     value.unsubscribe = MailUnsubscribeRules.decide(headers: stored.headers)
                 }
                 value.messages[index].body = stored.ready ? .text : .preparing
-                value.messages[index].replyTo = stored.headers.replyTo.mailboxes.map {
+                value.messages[index].replyTo = replyTo.mailboxes.map {
                     MailPerson(name: MailAddressRules.displayName($0.name, address: $0.address), address: $0.address,
                                isMe: $0.key == account, isKnown: false, fromTheirMail: false)
                 }

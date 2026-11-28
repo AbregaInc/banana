@@ -22,6 +22,14 @@ Banana Pi on the Mac runs Qwen3.5 4B (4-bit, `mlx-community/Qwen3.5-4B-4bit` pin
   ("Getting Qwen3.5 4B · 1.2 of 3.0 GB", then "Qwen3.5 4B · on this Mac").
 - Never in fixture or UI-test runs (no 3 GB download in tests).
 
+### When the Mac needs memory
+
+Before loading weights, Banana checks current macOS memory pressure and estimates reclaimable memory. It budgets the actual weight files, the worker’s 2 GiB cache and 1 GiB of runtime overhead. It also reserves one sixteenth of installed memory for foreground work, bounded between 2 and 8 GiB. These admission margins are conservative estimates. The bundled 4B qualification measured a 5.8 GB peak GPU allocation on its test workload.
+
+A running worker needs the foreground reserve, so its resident weights are counted once. A pressure warning or a drop below the reserve stops that worker. During loading or generation, 128 MiB of system swapouts within ten seconds also stops it. Swapouts measure host activity and may come from another application. Banana rejects any interrupted answer and waits at least thirty seconds before another local load. An idle Mac conversation can continue with Apple’s on-device provider when it is available. A request addressed to a paired Mac reports the interruption to the caller.
+
+Run `python3 tools/pi-mac-inference/test-memory-guard.py` for the synthetic native worker lifecycle test and `python3 tools/pi-mac-inference/test-worker-lifetime.py` for the bundled worker’s parent-exit and authentication checks.
+
 ## Why Locals and not Apple's MLX Swift adapter
 
 Measured 1 November on Banana's evaluation (tools/pi-evaluation/RESULTS-SWIFT-MLX-2026-11-01.md):

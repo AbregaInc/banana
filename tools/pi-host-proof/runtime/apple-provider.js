@@ -48,10 +48,13 @@ export function nativeRequest(context, options = {}, allowReasoning = false) {
     tools: options.toolChoice === 'none' ? [] : getCurrentTools(context.messages),
     messages: context.messages.filter((message) => message.role !== 'system').map((message) => {
       if (message.role === 'assistant') {
-        return { role: 'assistant', content: message.content.map((part) => {
-          if (!allowReasoning && part.type === 'thinking') throw new Error('Apple provider cannot replay reasoning blocks');
-          return part;
-        }) };
+        // On a switch back to Apple, keep the other model's answer and tool calls.
+        // Its private reasoning is provider-specific and cannot enter Apple's transcript.
+        const content = !allowReasoning && message.provider === 'mac-local'
+          ? message.content.filter(part => part.type !== 'thinking') : message.content;
+        if (!allowReasoning && content.some(part => part.type === 'thinking'))
+          throw new Error('Apple provider cannot replay reasoning blocks');
+        return {role:'assistant',content};
       }
       if (message.role === 'user') return { role: 'user', text: textContent(message.content) };
       return { role: 'toolResult', toolCallId: message.toolCallId, toolName: message.toolName,

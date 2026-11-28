@@ -3,6 +3,17 @@ import Foundation
 
 /// Pure OpenAI chat protocol translation. No native app capability is reachable here.
 enum LocalInferenceTransport {
+    /// Bind each request to the paired recipient chosen before generation. This also rejects
+    /// a queued request if the pairing changes between model selection and the actual send.
+    static func pairedPayload(_ raw: String, recipient: String) throws -> String {
+        guard var input = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any],
+              let granted = input.removeValue(forKey: "pairedRecipient") as? String,
+              !granted.isEmpty, granted == recipient else {
+            throw AssistantFailure(message: "This conversation can only use its approved recipient.")
+        }
+        return String(decoding: try JSONSerialization.data(withJSONObject: input), as: UTF8.self)
+    }
+
     static func payload(_ request: [String: Any], serverModel: String, maxTokens: Int,
                         temperature: Double = 0.6, topP: Double = 0.95, topK: Int = 20) throws -> [String: Any] {
         let temperature = request["temperature"] as? Double ?? temperature
@@ -55,6 +66,10 @@ enum LocalInferenceTransport {
             "max_tokens": min(budget, maxTokens), "temperature": temperature,
             "top_p": topP, "top_k": topK, "reasoning_effort": reasoning == "off" ? "none" : reasoning,
             "chat_template_kwargs": ["enable_thinking": reasoning != "off", "preserve_thinking": true]]
+        if let schema = request["responseSchema"] as? [String: Any] {
+            guard tools.isEmpty else { throw AssistantFailure(message: "Structured responses cannot execute tools.") }
+            result["response_format"] = ["type": "json_schema", "json_schema": ["name": "composer_step", "schema": schema]]
+        }
         if !tools.isEmpty {
             result["tools"] = try tools.map { tool -> [String: Any] in
                 guard let parameters = tool["parameters"] as? [String: Any] else { throw AssistantFailure(message: "Missing tool parameters.") }

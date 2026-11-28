@@ -1,7 +1,7 @@
 import XCTest
 
 final class MailDraftDriverTests: XCTestCase {
-    private actor Provider: GmailDraftAPI, GmailAPI {
+    actor Provider: GmailDraftAPI, GmailAPI {
         var requests: [GmailDraftMutation] = []
         var loseReply = false
         var fetched: GmailDraftValue?

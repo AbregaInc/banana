@@ -54,7 +54,7 @@ extension MailFixtureSource {
         }
         if let replyTo, let found = original(replyTo), let kept = found.stored.conversation.draft,
            let existing = drafts[kept], held[kept] == nil, existing.format == .banana,
-           existing.replyToMessage == replyTo {
+           existing.isReply, existing.replyToMessage == replyTo {
             return existing
         }
         draftNumber += 1
@@ -89,7 +89,7 @@ extension MailFixtureSource {
             draft.conversation = found.stored.conversation.id
             draft.isReply = !isForward
             draft.isForward = isForward
-            if !isForward { draft.replyToMessage = message }
+            draft.replyToMessage = message
             draft.to = recipients.to
             draft.cc = recipients.cc
             draft.subject = MailReplyRules.subject(for: kind, original: found.stored.conversation.subject)

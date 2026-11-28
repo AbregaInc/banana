@@ -53,7 +53,7 @@ struct MailDraftRecord: Codable, Equatable, Sendable {
                 encodedBytes: encodedBytes, editedAt: editedAt)
             draft.editToken = editToken ?? "local"
             draft.attachmentMessageID = attachmentMessageID
-            draft.replyToMessage = replyToMessage
+            draft.replyToMessage = replyToMessage ?? (isForward ? forwardMessageID.map { MailMessageID(account: account, message: $0) } : nil)
             return draft
         }
     }

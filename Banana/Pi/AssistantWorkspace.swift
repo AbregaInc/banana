@@ -1,4 +1,7 @@
 import Foundation
+#if BANANA_AI && !BANANA_PUBLIC
+import CryptoKit
+#endif
 
 /// Native descriptors persisted by the Pi extension. Models propose fields; native code validates them.
 struct AssistantAction: Codable, Equatable, Identifiable {
@@ -21,6 +24,7 @@ struct AssistantAction: Codable, Equatable, Identifiable {
     var query: String?
     var results: [Result]?
     var sourceRequest: String?
+    var mailAccessFingerprint: String?
 }
 
 struct AssistantWorkspaceState: Decodable {
@@ -49,6 +53,18 @@ enum AssistantWorkspace {
             if action.title.isEmpty { action.title = "New meal" }
         case .event:
             guard !action.title.isEmpty else { throw AssistantFailure(message: "Give the event a title.") }
+            if let sourceStart = fields["sourceStart"] as? String, let sourceEnd = fields["sourceEnd"] as? String {
+                guard let start = AssistantFreeTime.absoluteTime(sourceStart), let end = AssistantFreeTime.absoluteTime(sourceEnd),
+                      start > now, end.timeIntervalSince(start) >= 15 * 60, end.timeIntervalSince(start) <= 24 * 3_600,
+                      (action.notes?.count ?? 0) <= 2000 else {
+                    throw AssistantFailure(message: "The email needs a valid future event range between 15 minutes and one day.")
+                }
+                action.day = AssistantNutrition.key(start)
+                action.start = start.ISO8601Format()
+                action.end = end.ISO8601Format()
+                action.isAllDay = false
+                break
+            }
             let day = try day(fields, now: now)
             let base = try AssistantNutrition.date(day)
             let allDay = action.isAllDay ?? false
@@ -88,6 +104,9 @@ enum AssistantWorkspace {
             action.title = "New note"
         case .navigation:
             guard let raw = action.section, let section = AppSection(rawValue: raw) else { throw AssistantFailure(message: "Choose a Banana page to open.") }
+            if section == .mail, !ModuleStore.shared.includes(.email) {
+                throw AssistantFailure(message: "Email is unavailable in this build or is turned off.")
+            }
             action.title = section.title
         case .search:
             let query = (action.query ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -142,7 +161,85 @@ enum AssistantWorkspace {
         return result
     }
 
-    static func open(_ section: AppSection, itemID: String? = nil) {
+    #if !BANANA_PUBLIC
+    static var mailAccessFingerprint: String? {
+        guard ModuleStore.shared.includes(.email), let scope = FeatureAccessStore.shared.mailContext else { return nil }
+        return SHA256.hash(data: Data(scope.utf8)).map { String(format: "%02x", $0) }.joined()
+    }
+
+    private static func readyMail(_ scope: String) async throws -> MailLiveSource {
+        guard let session = await MailApplication.shared.readySession(),
+              let source = session.source as? MailLiveSource,
+              ModuleStore.shared.includes(.email), FeatureAccessStore.shared.mailContext == scope else {
+            throw AssistantFailure(message: "Email isn’t ready. Open Email and try again.")
+        }
+        return source
+    }
+
+    private static func mailSearchContext(_ fields: [String: Any]) async throws
+        -> (source: MailLiveSource, filter: LiveFilter, scope: String, fingerprint: String) {
+        guard let scope = FeatureAccessStore.shared.mailContext, let fingerprint = mailAccessFingerprint else {
+            throw AssistantFailure(message: "Connect Email before searching the mailbox.")
+        }
+        var filter = LiveFilter(scope: "mail")
+        for (field, key) in [("text", "query"), ("person", "sender"), ("date", "period")] {
+            guard let value = (fields[key] as? String)?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !value.isEmpty else { continue }
+            guard value.count <= 120 else { throw AssistantFailure(message: "Use a shorter email search.") }
+            filter.terms.append(.init(field: field, op: field == "date" ? "in" : "contains", value: value))
+        }
+        if let unread = fields["unread"] as? Bool {
+            filter.terms.append(.init(field: "unread", op: "is", value: String(unread)))
+        }
+        guard filter.canRun, !filter.isEmpty,
+              filter.terms.allSatisfy({ !["text", "person"].contains($0.field) || $0.value.contains(where: { $0.isLetter || $0.isNumber }) }) else {
+            throw AssistantFailure(message: "Give me a sender, a few keywords, or a date range.")
+        }
+        return (try await readyMail(scope), filter, scope, fingerprint)
+    }
+
+    static func searchMail(_ fields: [String: Any], operation: String) async throws -> AssistantAction {
+        guard UUID(uuidString: operation) != nil else { throw AssistantFailure(message: "Email search couldn’t start.") }
+        let (source, filter, scope, fingerprint) = try await mailSearchContext(fields)
+        let matches = try await source.assistantSearch(filter)
+        guard ModuleStore.shared.includes(.email), FeatureAccessStore.shared.mailContext == scope else {
+            throw AssistantFailure(message: "Email access changed. Try the search again.")
+        }
+        let results = matches.map { row in
+            AssistantAction.Result(id: "mail:" + MailConversationID(account: row.account, thread: row.thread).text,
+                title: row.subject.isEmpty ? "(No subject)" : row.subject,
+                detail: Date(timeIntervalSince1970: Double(row.lastDate) / 1000).formatted(date: .abbreviated, time: .omitted),
+                section: AppSection.mail.rawValue)
+        }
+        return AssistantAction(id: operation, kind: .search, title: "Email results on this device",
+            section: AppSection.mail.rawValue, query: filter.searchExpression, results: results, mailAccessFingerprint: fingerprint)
+    }
+    static func readMailThread(_ fields: [String: Any]) async throws -> String {
+        let (source, filter, scope, _) = try await mailSearchContext(fields)
+        guard !filter.text.isEmpty else {
+            throw AssistantFailure(message: "Tell me a thread subject or a few words from the email.")
+        }
+        let evidence = try await source.assistantThreadEvidence(filter, selectionKey: fields["selectionKey"] as? String)
+        guard ModuleStore.shared.includes(.email), FeatureAccessStore.shared.mailContext == scope else {
+            throw AssistantFailure(message: "Email access changed. Try the search again.")
+        }
+        return String(decoding: try JSONEncoder().encode(evidence), as: UTF8.self)
+    }
+    static func readMailInbox(unread: Bool) async throws -> String {
+        guard ModuleStore.shared.includes(.email), let scope = FeatureAccessStore.shared.mailContext else {
+            throw AssistantFailure(message: "Connect Email before checking the inbox.")
+        }
+        let source = try await readyMail(scope)
+        let evidence = try await source.assistantInbox(unread: unread)
+        guard ModuleStore.shared.includes(.email), FeatureAccessStore.shared.mailContext == scope else {
+            throw AssistantFailure(message: "Email access changed. Try again.")
+        }
+        return String(decoding: try JSONEncoder().encode(evidence), as: UTF8.self)
+    }
+    #endif
+
+    static func open(_ section: AppSection, itemID: String? = nil, mailQuery: String? = nil) {
+        guard section != .mail || ModuleStore.shared.includes(.email) else { return }
         let shell = ShellNavigation.shared
         shell.state = routedState(section, itemID: itemID, from: shell.state, meals: WellnessStore.shared.meals)
         if section == .plan, let itemID, itemID.hasPrefix("plan:"),
@@ -150,6 +247,19 @@ enum AssistantWorkspace {
             let route = occurrence.meeting?.eventID.flatMap(GoogleCalendarIDs.rawEventRoute(from:))
             PlanOpenRequests.shared.pending = .init(calendarID: route?.calendarID, eventID: route?.eventID, start: occurrence.start)
         }
+        #if !BANANA_PUBLIC
+        if section == .mail, let mailQuery, FeatureAccessStore.shared.mailContext != nil,
+           let session = MailApplication.shared.session {
+            let scope = MailScope(place: .search(mailQuery))
+            if let itemID, itemID.hasPrefix("mail:"),
+               let conversation = MailConversationID(text: String(itemID.dropFirst(5))),
+               session.source.accounts.contains(where: { $0.id == conversation.account && $0.state == .connected }) {
+                ShellMailOpener.open(conversation, scope: scope)
+            } else if itemID == nil {
+                session.switchTo(scope)
+            }
+        }
+        #endif
         #if os(iOS)
         if PageChrome.shared.showAssistant {
             PageChrome.shared.assistantDestination = section

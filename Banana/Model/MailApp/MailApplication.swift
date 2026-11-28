@@ -100,6 +100,12 @@ import Combine
             loading = false; startup = nil
         }
     }
+
+    func readySession() async -> MailSession? {
+        start()
+        await startup?.value
+        return session
+    }
 }
 
 #endif

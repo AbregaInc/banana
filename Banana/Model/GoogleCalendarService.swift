@@ -671,8 +671,11 @@ final class GoogleCalendarService: ObservableObject {
     /// something other than the timeline.
     func windowFetch(from start: Date, to end: Date,
                      excluding excludedIDs: Set<String>,
-                     allDay: AllDayEvents.Choice? = nil) async -> GoogleWindowFetch {
+                     allDay: AllDayEvents.Choice? = nil, account: String? = nil) async -> GoogleWindowFetch {
         guard end > start else { return .nothingConnected }
+        if let account {
+            return await composerWindowFetch(from: start, to: end, excluding: excludedIDs, allDay: allDay, account: account)
+        }
         let began = Date()
         await restoreIfNeeded()
         guard isConnected else { return .nothingConnected }
@@ -691,7 +694,10 @@ final class GoogleCalendarService: ObservableObject {
             }
         }
         let readable = calendars.filter { !$0.isDeleted && !$0.isHidden }
-        let included = readable.filter { !excludedIDs.contains(Self.calendarInfoID($0.id)) }
+        let included = readable.filter { calendar in
+            !excludedIDs.contains(Self.calendarInfoID(calendar.id)) &&
+                (account == nil || calendar.accountEmail.lowercased() == account)
+        }
 
         var fetched: [GoogleFetchedEvent] = []
         var problems: [String] = []
@@ -758,6 +764,66 @@ final class GoogleCalendarService: ObservableObject {
                 PlaybackDiagnostics.shared.log("calendar read incomplete", summary)
             }
         }
+        let window = await buildCalendarWindow(fetched, included: included, from: start, to: end, allDay: allDay)
+        return GoogleWindowFetch(window: window, isComplete: complete, problems: problems, covered: covered)
+    }
+
+    /// For an email, list and read only using the selected account's credential. The Plan
+    /// cache merges duplicate calendar IDs across accounts and cannot attest the same ACL.
+    private func composerWindowFetch(from start: Date, to end: Date, excluding excludedIDs: Set<String>,
+                                     allDay: AllDayEvents.Choice?, account: String) async -> GoogleWindowFetch {
+        let incomplete = GoogleWindowFetch(window: .empty, isComplete: false, problems: ["Incomplete account calendar coverage"], covered: [])
+        // App initialization owns restoration. A read that would start restoring all accounts
+        // must wait for another opportunity, without initiating broad provider work itself.
+        guard restorationFinished, !account.isEmpty,
+              let credential = accounts.first(where: { $0.id == account }),
+              !accountsNeedingReconnect.contains(account) else { return incomplete }
+        let context = FeatureAccessStore.shared.calendarReadContext
+        do {
+            // Resolve the actual grant before fetching either the list or any event.
+            let authorization: GoogleCalendarReadAuthorization
+            if let context {
+                authorization = .cloud(email: credential.email, context: context)
+            } else {
+                guard credential.cloudOnly != true,
+                      !(try await BananaAccount.requiresCloudCalendar(email: credential.email)) else { return incomplete }
+                authorization = .direct(try await accessToken(for: credential))
+            }
+            let listed = try await calendars(for: credential, explicitCoverage: true)
+            let included = listed.filter { !$0.isDeleted && !$0.isHidden && $0.accountEmail.lowercased() == account &&
+                !excludedIDs.contains(Self.calendarInfoID($0.id)) }
+            let eventReaderRoles: Set<String> = ["owner", "writer", "reader"]
+            guard !included.isEmpty, included.allSatisfy({ eventReaderRoles.contains($0.accessRole ?? "") }),
+                  Set(included.map(\.id)).count == included.count,
+                  context == FeatureAccessStore.shared.calendarReadContext,
+                  accounts.contains(credential), !accountsNeedingReconnect.contains(account) else { return incomplete }
+            let fetched = try await withThrowingTaskGroup(of: [GoogleFetchedEvent].self) { group in
+                for calendar in included {
+                    let id = calendar.id, url = Self.eventsListURL(calendarID: calendar.id, from: start, to: end)
+                    group.addTask {
+                        let events = try await Self.fetchAllPages(firstPage: url, authorization: authorization, explicitCoverage: true).events
+                        guard events.allSatisfy({ $0.status == "cancelled" || $0.transparency == "transparent" ||
+                            ($0.id?.isEmpty == false && GoogleCalendarDates.range(of: $0) != nil) }) else {
+                            throw GoogleCalendarError.malformedResponse
+                        }
+                        return events.map { GoogleFetchedEvent(calendarID: id, event: $0) }
+                    }
+                }
+                var result: [GoogleFetchedEvent] = []
+                for try await values in group { result += values }
+                return result
+            }
+            try Task.checkCancellation()
+            let window = await buildCalendarWindow(fetched, included: included, from: start, to: end, allDay: allDay)
+            guard context == FeatureAccessStore.shared.calendarReadContext,
+                  accounts.contains(credential), !accountsNeedingReconnect.contains(account) else { return incomplete }
+            return GoogleWindowFetch(window: window, isComplete: true, problems: [],
+                                     covered: Set(included.map { Self.calendarInfoID($0.id) }))
+        } catch { return incomplete }
+    }
+
+    private func buildCalendarWindow(_ fetched: [GoogleFetchedEvent], included: [GoogleCalendar],
+                                     from start: Date, to end: Date, allDay: AllDayEvents.Choice?) async -> CalendarEventWindow {
         let allDayIDs = allDay.map { choice in
             Set(included.filter {
                 AllDayEvents.shows(calendarID: $0.id, isOwner: $0.isOwnedByAccount,
@@ -785,7 +851,7 @@ final class GoogleCalendarService: ObservableObject {
                                                    calendarOwners: calendarOwners, blockingCalendarIDs: blockingCalendarIDs,
                                                    hiddenSharedAvailabilityCalendarIDs: hiddenSharedAvailabilityCalendarIDs)
         }.value
-        return GoogleWindowFetch(window: window, isComplete: complete, problems: problems, covered: covered)
+        return window
     }
 
     private var lastJournaledProblems = ""
@@ -1155,10 +1221,11 @@ final class GoogleCalendarService: ObservableObject {
 
     /// Every page of a list, and the sync token the last page carries (if the request can be
     /// continued incrementally).
-    nonisolated private static func fetchAllPages(firstPage: URL, authorization: GoogleCalendarReadAuthorization) async throws
+    nonisolated private static func fetchAllPages(firstPage: URL, authorization: GoogleCalendarReadAuthorization, explicitCoverage: Bool = false) async throws
         -> (events: [GoogleEvent], syncToken: String?) {
         var events: [GoogleEvent] = []
         var syncToken: String?
+        var seenPageTokens: Set<String> = []
         var pageToken: String?
         repeat {
             var url = firstPage
@@ -1171,6 +1238,12 @@ final class GoogleCalendarService: ObservableObject {
             let data = try await readData(url: url, authorization: authorization)
             guard let page = try? JSONDecoder().decode(GoogleEventsResponse.self, from: data) else {
                 throw GoogleCalendarError.malformedResponse
+            }
+            if explicitCoverage {
+                guard page.items != nil else { throw GoogleCalendarError.malformedResponse }
+                if let next = page.nextPageToken, !seenPageTokens.insert(next).inserted {
+                    throw GoogleCalendarError.malformedResponse
+                }
             }
             events += page.items ?? []
             pageToken = page.nextPageToken
@@ -2470,7 +2543,8 @@ final class GoogleCalendarService: ObservableObject {
         }
     }
 
-    private func calendars(for account: GoogleAccountCredential) async throws -> [GoogleCalendar] {
+    private func calendars(for account: GoogleAccountCredential, explicitCoverage: Bool = false) async throws -> [GoogleCalendar] {
+        var seenPageTokens: Set<String> = []
         var pageToken: String?
         var loaded: [GoogleCalendar] = []
         repeat {
@@ -2479,6 +2553,12 @@ final class GoogleCalendarService: ObservableObject {
                 components.queryItems = [URLQueryItem(name: "pageToken", value: pageToken)]
             }
             let page: GoogleCalendarListResponse = try await request(url: components.url!, account: account)
+            if explicitCoverage {
+                guard page.items != nil else { throw GoogleCalendarError.malformedResponse }
+                if let next = page.nextPageToken, !seenPageTokens.insert(next).inserted {
+                    throw GoogleCalendarError.malformedResponse
+                }
+            }
             loaded += page.items ?? []
             pageToken = page.nextPageToken
         } while pageToken != nil

@@ -183,6 +183,38 @@ final class MailAttachmentsTests: XCTestCase {
 
     // MARK: Adding
 
+    func testAssistantSnapshotTracksKnownEmptyPendingAndAttachedFiles() async throws {
+        let h = Harness()
+        let composer = await h.compose()
+        let empty = composer.assistantDraftContext
+        XCTAssertEqual(empty.outgoingAttachmentCount, 0)
+        composer.files.add([try file("dimensions.csv", bytes: 32)])
+        let pending = composer.assistantDraftContext
+        XCTAssertNil(pending.outgoingAttachmentCount)
+        XCTAssertNotEqual(pending, empty)
+        await composer.files.settle()
+        let ready = composer.assistantDraftContext
+        XCTAssertEqual(ready.outgoingAttachmentCount, 1)
+        XCTAssertNotEqual(ready, pending)
+        XCTAssertNotEqual(ready, empty)
+    }
+
+    func testOutgoingFileClaimsRespectNativeInventoryAndDirections() {
+        let assertFile = "The marked-up drawing is attached to this reply."
+        XCTAssertTrue(MailOutgoingFileClaim.contradicts(body: assertFile, outgoingCount: 0))
+        XCTAssertFalse(MailOutgoingFileClaim.contradicts(body: assertFile, outgoingCount: 1))
+        XCTAssertFalse(MailOutgoingFileClaim.contradicts(body: assertFile, outgoingCount: nil))
+        for body in [
+            "The file you attached shows the north door.",
+            "Please send the signed form as an attachment.",
+            "Please see the file on this message: https://files.example/worksheet.",
+            "Please use the measurements in this message: the slot is 2 mm wide.",
+            "You wrote, “Please use the file on this reply.” Which version do you mean?"
+        ] {
+            XCTAssertFalse(MailOutgoingFileClaim.contradicts(body: body, outgoingCount: 0), body)
+        }
+    }
+
     func testAFileAddedIsAChipWithItsNameAndSizeAndIsKeptInTheSourcesOwnFolder() async throws {
         let h = Harness()
         let composer = await h.compose()

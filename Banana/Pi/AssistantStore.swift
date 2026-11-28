@@ -84,6 +84,7 @@ private struct AssistantSnapshot: Decodable {
     var hasEarlier: Bool
     var hasMoreConversations: Bool
     var availability: AssistantAvailability
+    var usesPeer: Bool?
     var error: String?
     var surface: AssistantNutritionSurface?
     var workspace: AssistantWorkspaceState?
@@ -127,22 +128,27 @@ final class AssistantStore: ObservableObject {
     private var diagnostic = false
     /// Whether the running Pi was started on the Mac's own model (vs Apple's, while it downloads).
     private var hostUsesLocalModel = false
+    #if os(macOS)
+    private var refreshAfterMemoryStop = false
+    #endif
     #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
     private var desktopModel: DesktopAssistantLink.Model?
+    private var desktopRecipient: String?
+    private var selectionUsesPeer = false
     #endif
     var modelLocation: String {
         #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
-        if desktopModel != nil { return "On your Mac" }
+        if selectionUsesPeer { return "On your Mac" }
         #endif
         return "On this \(DeviceRole.current.name)"
     }
 
     var modelIdentity: String {
         #if os(macOS)
-        if !diagnostic, let local = MacLocalInference.shared.resolvedConfiguration() { return "mac-local/\(local.modelId)" }
+        if !diagnostic, hostUsesLocalModel, let local = MacLocalInference.shared.resolvedConfiguration() { return "mac-local/\(local.modelId)" }
         #endif
         #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
-        if let desktopModel { return "desktop/\(desktopModel.modelId)" }
+        if selectionUsesPeer, let desktopModel { return "desktop/\(desktopModel.modelId)" }
         #endif
         return diagnostic ? "faux/faux-1" : "apple-foundation/on-device"
     }
@@ -187,6 +193,14 @@ final class AssistantStore: ObservableObject {
             }
         })
         #elseif os(macOS)
+        observers.append(NotificationCenter.default.addObserver(forName: MacLocalInference.memoryStopped,
+                                                                object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.active, self.hostUsesLocalModel else { return }
+                self.refreshAfterMemoryStop = true
+                self.refreshHostIfIdle()
+            }
+        })
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
                 self?.host?.stop()
@@ -203,6 +217,29 @@ final class AssistantStore: ObservableObject {
         }
         host.toolHandler = { [weak self] request in
             guard let self else { throw AssistantFailure(message: "The assistant is unavailable.") }
+            #if !BANANA_PUBLIC
+            if let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any],
+               let name = value["name"] as? String, ["read_mail_thread", "read_mail_inbox"].contains(name),
+               let args = value["arguments"] as? [String: Any] {
+                #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+                guard self.desktopModel == nil || value["deviceEvidenceOnly"] as? Bool == true else {
+                    throw AssistantFailure(message: "Select the on-device model to read an email thread.")
+                }
+                #endif
+                if name == "read_mail_inbox" {
+                    return try await AssistantWorkspace.readMailInbox(unread: args["unread"] as? Bool == true)
+                }
+                return try await AssistantWorkspace.readMailThread(args)
+            }
+            #endif
+            if let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any],
+               value["name"] as? String == "check_calendar_interval", let args = value["arguments"] as? [String: Any] {
+                return try await AssistantCapabilities.checkCalendarInterval(args)
+            }
+            if let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any],
+               value["name"] as? String == "find_free_time", let args = value["arguments"] as? [String: Any] {
+                return try await AssistantCapabilities.freeTime(args)
+            }
             if let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any],
                value["name"] as? String == "read_nutrients", let args = value["arguments"] as? [String: Any] {
                 await WellnessStore.shared.whenLoaded()
@@ -219,6 +256,12 @@ final class AssistantStore: ObservableObject {
             if let value = try JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any],
                value["name"] as? String == "app_workspace", let args = value["arguments"] as? [String: Any],
                let operation = value["operationId"] as? String {
+                #if !BANANA_PUBLIC
+                if args["kind"] as? String == "search", args["section"] as? String == AppSection.mail.rawValue {
+                    let action = try await AssistantWorkspace.searchMail(args, operation: operation)
+                    return String(decoding: try JSONEncoder().encode(action), as: UTF8.self)
+                }
+                #endif
                 await WellnessStore.shared.whenLoaded()
                 #if DEBUG
                 if AppSupport.isPiUITest && WellnessStore.shared.meals.isEmpty { WellnessStore.shared.injectPreviewData() }
@@ -255,7 +298,7 @@ final class AssistantStore: ObservableObject {
             }
         }
         host.eventHandler = { [weak self] event in self?.receive(event) }
-        var configuration: [String: Any] = ["testModel": diagnostic]
+        var configuration: [String: Any] = ["testModel": diagnostic, "mailAvailable": ModuleStore.shared.includes(.email)]
         #if os(macOS)
         // The Mac's own model, kept by the app: Qwen through the app's Locals once `LocalModel`
         // has its files here and checked, Apple's on-device model until then. Never in
@@ -263,7 +306,7 @@ final class AssistantStore: ObservableObject {
         hostUsesLocalModel = false
         if !diagnostic {
             LocalModel.shared.start()
-            if let local = MacLocalInference.shared.resolvedConfiguration() {
+            if let local = MacLocalInference.shared.resolvedConfiguration(), MacLocalInference.shared.memoryAllows(local) {
                 configuration["localModel"] = local.agent
                 hostUsesLocalModel = true
                 if AppSupport.isPiVerification { configuration["compactionKeepRecentTokens"] = 0 }
@@ -273,8 +316,11 @@ final class AssistantStore: ObservableObject {
         }
         #endif
         #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
-        if let desktopModel {
+        configuration["pairingSupported"] = true
+        if let desktopModel, let desktopRecipient {
             configuration["localModel"] = desktopModel.agent
+            configuration["pairedRecipient"] = desktopRecipient
+            configuration["deviceModelStatus"] = AppleFoundationModel.availability()
             host.modelHandler = { raw in
                 if let input = try JSONSerialization.jsonObject(with: Data(raw.utf8)) as? [String: Any],
                    input["backend"] as? String == "mac-local" {
@@ -297,6 +343,15 @@ final class AssistantStore: ObservableObject {
         return host
     }
 
+    private func refreshHostIfIdle() {
+        #if os(macOS)
+        guard refreshAfterMemoryStop, active, !busy, !sending, !retryingInput, host?.hasPendingRequests != true,
+              !FileManager.default.fileExists(atPath: pendingURL.path) else { return }
+        refreshAfterMemoryStop = false
+        if hostUsesLocalModel { setActive(true) }
+        #endif
+    }
+
     func activate() { started = true; setActive(true) }
 
     private func setActive(_ value: Bool) {
@@ -309,24 +364,35 @@ final class AssistantStore: ObservableObject {
                     #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
                     if !self.diagnostic && !self.busy && !self.sending {
                         let model = DesktopAssistantLink.hasSavedPairing ? await DesktopAssistantLink.shared.model() : nil
-                        if !self.busy && !self.sending && model != self.desktopModel {
+                        let recipient = model == nil ? nil : DesktopAssistantLink.shared.recipient
+                        if !self.busy && !self.sending && (model != self.desktopModel || recipient != self.desktopRecipient) {
                             self.host?.stop()
                             self.host = nil
                             self.desktopModel = model
+                            self.desktopRecipient = recipient
                         }
                     }
                     #endif
                     #if os(macOS)
                     if !self.diagnostic {
                         LocalModel.shared.start()
-                        let local = MacLocalInference.shared.resolvedConfiguration() != nil
-                        // The model finished downloading since Pi started: start Pi again on it.
-                        if self.host != nil, local != self.hostUsesLocalModel { self.host?.stop(); self.host = nil }
+                        let inference = MacLocalInference.shared
+                        var local = inference.resolvedConfiguration().map(inference.memoryAllows) ?? false
                         if local {
                             self.loadingLocalModel = true
                             self.availabilityReason = "Loading local model on this Mac…"
                             defer { self.loadingLocalModel = false }
-                            try await MacLocalInference.shared.startIfConfigured()
+                            do { try await inference.startIfConfigured() }
+                            catch is MacLocalInference.MemoryUnavailable { local = false }
+                        }
+                        // Rebuild an idle host when eligibility changes, preserving an active turn.
+                        if let host = self.host, local != self.hostUsesLocalModel {
+                            if self.busy || self.sending || self.retryingInput || host.hasPendingRequests {
+                                if !local { self.refreshAfterMemoryStop = true }
+                            } else {
+                                self.refreshAfterMemoryStop = false
+                                host.stop(); self.host = nil
+                            }
                         }
                     }
                     #endif
@@ -370,6 +436,9 @@ final class AssistantStore: ObservableObject {
         if let state = try? JSONDecoder().decode(AssistantSnapshot.self, from: data) {
             conversations = state.conversations; messages = state.messages; selected = state.selected
             surface = state.surface; workspace = state.workspace
+            #if os(iOS) && !PI_DEVELOPMENT && !BANANA_DEVELOPMENT
+            selectionUsesPeer = state.usesPeer == true
+            #endif
             busy = state.busy; available = state.availability.available
             modelName = state.availability.modelName
             if state.availability.available {
@@ -399,6 +468,7 @@ final class AssistantStore: ObservableObject {
             if diagnostic { updateFixtureCount() }
             writeVerificationState()
             #endif
+            refreshHostIfIdle()
             if active, !busy, !retryingInput, FileManager.default.fileExists(atPath: pendingURL.path) {
                 Task { [weak self] in try? await self?.retryPendingInput() }
             }
@@ -410,6 +480,7 @@ final class AssistantStore: ObservableObject {
     private func call(_ operation: String, _ payload: [String: Any] = [:]) async throws -> String {
         guard let host else { throw AssistantFailure(message: "The assistant is not ready yet.") }
         let json = String(decoding: try JSONSerialization.data(withJSONObject: payload), as: UTF8.self)
+        defer { refreshHostIfIdle() }
         return try await host.request(operation, payload: json)
     }
 
@@ -418,7 +489,7 @@ final class AssistantStore: ObservableObject {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return false }
         sending = true; error = nil
-        defer { sending = false }
+        defer { sending = false; refreshHostIfIdle() }
         do {
             if FileManager.default.fileExists(atPath: pendingURL.path) {
                 try await retryPendingInput()
@@ -434,7 +505,7 @@ final class AssistantStore: ObservableObject {
     private func retryPendingInput() async throws {
         guard active, !retryingInput, FileManager.default.fileExists(atPath: pendingURL.path) else { return }
         retryingInput = true
-        defer { retryingInput = false }
+        defer { retryingInput = false; refreshHostIfIdle() }
         let input = try JSONDecoder().decode(PendingInput.self, from: Data(contentsOf: pendingURL))
         _ = try await call("select", ["id": input.conversation])
         _ = try await call("send", ["text": input.text, "requestId": input.requestId])
@@ -454,6 +525,17 @@ final class AssistantStore: ObservableObject {
 
     private func noteToolCall(_ request: String, result: String) {
         guard let conversation = selected else { return }
+        if let envelope = try? JSONSerialization.jsonObject(with: Data(request.utf8)) as? [String: Any] {
+            if let name = envelope["name"] as? String, ["read_mail_thread", "read_mail_inbox", "check_calendar_interval"].contains(name) {
+                return
+            }
+            if let fields = envelope["arguments"] as? [String: Any] {
+                if fields["sourceStart"] != nil || fields["sourceEnd"] != nil || fields["sourceTool"] as? String == "read_mail_thread" { return }
+                if fields["kind"] as? String == "search", fields["section"] as? String == "mail" { return }
+                if fields["kind"] as? String == "note", let source = fields["sourceRequest"] as? String,
+                   source.range(of: #"\b(e-?mail|thread)\b"#, options: [.regularExpression, .caseInsensitive]) != nil { return }
+            }
+        }
         let cut = { (text: String) in text.count <= 16_384 ? text : String(text.prefix(16_384)) + "…" }
         var calls = toolCalls[conversation, default: []]
         calls.append(ToolCall(request: cut(request), result: cut(result), at: Date()))

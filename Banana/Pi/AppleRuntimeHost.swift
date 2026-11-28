@@ -150,6 +150,10 @@ final class AppleRuntimeHost {
     private let started = DispatchTime.now().uptimeNanoseconds
     private var ended = false
     var isStopped: Bool { ended }
+    #if os(macOS)
+    /// Includes requests made by other conversations sharing this host.
+    var hasPendingRequests: Bool { !commandReplies.isEmpty || !modelRequests.isEmpty || !toolRequests.isEmpty }
+    #endif
     private let completion: (String, Bool) -> Void
 
     init(databasePath: String, completion: @escaping (String, Bool) -> Void) throws {

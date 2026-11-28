@@ -171,6 +171,7 @@ final class MailComposerModel: ObservableObject {
     /// The conversation it is written in; nil for a new message.
     private(set) var host: MailConversationID?
     private(set) var replyToMessage: MailMessageID?
+    @Published private var selectedHeader: MailDraftPrompt.Envelope.SelectedMessage?
     /// The conversation it answers, known from the start before its draft has come.
     var answers: MailConversationID? {
         if let host { return host }
@@ -306,13 +307,20 @@ final class MailComposerModel: ObservableObject {
         case .reply(let id), .replyAll(let id), .forward(let id):
             guard let conversation = await source.conversation(id), let original = original(in: conversation) else { return nil }
             replyToMessage = original.id
+            rememberHeader(original, in: conversation.id)
             let kind: MailDraftKind
             switch start {
             case .replyAll: kind = .replyAll(to: original.id)
             case .forward: kind = .forward(original.id)
             default: kind = .reply(to: original.id)
             }
-            let draft = await source.newDraft(kind)
+            var draft = await source.newDraft(kind)
+            // The provider can reopen an older draft via its RFC In-Reply-To. The selected
+            // message is known for this request even when the draft predates local anchors.
+            if draft.replyToMessage == nil, draft.isReply || draft.isForward,
+               draft.conversation == conversation.id, draft.account == original.id.account {
+                draft.replyToMessage = original.id
+            }
             return (draft, draft.syncState == nil && draft.id != conversation.draft)
         }
     }
@@ -332,7 +340,17 @@ final class MailComposerModel: ObservableObject {
         self.draft = draft
         syncState = draft.syncState
         lastSave = draft.editedAt
-        replyToMessage = draft.replyToMessage ?? replyToMessage
+        let anchor = draft.replyToMessage ?? (fresh ? replyToMessage : nil)
+        if draft.isReply || draft.isForward, draft.conversation.account == draft.account,
+           let anchor, anchor.account == draft.account {
+            replyToMessage = anchor
+        } else {
+            replyToMessage = nil
+        }
+        if selectedHeader?.messageID != replyToMessage?.message || selectedHeader?.account != draft.account
+            || selectedHeader?.threadID != draft.conversation.thread {
+            selectedHeader = nil
+        }
         if !source.supportsAccountSwitching { identities = source.accounts.first(where: { $0.id == draft.account })?.identities ?? [] }
         draftID = draft.id
         host = draft.isReply || draft.isForward ? draft.conversation : nil
@@ -358,6 +376,7 @@ final class MailComposerModel: ObservableObject {
             // A reply he comes back to: to everyone if it goes to more than one person.
             if draft.isForward { replyStyle = .forward }
             else if draft.isReply { replyStyle = draft.cc.isEmpty && draft.to.count <= 1 ? .reply : .replyAll }
+            else { replyStyle = nil }
         }
         isReady = true
     }
@@ -538,12 +557,38 @@ final class MailComposerModel: ObservableObject {
         let recipients: [[MailPerson]]
         let typedRecipients: [String]
         let replyStyle: MailReplyStyle?
+        let selectedMessageID: MailMessageID?
+        let envelope: MailDraftPrompt.Envelope
+        var outgoingAttachmentCount: Int? = nil
     }
 
     var assistantDraftContext: AssistantDraftContext {
-        AssistantDraftContext(draftID: draftID, conversation: host, sender: from, subject: subject,
+        let mode: MailDraftPrompt.Envelope.Mode
+        switch replyStyle {
+        case .reply: mode = .reply
+        case .replyAll: mode = .replyAll
+        case .forward: mode = .forward
+        case nil: mode = .new
+        }
+        let envelope = MailDraftPrompt.Envelope(mode: mode, from: from.map { .init(name: $0.name, address: $0.address) },
+                                                to: to.map(Self.party), cc: cc.map(Self.party), selectedMessage: selectedHeader)
+        return AssistantDraftContext(draftID: draftID, conversation: host, sender: from, subject: subject,
                               quote: quote, recipients: [to, cc, bcc], typedRecipients: [toText, ccText, bccText],
-                              replyStyle: replyStyle)
+                              replyStyle: replyStyle, selectedMessageID: replyToMessage, envelope: envelope,
+                              outgoingAttachmentCount: files.pending.isEmpty && !isResolving ? files.items.count : nil)
+    }
+
+    private static func party(_ person: MailPerson) -> MailDraftPrompt.Envelope.Party {
+        .init(name: person.name, address: person.address)
+    }
+
+    private func rememberHeader(_ message: MailMessage, in thread: MailConversationID) {
+        guard message.id == replyToMessage, message.id.account == thread.account else { return }
+        let header = MailDraftPrompt.Envelope.SelectedMessage(
+            account: thread.account, threadID: thread.thread, messageID: message.id.message,
+            direction: message.isMine ? .outgoing : .incoming, from: Self.party(message.from),
+            to: message.to.map(Self.party), cc: message.cc.map(Self.party))
+        if selectedHeader != header { selectedHeader = header }
     }
 
     /// What the assistant wrote goes into the body, ready to edit; what was there is kept for one Undo.
@@ -664,6 +709,7 @@ final class MailComposerModel: ObservableObject {
     func currentDraft() -> MailDraft? {
         guard var draft else { return nil }
         if draft.format == .foreign { return draft }
+        draft.replyToMessage = replyToMessage
         draft.to = to
         draft.cc = cc
         draft.bcc = bcc
@@ -771,7 +817,9 @@ final class MailComposerModel: ObservableObject {
     /// draft is made by: the switch then offers Reply and Forward only.
     func refreshReplyChoices() async {
         guard let host, replyStyle != nil, let conversation = await source.conversation(host),
-              let original = original(in: conversation) else { return }
+              self.host == host, let original = original(in: conversation) else { return }
+        // A restored draft without a provider message ID cannot establish which message it answered.
+        rememberHeader(original, in: conversation.id)
         let all = MailReplyRules.recipients(for: .replyAll(to: original.id), original: original, myAddresses: myAddresses)
         let one = MailReplyRules.recipients(for: .reply(to: original.id), original: original, myAddresses: myAddresses)
         let same = Set((all.to + all.cc).map(Self.key)) == Set((one.to + one.cc).map(Self.key))

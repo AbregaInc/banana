@@ -15,6 +15,16 @@ final class MailHeadersTests: XCTestCase {
 
     // MARK: - Lookup
 
+    func testAutomaticReplyHeadersDistinguishHumanMachineAndUnknown() {
+        let from = ("From", "editor@plan.example")
+        XCTAssertEqual(headers([from, ("Auto-Submitted", "no")]).isAutomaticallyDistributed, false)
+        XCTAssertEqual(headers([from, ("Auto-Submitted", "no"), ("Auto-Submitted", "auto-replied; owner=test")]).isAutomaticallyDistributed, true)
+        XCTAssertEqual(headers([from, ("Precedence", "Bulk")]).isAutomaticallyDistributed, true)
+        XCTAssertEqual(headers([from, ("List-Id", "<group.plan.example>")]).isAutomaticallyDistributed, true)
+        XCTAssertNil(headers([from, from]).isAutomaticallyDistributed)
+        XCTAssertNil(MessageHeaders.unread.isAutomaticallyDistributed)
+    }
+
     func testHeadersAreFoundByNameWithoutRegardToCase() {
         let h = headers([("From", "a@x.com"), ("SUBJECT", "Hi"), ("message-id", "<1@x.com>")])
         XCTAssertEqual(h.value("from"), "a@x.com")
@@ -128,7 +138,7 @@ final class MailHeadersTests: XCTestCase {
         let padding = (0..<1_000).map { ("Received", "hop \($0)") }
         let names = ["From", "Sender", "To", "Cc", "Bcc", "Reply-To", "Subject", "Date", "Message-ID",
                      "In-Reply-To", "References", "List-Id", "List-Unsubscribe", "List-Unsubscribe-Post", "DKIM-Signature",
-                     "Content-Type", "Delivered-To", "Auto-Submitted", "X-Google-Original-Message-ID",
+                     "Content-Type", "Delivered-To", "Auto-Submitted", "Precedence", "X-Google-Original-Message-ID",
                      "X-Banana-Send-At", "X-Banana-Send-Owner"]
         XCTAssertEqual(Set(names.map { $0.lowercased() }), MessageHeaders.namedHeaders)
         let tail = names.flatMap { [($0.uppercased(), "first"), ($0, "second")] }

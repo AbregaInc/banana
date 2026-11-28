@@ -2,11 +2,12 @@ import {nutritionInputId, nutritionForInput} from './nutrition-presentation.js';
 import {clockInstructions} from './clock-context.js';
 import { BACKGROUND_CONTEXT as context } from '@earendil-works/chord/context';
 import { createModels } from '@earendil-works/pi-ai/models';
-import { CompactionEntry, createRegistry, defineExtension, defineTool } from '@earendil-works/pi-durable';
+import { CompactionEntry, ROOT_CONVERSATION_ID, createRegistry, defineExtension, defineTool } from '@earendil-works/pi-durable';
 import { Type } from 'typebox';
 import { NutritionDoc, nutritionExtension, updateNutrition } from './nutrition.js';
 import { bananaFoundationProvider } from './apple-provider.js';
 import { macLocalProvider } from './local-provider.js';
+import {grantFreshConversation, peerAllowed, conversationPeerAllowed, keepEvidenceOnDevice} from './peer-inference.js';
 import { WorkspaceDoc, workspaceExtension, updateWorkspace, workspaceRequestText } from './workspace.js';
 import { ApplePiSession } from './apple-session.js';
 import { fauxProvider, fauxAssistantMessage, fauxToolCall } from '@earendil-works/pi-ai/providers/faux';
@@ -19,9 +20,16 @@ const configuration = JSON.parse(nativeAgentConfiguration);
 const faux = configuration.testModel ? fauxProvider() : undefined;
 const local = !faux && configuration.localModel;
 const agent = { model: { provider: faux ? 'faux' : local ? 'mac-local' : 'apple-foundation', modelId: faux ? 'faux-1' : local ? local.modelId : 'on-device' }, thinkingLevel: local ? local.thinkingLevel : 'off', instructions };
+const peer = configuration.pairedRecipient;
+const appleAgent = {model:{provider:'apple-foundation',modelId:'on-device'},thinkingLevel:'off'};
 function currentInstructions() {
   const clock = JSON.parse(nativeCurrentClock());
-  return instructions + '\n' + clockInstructions(clock) + '\nA note draft is not saved until the person presses Save in native review.';
+  const mail = configuration.mailAvailable === true
+    ? ' Use search_mail to find threads stored on this device. When available, read_mail_thread can read bounded cached excerpts from a single matching thread. Never claim the entire mailbox or thread was read.'
+    : '';
+  return instructions + '\n' + clockInstructions(clock) +
+    '\nFor day or week availability, find_free_time reads busy events on the included Google calendars.' +
+    mail + ' A note draft is not saved until the person presses Save in native review.';
 }
 
 function nativeTool(request, signal) {
@@ -55,13 +63,25 @@ const tool = (name, description, parameters) => defineTool({ name, description, 
     const operationId = await api.memo('banana-operation', uuid(), ctx);
     if (name === 'create_note' && !configuration.testModel) {
       const previous = await api.snapshot(WorkspaceDoc, api.conversationId, ctx);
+      const conversation = await harness.conversation(api.conversationId,ctx);
+      const {messages} = await conversation.context(ctx);
+      const turn = messages.slice(messages.findLastIndex(message => message.role === 'user') + 1);
+      const sourceTool = turn.find(message => message.role === 'toolResult' && message.toolName === 'read_mail_thread')?.toolName;
       const action = await updateWorkspace(api, api.conversationId,
-        {kind: 'note', title: 'New note', notes: args.text, sourceRequest: await workspaceRequestText(harness, api, ctx), revision: previous?.revision ?? 0},
+        {kind: 'note', title: 'New note', notes: args.text, sourceRequest: await workspaceRequestText(harness, api, ctx),
+          ...(sourceTool ? {sourceTool} : {}), revision: previous?.revision ?? 0},
         operationId, nativeTool, ctx);
       const {sourceRequest, ...descriptor} = action;
       return {output: [{type: 'text', text: JSON.stringify({action: descriptor, saved: false})}], control: {terminate: true}};
     }
-    const result = await nativeTool({ name, arguments: args, operationId }, ctx.abortSignal);
+    let deviceEvidenceOnly = false;
+    if (configuration.pairingSupported && ['read_mail_thread','read_mail_inbox'].includes(name)) {
+      if (await conversationPeerAllowed(api,api.conversationId,peer,ctx))
+        throw new Error('This email evidence is available in on-device conversations.');
+      await keepEvidenceOnDevice(api,api.conversationId,ctx);
+      deviceEvidenceOnly = true;
+    }
+    const result = await nativeTool({ name, arguments: args, operationId, ...(deviceEvidenceOnly ? {deviceEvidenceOnly} : {}) }, ctx.abortSignal);
     if (name === 'day_plan') {
       // The agenda is now the visible result. An older chart/draft must not keep
       // the conversation folded away or leave the viewport on an unrelated object.
@@ -88,12 +108,27 @@ registry.install(nutritionExtension(nativeTool, uuid, async (api, ctx) => {
     if (doc.action) { doc.revision += 1; doc.action = null; doc.operation = null; }
   }, ctx);
 }, currentNutritionInput));
-registry.install(workspaceExtension(nativeTool, uuid, (api, ctx) => workspaceRequestText(harness, api, ctx)));
+registry.install(workspaceExtension(nativeTool, uuid, (api, ctx) => workspaceRequestText(harness, api, ctx), configuration.mailAvailable === true));
 registry.install(defineExtension({ name: 'banana', tools: [
   tool('list_notes', 'List recent Banana notes with IDs and short previews. Use when the person asks about their notes, not for greetings or general conversation.', Type.Object({ limit: Type.Optional(Type.Integer()) }, { additionalProperties: false })),
   tool('read_note', 'Read one Banana note by its ID.', Type.Object({ id: Type.String() }, { additionalProperties: false })),
   tool('create_note', 'Prepare a written Banana note for native review only for an explicit request to create or save a note. The person reviews and presses Save; this tool does not save. Do not use for chat memory, reminders, routines or logging other records.', Type.Object({ text: Type.String() }, { additionalProperties: false })),
   tool('day_plan', 'Show the native agenda when asked what is happening on a day. It displays event times in the device timezone; do not rewrite or convert the agenda yourself. Omit date for today; use tomorrow for tomorrow, or an explicit local YYYY-MM-DD. The native agenda is the answer.', Type.Object({ date: Type.Optional(Type.String()) }, { additionalProperties: false })),
+  ...(configuration.mailAvailable === true && configuration.mailEvidenceAvailable !== false ? [
+    tool('read_mail_inbox', 'Triage the newest locally retained inbox threads from subjects and snippets. Use unread when the person expressly asks for unread threads.',
+      Type.Object({unread:Type.Optional(Type.Boolean())}, {additionalProperties:false})),
+    tool('read_mail_thread', 'Read recent cached excerpts from one thread. Use short topic keywords from the request and an explicitly named sender if present. Ask for a subject if the reference is unclear. Does not read attachments, send email, or search the server.',
+      Type.Object({query: Type.String(), sender: Type.Optional(Type.String()),
+        selectionKey:Type.Optional(Type.String({description:'Host metadata for a selected result.'})),
+        userInterval:Type.Optional(Type.Object({start:Type.String(),end:Type.String()},{additionalProperties:false,description:'Host-verified replacement times supplied by the user.'})),
+        afterRead:Type.Optional(Type.String({enum:['check_time_from_mail','draft_event_from_mail','draft_if_free_from_mail','note_date_from_mail']}))}, {additionalProperties:false})),
+  ] : []),
+  tool('check_calendar_interval', 'Internal continuation for checking a single exact range copied from a loaded email. Both timestamps must include an explicit offset.',
+    Type.Object({start:Type.String(), end:Type.String()}, {additionalProperties:false})),
+  tool('find_free_time', 'Read free windows for a day or a week on the included Google calendars in device time. Specify either a date (today, tomorrow, named weekday or YYYY-MM-DD) or period, plus any requested 24-hour bounds as after/before, and requested durationMinutes. Without bounds use 09:00–17:00, and without duration use 30 minutes. Morning is 09:00–12:00 and after lunch is 13:00–17:00 if no explicit time is supplied. No events are created or changed.',
+    Type.Object({date: Type.Optional(Type.String()), period: Type.Optional(Type.String({enum:['thisWeek','nextWeek','next7days']})), after: Type.Optional(Type.String()), before: Type.Optional(Type.String()),
+      durationMinutes: Type.Optional(Type.Integer()), limit: Type.Optional(Type.Integer()),
+      longestFirst:Type.Optional(Type.Boolean()), weekdaysOnly:Type.Optional(Type.Boolean())}, {additionalProperties:false})),
 ] }));
 
 function report(error) { lastError = String(error); void publish(); }
@@ -144,7 +179,8 @@ async function open(options = {}) {
       return fauxAssistantMessage('Local reply: ' + text);
     }));
     models.setProvider(faux?.provider ?? bananaFoundationProvider({ contextWindow: local ? 4096 : availability.contextWindow }));
-    if (local) models.setProvider(macLocalProvider(local));
+    if (local) models.setProvider(macLocalProvider(local,undefined,peer ? async id =>
+      await peerAllowed(harness ?? session?.harness,id,peer,context) ? peer : undefined : undefined));
     session = new ApplePiSession({ models, registry,
       // Reserve the actual response budget. Split the remaining context between
       // recent turns and a summary. Use Pi's own blocking compaction to avoid
@@ -159,7 +195,11 @@ async function open(options = {}) {
   }
   harness = await session.activate();
   if (options.selected) selected = Number(options.selected);
-  if (!selected || !await harness.conversation(selected, context)) selected = (await harness.root(context, { agent: { ...agent, instructions: currentInstructions() } })).id;
+  if (!selected || !await harness.conversation(selected, context)) {
+    const existing = await harness.conversation(ROOT_CONVERSATION_ID,context);
+    selected = (existing ?? await harness.root(context, {agent:{...agent,instructions:currentInstructions()}})).id;
+    if (!existing) await grantFreshConversation(harness,selected,peer,context);
+  }
   unsubscribe?.();
   unsubscribe = harness.subscribeCommits(() => { void publish(); });
   await publish();
@@ -180,7 +220,7 @@ function displayMessages(entries) {
       const calls = message.content.filter((part) => part.type === 'toolCall').map((part) => part.name === 'nutrition_view' && part.arguments.responseMode === 'answer' ? 'nutrition_read' : part.name);
       const result = [];
       if (text) result.push({ id, role: 'assistant', text });
-      if (calls.length) result.push({ id: id + ':tools', role: 'activity', text: calls.map((name) => ({ list_notes: 'Looking up notes', read_note: 'Reading a note', create_note: configuration.testModel ? 'Saving a note' : 'Preparing a note', day_plan: 'Reading the day plan', nutrition_view: 'Updating nutrition view', nutrition_read: 'Reading nutrition records', read_nutrients: 'Reading nutrient records', filter_nutrition: 'Updating nutrition view', prepare_meal_copy: 'Preparing meal draft', prepare_meal: 'Preparing meal draft', prepare_event: 'Preparing event draft', search_app: 'Searching Banana', open_page: 'Opening Banana page' })[name] ?? name).join(' · ') });
+      if (calls.length) result.push({ id: id + ':tools', role: 'activity', text: calls.map((name) => ({ list_notes: 'Looking up notes', read_note: 'Reading a note', create_note: configuration.testModel ? 'Saving a note' : 'Preparing a note', day_plan: 'Reading the day plan', nutrition_view: 'Updating nutrition view', nutrition_read: 'Reading nutrition records', read_nutrients: 'Reading nutrient records', filter_nutrition: 'Updating nutrition view', prepare_meal_copy: 'Preparing meal draft', prepare_meal: 'Preparing meal draft', prepare_event: 'Preparing event draft', prepare_event_from_email: 'Preparing event draft', search_app: 'Searching Banana', search_mail: 'Searching Email', read_mail_thread: 'Reading a thread', read_mail_inbox: 'Checking the inbox', find_free_time: 'Checking calendar availability', check_calendar_interval: 'Checking calendar availability', open_page: 'Opening Banana page' })[name] ?? name).join(' · ') });
       if (message.stopReason === 'error' || message.stopReason === 'aborted') result.push({ id: id + ':error', role: 'error', text: message.errorMessage ?? 'This response stopped.' });
       return result;
     }
@@ -222,11 +262,13 @@ async function publish() {
       if (selected !== viewing) { publishAgain = true; continue; }
       const nutrition = await current.snapshot(NutritionDoc, viewing, context);
       const workspace = await current.snapshot(WorkspaceDoc, viewing, context);
+      const usesPeer = await conversationPeerAllowed(current,viewing,peer,context);
+      const availability = peer && !usesPeer ? configuration.deviceModelStatus : JSON.parse(nativeModelStatus());
       const busy = inspection.tasks.some((item) => item.record.conversationId === viewing && !item.record.background)
         || inspection.submissions.some((item) => item.conversationId === viewing);
-      nativeAgentEvent(JSON.stringify({ selected: String(viewing), conversations, messages: displayMessages([...page.items].reverse()), surface: nutritionForInput(nutrition, nutritionInputId(page.items)), workspace: workspace ? { revision: workspace.revision, action: workspace.action } : { revision: 0, action: null }, busy,
+      nativeAgentEvent(JSON.stringify({ selected: String(viewing), usesPeer, conversations, messages: displayMessages([...page.items].reverse()), surface: nutritionForInput(nutrition, nutritionInputId(page.items)), workspace: workspace ? { revision: workspace.revision, action: workspace.action } : { revision: 0, action: null }, busy,
         hasEarlier: page.next !== undefined, hasMoreConversations: catalog.next !== undefined,
-        availability: faux ? { available: true, reason: 'diagnostic', contextWindow: 4096 } : JSON.parse(nativeModelStatus()), error: lastError ?? null }));
+        availability: faux ? { available: true, reason: 'diagnostic', contextWindow: 4096 } : availability, error: lastError ?? null }));
     } while (publishAgain);
   } catch (error) {
     if (harness === current) nativeAgentEvent(JSON.stringify({ error: 'Unable to read the conversation. ' + String(error) }));
@@ -245,6 +287,7 @@ async function command(operation, payload) {
   if (operation === 'refresh') { await publish(); return {}; }
   if (operation === 'new') {
     selected = (await harness.createConversation({ ownership: { kind: 'ownerless' }, agent: { ...agent, instructions: currentInstructions() } }, context)).id;
+    await grantFreshConversation(harness,selected,peer,context);
     historyLimit = 100;
   } else if (operation === 'select') {
     if (!await harness.conversation(Number(payload.id), context)) throw new Error('Conversation not found');
@@ -266,7 +309,10 @@ async function command(operation, payload) {
     if (operation === 'send') {
       if (typeof payload.text !== 'string' || !payload.text.trim() || typeof payload.requestId !== 'string') throw new Error('Enter a message to send.');
       lastError = undefined;
-      await conversation.configure({ instructions: currentInstructions(), model: agent.model, thinkingLevel: agent.thinkingLevel }, context);
+      const usesPeer = await conversationPeerAllowed(harness,selected,peer,context);
+      if (configuration.pairingSupported && !usesPeer) await keepEvidenceOnDevice(harness,selected,context);
+      const chosen = peer && !usesPeer ? appleAgent : agent;
+      await conversation.configure({ instructions: currentInstructions(), model: chosen.model, thinkingLevel: chosen.thinkingLevel }, context);
       const submission = await conversation.submit({ type: 'input', content: payload.text.trim(), requestId: payload.requestId, whenBusy: 'reject' }, context);
       void submission.wait(context).then(() => publish(), () => { if (harness) void publish(); });
       await publish();

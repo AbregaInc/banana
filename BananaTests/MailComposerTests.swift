@@ -270,6 +270,205 @@ final class MailComposerTests: XCTestCase {
         XCTAssertEqual(Set(composer.to.map(\.address)), Set(recipients.to.map(\.address)))
     }
 
+    func testAssistantEnvelopeUsesSelectedIncomingHeadersAndOnlyVisibleOutgoingRecipients() async throws {
+        let h = Harness()
+        let loaded = await h.conversation("q3")
+        let thread = try XCTUnwrap(loaded)
+        let selected = try XCTUnwrap(thread.messages.first)
+        h.session.reply(.replyAll, to: selected.id, in: thread.id)
+        let composer = try XCTUnwrap(h.composer)
+        await composer.waitForDraft()
+        let hidden = "blind@example.org"
+        composer.bcc = [.init(name: nil, address: hidden, isMe: false, isKnown: false, fromTheirMail: false)]
+        let context = composer.assistantDraftContext
+        XCTAssertEqual(context.selectedMessageID, selected.id)
+        let envelope = context.envelope
+        XCTAssertEqual(envelope.mode, .replyAll)
+        XCTAssertEqual(envelope.from?.address, composer.from?.address)
+        XCTAssertEqual(envelope.to.map(\.address), composer.to.map(\.address))
+        XCTAssertEqual(envelope.cc.map(\.address), composer.cc.map(\.address))
+        let header = try XCTUnwrap(envelope.selectedMessage)
+        XCTAssertEqual(header.messageID, selected.id.message)
+        XCTAssertEqual(header.threadID, thread.id.thread)
+        XCTAssertEqual(header.account, thread.id.account)
+        XCTAssertEqual(header.direction, .incoming)
+        XCTAssertEqual(header.from.address, selected.from.address)
+        XCTAssertEqual(header.to.map(\.address), selected.to.map(\.address))
+        XCTAssertEqual(header.cc.map(\.address), selected.cc.map(\.address))
+        let request = try MailDraftPrompt.request(instruction: "Reply", subject: "", quotedEmail: "", workingDraft: "", envelope: envelope)
+        let payload = try JSONSerialization.data(withJSONObject: request)
+        XCTAssertFalse(String(decoding: payload, as: UTF8.self).contains(hidden))
+    }
+
+    func testRestoredAssistantEnvelopeKeepsOutgoingDirectionAndDoesNotGuessALegacyTarget() async throws {
+        let h = Harness()
+        let loaded = await h.conversation("me-newest")
+        let thread = try XCTUnwrap(loaded)
+        let selected = try XCTUnwrap(thread.messages.last)
+        XCTAssertTrue(selected.isMine)
+        var draft = await h.source.newDraft(.reply(to: selected.id))
+        h.session.begin(.continuing(draft.id))
+        let composer = try XCTUnwrap(h.composer)
+        await composer.waitForDraft()
+        XCTAssertEqual(composer.assistantDraftContext.envelope.selectedMessage?.direction, .outgoing)
+        XCTAssertEqual(composer.assistantDraftContext.envelope.selectedMessage?.messageID, selected.id.message)
+
+        draft.replyToMessage = nil
+        composer.replaceAfterResolution(draft)
+        await composer.refreshReplyChoices()
+        XCTAssertNil(composer.assistantDraftContext.selectedMessageID)
+        XCTAssertNil(composer.assistantDraftContext.envelope.selectedMessage)
+    }
+
+    func testRestoredForwardUsesItsPersistedAnchorAndDropsAnAnchorFromAnotherAccount() async throws {
+        let h = Harness()
+        let loaded = await h.conversation("q3")
+        let thread = try XCTUnwrap(loaded)
+        let selected = try XCTUnwrap(thread.messages.first)
+        let draft = await h.source.newDraft(.forward(selected.id))
+        var snapshot = MailDraftRecord.Snapshot(draft)
+        snapshot.replyToMessage = nil
+        snapshot.forwardMessageID = selected.id.message
+        let restored = snapshot.value
+        XCTAssertEqual(restored.replyToMessage, selected.id)
+        h.source.save(restored)
+        h.session.begin(.continuing(restored.id))
+        let composer = try XCTUnwrap(h.composer)
+        await composer.waitForDraft()
+        XCTAssertEqual(composer.assistantDraftContext.envelope.mode, .forward)
+        XCTAssertEqual(composer.assistantDraftContext.envelope.selectedMessage?.messageID, selected.id.message)
+
+        var mismatched = restored
+        mismatched.replyToMessage = MailMessageID(account: "other@example.org", message: selected.id.message)
+        composer.replaceAfterResolution(mismatched)
+        await composer.refreshReplyChoices()
+        XCTAssertNil(composer.assistantDraftContext.selectedMessageID)
+        XCTAssertNil(composer.assistantDraftContext.envelope.selectedMessage)
+    }
+
+    func testAutomaticReplyEligibilityChecksCurrentAuthoredRequestAndOwnership() async throws {
+        let h = Harness()
+        let loaded = await h.conversation("q3")
+        var thread = try XCTUnwrap(loaded)
+        var incoming = try XCTUnwrap(thread.messages.last)
+        let owner = try XCTUnwrap(incoming.to.first(where: { $0.isMe }))
+        incoming.to = [owner]
+        incoming.isAutoSubmitted = false
+        incoming.listName = nil
+        thread.messages = [incoming]
+        thread.inInbox = true
+        thread.newestIsMine = false
+        thread.unsubscribe = nil
+        let request = "Could you resend the revised invoice?"
+        func check(_ value: String, quoteStartsAt: Int? = nil, target: MailMessageID? = nil) -> MailAutomaticReplyEligibility.Decision {
+            MailAutomaticReplyEligibility.assess(thread, ownerAddresses: [owner.address],
+                body: .text(MailPlainText.text(value), quoteStartsAt: quoteStartsAt, notices: []), for: target ?? incoming.id)
+        }
+        XCTAssertEqual(check(request), .candidate(incoming.id))
+        XCTAssertEqual(check(request, target: .init(account: "other@example.org", message: incoming.id.message)), .abstain)
+        XCTAssertEqual(check("Thanks.\n" + request, quoteStartsAt: 1), .skip)
+        XCTAssertEqual(check("Thanks.\nOn Tuesday someone wrote:\n" + request), .skip)
+        XCTAssertEqual(check("Please let me know if you have any questions."), .skip)
+        XCTAssertEqual(check("Would you like me to book it?"), .abstain)
+        XCTAssertEqual(check(request + " Start your free trial today."), .skip)
+        XCTAssertEqual(check("Everything is resolved."), .skip)
+        XCTAssertEqual(MailAutomaticReplyEligibility.assess(thread, ownerAddresses: [owner.address]), .abstain)
+        thread.messages[0].isAutoSubmitted = true
+        XCTAssertEqual(check(request), .skip)
+        thread.messages[0].isAutoSubmitted = nil
+        XCTAssertEqual(check(request), .abstain)
+        thread.messages[0] = incoming
+        thread.messages[0].to = [incoming.from]
+        thread.messages[0].cc = [owner]
+        XCTAssertEqual(check(request), .abstain)
+        thread.messages[0] = incoming
+        thread.draft = .init(raw: "someone-is-editing")
+        XCTAssertEqual(check(request), .skip)
+        thread.draft = nil
+        thread.messages[0].isUnsentDraft = true
+        XCTAssertEqual(check(request), .skip)
+        thread.messages[0] = incoming
+        thread.messages[0].isMine = true
+        XCTAssertEqual(check(request), .skip)
+    }
+
+    func testAutomaticSemanticReviewRequiresLatestQuoteAndNeverAsksAModelToOverrideAnExistingDraft() async throws {
+        let h = Harness()
+        let loaded = await h.conversation("q3")
+        var thread = try XCTUnwrap(loaded)
+        var message = try XCTUnwrap(thread.messages.last)
+        let owner = try XCTUnwrap(message.to.first(where: { $0.isMe }))
+        message.to = [owner]
+        message.isAutoSubmitted = false
+        message.listName = nil
+        thread.messages = [message]
+        thread.unsubscribe = nil
+        thread.inInbox = true
+        thread.newestIsMine = false
+        let sentence = "The session feed dropped three times when I shared the chart."
+        let body = MailBody.text(MailPlainText.text(sentence), quoteStartsAt: nil, notices: [])
+        var calls = 0
+        func result(quote: String, selectedBody: MailBody? = nil) async throws -> MailAutomaticReplyEligibility.Decision {
+            try await MailAutomaticReplyEligibility.decide(thread, ownerAddresses: [owner.address], body: selectedBody ?? body, for: message.id) { request in
+                calls += 1
+                XCTAssertEqual((request["tools"] as? [[String: Any]])?.count, 0)
+                let contents = try JSONSerialization.data(withJSONObject: ["action": "draft", "quote": quote])
+                let provider = try JSONSerialization.data(withJSONObject: ["content": [["type": "text", "text": String(decoding: contents, as: UTF8.self)]]])
+                return String(decoding: provider, as: UTF8.self)
+            }
+        }
+        let supported = try await result(quote: sentence)
+        XCTAssertEqual(supported, .candidate(message.id))
+        let unsupported = try await result(quote: "a previous correspondent requested an update")
+        XCTAssertEqual(unsupported, .abstain)
+        for risky in ["Can you approve the expense?", "Could you remind the vendor to complete the application?",
+                      "The payment was received. Please let me know if you have questions."] {
+            let riskyBody = MailBody.text(MailPlainText.text(risky), quoteStartsAt: nil, notices: [])
+            XCTAssertFalse(MailAutomaticReplyEligibility.canRevalidate(thread, ownerAddresses: [owner.address],
+                                                                       body: riskyBody, for: message.id))
+        }
+        // Semantic eligibility does not require a particular English question prefix.
+        for phrase in ["Which counter has the parcel?", "¿Dónde está el paquete?", "¿Llegó la caja?"] {
+            let other = MailBody.text(MailPlainText.text(phrase), quoteStartsAt: nil, notices: [])
+            let actual = try await result(quote: phrase, selectedBody: other)
+            XCTAssertEqual(actual, .candidate(message.id))
+            XCTAssertTrue(MailAutomaticReplyEligibility.canRevalidate(thread, ownerAddresses: [owner.address],
+                                                                      body: other, for: message.id))
+        }
+        let mixedText = "Where is the pickup point? Let me know if you have questions."
+        let mixed = MailBody.text(MailPlainText.text(mixedText), quoteStartsAt: nil, notices: [])
+        let courtesyOnly = try await result(quote: "Let me know if you have questions.", selectedBody: mixed)
+        XCTAssertEqual(courtesyOnly, .abstain)
+        let actualAsk = try await result(quote: "Where is the pickup point?", selectedBody: mixed)
+        XCTAssertEqual(actualAsk, .candidate(message.id))
+        for phrase in ["Should I change the delivery route?", "I wonder whether we should switch warehouses.",
+                       "Can we go ahead with the second print run?", "Should we use the larger frame?",
+                       "Which form should I use, and should I update the account?"] {
+            let other = MailBody.text(MailPlainText.text(phrase), quoteStartsAt: nil, notices: [])
+            let callsBefore = calls
+            let verdict = try await result(quote: phrase, selectedBody: other)
+            XCTAssertEqual(verdict, .abstain)
+            XCTAssertEqual(calls, callsBefore)
+            XCTAssertFalse(MailAutomaticReplyEligibility.canRevalidate(thread, ownerAddresses: [owner.address], body: other, for: message.id))
+        }
+        for phrase in ["Which form should I use?", "Should I use blue ink according to the printed guide?",
+                       "According to the checklist, should we enter a batch number?", "Can I have a copy of the list?"] {
+            let other = MailBody.text(MailPlainText.text(phrase), quoteStartsAt: nil, notices: [])
+            let verdict = try await result(quote: phrase, selectedBody: other)
+            XCTAssertEqual(verdict, .candidate(message.id))
+        }
+        let callsBeforeLookup = calls
+        let lookup = MailBody.text(MailPlainText.text("Please consult the attached document. Which counter handles returns?"), quoteStartsAt: nil, notices: [])
+        let routed = try await result(quote: "", selectedBody: lookup)
+        XCTAssertEqual(routed, .candidate(message.id))
+        XCTAssertEqual(calls, callsBeforeLookup, "The workflow can verify the explicit source without a selector model call.")
+        thread.draft = .init(raw: "another-draft")
+        let protected = try await result(quote: sentence)
+        XCTAssertEqual(protected, .skip)
+        XCTAssertEqual(calls, callsBeforeLookup)
+        XCTAssertFalse(MailAutomaticReplyEligibility.canRevalidate(thread, ownerAddresses: [owner.address], body: body, for: message.id))
+    }
+
     func testReplyFromAnOpenImportedDraftLeavesItIntact() async throws {
         let h = Harness()
         let loaded = await h.conversation("q3")

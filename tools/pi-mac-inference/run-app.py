@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """Run real-model acceptance in the full isolated Mac app, preserving normal history."""
 import argparse,hashlib,json,pathlib,plistlib,subprocess,time,uuid
-p=argparse.ArgumentParser();p.add_argument('app',type=pathlib.Path);p.add_argument('--nutrition',action='store_true');p.add_argument('--workspace',action='store_true');p.add_argument('--report-prefix',default='mac-local');p.add_argument('--inference-configuration',type=pathlib.Path);a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('app',type=pathlib.Path);p.add_argument('--nutrition',action='store_true');p.add_argument('--workspace',action='store_true');p.add_argument('--report-prefix',default='mac-local');p.add_argument('--inference-configuration',type=pathlib.Path)
+p.add_argument('--output-directory',type=pathlib.Path)
+a=p.parse_args()
 info=plistlib.loads((a.app/'Contents/Info.plist').read_bytes());bundle=info['CFBundleIdentifier']
 if not bundle.endswith('.mac.pi-development'):p.error('Only the isolated Mac Pi app may be tested')
 root=pathlib.Path(__file__).resolve().parents[2];support=pathlib.Path.home()/'Library/Application Support'
-reports=root/'docs/research/pi-apple-host-results';name=a.report_prefix+('-workspace' if a.workspace else '-nutrition' if a.nutrition else '-app')
+reports=a.output_directory or root/'docs/research/pi-apple-host-results';name=a.report_prefix+('-workspace' if a.workspace else '-nutrition' if a.nutrition else '-app')
+reports.mkdir(parents=True,exist_ok=True)
 # The app's own model: what MacLocalInference builds from the bundled pin, its PiRuntime and the
 # folder LocalModel downloads into. A candidate profile is passed explicitly instead.
 pin=json.loads((a.app/'Contents/Resources/pi-local-model.json').read_text());profile=pin['profile']
@@ -15,7 +18,10 @@ builtin={'python':str(a.app/'Contents/Resources/PiRuntime/bin/python3'),
 config_path=a.inference_configuration.resolve() if a.inference_configuration else root/'.build/pi-builtin-verification.json'
 if not a.inference_configuration:config_path.parent.mkdir(exist_ok=True);config_path.write_text(json.dumps(builtin,indent=2)+'\n')
 config=json.loads(config_path.read_text())
-if config['port']!=41789:p.error('App acceptance reserves port 41789')
+port=config['port']
+if not isinstance(port,int) or not 1024 <= port <= 65535:p.error('Select a valid loopback port')
+def worker_listening():
+ return bool(subprocess.run(['lsof','-n',f'-iTCP:{port}','-sTCP:LISTEN'],capture_output=True).stdout)
 trace=support/'Banana Pi Verification/model-turns.jsonl'
 trace_offset=trace.stat().st_size if trace.exists() else 0
 run=str(uuid.uuid4())
@@ -30,7 +36,7 @@ def normal_state():
  prefs=subprocess.run(['defaults','export',bundle,'-'],capture_output=True)
  values=plistlib.loads(prefs.stdout) if prefs.returncode==0 else {}
  return result,{key:values.get(key) for key in ['assistant.selection','assistant.draft','shellState']}
-if subprocess.run(['lsof','-n','-iTCP:41789','-iTCP:41790','-sTCP:LISTEN'],capture_output=True).stdout:
+if worker_listening():
  raise SystemExit('Release the existing Pi worker before this ownership check; it was not stopped automatically')
 before=normal_state()
 flags=['--assistant-real-test','--assistant-verify','--assistant-headless','--ui-preview','--disable-icloud','--assistant-verification-id',run]
@@ -56,8 +62,8 @@ r['hostBefore']=host_before
 r['hostAfter']=host_state()
 after=normal_state()
 deadline=time.monotonic()+15
-while time.monotonic()<deadline and subprocess.run(['lsof','-n','-iTCP:41789','-sTCP:LISTEN'],capture_output=True).stdout:time.sleep(.1)
-r['ownedWorkerReleasedOnExit']=not bool(subprocess.run(['lsof','-n','-iTCP:41789','-sTCP:LISTEN'],capture_output=True).stdout)
+while time.monotonic()<deadline and worker_listening():time.sleep(.1)
+r['ownedWorkerReleasedOnExit']=not worker_listening()
 r['normalStatePaths']=sorted(before[0])
 r['runnerSha256']=hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest()
 r['normalHistoryAndMealsUnchanged']=before[0]==after[0]

@@ -1,10 +1,13 @@
 import { expect } from 'chai';
 import { BACKGROUND_CONTEXT } from '@earendil-works/chord/context';
 import { createModels } from '@earendil-works/pi-ai/models';
-import { Harness, MemoryStorage, createRegistry, defineExtension, defineTool } from '@earendil-works/pi-durable';
+import { Harness, MemoryStorage, ProviderDoc, createRegistry, defineExtension, defineTool } from '@earendil-works/pi-durable';
 import { Type } from 'typebox';
+import {SqliteStorage} from '@earendil-works/pi-durable/storage/sqlite';
+import {NativeDatabase} from './database.js';
 import { normalizeContext } from '@earendil-works/pi-ai/utils/transcript';
 import { appleFoundationProvider, appleRequest, requestNativeGeneration } from './apple-provider.js';
+import {grantFreshConversation, conversationPeerAllowed, keepEvidenceOnDevice, peerAllowed} from './peer-inference.js';
 import { macLocalProvider } from './local-provider.js';
 
 export async function runProviderConformance() {
@@ -40,6 +43,55 @@ export async function runProviderConformance() {
     expect(result.provider).to.equal('mac-local');
     expect(result.model).to.equal('test-local');
     expect(result.content[0].thinking).to.equal('Local reasoning');
+  });
+  await check('paired generation requires persisted authorization for the actual session and recipient', async () => {
+    const ctx = BACKGROUND_CONTEXT;
+    const storage = () => SqliteStorage.open(new NativeDatabase());
+    const models = createModels();
+    const peer = 'fixture-peer';
+    let owner;
+    const sent = [];
+    models.setProvider(macLocalProvider({modelId:'paired',name:'Paired fixture',contextWindow:8192,maxTokens:1024},
+      async request => {
+        sent.push(request);
+        return {content:[{type:'text',text:'Fixture answer'}]};
+      },async id => await peerAllowed(owner,id,peer,ctx) ? peer : undefined));
+    owner = await Harness.open(await storage(),{models,registry:createRegistry()},ctx);
+    try {
+      const root = await owner.root(ctx);
+      const conversation = await owner.createConversation({ownership:{kind:'ownerless'}},ctx);
+      await grantFreshConversation(owner,conversation.id,peer,ctx);
+      const id = (await owner.snapshot(ProviderDoc,conversation.id,ctx)).sessionId;
+      expect(await conversationPeerAllowed(owner,root.id,peer,ctx)).to.equal(false);
+      expect(await peerAllowed(owner,id,'another-peer',ctx)).to.equal(false);
+      const model = models.getModel('mac-local','paired');
+      // Compaction/recovery can contain sensitive information with no remaining mail tool call.
+      const history = {messages:[{role:'assistant',content:[{type:'text',text:'Synthetic summary of a private excerpt'}]},
+        {role:'user',content:'What did that mean?',timestamp:1}]};
+      const run = async sessionId => {
+        sent.length = 0;
+        const result = await models.streamSimple(model,history,{sessionId}).result();
+        expect(result.stopReason).to.equal('stop');
+        expect(sent.length).to.be.greaterThan(0);
+        return sent.map(request => request.pairedRecipient);
+      };
+      expect(await run('legacy-session')).to.deep.equal([undefined]);
+      expect(await run(id)).to.deep.equal([peer]);
+      await keepEvidenceOnDevice(owner,conversation.id,ctx);
+      expect(await run(id)).to.deep.equal([undefined]);
+      // Reopening reads the durable grant, and retrying new-conversation setup cannot undo revocation.
+      await owner.close(ctx);
+      owner = await Harness.open(await storage(),{models,registry:createRegistry()},ctx);
+      await grantFreshConversation(owner,conversation.id,peer,ctx);
+      expect(await run(id)).to.deep.equal([undefined]);
+    } finally { await owner.close(ctx); }
+  });
+  await check('Apple resumes visible history from the Mac without private model reasoning', () => {
+    const note = {type:'toolCall',id:'example',name:'list_notes',arguments:{}};
+    const blocks = [{type:'thinking',thinking:'Mac-only reasoning'},{type:'text',text:'Previous answer'},note];
+    const request = appleRequest({messages:[{role:'assistant',provider:'mac-local',content:blocks}]});
+    expect(request.messages[0].content).to.deep.equal(blocks.slice(1));
+    expect(blocks).to.have.length(3);
   });
   await check('public provider emits a valid text event sequence', async () => {
     const { stream } = setup(async () => ({ content: [{ type: 'text', text: 'Local hello 🍌' }] }));

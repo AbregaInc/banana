@@ -23,3 +23,21 @@ test('stored prose edits and playback or workout control cannot be conversation 
  for(const words of ['Rewrite my newest note to say hello','Fast forward this episode by a minute','Skip ahead 30 seconds Thanks.','Hi, Start a strength workout'])assert.equal(requestsUnsupportedAction(words),true,words);
  for(const words of ['Rewrite this sentence','Start a note about my workout','Explain how to pause playback','Create a note: "Pause my podcast"'])assert.equal(requestsUnsupportedAction(words),false,words);
 });
+
+test('explicit single-day availability grounds the order, duration, date and bounds',async()=>{
+ const {availabilityCommand}=await import('./command-contracts.js');
+ for(const word of ["What's","When is"]) assert.deepEqual(availabilityCommand(word+" my first free hour after lunch tomorrow?"),
+  {date:'tomorrow',durationMinutes:60,after:'13:00',before:'17:00',limit:1});
+ assert.deepEqual(availabilityCommand('When am I available 2026-12-14 in the morning?'),
+  {date:'2026-12-14',durationMinutes:30,after:'09:00',before:'12:00'});
+ assert.equal(availabilityCommand('When am I free tomorrow if Noor is also available?'),null);
+ assert.equal(availabilityCommand('Find my note "When am I free tomorrow?"'),null);
+});
+
+test('logged macro questions preserve the metric and use the actual date without opening a chart', () => {
+  assert.deepEqual(nutritionCommand('How many carbs did I record today?', false, '2026-11-22'),
+    {name:'nutrition_view',arguments:{metric:'carbs',responseMode:'answer',start:'2026-11-22',end:'2026-11-22'}});
+  assert.deepEqual(nutritionCommand('How much protein have I logged this month?', false),
+    {name:'nutrition_view',arguments:{metric:'protein',responseMode:'answer',period:'this_month'}});
+  assert.equal(nutritionCommand('How much protein have I logged this month compared with workouts?', false), null);
+});

@@ -38,7 +38,7 @@ struct MessageHeaders: Equatable, Sendable {
     static let namedHeaders: Set<String> = [
         "from", "sender", "to", "cc", "bcc", "reply-to", "subject", "date", "message-id",
         "in-reply-to", "references", "list-id", "list-unsubscribe", "list-unsubscribe-post", "dkim-signature",
-        "content-type", "delivered-to", "auto-submitted", "x-google-original-message-id",
+        "content-type", "delivered-to", "auto-submitted", "precedence", "x-google-original-message-id",
         "x-banana-send-at", "x-banana-send-owner",
     ]
 
@@ -307,6 +307,20 @@ enum MailUnsubscribeRules {
             return .oneClick(url)
         }
         return .openPage(url)
+    }
+}
+
+extension MessageHeaders {
+    /// RFC 3834 allows Auto-Submitted: no for human mail. Bulk/list notices
+    /// can also carry a normal-looking individual From address.
+    var isAutomaticallyDistributed: Bool? {
+        func tokens(_ name: String) -> [String] {
+            values(name).compactMap { $0.components(separatedBy: ";").first?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+        }
+        if tokens("auto-submitted").contains(where: { !$0.isEmpty && $0 != "no" }) { return true }
+        if !Set(tokens("precedence")).isDisjoint(with: ["bulk", "list", "junk"]) { return true }
+        if contains("list-id") || contains("list-unsubscribe") { return true }
+        return isComplete && fromHeaderCount == 1 ? false : nil
     }
 }
 

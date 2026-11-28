@@ -65,7 +65,7 @@ enum AppleFoundationModel {
         switch type {
         case "object": allowed.formUnion(["properties", "required"])
         case "array": allowed.insert("items")
-        case "string": allowed.insert("enum")
+        case "string": allowed.formUnion(["enum", "const"])
         case "number", "integer", "boolean": break
         default: throw AppleProviderFailure("Unsupported tool schema type at \(name)")
         }
@@ -88,6 +88,13 @@ enum AppleFoundationModel {
             guard let items = json["items"] as? [String: Any] else { throw AppleProviderFailure("Missing array items at \(name)") }
             return DynamicGenerationSchema(arrayOf: try schema(items, name: name + "_item", depth: depth + 1))
         case "string":
+            if let constraint = json["const"] {
+                guard let literal = constraint as? String,
+                      json["enum"] == nil || (json["enum"] as? [String])?.contains(literal) == true else {
+                    throw AppleProviderFailure("Invalid string literal at \(name)")
+                }
+                return DynamicGenerationSchema(name: name, anyOf: [literal])
+            }
             if let choices = json["enum"] {
                 guard let choices = choices as? [String], !choices.isEmpty else { throw AppleProviderFailure("Invalid string enum at \(name)") }
                 return DynamicGenerationSchema(name: name, anyOf: choices)
@@ -173,6 +180,13 @@ enum AppleFoundationModel {
         let start = session.transcript.endIndex
         let options = GenerationOptions(temperature: request["temperature"] as? Double, maximumResponseTokens: request["maxTokens"] as? Int)
         do {
+            if let definition = request["responseSchema"] as? [String: Any] {
+                guard declarations.isEmpty else { throw AppleProviderFailure("Structured responses cannot execute tools.") }
+                let output = try GenerationSchema(root: schema(definition, name: "ComposerStep"), dependencies: [])
+                let response = try await session.respond(to: prompt, schema: output, options: options)
+                try Task.checkCancellation()
+                return try encoded([["type": "text", "text": response.content.jsonString]])
+            }
             let response = try await session.respond(to: prompt, options: options)
             try Task.checkCancellation()
             return try encoded([["type": "text", "text": response.content]])

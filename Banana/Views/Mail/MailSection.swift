@@ -98,6 +98,9 @@ struct MailAccountsMenuItems: View {
                     Button("Connect") { MailAccountActions.shared.allow(account.id, source: source) }
                 } else {
                     Text("Connected")
+                    #if os(macOS) && BANANA_AI
+                    MailOvernightDraftToggle(account: account.id)
+                    #endif
                     if let text = MailConnectionBar.healthText(account.health) { Text(text) }
                 }
             }
@@ -106,6 +109,19 @@ struct MailAccountsMenuItems: View {
         Button("Check mail") { source.checkNow() }
     }
 }
+
+#if os(macOS) && BANANA_AI
+private struct MailOvernightDraftToggle: View {
+    let account: String
+    @ObservedObject private var drafts = MailOvernightDraftScheduler.shared
+    var body: some View {
+        Toggle("Prepare reply drafts overnight", isOn: Binding(
+            get: { drafts.accounts.contains(account.lowercased()) },
+            set: { drafts.setEnabled($0, account: account) }))
+            .help("Prepare replies for review between 10 p.m. and 6 a.m. while Banana is running on this Mac.")
+    }
+}
+#endif
 
 private struct MailConnectionBar: View {
     let source: MailLiveSource

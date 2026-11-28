@@ -1267,6 +1267,10 @@ targets:
       - path: Banana/Model/Mail
         includes:
           - "**/*.swift"
+      - path: Banana/Model/MailApp/MailOvernightDraftWindow.swift
+      - path: Banana/Views/Mail/MailDraftPrompt.swift
+      - path: Banana/Views/Mail/MailDraftWorkflow.swift
+      - path: Banana/Views/Mail/MailReplyPicker.swift
       - path: Banana/Model/MailApp/MailCredentialStore.swift
       - path: Banana/Model/MailApp/MailGoogleAccess.swift
       - path: Banana/Model/MailApp/GmailHTTP.swift

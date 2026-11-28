@@ -4,6 +4,12 @@ import os,pathlib,signal,subprocess,sys,tempfile,time,unittest
 
 class WorkerLifetimeTests(unittest.TestCase):
     def testParentCrashTerminatesWorker(self):
+        self.checkParentCrash(False)
+
+    def testParentCrashWithUnresponsiveWorker(self):
+        self.checkParentCrash(True)
+
+    def checkParentCrash(self, ignore_signal):
         worker=pathlib.Path(__file__).resolve().parents[2]/'Banana/Pi/Resources/pi-inference-worker.py'
         with tempfile.TemporaryDirectory(prefix='pi-worker-lifetime-') as tmp:
             root=pathlib.Path(tmp);package=root/'locals';package.mkdir();(package/'__init__.py').write_text('')
@@ -12,7 +18,7 @@ class WorkerLifetimeTests(unittest.TestCase):
 marker=pathlib.Path(os.environ['PI_WORKER_TEST_MARKER'])
 def stop(*_):
     marker.write_text('stopped')
-    sys.exit(0)
+    if os.environ['PI_WORKER_TEST_IGNORE'] != 'yes': sys.exit(0)
 signal.signal(signal.SIGTERM,stop)
 marker.write_text('ready')
 while True:time.sleep(.05)
@@ -22,7 +28,7 @@ child=subprocess.Popen([sys.executable,sys.argv[1],str(os.getpid())])
 print(child.pid,flush=True)
 sys.stdin.read()
 '''
-            env={**os.environ,'PYTHONPATH':str(root),'PI_WORKER_TEST_MARKER':str(marker),'BANANA_WORKER_TOKEN':'t'*64}
+            env={**os.environ,'PYTHONPATH':str(root),'PI_WORKER_TEST_MARKER':str(marker),'PI_WORKER_TEST_IGNORE':'yes' if ignore_signal else 'no','BANANA_WORKER_TOKEN':'t'*64}
             parent=subprocess.Popen([sys.executable,'-c',parent_code,str(worker)],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,env=env)
             child=None
             try:
@@ -34,7 +40,12 @@ sys.stdin.read()
                 parent.kill();parent.wait(timeout=3)
                 deadline=time.monotonic()+5
                 while time.monotonic()<deadline and marker.read_text()!='stopped':time.sleep(.02)
-                self.assertEqual(marker.read_text(),'stopped','Worker survived its parent crash')
+                self.assertEqual(marker.read_text(),'stopped','Worker did not receive its shutdown signal')
+                while time.monotonic() < deadline:
+                    try: os.kill(child, 0)
+                    except ProcessLookupError: break
+                    time.sleep(.02)
+                else: self.fail('Worker survived its parent crash')
             finally:
                 if parent.poll() is None:parent.kill();parent.wait(timeout=3)
                 if child:
