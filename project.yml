@@ -1267,6 +1267,7 @@ targets:
       - path: Banana/Model/Mail
         includes:
           - "**/*.swift"
+      - path: Banana/Model/RetryPause.swift
       - path: Banana/Model/MailApp/MailCredentialStore.swift
       - path: Banana/Model/MailApp/MailGoogleAccess.swift
       - path: Banana/Model/MailApp/GmailHTTP.swift
