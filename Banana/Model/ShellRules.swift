@@ -172,6 +172,29 @@ struct ShellSearchGroups<Item: Identifiable> {
     /// The groups with anything in them, in the field's order.
     var nonEmpty: [Group] { Group.allCases.filter { !items($0).isEmpty } }
     var isEmpty: Bool { nonEmpty.isEmpty }
+
+    /// Groups that found more than they list: each offers its page's own search for the rest.
+    var more: Set<Group> = []
+
+    /// The groups with anything in them, the page's own kind first: searching from Mail lists
+    /// mail first, from Plan the calendar. The others keep the field's order.
+    func ordered(from section: AppSection) -> [Group] {
+        let groups = nonEmpty
+        guard let first = Group.of(section), groups.contains(first) else { return groups }
+        return [first] + groups.filter { $0 != first }
+    }
+}
+
+extension ShellSearchGroups.Group {
+    /// The kind of result a page holds, if it holds one the field finds.
+    static func of(_ section: AppSection) -> Self? {
+        switch section {
+        case .plan: .plan
+        case .mail: .mail
+        case .notes: .notes
+        default: nil
+        }
+    }
 }
 
 enum ShellSearchRules {

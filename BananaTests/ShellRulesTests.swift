@@ -96,6 +96,20 @@ final class ShellRulesTests: XCTestCase {
         XCTAssertEqual(groups.items(.plan).map(\.id), ["p"])
     }
 
+    func testResultsListThePagesOwnKindFirst() {
+        struct Hit: Identifiable { let id: String }
+        var groups = ShellSearchGroups<Hit>()
+        groups.plan = [Hit(id: "p")]
+        groups.mail = [Hit(id: "m")]
+        groups.notes = [Hit(id: "n")]
+        XCTAssertEqual(groups.ordered(from: .mail), [.mail, .plan, .notes], "searching from Mail: mail first")
+        XCTAssertEqual(groups.ordered(from: .notes), [.notes, .plan, .mail])
+        XCTAssertEqual(groups.ordered(from: .plan), [.plan, .mail, .notes])
+        XCTAssertEqual(groups.ordered(from: .workouts), [.plan, .mail, .notes], "a page the field finds nothing for keeps the field's order")
+        groups.mail = []
+        XCTAssertEqual(groups.ordered(from: .mail), [.plan, .notes], "an empty group is not listed first")
+    }
+
     func testTheRailIsForALandscapeIPadsRoomAndEverythingNarrowerHasTheBar() {
         XCTAssertEqual(ShellLayout.of(width: 402), .bottomBar, "a phone")
         XCTAssertEqual(ShellLayout.of(width: 956), .bottomBar, "a phone on its side")
